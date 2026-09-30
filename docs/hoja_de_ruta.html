@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoja de ruta Keepon</title>
+<script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<style>
+:root{
+  --bg:#f7f7f5; --panel:#ffffff; --ink:#1d1d1f; --muted:#6b6b70; --line:#e2e2de;
+  --hw:#d9622b; --hw-soft:#fbe9df; --sw:#2f6fd6; --sw-soft:#e3ecfb;
+  --if:#8a4fd1; --if-soft:#efe5fb; --ms:#1f9d6b; --ms-soft:#dff4ea;
+  --doc:#8a7a2e; --doc-soft:#f4efd8; --root:#1d1d1f;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#141416; --panel:#1d1d20; --ink:#ececee; --muted:#9a9aa2; --line:#2e2e33;
+  --hw:#f08a55; --hw-soft:#3a2418; --sw:#6fa0f0; --sw-soft:#18253d;
+  --if:#b387ee; --if-soft:#2a1f3a; --ms:#4fcf98; --ms-soft:#15302a;
+  --doc:#d8c26a; --doc-soft:#2e2a17; --root:#ececee;
+}}
+:root[data-theme="dark"]{
+  --bg:#141416; --panel:#1d1d20; --ink:#ececee; --muted:#9a9aa2; --line:#2e2e33;
+  --hw:#f08a55; --hw-soft:#3a2418; --sw:#6fa0f0; --sw-soft:#18253d;
+  --if:#b387ee; --if-soft:#2a1f3a; --ms:#4fcf98; --ms-soft:#15302a;
+  --doc:#d8c26a; --doc-soft:#2e2a17; --root:#ececee;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{padding:20px 24px 8px;max-width:1400px;margin:0 auto}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--muted);font-size:14px}
+.kpis{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 4px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 14px;min-width:120px}
+.kpi b{display:block;font-size:20px}
+.kpi span{font-size:12px;color:var(--muted)}
+nav{max-width:1400px;margin:0 auto;padding:8px 24px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+nav button{background:none;border:1px solid transparent;color:var(--muted);padding:7px 14px;border-radius:8px;cursor:pointer;font:inherit}
+nav button.on{background:var(--panel);border-color:var(--line);color:var(--ink);font-weight:600}
+main{max-width:1400px;margin:0 auto;padding:16px 24px 40px}
+section{display:none} section.on{display:block}
+.graphwrap{display:grid;grid-template-columns:1fr 340px;gap:14px}
+#graph{height:72vh;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.side{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;height:72vh;overflow:auto}
+.side h3{margin:0 0 6px;font-size:16px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;margin:0 4px 4px 0;font-weight:600}
+.t-hw{background:var(--hw-soft);color:var(--hw)} .t-sw{background:var(--sw-soft);color:var(--sw)}
+.t-if{background:var(--if-soft);color:var(--if)} .t-ms{background:var(--ms-soft);color:var(--ms)}
+.t-doc{background:var(--doc-soft);color:var(--doc)} .t-root{background:var(--line);color:var(--ink)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.filters label{font-size:13px;display:flex;gap:5px;align-items:center;background:var(--panel);border:1px solid var(--line);padding:4px 10px;border-radius:99px;cursor:pointer}
+.filters input[type=search]{font:inherit;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);min-width:200px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.side ul{padding-left:18px;margin:6px 0} .side li{margin:2px 0}
+.side .meta{font-size:13px;color:var(--muted);margin:6px 0}
+.split{display:grid;grid-template-columns:1fr 260px 1fr;gap:14px;align-items:start}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.col h2{margin:0 0 10px;font-size:17px}
+.col.hw h2{color:var(--hw)} .col.sw h2{color:var(--sw)} .col.if h2{color:var(--if)}
+.card{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.card h4{margin:0 0 4px;font-size:14px}
+.card ul{margin:4px 0 0;padding-left:18px;font-size:13.5px}
+.card .who{font-size:12px;color:var(--muted)}
+.proto{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;background:var(--if-soft);border-radius:8px;padding:10px;white-space:pre-wrap}
+.gantt{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;overflow-x:auto}
+.grow{display:grid;grid-template-columns:230px repeat(31,minmax(22px,1fr));align-items:center;min-width:960px}
+.grow .lbl{font-size:13px;padding:4px 8px 4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grow .hd{font-size:11px;color:var(--muted);text-align:center;border-left:1px solid var(--line)}
+.grow .hd.wk{color:var(--ink);font-weight:600}
+.bar{height:18px;border-radius:5px;margin:3px 1px;font-size:11px;color:#fff;padding:0 6px;line-height:18px;white-space:nowrap;overflow:hidden}
+.bar.hw{background:var(--hw)} .bar.sw{background:var(--sw)} .bar.if{background:var(--if)} .bar.doc{background:var(--doc)}
+.ms{width:14px;height:14px;background:var(--ms);transform:rotate(45deg);margin:auto}
+.grp{grid-column:1/-1;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:10px 0 2px;border-top:1px solid var(--line);margin-top:6px}
+.review{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:6px 26px 20px;max-width:980px}
+.review h1,.review h2{font-size:18px;margin-top:22px} .review h3{font-size:15px}
+.review table{border-collapse:collapse;font-size:13.5px;margin:10px 0}
+.review th,.review td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.review code{background:var(--line);padding:1px 5px;border-radius:4px;font-size:.9em}
+.review pre{background:var(--bg);padding:10px;border-radius:8px;overflow:auto}
+.roles{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.risk td:first-child{font-weight:600}
+table.plain{border-collapse:collapse;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}
+table.plain th,table.plain td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.plain th{background:var(--bg);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.themebtn{float:right;background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer;font:inherit;font-size:13px}
+@media (max-width:900px){
+  header,nav,main{padding-left:16px;padding-right:16px}
+  .graphwrap{grid-template-columns:1fr} .side{height:auto} #graph{height:60vh}
+  .split{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+  <button class="themebtn" id="themeBtn">◐ Tema</button>
+  <h1>µTP Robótica Social — Hoja de ruta</h1>
+  <div class="sub">Cabeza social reactiva de 3 GDL con visión artificial · Robótica II · FIUNA · Prototipo funcional en 1 mes (30 sep → 30 oct 2026)</div>
+  <div class="kpis">
+    <div class="kpi"><b>31 días</b><span>hasta la demo · 1er hito físico 8/10</span></div>
+    <div class="kpi"><b>3 GDL</b><span>yaw ±70° · pitch −20/+30° · roll ±20°</span></div>
+    <div class="kpi"><b>≥10 Hz</b><span>percepción</span></div>
+    <div class="kpi"><b>≤300 ms</b><span>latencia evento→respuesta</span></div>
+    <div class="kpi"><b>15 pts</b><span>requiere demo física</span></div>
+  </div>
+</header>
+<nav id="tabs">
+  <button data-t="grafo" class="on">Grafo del proyecto</button>
+  <button data-t="split">Hardware vs Software</button>
+  <button data-t="gantt">Cronograma</button>
+  <button data-t="roles">Roles y riesgos</button>
+  <button data-t="codex">Revisión de Codex</button>
+</nav>
+<main>
+
+<section id="grafo" class="on">
+  <div class="card" style="--c:var(--ms);background:var(--panel);margin-bottom:12px"><h4>v2 · Cambios tras la revisión de Codex</h4>
+  <div style="font-size:13.5px">Integración física adelantada al <b>8/10</b> · camisetas desde el <b>día 1</b> · <b>feature freeze 22/10</b> y 3 días reales de contingencia · control P sin integral · STOP enclavado (no va a HOME) · MODE y SALIENDO en la PC · asociación de eventos por ID · matriz de aceptación T1–T7 · roles redistribuidos para aliviar al integrador.</div></div>
+  <div class="filters">
+    <input type="search" id="q" placeholder="Buscar nodo… (ej. ME_MIRA, árbitro)">
+    <label><input type="checkbox" data-g="hw" checked><span class="dot" style="background:var(--hw)"></span>Hardware</label>
+    <label><input type="checkbox" data-g="sw" checked><span class="dot" style="background:var(--sw)"></span>Software</label>
+    <label><input type="checkbox" data-g="if" checked><span class="dot" style="background:var(--if)"></span>Interfaz HW/SW</label>
+    <label><input type="checkbox" data-g="ms" checked><span class="dot" style="background:var(--ms)"></span>Hitos</label>
+    <label><input type="checkbox" data-g="doc" checked><span class="dot" style="background:var(--doc)"></span>Entregables</label>
+  </div>
+  <div class="graphwrap">
+    <div id="graph"></div>
+    <aside class="side" id="info">
+      <h3>Explora el grafo</h3>
+      <p class="meta">Clic en un nodo para ver detalles, dependencias y semana. Arrastra para reordenar, rueda para zoom. Doble clic para aislar su vecindario (doble clic en vacío restaura).</p>
+      <p class="meta">Flechas continuas = “depende de”. Flechas punteadas = “pertenece a”.</p>
+    </aside>
+  </div>
+</section>
+
+<section id="split">
+  <div class="split">
+    <div class="col hw" id="colHW"><h2>⚙️ Hardware</h2></div>
+    <div class="col if" id="colIF"><h2>🔌 Interfaz</h2></div>
+    <div class="col sw" id="colSW"><h2>🧠 Software</h2></div>
+  </div>
+</section>
+
+<section id="gantt"><div class="gantt" id="ganttBox"></div></section>
+
+<section id="roles">
+  <h2 style="font-size:17px">Roles sugeridos (5 integrantes)</h2>
+  <div class="roles" id="rolesBox"></div>
+  <h2 style="font-size:17px;margin-top:24px">Riesgos principales</h2>
+  <table class="plain risk" id="riskBox"><tr><th>Riesgo</th><th>Impacto</th><th>Mitigación</th></tr></table>
+</section>
+
+<section id="codex"><div class="review" id="codexBox"><p><em>Cargando revisión… (requiere conexión para la librería marked)</em></p></div></section>
+</main>
+<script type="text/markdown" id="codexMd">
+# Revisión del proyecto por Codex
+
+> Generada con codex-cli 0.158.0 el 30/09/2026 sobre `2026S2uTP_RoboticaSocial.md` y la hoja de ruta v1.
+
+## 1) Opinión general del proyecto y su dificultad real
+
+**Es viable en un mes para cinco integrantes con dedicación sostenida, componentes disponibles y experiencia básica. El plan actual tiene poco margen y concentra demasiado riesgo al final.** La dificultad real es alta por la integración: cámara móvil, mecánica con holgura, varios detectores, seguimiento de personas y comportamientos que deben convivir sin bloquearse.
+
+El stack **notebook + webcam USB + ESP32** es adecuado. Mantendría esa elección durante todo el mes.
+
+La hoja de ruta entiende bien el enunciado, pero todavía es más una lista de funcionalidades que un plan de validación. **El éxito debe medirse con el robot completo funcionando**, no con módulos que funcionan por separado.
+
+Dos precisiones sobre evaluación:
+
+- **Sin demo física funcional no hay puntaje.** La estabilidad mecánica, eléctrica y del seguimiento tiene prioridad sobre apariencia y extras.
+- El enunciado llama “referenciales” a las reacciones, pero también presenta comportamientos requeridos y mínimos explícitos de arbitraje. **No asumiría que pueden eliminar modos o detecciones sin perder puntos.** Tampoco hay un desglose que permita garantizar una nota para un MVP parcial.
+
+## 2) Revisión crítica de la hoja de ruta
+
+### Qué está bien
+
+- Separación entre percepción, modelo del mundo, comportamientos, árbitro y ejecución.
+- Cámara solidaria, cuello de tres ejes y fuente independiente para servos.
+- Inclusión de histéresis, cooldowns, watchdog, movimientos y sonido no bloqueantes.
+- Clase `OTRA` para camisetas, monitoreo y medición de latencia.
+- Uso de modelos preentrenados: entrenar un detector general desde cero sería injustificable para este plazo.
+
+### Qué falta o está mal estimado
+
+| Hallazgo | Corrección concreta |
+|---|---|
+| **Integración física recién en semana 2; seguimiento completo hacia el 18/10.** | Tener cámara montada provisionalmente y seguimiento físico elemental el **7–8/10**. |
+| “4 semanas + buffer” no representa el calendario. | Del 26 al 30 hay ajuste, video e informe: **no es un buffer libre**. Reservar al menos los últimos tres días para contingencias y ensayo. |
+| Camisetas empiezan demasiado tarde. | Conseguir prendas y probar clasificación desde el **1–4/10**. Es una incertidumbre que debe resolverse temprano. |
+| No aparecen masa, centro de gravedad, torque ni consumo medidos. | Añadir una ficha mecánica y eléctrica antes de cerrar actuadores y fuente. |
+| No se explica cómo unir rostro, mano y camiseta con un ID. | Definir asociación espacial y temporal por persona. Sin eso pueden reaccionar a la camiseta de alguien mientras miran a otro. |
+| No hay criterio de aceptación por requisito. | Crear una matriz T1–T7 con prueba, resultado esperado y evidencia. |
+| Documentación concentrada al final. | Escribir Colab, parámetros y resultados desde el primer ensayo. |
+| Persona 5 acumula árbitro, modos, control, interfaz e integración. | Redistribuir. Es el principal cuello de botella organizativo. |
+
+**Calendario que propondría:**
+
+| Fechas | Resultado verificable |
+|---|---|
+| **30/9–4/10** | Compras, pruebas de servos/fuente, benchmark en notebook, prendas disponibles, protocolo y árbitro mínimo con eventos sintéticos. |
+| **5–8/10** | Tres ejes operativos, cámara en la cabeza y seguimiento físico básico; STOP y pérdida de comunicación probados. |
+| **9–15/10** | IDs, selección entre dos personas, ME_MIRA, SALUDO y concurrencia seguimiento + buzzer. Clasificación de camisetas ya evaluada. |
+| **16–22/10** | Todos los modos y comportamientos integrados, cooldowns y recuperación. Congelar funcionalidades el 22. |
+| **23–27/10** | Pruebas negativas, iluminación, latencia, funcionamiento prolongado, video e informe. |
+| **28–30/10** | Ensayo completo, repuestos y correcciones pequeñas. |
+
+Hay además una **contradicción de entrega**: el reglamento exige documentación antes de la demo; §6.1 permite archivos hasta el domingo posterior. Conviene resolverla con la cátedra; mientras tanto, planificar todo listo antes de la demostración.
+
+## 3) Revisión de la división Hardware / Software
+
+**La frontera técnica es razonable, pero H3 es software embebido.** Lo importante es separar decisiones de comportamiento de ejecución física.
+
+| Responsabilidad | Ubicación recomendada |
+|---|---|
+| Mecánica, alimentación, cableado y calibración física | Hardware |
+| PWM, límites, velocidad/aceleración, secuenciador de sonido, watchdog | ESP32 |
+| Percepción, asociación por ID y modelo del mundo | PC |
+| Foco de atención, modos, prioridades, cooldowns y propiedad de recursos | PC |
+| Control visual y composición de gestos | PC, siempre bajo autorización del árbitro |
+| Protocolo, signos de ejes, HOME y pruebas de integración | Contrato compartido |
+
+Correcciones específicas:
+
+- **`MODE x` debe gestionarse en el PC.** El ESP32 recibe el sonido de confirmación y las acciones resultantes; no necesita otra máquina de personalidad.
+- **S3 no debe escribir directamente al puerto serie.** Calcula propuestas; el árbitro decide cuáles llegan al ejecutor.
+- **SALIENDO está mal aislado como tarea puramente visual.** Necesita detecciones, objetivo actual, movimiento del robot y límites articulares. Su definición pertenece al modelo del mundo con integración/control.
+- **HOME no es una referencia medida automáticamente.** Con servos convencionales será una postura calibrada. No confundir ángulo comandado con posición física observada.
+
+Para cinco personas:
+
+1. Mecánica, electrónica y validación de alimentación.
+2. Firmware, protocolo, sonidos y herramienta de prueba serie.
+3. Personas, rostros, gestos y asociación de detecciones.
+4. Camisetas, pruebas negativas, overlay y métricas.
+5. Árbitro, control visual, modos e integración.
+
+La documentación se reparte por módulo y todos deben hacer al menos una defensa cruzada de otra parte del sistema.
+
+## 4) Recomendaciones técnicas concretas
+
+### Componentes y mecánica
+
+- **Priorizar cabeza liviana y equilibrada.** Cartón pluma o carcasa impresa delgada son suficientes; los ojos deben hacer evidente la orientación.
+- El apoyo en yaw está bien, pero **pitch suele ser más exigente por gravedad**. Debe mover también los componentes montados después de él.
+- Dimensionar con `τ ≈ Σ(m·g·d)` en la postura desfavorable. Por ejemplo, 0,30 kg a 5 cm producen aproximadamente **1,5 kgf·cm estáticos**, antes de aceleración, fricción y cableado. Buscar margen amplio y validar térmicamente; el torque de bloqueo no es torque continuo de trabajo.
+- MG996R/DS3218 son candidatos, no una selección cerrada sin conocer carga. MG90S en roll sólo con cabeza ligera y centro de gravedad próximo al eje.
+- **“SG90 metálico” debe corregirse:** el SG90 estándar usa engranajes plásticos; el MG90S es una alternativa metálica. [Ficha de TowerPro](https://towerpro.com.tw/product/sg90-7/).
+- Fuente regulada dentro del rango admitido por **todos** los servos. Los 3–5 A propuestos son una estimación por verificar con movimientos simultáneos; 1000 µF no compensan una fuente insuficiente.
+- Distribuir potencia con borneras y cables adecuados, evitar protoboard para corriente de servos y mantener masa común. Añadir alivio de tensión y holgura al USB de la cámara.
+- Mantener el NPN para el buzzer, con resistencia de base y componentes dimensionados según el transductor.
+- **Separar temporizadores de servos y buzzer.** Cambiar la frecuencia del sonido no debe alterar el PWM de los servos. Usar canales distintos no garantiza temporizadores independientes. El PCA9685 sólo merece añadirse si resuelve un problema concreto. [Documentación LEDC de Espressif](https://docs.espressif.com/projects/arduino-esp32/en/latest/api/ledc.html).
+
+### Librerías y percepción
+
+**Stack inicial:** Python, OpenCV, NumPy, `pyserial`, Ultralytics y MediaPipe Tasks. Fijar versiones y descargar los modelos para funcionar sin Internet.
+
+- **PERSONA:** conservar YOLOv8n si ya funciona. ByteTrack es una base sencilla, pero no compensa movimiento de cámara. Si los IDs cambian al girar la cabeza, evaluar BoT-SORT con compensación global, midiendo el costo adicional. [Documentación de tracking](https://docs.ultralytics.com/modes/track/).
+- **Asociación:** asignar cada rostro a una caja de persona; vincular pose y torso al mismo ID. Ante solapamiento ambiguo, abstenerse de generar eventos.
+- **ME_MIRA:** Face Landmarker + `solvePnP`, con intrínsecos y correspondencias faciales documentadas. Es una aproximación por orientación de cabeza, **no una medición de dirección ocular**. Es suficiente como definición operativa si se valida. La estimación debe revisar también a candidatos no seleccionados para cumplir T4. [MediaPipe](https://developers.google.com/edge/mediapipe/solutions/vision/face_landmarker/python), [OpenCV](https://docs.opencv.org/4.13.0/d5/d1f/calib3d_solvePnP.html).
+- **SALUDO:** comenzar sólo con pose; muñeca y hombro bastan para una definición sencilla. Medir movimiento de muñeca respecto del torso y normalizar por ancho de hombros. **Dos cruces no equivalen necesariamente a dos ciclos completos**: definir amplitud, alternancias y duración.
+- **Camisetas:** la regla fija de “franjas horizontales rojo/azul” no está justificada por el enunciado. Diseñar a partir de las prendas reales, considerando orientación y distribución de franjas. Color solo no identifica un club.
+- Mantener `OTRA` y `DESCONOCIDA`: torso tapado, demasiado pequeño o sin evidencia suficiente no debe clasificarse. Probar remeras lisas blancas, rojas y azules, además de prendas parecidas. Si entrenan, separar sesiones/personas entre entrenamiento y validación; dividir cuadros consecutivos da resultados engañosos.
+- **SALIENDO:** exigir objetivo válido y borde + tendencia exterior sostenida, o saturación articular + error visual persistente hacia afuera. Saturación por sí sola no basta. Inhibirlo durante desvíos tímidos, saludos y cambios de foco para no interpretar el movimiento propio como salida.
+
+### Control visual y tiempos
+
+**Empezaría con proporcional, sin integral.** La integral añade problemas cuando un gesto toma el cuello o el eje llega al límite.
+
+Una opción clara es convertir error angular en velocidad:
+
+```text
+error_angular = atan((u - cx) / fx)
+velocidad_yaw = limitar(Kp · error_angular)
+referencia_yaw += velocidad_yaw · dt
+```
+
+Aplicar el equivalente a pitch, verificar signos físicamente y añadir zona muerta y filtrado moderado. Como valores iniciales de ensayo, no garantías:
+
+- Zona muerta: 3–5 % de la dimensión de imagen.
+- Control/árbitro: 30–50 Hz.
+- Trayectoria embebida: 50–100 Hz; frecuencia PWM según el servo.
+- Durante pérdida menor a 1 s: mantener postura antes de introducir predicción.
+- Con roll distinto de cero: corregir la rotación del error de imagen o mantener roll pequeño durante seguimiento.
+
+Procesar siempre **el cuadro más reciente**, con cola acotada; acumular cuadros viejos produce una mirada atrasada aunque el contador de FPS parezca aceptable.
+
+Medir por separado:
+
+1. Captura → resultado perceptivo.
+2. Evento confirmado → comando.
+3. Comando → comienzo observable de respuesta.
+
+Los 0,5 s de confirmación de ME_MIRA y la duración del saludo son ventanas de evidencia; deben distinguirse de la latencia posterior del sistema. Un ACK no demuestra movimiento físico.
+
+### Arquitectura del árbitro
+
+Mantendría **dos recursos exclusivos: cuello completo y buzzer**. Una propuesta debería incluir:
+
+```text
+id_accion, comportamiento, persona_id, prioridad, recursos,
+inicio, vencimiento, interrumpible, parámetros
+```
+
+Reglas esenciales:
+
+- Adquisición **atómica**: un saludo consigue cuello y buzzer juntos o no comienza.
+- STOP interrumpe todo, incluso acciones declaradas no interrumpibles.
+- Las propuestas vencidas se descartan: no saludar a alguien que ya se fue.
+- Cooldown al iniciar efectivamente la respuesta; no al generar una propuesta rechazada.
+- Separar evento nuevo de predicado sostenido: una camiseta visible durante veinte segundos no son veinte eventos.
+- Al interrumpir, cancelar la acción en ejecución y recuperar suavemente la referencia.
+- Mantener continuidad de IDs durante pérdidas breves para evitar que renumerar a una persona reinicie sus cooldowns.
+
+**Atrevido requiere composición explícita:** un único comportamiento dueño del cuello combina seguimiento en yaw y elevación del mentón en pitch. No deben existir dos escritores independientes. Tímido también debe controlar explícitamente desvío, espera y regreso.
+
+### Protocolo serie
+
+ASCII por líneas, 115200 baudios, unidades en grados y mensajes cortos son suficientes:
+
+```text
+HELLO 1
+J 101 12.0 -4.0 0.0
+S 102 POLCA
+CANCEL 103 SOUND
+PING 104
+STOP 105
+RESUME 106
+HOME 107
+
+ACK 101
+DONE 102
+ERR 107 STOP_ACTIVE
+STATE 108 STOPPED 12.0 -4.0 0.0 NONE
+```
+
+Definir por escrito:
+
+- `ACK` significa aceptado; `DONE`, secuencia terminada según el ejecutor.
+- Para `J`, conservar la referencia más reciente; no encolar segundos de movimiento.
+- Validar longitud, números finitos, límites y comandos incompletos sin bloquear.
+- Evitar duplicar un sonido cuando se reenvía el mismo número de secuencia.
+- STOP cancela sonido y movimiento pendiente, y queda enclavado hasta `RESUME`; **no debe significar ir a HOME**.
+- Watchdog, por ejemplo de 500 ms como punto inicial: detener secuencias y mantener una postura segura. Volver a HOME automáticamente puede ser una mala reacción ante un fallo.
+- Tras reinicio del ESP32, informar nuevo arranque y exigir resincronización.
+- La telemetría indica referencias comandadas, no ángulos medidos si no tienen sensores.
+
+## 5) Top 5 riesgos y mitigación
+
+| Riesgo | Mitigación prioritaria | Prueba de aceptación |
+|---|---|---|
+| **1. Integración tardía y sobrecarga del integrador.** | Contratos desde el inicio, redistribución e integración física antes del 8/10. | Demo corta del sistema completo varias veces por semana. |
+| **2. Torque insuficiente, holgura o caída de tensión.** | Equilibrar cabeza, dimensionar cargas, apoyar ejes y medir alimentación. | Movimiento simultáneo + buzzer durante 20 min sin resets, calentamiento excesivo ni degradación. |
+| **3. Latencia y seguimiento inestable por cámara móvil.** | Benchmark temprano, cola de último cuadro, ganancias conservadoras y asociación robusta. | Seguimiento quieto/móvil y dos personas; verificar ≥10 Hz y medir latencia incluyendo casos desfavorables. |
+| **4. Falsos positivos de camiseta, mirada o saludo.** | Clase desconocida, filtros temporales y ensayos negativos desde semana 0. | Matriz de resultados con prendas lisas, brazos levantados sin saludo y rostro de perfil. |
+| **5. Conflictos de recursos, repeticiones y recuperación defectuosa.** | Árbitro único, adquisición atómica, caducidad, cooldowns y cancelación explícita. | Saludo durante polca, cambio de modo, STOP y desconexión serie; nunca dos dueños del mismo recurso. |
+
+## 6) Qué recortar o simplificar si el tiempo aprieta vs. qué añadir para destacar
+
+### MVP que mejor conserva cobertura
+
+**Simplificar la implementación de todos los requisitos antes de eliminar requisitos completos:**
+
+- Cabeza sencilla con ojos fijos, tres ejes reales y cámara montada.
+- Seguimiento proporcional, zona muerta y trayectoria suave; sin predicción sofisticada.
+- Mantener mirada durante pérdidas breves; sin desaprobación opcional.
+- Observador con un barrido lento sencillo; sin sacadas ni búsqueda elaborada.
+- Pose para saludo; quitar Hands si no aporta.
+- Reglas conservadoras de camisetas antes de entrenar un clasificador; mantener ambas clases y rechazo de prendas lisas.
+- Modos tímido, atrevido y maleducado con secuencias cortas y claras.
+- Fragmento breve reconocible de polca y sonidos simples.
+- Interfaz por teclado y overlay OpenCV; sin GUI elaborada.
+- Documentar el rango de distancia e iluminación validado.
+
+**No recortaría:** tres GDL, buzzer pasivo, arbitraje propio, límites y suavizado, IDs y selección entre personas, modos en ejecución, cooldowns, monitoreo y entregables.
+
+Si sólo llegan a seguimiento + saludo + árbitro, eso constituye una base funcional de emergencia, pero **no cubre todo el trabajo ni permite asegurar que no perderán puntos**.
+
+### Qué añadir para destacar
+
+Sólo después de pasar todas las pruebas:
+
+1. **Robustez visible:** cruces entre personas, pérdida y recuperación del objetivo, prendas distractoras y eventos simultáneos.
+2. **Resultados cuantitativos:** latencia, estabilidad de centrado, falsos positivos y continuidad de IDs.
+3. **Expresividad bien ajustada:** pausas, inclinación de cabeza y movimientos suaves que hagan legible cada personalidad.
+4. **Reproducibilidad:** arranque con un comando, parámetros guardados, modelos locales y demo sin Internet.
+5. **Acabado físico y LEDs**, al final.
+
+La mejora de mayor valor para este plan es **adelantar dos semanas la evidencia de que mecánica, visión y arbitraje funcionan juntos**.
+</script>
+<script>
+// ------------------------------------------------------------------ DATA
+// Fases (v2, tras revisión de Codex): integración física adelantada al 8/10, feature freeze el 22/10.
+const N = [
+ {id:"root",g:"root",label:"Cabeza social\n3 GDL",w:null,d:"Robot social tipo Keepon: cabeza con ojos sobre cuello yaw/pitch/roll, cámara solidaria, IA para percibir personas y señales sociales, buzzer pasivo para sonidos. Foco: reactividad, suavidad y arbitraje explícito. Principio rector (Codex): el éxito se mide con el robot completo funcionando, no con módulos sueltos."},
+ // HARDWARE
+ {id:"H",g:"hw",label:"HARDWARE",big:1,d:"Todo lo físico: mecánica, electrónica, alimentación, cámara. El firmware del ESP32 (H3) es software embebido que ejecuta de forma segura lo que decide la PC."},
+ {id:"H0",g:"hw",label:"Ficha mecánica\ny eléctrica",w:[0,0],who:"R1",d:"Antes de cerrar servos y fuente: medir masa, centro de gravedad, torque y consumo. τ ≈ Σ(m·g·d) en la postura más desfavorable (ej.: 0,30 kg a 5 cm ≈ 1,5 kgf·cm estáticos, antes de aceleración y fricción).",items:["Pitch es el eje más exigente (gravedad)","El torque de bloqueo no es torque continuo","Consumo con los 3 servos moviéndose a la vez"]},
+ {id:"H1",g:"hw",label:"H1 Mecánica\ncuello 3 GDL",w:[0,1],who:"R1",d:"Serie yaw→pitch→roll. Yaw en la base sobre rodamiento (lazy-susan). Topes mecánicos un poco más allá de los límites de software. HOME es una postura calibrada (servos sin realimentación).",items:["CAD cabeza + cuello","Impresión 3D fina / cartón pluma / MDF 3 mm","Rodamiento axial en yaw","Horns metálicos + tornillería M3","Tres ejes operativos el 8/10"]},
+ {id:"H1a",g:"hw",label:"Cabeza con ojos",w:[0,1],who:"R1",d:"Liviana y equilibrada, centro de gravedad cerca del eje de roll. Ojos grandes y evidentes. LEDs/párpados al final, sólo si sobra tiempo.",items:["Masa objetivo < 250 g","Ojos fijos contrastantes (MVP)","Cámara en la 'nariz', alineada con eje yaw"]},
+ {id:"H2",g:"hw",label:"H2 Actuadores\ny electrónica",w:[0,1],who:"R1",d:"Servos, microcontrolador, driver de buzzer y cableado. Servos = candidatos, confirmar con la ficha de carga.",items:["Yaw/Pitch: MG996R o DS3218 (candidatos)","Roll: MG90S (engranajes metálicos; el SG90 es plástico)","ESP32 DevKit","Buzzer pasivo + NPN 2N2222 + R de base","Timers LEDC separados para servos y buzzer","Borneras, sin protoboard para potencia"]},
+ {id:"H2p",g:"hw",label:"Alimentación",w:[0,4],who:"R1",d:"Fuente regulada dentro del rango de TODOS los servos; corriente a verificar con movimientos simultáneos. GND común. 1000 µF no compensan una fuente insuficiente. La demo exige alimentación propia.",items:["Fuente 6 V ≥ 5 A o UBEC desde batería (verificar)","GND común, cables de sección adecuada","Switch de emergencia físico","Prueba: 20 min servos + buzzer sin resets ni calentamiento"]},
+ {id:"H2c",g:"hw",label:"Cámara USB\nen la cabeza",w:[1,1],who:"R1",d:"Webcam 720p fija a la cabeza desde el 8/10 (aunque sea provisoria). Calibrar intrínsecos (fx, cx) para convertir píxeles→ángulos.",items:["Alivio de tensión y holgura en el USB","Calibración de intrínsecos","Exposición/WB manuales para la demo"]},
+ {id:"H3",g:"hw",label:"H3 Firmware\nESP32",w:[0,2],who:"R2",d:"Software embebido: ejecuta con seguridad. Todo no bloqueante con millis(); trayectorias a 50–100 Hz. No contiene lógica de personalidad (MODE vive en la PC).",items:["Límites articulares por software","Perfil trapezoidal (vmax, amax) por eje","J: conservar sólo la referencia más reciente","STOP enclavado hasta RESUME (NO va a HOME)","Watchdog ~500 ms: detener secuencias y mantener postura segura","Reporta reinicio (HELLO) y exige resincronizar"]},
+ {id:"H3s",g:"hw",label:"Motor de sonido\nno bloqueante",w:[1,2],who:"R2",d:"Secuenciador de notas y barridos por LEDC en un timer distinto al de los servos. Un sonido a la vez; CANCEL para interrumpir.",items:["R2D2: trinos + barridos","Polca de Olimpia (fragmento breve reconocible)","Abucheo: glissando descendente","Piropo: silbido ascendente-descendente","Beep distintivo por modo"]},
+ // INTERFACE
+ {id:"IF",g:"if",label:"Protocolo serie\nPC ⇄ ESP32",w:[0,0],who:"R2+R5",d:"Contrato entre equipos: definirlo el día 1. ASCII por líneas, 115200 baud, grados, número de secuencia por comando. ACK = aceptado; DONE = secuencia terminada. La telemetría informa referencias comandadas, no ángulos medidos.",items:["J seq yaw pitch roll","S seq SONIDO · CANCEL seq SOUND","STOP / RESUME / HOME / PING","ACK / DONE / ERR / STATE / HELLO","Validar longitud, números finitos, límites","No duplicar sonidos reenviados (seq)"]},
+ {id:"SIM",g:"if",label:"Simulador +\nherramienta serie",w:[0,1],who:"R2",d:"Mock del ESP32 en Python (misma API) para avanzar sin hardware, y consola de prueba serie para validar el firmware.",items:["Mismos límites y rampas que el firmware","Árbitro mínimo probado con eventos sintéticos en semana 0"]},
+ // SOFTWARE
+ {id:"S",g:"sw",label:"SOFTWARE",big:1,d:"Todo lo que corre en la PC: percepción IA, modelo del mundo, control de mirada, comportamientos, árbitro, monitoreo. La PC decide QUÉ hacer."},
+ {id:"S0",g:"sw",label:"Benchmark\nnotebook",w:[0,0],who:"R3",d:"Medir FPS con YOLOv8n + MediaPipe simultáneos en la notebook de la demo. Fijar versiones y descargar modelos para funcionar sin Internet.",items:["Procesar siempre el cuadro más reciente (cola acotada)","YOLO a 320–416 px"]},
+ {id:"S1",g:"sw",label:"S1 Percepción IA\n≥10 Hz",w:[0,3],who:"R3+R4",d:"Pipeline cámara→detecciones→eventos filtrados. Distinguir evento nuevo (flanco) de predicado sostenido.",items:["Ultralytics YOLOv8n + ByteTrack (BoT-SORT si los IDs saltan al girar)","MediaPipe Tasks: Face Landmarker + Pose","N-de-M y umbrales con histéresis"]},
+ {id:"E1",g:"sw",label:"PERSONA\n+ tracking ID",w:[0,1],who:"R3",d:"Presencia de una o más personas con ID estable. Mantener continuidad de ID en pérdidas breves (si se renumera, se reinician los cooldowns).",items:["YOLOv8n clase person + tracker","Verificar IDs con la cámara en movimiento"]},
+ {id:"E0",g:"sw",label:"Asociación\npor persona",w:[1,2],who:"R3",d:"Vincular rostro, pose, mano y torso al MISMO ID. Sin esto el robot reacciona a la camiseta de uno mientras mira a otro. Ante solapamiento ambiguo: no generar eventos.",items:["Rostro dentro de caja de persona","Keypoints de pose → ID por IoU/contención"]},
+ {id:"E2",g:"sw",label:"ME_MIRA",w:[2,2],who:"R3",d:"Orientación de cabeza (no dirección ocular) dentro de ±15° sostenida ≥ 0,5 s. Evaluar también a candidatos no seleccionados (T4).",items:["Face Landmarker → solvePnP con intrínsecos","Histéresis: entrar 15°, salir 20°","Validar con rostros de perfil"]},
+ {id:"E3",g:"sw",label:"SALUDO",w:[2,2],who:"R3",d:"Muñeca sobre hombro con oscilación lateral. Dos cruces ≠ dos ciclos: definir amplitud, alternancias y duración.",items:["Sólo Pose (sin Hands en el MVP)","x muñeca relativa al torso, normalizada por ancho de hombros","Un gesto = un evento","Prueba negativa: brazo levantado sin saludar"]},
+ {id:"E4",g:"sw",label:"CAMISETA\nOLIMPIA / CERRO",w:[0,2],who:"R4",d:"Empieza en la semana 0 con las prendas reales: es la mayor incertidumbre. Reglas diseñadas a partir de las camisetas concretas (color solo no identifica un club).",items:["Clases: OLIMPIA, CERRO, OTRA, DESCONOCIDA","DESCONOCIDA: torso tapado/pequeño/sin evidencia","Pruebas con lisas blancas, rojas y azules","6 cuadros para activar / 6 para desactivar","Si entrenan: separar por sesión/persona, no por cuadro","Evaluado y cerrado el 15/10"]},
+ {id:"E5",g:"sw",label:"SALIENDO",w:[3,3],who:"R5",d:"Pertenece al modelo del mundo + control: objetivo válido y borde + tendencia exterior sostenida, o saturación articular + error visual persistente hacia afuera.",items:["Saturación sola no basta","Inhibir durante desvío tímido, saludo y cambio de foco"]},
+ {id:"S2",g:"sw",label:"S2 Modelo\ndel mundo",w:[1,2],who:"R5",d:"Estado compartido: tracks con ID, posición, velocidad, eventos (flancos) y predicados (sostenidos), timestamps, cooldowns por persona.",items:["dataclass Track","Timeout de tracks perdidos","Cooldowns por (persona, comportamiento)"]},
+ {id:"S3",g:"sw",label:"S3 Control de\nmirada (servoing)",w:[1,2],who:"R5",d:"Control proporcional sin integral (la integral da problemas cuando un gesto toma el cuello o hay saturación). No escribe al serie: produce propuestas para el árbitro.",items:["e = atan((u−cx)/fx); v = sat(Kp·e); ref += v·dt","Zona muerta 3–5 % del cuadro","Lazo 30–50 Hz","Pérdida < 1 s: mantener postura (predecir después)","Con roll ≠ 0: rotar el error o roll pequeño al seguir","Cara a cara → roll; sin nadie → aburrimiento"]},
+ {id:"S4",g:"sw",label:"S4 Árbitro",big:1,w:[0,3],who:"R5",d:"Núcleo evaluado, desarrollo propio. Dos recursos exclusivos: cuello completo y buzzer. Versión mínima con eventos sintéticos en la semana 0.",items:["Propuesta = {id, comportamiento, persona, prioridad, recursos, inicio, vencimiento, interrumpible, params}","Adquisición atómica (saludo: cuello+buzzer o nada)","STOP interrumpe todo, incluso lo no interrumpible","Propuestas vencidas se descartan","Cooldown al iniciar la respuesta, no al proponer","Al interrumpir: cancelar y recuperar suave","Log de cada cambio de dueño"]},
+ {id:"S4f",g:"sw",label:"Foco de atención\n(T4)",w:[2,2],who:"R5",d:"Varias personas: preferir quien ME_MIRA; si nadie, la más cercana/centrada. Cambio sólo si el candidato es mejor durante un tiempo mínimo.",items:["Score = mira·w1 + tamaño·w2 + centrado·w3","Histéresis temporal ~1,5 s"]},
+ {id:"S5",g:"sw",label:"S5 Comportamientos",w:[2,3],who:"R5",d:"Máquinas de estado temporizadas que emiten propuestas al árbitro.",items:["Observador: barrido lento simple (prio 5)","Seguimiento (prio 4)","Saludo: 2–3 cabeceos + R2D2 (prio 1)","Hincha Olimpia: polca + sigue (prio 2)","Hincha Cerro: abucheo (prio 2)"]},
+ {id:"S6",g:"sw",label:"Modos de\npersonalidad",w:[3,3],who:"R5",d:"Viven en la PC. Cambio en runtime (MODE X) con sonido de confirmación. Atrevido: UN comportamiento dueño del cuello compone yaw de seguimiento + mentón en pitch (nunca dos escritores).",items:["Neutro (default): sostiene contacto","Tímido: desvío → espera → regreso gradual, explícitos","Atrevido: seguimiento + oscilación de pitch compuestos","Maleducado: SALIENDO → piropo (1 por salida, máx. 1 cada 40 s)"]},
+ {id:"S7",g:"sw",label:"S7 Monitoreo,\nmétricas y log",w:[1,4],who:"R4",d:"Overlay OpenCV + consola de operador + métricas. Tres latencias medidas por separado.",items:["IDs, objetivo, eventos, modo, dueño de recursos, ángulos","Teclas: STOP, RESUME, modos","Latencia: captura→percepción, evento→comando, comando→movimiento","Log CSV/JSON con timestamp"]},
+ // MILESTONES
+ {id:"M0",g:"ms",label:"M0 · 4 oct\nBase lista",w:[0,0],d:"Compras hechas, servos y fuente probados, benchmark de notebook, camisetas reales disponibles, protocolo escrito, árbitro mínimo con eventos sintéticos."},
+ {id:"M1",g:"ms",label:"M1 · 8 oct\nSeguimiento físico",w:[1,1],d:"Tres ejes operativos, cámara en la cabeza, seguimiento físico básico de una persona. STOP y pérdida de comunicación probados."},
+ {id:"M2",g:"ms",label:"M2 · 15 oct\nSocial básico",w:[2,2],d:"IDs, selección entre dos personas, ME_MIRA, SALUDO, seguimiento + buzzer concurrentes. Clasificación de camisetas evaluada."},
+ {id:"M3",g:"ms",label:"M3 · 22 oct\nFeature freeze",w:[3,3],d:"Todos los modos y comportamientos integrados, cooldowns y recuperación. No se agregan funciones después de esta fecha."},
+ {id:"M4",g:"ms",label:"M4 · 27 oct\nValidado",w:[4,4],d:"Pruebas negativas, iluminación, latencia, funcionamiento prolongado (20 min), video e informe."},
+ {id:"M5",g:"ms",label:"M5 · 30 oct\nEnsayo general",w:[5,5],d:"Ensayo completo de la demo, repuestos, correcciones pequeñas. Todo entregado ANTES de la demo (el reglamento lo exige; consultar la contradicción con §6.1)."},
+ // DELIVERABLES
+ {id:"D0",g:"doc",label:"Matriz de\naceptación T1–T7",w:[0,5],who:"Todos",d:"Por cada requisito: prueba, resultado esperado y evidencia (clip/log). Guía el desarrollo y alimenta el informe.",items:["Saludo durante polca","Cambio de modo en medio de un seguimiento","STOP y desconexión serie","Nunca dos dueños del mismo recurso"]},
+ {id:"D1",g:"doc",label:"Informe\nColab",w:[1,5],who:"Todos",d:"Se escribe desde el primer ensayo, no al final. Mecanismo y electrónica, modelos IA y definición operativa de eventos, arquitectura, prioridades, diagramas de estado, parámetros y resultados cuantitativos."},
+ {id:"D2",g:"doc",label:"Código +\nREADME",w:[4,5],who:"Todos",d:"Código comentado, README, arranque con un comando, parámetros guardados, modelos locales (demo sin Internet). .zip + repositorio."},
+ {id:"D3",g:"doc",label:"Video ≤ 3 min",w:[4,4],who:"R4",d:"Muestra todos los comportamientos."},
+ {id:"D4",g:"doc",label:"Demo en vivo\n(LAR)",w:[5,5],who:"Todos",d:"Obligatoria, con alimentación propia. Todos deben poder defender cualquier parte: hacer defensas cruzadas."},
+];
+// edges: [from,to,type]  type: "part" (pertenece a) | "dep" (from depende de to)
+const E = [
+ ["H","root","part"],["S","root","part"],["IF","root","part"],
+ ["H0","H","part"],["H1","H","part"],["H1a","H1","part"],["H2","H","part"],["H2p","H2","part"],["H2c","H2","part"],["H3","H","part"],["H3s","H3","part"],
+ ["S0","S","part"],["S1","S","part"],["E1","S1","part"],["E0","S1","part"],["E2","S1","part"],["E3","S1","part"],["E4","S1","part"],
+ ["S2","S","part"],["E5","S2","part"],["S3","S","part"],["S4","S","part"],["S4f","S4","part"],["S5","S","part"],["S6","S5","part"],["S7","S","part"],["SIM","IF","part"],
+ ["H2","H0","dep"],["H2p","H0","dep"],["H1","H2","dep"],["H3","H2","dep"],["H3","IF","dep"],["H3s","H2","dep"],
+ ["S1","S0","dep"],["S3","IF","dep"],["S3","H2c","dep"],["S3","E1","dep"],["SIM","IF","dep"],
+ ["E0","E1","dep"],["E2","E0","dep"],["E3","E0","dep"],["E4","E0","dep"],["E5","S3","dep"],
+ ["S2","S1","dep"],["S4","S2","dep"],["S4","S3","dep"],["S4f","E2","dep"],["S5","S4","dep"],["S6","E2","dep"],["S6","E5","dep"],["S5","E3","dep"],["S5","E4","dep"],["S5","H3s","dep"],
+ ["S7","S4","dep"],
+ ["M0","S0","dep"],["M0","H0","dep"],["M0","IF","dep"],
+ ["M1","H1","dep"],["M1","H3","dep"],["M1","H2c","dep"],["M1","S3","dep"],["M2","E2","dep"],["M2","E3","dep"],["M2","E4","dep"],["M2","S4f","dep"],
+ ["M3","S5","dep"],["M3","S6","dep"],["M4","H2p","dep"],["M4","D0","dep"],
+ ["M1","M0","dep"],["M2","M1","dep"],["M3","M2","dep"],["M4","M3","dep"],["M5","M4","dep"],
+ ["D1","D0","dep"],["D2","M4","dep"],["D3","M4","dep"],["D4","M5","dep"],
+];
+const WEEKS=["F0 (30 sep–4 oct)","F1 (5–8 oct)","F2 (9–15 oct)","F3 (16–22 oct)","F4 (23–27 oct)","F5 (28–30 oct)"];
+const GLABEL={hw:"Hardware",sw:"Software",if:"Interfaz HW/SW",ms:"Hito",doc:"Entregable",root:"Proyecto"};
+
+// ------------------------------------------------------------------ THEME
+const root=document.documentElement;
+try{const t=localStorage.getItem("theme"); if(t) root.dataset.theme=t;}catch(e){}
+document.getElementById("themeBtn").onclick=()=>{
+  const dark = root.dataset.theme ? root.dataset.theme==="dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+  root.dataset.theme = dark?"light":"dark";
+  try{localStorage.setItem("theme",root.dataset.theme)}catch(e){}
+  if(net) styleGraph();
+};
+const css=v=>getComputedStyle(root).getPropertyValue(v).trim();
+
+// ------------------------------------------------------------------ TABS
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));
+  document.querySelectorAll("main section").forEach(s=>s.classList.toggle("on",s.id===b.dataset.t));
+  if(b.dataset.t==="grafo"&&net) net.fit();
+});
+
+// ------------------------------------------------------------------ GRAPH
+let net, nodes, edges;
+const colorOf=g=>({hw:css("--hw"),sw:css("--sw"),if:css("--if"),ms:css("--ms"),doc:css("--doc"),root:css("--root")})[g];
+function nodeStyle(n){
+  const c=colorOf(n.g);
+  return {id:n.id,label:n.label,group:n.g,
+    shape:n.g==="ms"?"diamond":(n.g==="root"?"box":"dot"),
+    size:n.g==="root"?30:(n.big?24:(n.g==="ms"?14:15)),
+    color:{background:c,border:c,highlight:{background:c,border:css("--ink")},hover:{background:c,border:css("--ink")}},
+    font:{color:n.g==="root"?css("--bg"):css("--ink"),size:n.big?15:13,face:"system-ui",multi:false,bold:{color:css("--ink")}},
+    margin:n.g==="root"?12:undefined};
+}
+function styleGraph(){
+  nodes.update(N.map(nodeStyle));
+  edges.update(edges.get().map(e=>({id:e.id,color:{color:css("--line"),highlight:css("--ink")}})));
+}
+function buildGraph(){
+  if(typeof vis==="undefined"){document.getElementById("graph").innerHTML='<p style="padding:20px">No se pudo cargar vis-network (sin conexión). Las otras pestañas funcionan.</p>';return;}
+  nodes=new vis.DataSet(N.map(nodeStyle));
+  edges=new vis.DataSet(E.map(([f,t,ty],i)=>({id:i,from:f,to:t,arrows:ty==="dep"?"to":"",dashes:ty==="part",width:ty==="dep"?1.4:1,
+    color:{color:css("--line"),highlight:css("--ink")},smooth:{type:"continuous"}})));
+  net=new vis.Network(document.getElementById("graph"),{nodes,edges},{
+    physics:{solver:"forceAtlas2Based",forceAtlas2Based:{gravitationalConstant:-70,springLength:110,avoidOverlap:.4},stabilization:{iterations:300}},
+    interaction:{hover:true,tooltipDelay:150},
+  });
+  net.on("click",p=>{ if(p.nodes.length) showInfo(p.nodes[0]); });
+  net.on("doubleClick",p=>{
+    if(!p.nodes.length){ nodes.update(N.map(n=>({id:n.id,hidden:!activeG.has(n.g)&&n.g!=="root"}))); return; }
+    const keep=new Set([p.nodes[0],...net.getConnectedNodes(p.nodes[0])]);
+    nodes.update(N.map(n=>({id:n.id,hidden:!keep.has(n.id)})));
+  });
+}
+function showInfo(id){
+  const n=N.find(x=>x.id===id); if(!n) return;
+  const deps=E.filter(e=>e[0]===id&&e[2]==="dep").map(e=>e[1]);
+  const rdeps=E.filter(e=>e[1]===id&&e[2]==="dep").map(e=>e[0]);
+  const name=i=>N.find(x=>x.id===i).label.replace(/\n/g," ");
+  const link=i=>`<a href="#" data-n="${i}">${name(i)}</a>`;
+  const wk=n.w?(n.w[0]===n.w[1]?WEEKS[n.w[0]]:WEEKS[n.w[0]]+" → "+WEEKS[n.w[1]]):"";
+  document.getElementById("info").innerHTML=`
+    <span class="tag t-${n.g}">${GLABEL[n.g]}</span>${n.who?`<span class="tag t-root">${n.who}</span>`:""}
+    <h3>${n.label.replace(/\n/g," ")}</h3>
+    ${wk?`<div class="meta">📅 ${wk}</div>`:""}
+    <p>${n.d}</p>
+    ${n.items?`<ul>${n.items.map(i=>`<li>${i}</li>`).join("")}</ul>`:""}
+    ${deps.length?`<div class="meta"><b>Depende de:</b> ${deps.map(link).join(", ")}</div>`:""}
+    ${rdeps.length?`<div class="meta"><b>Bloquea a:</b> ${rdeps.map(link).join(", ")}</div>`:""}`;
+  document.querySelectorAll("#info a[data-n]").forEach(a=>a.onclick=ev=>{ev.preventDefault();net.selectNodes([a.dataset.n]);net.focus(a.dataset.n,{scale:1.1,animation:true});showInfo(a.dataset.n);});
+}
+const activeG=new Set(["hw","sw","if","ms","doc"]);
+document.querySelectorAll(".filters input[type=checkbox]").forEach(cb=>cb.onchange=()=>{
+  cb.checked?activeG.add(cb.dataset.g):activeG.delete(cb.dataset.g);
+  nodes&&nodes.update(N.map(n=>({id:n.id,hidden:!activeG.has(n.g)&&n.g!=="root"})));
+});
+document.getElementById("q").oninput=e=>{
+  const q=e.target.value.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,""); if(!q||!net) return;
+  const hit=N.find(n=>(n.label+" "+n.d).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").includes(q));
+  if(hit){net.selectNodes([hit.id]);net.focus(hit.id,{scale:1.2,animation:true});showInfo(hit.id);}
+};
+buildGraph();
+
+// ------------------------------------------------------------------ SPLIT VIEW
+function card(n,cvar){
+  return `<div class="card" style="--c:var(${cvar})"><h4>${n.label.replace(/\n/g," ")}</h4>
+    <div class="who">${n.who||""}${n.w?" · "+(n.w[0]===n.w[1]?"F"+n.w[0]:"F"+n.w[0]+"–F"+n.w[1]):""}</div>
+    <div style="font-size:13.5px;margin-top:4px">${n.d}</div>
+    ${n.items?`<ul>${n.items.map(i=>`<li>${i}</li>`).join("")}</ul>`:""}</div>`;
+}
+document.getElementById("colHW").innerHTML+=N.filter(n=>n.g==="hw"&&!n.big).map(n=>card(n,"--hw")).join("");
+document.getElementById("colSW").innerHTML+=N.filter(n=>n.g==="sw"&&n.id!=="S").map(n=>card(n,"--sw")).join("");
+document.getElementById("colIF").innerHTML+=`
+  <div class="proto">PC → ESP32
+HELLO 1
+J 101 12.0 -4.0 0.0
+S 102 POLCA
+CANCEL 103 SOUND
+PING 104
+STOP 105   (enclavado)
+RESUME 106
+HOME 107
+
+ESP32 → PC
+ACK 101        aceptado
+DONE 102       secuencia terminada
+ERR 107 STOP_ACTIVE
+STATE 108 STOPPED 12 -4 0 NONE</div>
+  <p style="font-size:13px;color:var(--muted)">Regla de oro: <b>la PC decide qué hacer</b> (percepción, árbitro, comportamientos); <b>el ESP32 decide cómo hacerlo seguro</b> (límites, rampas, sonido, watchdog). MODE vive en la PC; el control visual no escribe al serie: todo pasa por el árbitro.</p>
+  ${N.filter(n=>n.g==="if").map(n=>card(n,"--if")).join("")}`;
+
+// ------------------------------------------------------------------ GANTT
+(function(){
+  const start=new Date(2026,8,30); const days=31;
+  const dayIdx=(m,d)=>Math.round((new Date(2026,m-1,d)-start)/864e5);
+  const rows=[
+   ["Transversal"],
+   ["Arquitectura, BOM, compras, repo","if",dayIdx(9,30),dayIdx(10,2)],
+   ["Protocolo serie + simulador","if",dayIdx(9,30),dayIdx(10,5)],
+   ["Matriz de aceptación T1–T7","doc",dayIdx(10,1),dayIdx(10,30)],
+   ["Hardware"],
+   ["Ficha de carga + prueba servos/fuente","hw",dayIdx(9,30),dayIdx(10,3)],
+   ["CAD + fabricación cuello/cabeza","hw",dayIdx(10,1),dayIdx(10,7)],
+   ["Montaje 3 ejes + cableado","hw",dayIdx(10,4),dayIdx(10,8)],
+   ["Cámara en la cabeza + intrínsecos","hw",dayIdx(10,6),dayIdx(10,8)],
+   ["FW: servos, límites, rampas, STOP","hw",dayIdx(10,1),dayIdx(10,8)],
+   ["FW: motor de sonido + melodías","hw",dayIdx(10,6),dayIdx(10,15)],
+   ["Robustez mecánica / eléctrica","hw",dayIdx(10,9),dayIdx(10,22)],
+   ["Prueba 20 min + HW congelado","hw",dayIdx(10,23),dayIdx(10,27)],
+   ["Software"],
+   ["Benchmark + árbitro mínimo sintético","sw",dayIdx(9,30),dayIdx(10,4)],
+   ["Camisetas: prendas + reglas","sw",dayIdx(9,30),dayIdx(10,15)],
+   ["PERSONA + tracking + overlay","sw",dayIdx(10,1),dayIdx(10,8)],
+   ["Visual servoing (P) físico","sw",dayIdx(10,5),dayIdx(10,8)],
+   ["Asociación ID + ME_MIRA + SALUDO","sw",dayIdx(10,9),dayIdx(10,15)],
+   ["Árbitro completo + foco atención","sw",dayIdx(10,9),dayIdx(10,17)],
+   ["Comportamientos + SALIENDO","sw",dayIdx(10,13),dayIdx(10,22)],
+   ["Modos de personalidad","sw",dayIdx(10,16),dayIdx(10,22)],
+   ["Pruebas negativas, latencia, luz","sw",dayIdx(10,23),dayIdx(10,27)],
+   ["Contingencia + correcciones","sw",dayIdx(10,28),dayIdx(10,30)],
+   ["Entregables"],
+   ["Informe Colab (incremental)","doc",dayIdx(10,5),dayIdx(10,27)],
+   ["Video + README","doc",dayIdx(10,23),dayIdx(10,27)],
+   ["Ensayo general","doc",dayIdx(10,28),dayIdx(10,30)],
+   ["Hitos"],
+   ["M0 M1 M2 M3 M4 M5","ms",[dayIdx(10,4),dayIdx(10,8),dayIdx(10,15),dayIdx(10,22),dayIdx(10,27),dayIdx(10,30)]],
+  ];
+  let h=`<div class="grow"><div class="lbl"></div>`;
+  for(let i=0;i<days;i++){const d=new Date(start.getTime()+i*864e5);const mon=d.getDay()===1;h+=`<div class="hd ${mon?"wk":""}">${d.getDate()}</div>`;}
+  h+=`</div>`;
+  rows.forEach(r=>{
+    if(r.length===1){h+=`<div class="grow"><div class="grp">${r[0]}</div></div>`;return;}
+    h+=`<div class="grow"><div class="lbl" title="${r[0]}">${r[0]}</div>`;
+    if(r[1]==="ms"){ for(let i=0;i<days;i++) h+=`<div>${r[2].includes(i)?'<div class="ms" title="Hito"></div>':""}</div>`; }
+    else h+=`<div class="bar ${r[1]}" style="grid-column:${r[2]+2}/${r[3]+3}"></div>`;
+    h+=`</div>`;
+  });
+  document.getElementById("ganttBox").innerHTML=`<div class="meta" style="font-size:13px;color:var(--muted);margin-bottom:8px">Días de sep/oct 2026 (lunes en negrita). Hitos: M0 4/10 · M1 8/10 (seguimiento físico) · M2 15/10 · M3 22/10 (feature freeze) · M4 27/10 · M5 30/10 (ensayo). Los últimos 3 días son contingencia, no trabajo nuevo.</div>`+h;
+})();
+
+// ------------------------------------------------------------------ ROLES / RISKS
+const ROLES=[
+ ["R1 · Mecánica + electrónica","hw","Ficha de carga, CAD, montaje del cuello, servos, fuente, cableado, cámara. Validación de alimentación (prueba de 20 min)."],
+ ["R2 · Firmware + protocolo + sonido","hw","Protocolo serie, trayectorias suaves, límites, STOP/watchdog, motor de sonido y melodías, simulador y herramienta de prueba serie."],
+ ["R3 · Percepción social","sw","Benchmark, PERSONA + tracking, asociación rostro/pose/torso por ID, ME_MIRA, SALUDO."],
+ ["R4 · Camisetas + métricas","sw","Camisetas desde el día 1, pruebas negativas, overlay, métricas de latencia/FPS, log, video."],
+ ["R5 · Árbitro + control + integración","sw","Modelo del mundo, visual servoing, árbitro, foco, comportamientos, modos, SALIENDO, integración (aliviado de overlay y simulador)."],
+];
+document.getElementById("rolesBox").innerHTML=ROLES.map(([t,g,d])=>`<div class="card" style="--c:var(--${g});background:var(--panel)"><h4>${t}</h4><div style="font-size:13.5px">${d}</div></div>`).join("");
+const RISKS=[
+ ["1. Integración tardía / integrador sobrecargado","Módulos que funcionan sueltos pero no juntos","Contratos desde el día 1, redistribución de roles, integración física antes del 8/10. Prueba: demo corta completa varias veces por semana."],
+ ["2. Torque insuficiente, holgura o caída de tensión","Vibraciones, resets del ESP32 en la demo","Cabeza equilibrada, ficha de carga, ejes apoyados, fuente medida. Prueba: 20 min servos + buzzer sin resets ni calentamiento."],
+ ["3. Latencia y seguimiento inestable por cámara móvil","No cumple ≥10 Hz / ≤300 ms; IDs que saltan","Benchmark temprano, último cuadro, ganancias conservadoras, asociación robusta. Prueba: persona quieta/móvil y dos personas."],
+ ["4. Falsos positivos (camiseta, mirada, saludo)","El evaluador usará otras prendas","Clase DESCONOCIDA, filtros temporales, ensayos negativos desde la semana 0. Prueba: lisas, brazo levantado sin saludo, rostro de perfil."],
+ ["5. Conflictos de recursos y recuperación","Acciones superpuestas o erráticas (requisito central)","Árbitro único, adquisición atómica, caducidad, cooldowns, cancelación explícita. Prueba: saludo durante polca, cambio de modo, STOP, desconexión serie."],
+];
+document.getElementById("riskBox").innerHTML+=RISKS.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+
+// ------------------------------------------------------------------ CODEX REVIEW
+const CODEX_MD = document.getElementById("codexMd")?.textContent || "";
+if(CODEX_MD.trim() && typeof marked!=="undefined") document.getElementById("codexBox").innerHTML = marked.parse(CODEX_MD);
+</script>
+</body>
+</html>

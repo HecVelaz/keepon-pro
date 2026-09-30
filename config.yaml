@@ -1,0 +1,80 @@
+# Parámetros del robot. Todo lo ajustable vive acá (se documenta en el informe).
+
+neck:
+  # Límites articulares por software [grados]. Los topes mecánicos van un poco más allá.
+  limits:
+    yaw:   [-70.0, 70.0]
+    pitch: [-20.0, 30.0]
+    roll:  [-20.0, 20.0]
+  home: [0.0, 0.0, 0.0]          # postura calibrada, mirada al frente
+  vmax: [180.0, 120.0, 90.0]     # velocidad máxima por eje [°/s] (yaw, pitch, roll)
+  amax: [600.0, 400.0, 300.0]    # aceleración máxima por eje [°/s²]
+
+serial:
+  port: /dev/ttyACM0             # ESP32-S3 por USB nativo (CDC). Con conversor CH340/CP210x sería /dev/ttyUSB0
+  baud: 115200
+  watchdog_ms: 500               # ESP32: sin comandos → detiene secuencias y mantiene postura
+  keepalive_ms: 200              # PC: envía PING si no mandó nada en este tiempo
+
+camera:
+  # Raspberry Pi 5 + Camera Module 3 NoIR (IMX708) en la cabeza.
+  backend: auto                  # auto | picamera2 | gstreamer | opencv
+  index: 0                       # para opencv (webcam USB en la notebook de desarrollo)
+  size: [640, 480]
+  hfov_deg: 66.0                 # Camera Module 3 estándar: 66° H. Wide: 102°. Calibrar y reemplazar.
+  fps: 30
+
+control:
+  rate_hz: 40                    # lazo árbitro/control en la PC
+
+# Duración de cada sonido [s]. El firmware es la fuente de verdad (manda DONE),
+# la PC la usa para planificar y como timeout.
+sounds:
+  R2D2: 1.6
+  POLCA: 6.0
+  ABUCHEO: 2.5
+  PIROPO: 1.2
+  DESAPROBACION: 0.8
+  BEEP_NEUTRO: 0.25
+  BEEP_TIMIDO: 0.35
+  BEEP_ATREVIDO: 0.35
+  BEEP_MALEDUCADO: 0.45
+
+# Tabla de prioridades (0 = más importante). Ver docs/HOJA_DE_RUTA.md §S4.
+priorities:
+  OPERADOR: 0
+  SALUDO: 1
+  CAMISETA: 2
+  MODO: 3
+  SEGUIMIENTO: 4
+  OBSERVADOR: 5
+
+# Periodos refractarios [s]. Se registran cuando la respuesta EMPIEZA, no al proponer.
+cooldowns:
+  SALUDO_por_persona: 5.0
+  CAMISETA_por_persona: 25.0
+  PIROPO_global: 40.0
+
+# Control de mirada (T3): proporcional sin integral, en velocidad.
+gaze:
+  kp: 4.0                        # [1/s]  velocidad angular = kp * (|error| - zona muerta)
+  vmax: [150.0, 90.0]            # saturación de velocidad de referencia (yaw, pitch) [°/s]
+  deadzone: 0.03                 # zona muerta suave, fracción del ancho/alto de imagen
+  ema: 0.5                       # suavizado del error (1 = sin filtro)
+  lost_hold_s: 1.0               # pérdida < 1 s: mantener; luego se libera el objetivo
+
+focus:
+  switch_after_s: 1.5            # el candidato debe ser mejor durante este tiempo para cambiar
+  w_looking: 1.0                 # pesos del puntaje (T4)
+  w_size: 0.6
+  w_center: 0.4
+
+observer:
+  yaw_amp: 45.0                  # barrido lento
+  pitch_amp: 6.0
+  period_s: 14.0
+
+greeting:
+  nods: 3
+  nod_amp: 12.0                  # [°] en pitch
+  nod_period_s: 0.5

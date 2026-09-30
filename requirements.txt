@@ -1,0 +1,13 @@
+# Núcleo (árbitro, simulador, tests): sólo esto hace falta para M0 sin cámara.
+numpy
+pyyaml
+pyserial
+pytest
+matplotlib
+# Percepción
+opencv-python
+mediapipe
+ultralytics
+ncnn            # YOLO exportado a NCNN (rápido en CPU ARM de la Pi 5)
+# En la notebook (x86) instalar torch CPU antes:
+#   uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
