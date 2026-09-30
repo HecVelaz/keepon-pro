@@ -16,9 +16,24 @@
 | M0 hardware | ⏳ Ficha de carga, prueba de servos y fuente, camisetas reales. |
 | M1–M5 | Pendientes |
 
-Bugs encontrados en M0 y ya corregidos:
+Revisión de Codex del código M0 (`docs/REVISION_CODEX_M0.md`). Encontró 8 fallos; todos están corregidos y tienen test de regresión (63 tests en total):
+
+| # | Fallo | Corrección |
+|---|---|---|
+| 1 | Si el ESP32 se reinicia, la Pi no se entera | Sesión `HELLO`: `HELLO 0` = reinicio → cancelar acciones, HOME, reabrir sesión, reenviar STOP |
+| 2 | La trayectoria superaba amax en las posiciones emitidas (674 °/s²) | Planificación discreta exacta con fórmula cerrada; tests sobre las posiciones reales |
+| 3 | Mensajes mal formados cortaban el programa | Validación estricta en ambos sentidos; todo termina en `ProtocolError` |
+| 4 | Con la cámara caída se seguía un cuadro congelado | `StaleFrame` en la cámara + edad máxima del mundo (0,3 s) en el lazo |
+| 5 | Si cambiaba la camiseta a mitad de la polca, el buzzer quedaba sin dueño mientras sonaba | Parámetros congelados en acciones episódicas; CANCEL antes de liberar por timeout |
+| 6 | Se podía reproducir otra vez un sonido viejo | Se descarta todo `seq` menor o igual al último de la sesión |
+| 7 | El foco podía ignorar para siempre a quien mira al robot | ME_MIRA con prioridad estricta; la histéresis solo retrasa el cambio |
+| 8 | La métrica "captura → resultado" era engañosa | Renombrada "recepción → resultado", con la aclaración |
+
+Pendiente, marcado por Codex: probar la cámara en Ubuntu 24.04 (Canonical documenta el soporte desde 25.04), verificar las versiones en ARM64, la reconexión serie, el autofoco y la secuencia de encendido de los servos.
+
+Bugs encontrados antes de la revisión y ya corregidos:
 - Seguimiento a saltos: la zona muerta dura hacía avanzar el yaw en escalera. Se cambió a zona muerta suave.
-- Golpe al llegar al objetivo (3800 °/s² en lugar de 600): se corrigió la fórmula de frenado discreto, y el firmware debe usar la misma.
+- Golpe al llegar al objetivo (3800 °/s² en lugar de 600): primera corrección del frenado, completada después con la revisión de Codex (#2).
 
 ## Frontera Hardware / Software
 

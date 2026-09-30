@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from .arbiter import BUZZER, NECK, Arbiter, Grant
 from .link import Link
+from .protocol import PROTOCOL_VERSION
 from .trajectory import AXES, clamp
 
 
@@ -21,6 +22,8 @@ class Actuators:
         self.done: set[int] = set()                # seqs con DONE recibido
         self.violations = 0
         self.esp_state = "RUN"
+        self.session = False     # True tras HELLO 1 (el ESP32 aceptó la sesión)
+        self.rebooted = False    # HELLO 0 con sesión abierta -> el ESP32 se reinició
 
     def _check(self, g: Grant, res: str) -> bool:
         if self.arb.holds(g.id, res):
@@ -54,4 +57,18 @@ class Actuators:
             elif r.name == "STATE":
                 self.esp_state = r.args[0]
             elif r.name == "HELLO":
-                self.log(self.link.now(), f"ESP32 HELLO fw={r.args}")
+                fw, proto = r.args
+                if proto != PROTOCOL_VERSION:
+                    self.log(self.link.now(), f"ESP32 protocolo v{proto} incompatible (se espera v{PROTOCOL_VERSION})")
+                elif r.seq == 1:
+                    self.session = True
+                    self.log(self.link.now(), f"ESP32 sesión abierta fw={fw}")
+                elif self.session:
+                    self.session, self.rebooted = False, True
+                    self.log(self.link.now(), "ESP32 se REINICIÓ")
+
+    def reset_after_reboot(self, home: list[float]) -> None:
+        self.ref = list(home)    # el firmware arranca en HOME
+        self.sound_seq.clear()
+        self.done.clear()
+        self.rebooted = False

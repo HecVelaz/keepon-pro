@@ -31,17 +31,20 @@ uv venv .venv --python 3.12 && . .venv/bin/activate
 uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu   # sólo x86
 uv pip install -r requirements.txt
 
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest     # 37 tests (la variable evita los plugins de ROS 2)
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python -m pytest     # 63 tests (la variable evita los plugins de ROS 2)
 python scripts/sim_scenario.py --plot                  # escenario completo simulado -> logs/sim_scenario.png
 python scripts/benchmark.py                            # Hz de la percepción (correr EN LA PI)
 ```
 
 ## Raspberry Pi 5 (Ubuntu 24.04)
 
-> ⚠️ No probado todavía en la Pi del grupo. En Ubuntu, la Camera Module 3 depende de tener un libcamera con soporte para la Pi 5.
+> ⚠️ **No probado todavía en la Pi del grupo, y es el riesgo n.º 1.** La documentación de Canonical ubica el soporte de la cámara CSI (libcamera + PiSP de la Pi 5) recién desde **Ubuntu 25.04**: en 24.04 no está garantizado. [Ubuntu: cámara en Raspberry Pi](https://ubuntu.com/hardware/docs/boards/how-to/special_hardware/rpi-camera/)
 
-1. `bash scripts/check_pi.sh` informa qué hay: cámaras, picamera2/GStreamer, ESP32 y temperatura.
-2. Si `rpicam-hello --list-cameras` no detecta la IMX708, hay que instalar el libcamera y rpicam-apps de Raspberry Pi. Es el **primer bloqueo que hay que resolver**.
+1. `bash scripts/check_pi.sh` informa qué hay: cámaras, picamera2/GStreamer, ESP32 y temperatura. Además, hay que comprobar que la captura sea **sostenida**: `python scripts/benchmark.py --secs 60`.
+2. Si en 24.04 no se consigue capturar la IMX708 desde Python, hay tres caminos (**decisión del grupo**):
+   - **Raspberry Pi OS Bookworm 64-bit:** picamera2 y libcamera oficiales, la opción de menor riesgo para la cámara. ROS 2 dejaría de estar disponible de forma nativa, pero este proyecto no lo necesita.
+   - **Ubuntu 25.04 o posterior**, donde Canonical documenta el soporte.
+   - **Webcam USB** en la cabeza: funciona en cualquier sistema y además evita el problema de la NoIR.
 3. Crear el entorno con `uv venv .venv --python 3.12 --system-site-packages`, para que el venv vea `picamera2`/`libcamera` si están instalados por apt.
 4. En la Pi no hace falta torch-cpu aparte: `ultralytics` lo trae, y el benchmark exporta YOLO a NCNN la primera vez.
 5. Se necesita **cooler activo** y una fuente de 27 W (5 V 5 A) solo para la Pi, separada de la fuente de los servos.
@@ -51,11 +54,15 @@ python scripts/benchmark.py                            # Hz de la percepción (c
 
 - **Cámara NoIR:** no tiene filtro infrarrojo, así que los colores salen corridos (rojos y blancos rosados) con luz solar o incandescente. Esto afecta directamente a **CAMISETA_OLIMPIA/CERRO**. Probar desde el día 1 con las camisetas reales y bajo iluminación LED. Si falla, conseguir una Camera Module 3 estándar o una webcam USB para la cabeza.
 - **Cable de cámara:** la Pi 5 usa conector de 22 pines y la Camera Module 3 de 15, por lo que hace falta un cable 22→15. Tiene que ser **largo (30–50 cm) y con holgura** alrededor del eje de yaw (±70°).
-- **ESP32-S3:** conectarlo por el puerto USB nativo (aparece como `/dev/ttyACM0`). Usar un timer LEDC distinto para servos y buzzer.
+- **ESP32-S3:** conectarlo por el puerto USB **nativo** (GPIO19/20; confirmarlo en el esquema de la placa), que aparece como `/dev/ttyACM0`. Usar un timer LEDC distinto para servos y buzzer.
+- **Autofoco de la Camera Module 3:** definir si queda fijo o continuo durante el seguimiento. El enfoque continuo puede "respirar" y desenfocar mientras la cabeza se mueve.
+- **Servos al energizar:** al arrancar, el firmware los manda a HOME desde una posición desconocida, lo que produce un movimiento brusco. Prever la secuencia de encendido.
 
 ## Estado
 
-- [x] **M0 software:** protocolo, simulador del ESP32, árbitro, 4 comportamientos, control de mirada, foco de atención, log, escenario sintético, 37 tests y benchmark.
+- [x] **M0 software:** protocolo, simulador del ESP32, árbitro, 4 comportamientos, control de mirada, foco de atención, log, escenario sintético y benchmark.
+- [x] **Revisión de Codex del M0** (`docs/REVISION_CODEX_M0.md`): los 8 fallos están corregidos y tienen test de regresión (63 tests).
+- [ ] `SerialLink`: reconexión automática si se desconecta el USB (probar con el ESP32 real en M1).
 - [ ] M0 en la Pi: `check_pi.sh` + `benchmark.py` (objetivo ≥ 10 Hz). Notebook de referencia: 11,6 Hz.
 - [ ] Firmware ESP32-S3 (portar `sim_esp32.py` + `trajectory.py`)
 - [ ] M2: percepción real (PERSONA + tracking, asociación por ID, ME_MIRA, SALUDO, camisetas)

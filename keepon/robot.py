@@ -47,6 +47,9 @@ class Robot:
         self.behaviors = {b.name: b for b in (behaviors or default_behaviors(cfg))}
         self._last = None
         self._target = None
+        self._hello_t = -1e9
+        self._perception_ok = True
+        self.max_world_age = cfg["perception"]["max_age_s"]
 
     # ------------------------------------------------------------ operador
     def stop(self) -> None:
@@ -63,11 +66,34 @@ class Robot:
     def _ctx(self, now, dt, world) -> Context:
         return Context(now, dt, world, self.act, self.arb, self.focus, self.cfg)
 
-    def tick(self, world: World) -> None:
+    def _resync(self, now: float) -> None:
+        """El ESP32 se reinició: sus sonidos y referencias ya no existen."""
+        for g in self.arb.cancel_all(now, "ESP32 reinició"):
+            self.behaviors[g.behavior].on_cancel(g, self._ctx(now, 0.0, None))
+        self.act.reset_after_reboot(self.cfg["neck"]["home"])
+        if self.arb.stopped:
+            self.link.send("STOP")  # el STOP del operador sobrevive al reinicio
+
+    def tick(self, world: World, world_age: float = 0.0) -> None:
+        """world_age: segundos desde que se capturó el cuadro que originó `world`."""
         now = self.link.now()
         dt = 0.0 if self._last is None else now - self._last
         self._last = now
         self.act.process(self.link.poll())
+        if self.act.rebooted:
+            self._resync(now)
+        if not self.act.session:  # sin sesión no se comanda nada; reintentar HELLO cada 0,5 s
+            if now - self._hello_t > 0.5:
+                self.link.hello()
+                self._hello_t = now
+            return
+
+        ok = world_age <= self.max_world_age
+        if ok != self._perception_ok:
+            self.log(now, "PERCEPCION ok" if ok else f"PERCEPCION sin datos frescos ({world_age:.2f} s)")
+            self._perception_ok = ok
+        if not ok:  # nadie es visible "ahora": el foco mantiene y luego libera por lost_hold
+            world = World(world.t + world_age, world.img_w, world.img_h, world.hfov_deg, world.persons)
 
         target = self.focus.update(world)
         if target != self._target:

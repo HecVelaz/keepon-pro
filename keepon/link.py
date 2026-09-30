@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import time
 
-from .protocol import Command, ProtocolError, Reply, parse_reply
+from .protocol import PROTOCOL_VERSION, Command, ProtocolError, Reply, parse_reply
 from .sim_esp32 import SimESP32
 
 
@@ -20,6 +20,11 @@ class Link:
         self.keepalive_s = keepalive_s
         self.last_tx = -1e9
         self.replies: list[Reply] = []
+
+    def hello(self) -> None:
+        """Abre sesión: el ESP32 verifica la versión y reinicia su numeración de sonidos."""
+        self._write(f"HELLO {PROTOCOL_VERSION}\n")
+        self.last_tx = self.now()
 
     def send(self, name: str, *args) -> int:
         self.seq += 1
@@ -74,7 +79,13 @@ class SimLink(Link):
 
     def _read(self) -> list[Reply]:
         self._sync()
-        return self.esp.read()
+        out = []
+        for r in self.esp.read():  # ida y vuelta por texto: valida igual que el enlace serie
+            try:
+                out.append(parse_reply(r.encode()))
+            except ProtocolError:
+                pass
+        return out
 
     @property
     def neck_pos(self) -> tuple[float, float, float]:

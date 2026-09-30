@@ -67,10 +67,17 @@ class Focus:
         self._cand: int | None = None
         self._cand_since = 0.0
 
-    def score(self, p: Person, w: World) -> float:
-        wl, ws, wc = self.w
+    def score(self, p: Person, w: World) -> tuple[bool, float]:
+        """(mira, puntaje). ME_MIRA tiene prioridad estricta (T4); tamaño y centrado
+        sólo ordenan dentro de cada grupo."""
+        _, ws, wc = self.w
         centered = 1.0 - min(1.0, abs(p.u - w.img_w / 2) / (w.img_w / 2))
-        return wl * p.looking + ws * min(1.0, p.size / w.img_h) + wc * centered
+        return p.looking, ws * min(1.0, p.size / w.img_h) + wc * centered
+
+    def _better(self, a: Person, b: Person, w: World) -> bool:
+        """¿a es claramente mejor que b? La histéresis temporal se aplica afuera."""
+        (la, sa), (lb, sb) = self.score(a, w), self.score(b, w)
+        return la > lb or (la == lb and sa > sb + 0.1)
 
     def update(self, w: World) -> int | None:
         visible = [p for p in w.persons.values() if p.last_seen >= w.t - 1e-9]
@@ -84,7 +91,7 @@ class Focus:
         if not w.visible(cur.id):
             return self.target  # pérdida momentánea (< lost_hold): mantener
         best = max(visible, key=lambda p: self.score(p, w))
-        if best.id != self.target and self.score(best, w) > self.score(cur, w) + 0.1:
+        if best.id != self.target and self._better(best, cur, w):
             if self._cand != best.id:
                 self._cand, self._cand_since = best.id, w.t
             elif w.t - self._cand_since >= self.switch_after:

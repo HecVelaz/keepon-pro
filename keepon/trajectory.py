@@ -1,16 +1,17 @@
 """Generador de trayectorias suaves por eje (misma lógica que el firmware).
 
-Perfil trapezoidal "online": en cada paso la velocidad deseada es la máxima que
-todavía permite frenar justo en el objetivo con aceleración amax. En tiempo
-continuo sería sqrt(2·amax·|e|); como el lazo es discreto (paso dt) se usa la
-versión exacta para frenado en pasos de amax·dt, si no, llega con velocidad y
-el frenado final es un golpe:
+Planificación discreta exacta, paso dt, aceleración máxima a (Δv = a·dt por paso):
 
-    v_des = sign(e) * min(vmax, a·dt·(sqrt(1/4 + 2|e|/(a·dt²)) - 1/2))
-
-y la velocidad real se acerca a v_des con aceleración limitada a amax. Si el
-objetivo cambia a mitad de camino (seguimiento), la trayectoria se re-planifica
-sola sin saltos de velocidad: por eso no hay golpes ni vibraciones.
+  Con velocidad v la posición avanza v·dt en este paso y, frenando a tope en los
+  siguientes (v-a·dt, v-2a·dt, ...), recorre además dist(v). En cada paso se elige
+  la MAYOR velocidad v tal que  v·dt + dist(v) <= |e|  (e = distancia al objetivo),
+  limitada a vmax y a ±a·dt de la velocidad anterior. Así:
+    - nunca se pasa del objetivo ni excede vmax/amax en las POSICIONES emitidas,
+    - el último paso cae exacto en el objetivo (v = e/dt, siempre dentro de la ventana),
+    - si el objetivo cambia a mitad de camino se re-planifica sin saltos.
+  Fórmula cerrada (sin iteraciones, apta para el ESP32), con A = a·dt:
+    n = floor((sqrt(1 + 8|e|/(dt·A)) - 1) / 2)
+    v = (|e|/dt + A·n(n+1)/2) / (n+1)
 """
 
 from __future__ import annotations
@@ -40,21 +41,30 @@ class Axis:
         self.target = clamp(t, self.lo, self.hi)
         return self.target != t
 
+    def _v_max_to_stop(self, dist: float, dt: float) -> float:
+        """Mayor velocidad (>=0) con la que se puede avanzar este paso y aún frenar en `dist`."""
+        A = self.amax * dt
+        n = math.floor((math.sqrt(1.0 + 8.0 * dist / (dt * A)) - 1.0) / 2.0)
+        return (dist / dt + A * n * (n + 1) / 2.0) / (n + 1)
+
     def step(self, dt: float) -> None:
         e = self.target - self.pos
-        adt = self.amax * dt
-        v_stop = adt * (math.sqrt(0.25 + 2.0 * abs(e) / (adt * dt)) - 0.5)
-        v_des = math.copysign(min(self.vmax, v_stop), e)
-        self.vel += clamp(v_des - self.vel, -adt, adt)
-        if abs(e) <= abs(self.vel) * dt and abs(self.vel) <= adt + 1e-9:
-            self.pos = self.target  # último tramo: llega exacto; la velocidad (ya limitada) se anula en el próximo paso
-        else:
-            self.pos = clamp(self.pos + self.vel * dt, self.lo, self.hi)
+        A = self.amax * dt
+        v_des = math.copysign(min(self.vmax, self._v_max_to_stop(abs(e), dt)), e) if e else 0.0
+        self.vel += clamp(v_des - self.vel, -A, A)
+        self.pos = clamp(self.pos + self.vel * dt, self.lo, self.hi)
+        if abs(self.target - self.pos) < 1e-9 and abs(self.vel) <= A:
+            self.pos = self.target  # sólo absorbe error de redondeo de coma flotante
 
-    def brake_target(self) -> float:
-        """Punto donde se detiene si frena ya con amax (para STOP/watchdog suaves)."""
-        d = self.vel * self.vel / (2.0 * self.amax)
-        return clamp(self.pos + math.copysign(d, self.vel), self.lo, self.hi)
+    def stopping_distance(self, dt: float = 0.01) -> float:
+        """Recorrido si frena a tope desde ahora: dt·Σ max(0, |v| - k·a·dt)."""
+        A, v = self.amax * dt, abs(self.vel)
+        n = math.floor(v / A)
+        return dt * (n * v - A * n * (n + 1) / 2.0)
+
+    def brake_target(self, dt: float = 0.01) -> float:
+        """Punto donde se detiene frenando con amax (STOP/watchdog suaves, sin golpe)."""
+        return clamp(self.pos + math.copysign(self.stopping_distance(dt), self.vel), self.lo, self.hi)
 
 
 @dataclass

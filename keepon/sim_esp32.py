@@ -31,14 +31,24 @@ class SimESP32:
         self.sound: str | None = None
         self.sound_seq = -1
         self.sound_end = 0.0
-        self.last_sound_seq = -1
-        self.out: list[Reply] = [Reply("HELLO", 0, (FW_VERSION, PROTOCOL_VERSION))]
+        self.max_sound_seq = -1  # seq de S más alto de la sesión: uno <= a éste es un reenvío o viejo
+        self.out: list[Reply] = []
+        self.reboot()
+
+    def reboot(self) -> None:
+        """Arranque (o reinicio): servos a HOME, sin sonido, sesión nueva. Anuncia HELLO 0."""
+        self.neck = Neck.from_config(self.cfg)
+        self.state = RUN
+        self.last_rx = self.t
+        self._stop_sound()
+        self.max_sound_seq = -1
+        self.out.append(Reply("HELLO", 0, (FW_VERSION, PROTOCOL_VERSION)))
 
     # ------------------------------------------------------------ entrada
     def feed(self, line: str) -> None:
         try:
             cmd = parse_command(line)
-        except ProtocolError as e:
+        except ProtocolError as e:  # cualquier línea mala -> ERR, nunca una excepción
             self.out.append(Reply("ERR", e.seq, (e.reason,)))
             return
         self.last_rx = self.t
@@ -48,8 +58,12 @@ class SimESP32:
 
     def _handle(self, c: Command) -> None:
         ok = Reply("ACK", c.seq)
-        if c.name == "HELLO":
-            self.out.append(Reply("HELLO", 0, (FW_VERSION, PROTOCOL_VERSION)))
+        if c.name == "HELLO":  # nueva sesión de la PC: reinicia la numeración de sonidos
+            if c.args[0] != PROTOCOL_VERSION:
+                self.out.append(Reply("ERR", 0, ("BAD_VERSION",)))
+                return
+            self.max_sound_seq = -1
+            self.out.append(Reply("HELLO", 1, (FW_VERSION, PROTOCOL_VERSION)))  # seq 1 = sesión aceptada
         elif c.name == "PING":
             self.out += [ok, self._state_reply(c.seq)]
         elif c.name == "STOP":
@@ -74,9 +88,9 @@ class SimESP32:
                 self.out.append(Reply("ERR", c.seq, ("UNKNOWN_SOUND",)))
                 return
             self.out.append(ok)
-            if c.seq == self.last_sound_seq:  # reenvío: ya se está reproduciendo / ya sonó
+            if c.seq <= self.max_sound_seq:  # reenvío o comando viejo: no se reproduce de nuevo
                 return
-            self.last_sound_seq = c.seq
+            self.max_sound_seq = c.seq
             self.sound, self.sound_seq = name, c.seq
             self.sound_end = self.t + self.sound_len[name]
         elif c.name == "CANCEL":

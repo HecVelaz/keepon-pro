@@ -90,12 +90,15 @@ class Arbiter:
         return self.cooldown_until.get(key, -math.inf) > now
 
     # ------------------------------------------------------------ operador
-    def emergency_stop(self, now: float) -> list[Grant]:
-        self.stopped = True
+    def cancel_all(self, now: float, why: str) -> list[Grant]:
         cancelled = self.grants()
         for g in cancelled:
-            self._release(g, now, "STOP")
+            self._release(g, now, why)
         return cancelled
+
+    def emergency_stop(self, now: float) -> list[Grant]:
+        self.stopped = True
+        return self.cancel_all(now, "STOP")
 
     def resume(self, now: float) -> None:
         self.stopped = False
@@ -130,7 +133,8 @@ class Arbiter:
                         self.log(now, f"ARB retarget {g.behavior}#{g.id} persona {g.person} -> {p.person}")
                         g.person = p.person
                     g.seen = True
-                    g.params = p.params
+                    if g.continuous:  # las episódicas conservan los parámetros con que empezaron
+                        g.params = p.params
                 continue
             if p.cooldown and self.in_cooldown(p.cooldown[0], now):
                 continue

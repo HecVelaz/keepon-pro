@@ -25,7 +25,10 @@ camera:
   fps: 30
 
 control:
-  rate_hz: 40                    # lazo árbitro/control en la PC
+  rate_hz: 40                    # lazo árbitro/control en la Pi
+
+perception:
+  max_age_s: 0.3                 # un mundo más viejo que esto se considera sin datos (cámara caída)
 
 # Duración de cada sonido [s]. El firmware es la fuente de verdad (manda DONE),
 # la PC la usa para planificar y como timeout.
@@ -65,8 +68,8 @@ gaze:
 
 focus:
   switch_after_s: 1.5            # el candidato debe ser mejor durante este tiempo para cambiar
-  w_looking: 1.0                 # pesos del puntaje (T4)
-  w_size: 0.6
+  w_looking: 1.0                 # ME_MIRA tiene prioridad estricta; este peso queda sin uso
+  w_size: 0.6                    # pesos para desempatar dentro de cada grupo (T4)
   w_center: 0.4
 
 observer:

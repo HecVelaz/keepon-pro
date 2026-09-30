@@ -1,13 +1,16 @@
-# Núcleo (árbitro, simulador, tests): sólo esto hace falta para M0 sin cámara.
-numpy
-pyyaml
-pyserial
-pytest
-matplotlib
+# Versiones fijadas: probadas en la notebook de desarrollo (x86_64, Python 3.12).
+# FALTA verificarlas en la Raspberry Pi 5 (aarch64): si alguna no tiene wheel ARM, anotarlo acá.
+
+# Núcleo (árbitro, simulador, tests): alcanza para M0 sin cámara.
+numpy==2.5.2
+pyyaml==6.0.3
+pyserial==3.5
+pytest==9.1.1
+matplotlib==3.11.2
 # Percepción
-opencv-python
-mediapipe
-ultralytics
-ncnn            # YOLO exportado a NCNN (rápido en CPU ARM de la Pi 5)
+opencv-python==5.0.0.93
+mediapipe==1.0.1
+ultralytics==8.4.170
+ncnn==1.0.20260526       # YOLO exportado a NCNN (rápido en CPU ARM)
 # En la notebook (x86) instalar torch CPU antes:
-#   uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+#   uv pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu

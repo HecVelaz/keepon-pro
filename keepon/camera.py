@@ -16,6 +16,10 @@ import time
 import numpy as np
 
 
+class StaleFrame(RuntimeError):
+    """La cámara dejó de entregar cuadros nuevos."""
+
+
 class Camera:
     def __init__(self, cfg: dict):
         c = cfg["camera"]
@@ -99,12 +103,25 @@ class Camera:
                 self._frame, self._t = f, time.monotonic()
                 self._n += 1
 
-    def latest(self, timeout: float = 2.0) -> tuple[np.ndarray, float, int]:
-        """(cuadro BGR, instante de captura, número de cuadro). Espera el primero."""
+    def age(self) -> float:
+        """Segundos desde que llegó el último cuadro (inf si nunca llegó)."""
+        with self._lock:
+            return time.monotonic() - self._t if self._frame is not None else float("inf")
+
+    def latest(self, timeout: float = 2.0, max_age: float = 0.5) -> tuple[np.ndarray, float, int]:
+        """(cuadro BGR, instante de RECEPCIÓN, número de cuadro).
+
+        Espera el primer cuadro hasta `timeout`. Si la cámara dejó de entregar
+        (el último cuadro tiene más de `max_age` s) lanza StaleFrame: nunca se
+        procesa indefinidamente un cuadro congelado.
+        El instante es cuando el backend entregó el cuadro, no el de exposición:
+        la latencia medida con él NO incluye el retraso interno de la cámara."""
         t0 = time.monotonic()
         while True:
             with self._lock:
                 if self._frame is not None:
+                    if time.monotonic() - self._t > max_age:
+                        raise StaleFrame(f"sin cuadros nuevos hace {time.monotonic() - self._t:.2f} s")
                     return self._frame, self._t, self._n
             if time.monotonic() - t0 > timeout:
                 raise TimeoutError("la cámara no entrega cuadros")

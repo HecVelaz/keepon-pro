@@ -24,8 +24,9 @@ COMMANDS = {
     "HOME": 0,     # HOME seq               -> ir a la postura HOME (rampa suave)
 }
 
-# Respuestas ESP32 -> PC.
-REPLIES = {"HELLO", "ACK", "DONE", "ERR", "STATE"}
+# Respuestas ESP32 -> PC: cantidad mínima y máxima de argumentos después de seq.
+REPLIES = {"HELLO": (2, 2), "ACK": (0, 1), "DONE": (0, 0), "ERR": (1, 1), "STATE": (5, 5)}
+STATES = {"RUN", "STOPPED", "WATCHDOG"}
 
 
 class ProtocolError(ValueError):
@@ -81,8 +82,10 @@ def parse_command(line: str) -> Command:
     if not toks:
         raise ProtocolError("EMPTY")
     name = toks[0].upper()
-    if name == "HELLO":  # la PC saluda con la versión del protocolo
-        return Command("HELLO", 0, (int(toks[1]) if len(toks) > 1 else 0,))
+    if name == "HELLO":  # HELLO <versión>: la PC abre sesión
+        if len(toks) != 2 or not toks[1].isdigit():
+            raise ProtocolError("BAD_ARGS")
+        return Command("HELLO", 0, (int(toks[1]),))
     if name not in COMMANDS:
         raise ProtocolError("UNKNOWN_CMD")
     if len(toks) < 2:
@@ -105,15 +108,34 @@ def parse_command(line: str) -> Command:
 
 
 def parse_reply(line: str) -> Reply:
+    """Valida una respuesta del ESP32 antes de entregarla al resto del sistema."""
     toks = line.strip().split()
-    if not toks or toks[0] not in REPLIES:
+    if len(toks) < 2 or toks[0] not in REPLIES:
         raise ProtocolError("UNKNOWN_REPLY")
     name = toks[0]
-    seq = int(toks[1]) if len(toks) > 1 else 0
-    args: list = []
-    for t in toks[2:]:
-        try:
-            args.append(float(t))
-        except ValueError:
-            args.append(t)
-    return Reply(name, seq, tuple(args))
+    seq = _parse_seq(toks[1])
+    raw = toks[2:]
+    lo, hi = REPLIES[name]
+    if not lo <= len(raw) <= hi:
+        raise ProtocolError("BAD_ARGS", seq)
+    try:
+        if name == "HELLO":
+            args = tuple(int(x) for x in raw)
+        elif name == "ACK":
+            if raw and raw[0] != "CLIPPED":
+                raise ProtocolError("BAD_ARGS", seq)
+            args = tuple(raw)
+        elif name == "STATE":
+            if raw[0] not in STATES:
+                raise ProtocolError("BAD_ARGS", seq)
+            angles = tuple(float(x) for x in raw[1:4])
+            if not all(math.isfinite(v) for v in angles):
+                raise ProtocolError("BAD_NUMBER", seq)
+            args = (raw[0], *angles, raw[4])
+        else:
+            args = tuple(raw)
+    except ProtocolError:
+        raise
+    except ValueError:
+        raise ProtocolError("BAD_NUMBER", seq) from None
+    return Reply(name, seq, args)

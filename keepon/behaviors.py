@@ -140,8 +140,10 @@ class Greeting(Behavior):
             ctx.act.neck(g, self.base[0], self.base[1] - nod, self.base[2])
         else:
             ctx.act.neck(g, *self.base)
-            timeout = t > dur + self.cfg["sounds"]["R2D2"] + 0.5
-            if ctx.act.sound_finished(g) or timeout:
+            if ctx.act.sound_finished(g):
+                ctx.arb.finish(g.id, ctx.now)
+            elif t > dur + self.cfg["sounds"]["R2D2"] + 0.5:  # sin DONE: cortar antes de soltar el buzzer
+                ctx.act.cancel_sound()
                 ctx.arb.finish(g.id, ctx.now)
 
 
@@ -166,7 +168,10 @@ class Shirt(Behavior):
         ctx.act.play(g, g.params["sound"])
 
     def act(self, g, ctx):
-        if ctx.act.sound_finished(g) or ctx.now - self.t0 > self.cfg["sounds"][g.params["sound"]] + 0.5:
+        if ctx.act.sound_finished(g):
+            ctx.arb.finish(g.id, ctx.now)
+        elif ctx.now - self.t0 > self.cfg["sounds"][g.params["sound"]] + 0.5:  # sin DONE: cortar y soltar
+            ctx.act.cancel_sound()
             ctx.arb.finish(g.id, ctx.now)
 
 

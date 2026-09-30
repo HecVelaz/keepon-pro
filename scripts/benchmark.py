@@ -6,6 +6,8 @@ Mide, sobre cuadros reales de la cámara:
   - ms por cuadro de: YOLOv8n (personas), Face Landmarker, Pose Landmarker lite
   - Hz del pipeline completo (los tres en serie, como en el peor caso)
   - temperatura de la CPU (throttling)
+  - "recepción -> resultado": desde que el backend entrega el cuadro. NO incluye
+    exposición ni buffers internos de la cámara: no es la latencia completa (T6e).
 
     python scripts/benchmark.py                      # cámara según config.yaml
     python scripts/benchmark.py --backend opencv     # webcam USB (notebook)
@@ -136,7 +138,7 @@ def main() -> None:
     row("Face Landmarker", t_face)
     row("Pose Landmarker lite", t_pose)
     row("TOTAL por cuadro", t_total)
-    row("captura -> resultado", lat)
+    row("recepción -> resultado", lat)
     print(f"  pipeline completo     {hz:8.1f} Hz   {'OK (>=10 Hz)' if hz >= 10 else 'NO LLEGA a 10 Hz'}")
     print(f"  máx. personas / rostros vistos: {persons} / {faces}")
     t = cpu_temp()
