@@ -37,7 +37,7 @@ def scenario() -> list[SynthPerson]:
     A = SynthPerson(1, appear=3.0, leave=26.0, az=ramp(3.5, 9.5, 30.0, -15.0), el=const(8.0), size=320,
                     looking=[(6.0, 16.0)], shirt=[(10.0, 26.0, "OLIMPIA")], waves=[8.0, 13.5, 14.0],
                     hidden=[(17.0, 17.5)])
-    B = SynthPerson(2, appear=16.0, leave=26.0, az=const(5.0), el=const(4.0), size=420,
+    B = SynthPerson(2, appear=16.0, leave=26.0, az=const(-5.0), el=const(4.0), size=420,
                     looking=[(16.0, 26.0)], shirt=[(16.0, 26.0, "CERRO")])
     return [A, B]
 

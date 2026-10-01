@@ -6,3 +6,5 @@ models/*.task
 logs/
 capturas/
 models/*_ncnn_model/
+config.local.yaml
+models/*.tflite

@@ -18,10 +18,18 @@ serial:
 
 camera:
   # Raspberry Pi 5 + Camera Module 3 NoIR (IMX708) en la cabeza.
-  backend: auto                  # auto | picamera2 | gstreamer | opencv
+  backend: auto                  # auto | ros2 | picamera2 | gstreamer | opencv  (en la Pi: ros2, ver config.local.yaml)
+  ros_topic: /keepon_cam/image_raw   # tópico de camera_ros (backend ros2)
   index: 0                       # para opencv (webcam USB en la notebook de desarrollo)
   size: [640, 480]
-  hfov_deg: 66.0                 # Camera Module 3 estándar: 66° H. Wide: 102°. Calibrar y reemplazar.
+  hfov_deg: 37.3                 # = 2·atan(320/fx). camera_ros a 640x480 RECORTA el sensor (no son los 66° nominales)
+  # Intrínsecos de ~/vision_estereo/config/calibracion/right_corregida.yaml (cámara 0).
+  # VERIFICAR que corresponden a la NoIR montada en la cabeza; recalibrar si se cambia de módulo o modo.
+  fx: 948.16
+  fy: 947.12
+  cx: 428.50
+  cy: 225.42
+  dist: [-0.023288, 0.243119, -0.005078, -0.000387, 0.0]
   fps: 30
 
 control:
@@ -29,6 +37,18 @@ control:
 
 perception:
   max_age_s: 0.3                 # un mundo más viejo que esto se considera sin datos (cámara caída)
+  yolo_model: models/yolo26n_256_ncnn_model
+  yolo_imgsz: 256
+  yolo_conf: 0.4
+  max_persons: 3                 # rostros evaluados por cuadro (objetivo + candidatos)
+  face_model: detector           # detector (BlazeFace, 6 puntos, rápido) | landmarker (478 puntos, ~49 ms/cara)
+  face_crop_px: 192              # lado del recorte de cabeza que recibe el modelo de rostro
+  pose_num: 2
+  cores_personas: [0, 1]         # núcleos del proceso YOLO + rostros
+  ncnn_threads: 2                # = cantidad de núcleos del proceso
+  cores_pose: [2, 3]             # núcleos del proceso de pose
+  pose_max_hz: 30                # limitar la pose libera memoria/CPU para YOLO (SALUDO dura >1 s)
+  looking_deg: 15.0              # ME_MIRA: desvío cara->cámara menor a esto
 
 # Duración de cada sonido [s]. El firmware es la fuente de verdad (manda DONE),
 # la PC la usa para planificar y como timeout.
