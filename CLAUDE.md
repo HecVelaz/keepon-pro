@@ -1,0 +1,99 @@
+# CLAUDE.md: Keepon pro
+
+Cabeza robótica social de 3 GDL (yaw/pitch/roll) con visión artificial. µTP de Robótica II, FIUNA. Grupo de hasta 5 personas.
+**Demo física obligatoria el 30/10/2026** (Segundo Parcial). Sin demo física no hay puntaje.
+Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3).
+
+## Reglas del curso que condicionan el código
+- **El árbitro, los comportamientos y el control de la cabeza tienen que ser desarrollo propio.** Se pueden usar modelos preentrenados (YOLO, MediaPipe) citando la fuente. Todos los integrantes deben poder explicar cualquier parte en la defensa: código claro y comentado en español.
+- Si hay copia entre grupos, se anula el trabajo: **el repo es privado** (github.com/HecVelaz/keepon-pro).
+- No guardar imágenes de personas sin consentimiento: `capturas/` está en `.gitignore`. Las capturas de verificación se borran después de mirarlas.
+- Requisitos duros: percepción ≥ 10 Hz y latencia evento→respuesta ≤ 300 ms; todo no bloqueante; recursos exclusivos (cuello y buzzer); prioridades, cooldowns, histéresis; overlay y log con marca de tiempo (T7).
+
+## Hardware real
+- **Raspberry Pi 5, 4 GB**, Ubuntu 24.04 + ROS 2 Jazzy. **No se puede cambiar el SO**: la Pi se usa en otros proyectos.
+- **Camera Module 3 NoIR** (IMX708) en `camera:=0`. Es NoIR, sin filtro IR, así que hay riesgo con los colores de las camisetas. La segunda NoIR está desconectada.
+- **ESP32-S3 WROOM** para los 3 servos y el buzzer, por USB nativo (`/dev/ttyACM0`). **Todavía no está conectado a la Pi** y el firmware no existe (`firmware/` está vacío).
+- La notebook (x86, GPU vieja, sin CUDA) sirve solo para desarrollar.
+
+## Acceso a la Pi
+- `ssh r2d2@100.116.96.71` por Tailscale. Hostname `r2d2-desktop`. La clave SSH ya está autorizada (`-o BatchMode=yes` funciona).
+- Proyecto en la Pi: `~/keepon/`. Se sincroniza desde la notebook con:
+  `rsync -a --exclude .venv --exclude .git --exclude logs --exclude __pycache__ --exclude models/ --exclude config.local.yaml ./ r2d2@100.116.96.71:keepon/`
+- Entorno: `~/keepon_env` (venv `--system-site-packages`, para ver `rclpy`). Tiene MediaPipe, OpenCV 4.11, pyyaml, pyserial, pytest y lap. **ultralytics/torch/ncnn se toman de `~/yolo_env`** mediante `zz_yolo_env.pth` (solo lectura, para no duplicar sus 5,5 GB).
+- `~/keepon/config.local.yaml` (fuera de git) contiene `camera: {backend: ros2}`.
+- **NO modificar** `~/vision_estereo`, `~/yolo_env`, `~/camera_ws` ni `~/yolo_ws`: son de otros proyectos. Todo lo de Keepon va en `~/keepon` / `~/keepon_env`.
+- La cámara funciona por `camera_ros` (libcamera compilada en `~/camera_ws`); no hay rpicam ni picamera2. Un solo dueño de la cámara a la vez: verificar con `pgrep -x camera_node` antes de lanzar algo.
+- **Trampa de `pkill -f`:** si el patrón aparece en tu propio comando SSH, se mata a sí mismo. Usar la forma con corchetes: `pkill -f "[_]_node:=keepon_"`.
+- Al hacer `source /opt/ros/jazzy/setup.bash`, no usar `set -u` (el script de ROS usa variables sin definir).
+
+## Arquitectura (Python puro; ROS 2 solo como fuente de cámara)
+```
+camera_ros → keepon/perception.py (2 procesos) → World → Focus → behaviors → Arbiter → Actuators → Link → ESP32-S3
+```
+| Módulo | Qué hace |
+|---|---|
+| `protocol.py` | Protocolo serie v1 (`docs/PROTOCOLO.md`): sesión HELLO, `J S CANCEL PING STOP RESUME HOME`, ACK/DONE/ERR/STATE, validación estricta |
+| `sim_esp32.py` | ESP32 simulado = **especificación ejecutable del firmware** (STOP enclavado, watchdog de 500 ms, dedupe de sonidos por seq, `reboot()`) |
+| `trajectory.py` | Planificación discreta exacta (fórmula cerrada `_v_max_to_stop`): amax se respeta en las posiciones emitidas. El firmware tiene que copiarla |
+| `link.py` | `SimLink` / `SerialLink`, misma interfaz. `SerialLink` todavía **no** reconecta solo |
+| `arbiter.py` | Recursos NECK/BUZZER, prioridades 0–5, adquisición atómica, cooldown al empezar, propuestas que vencen, retarget, STOP |
+| `behaviors.py` | Observador, Seguimiento, Saludo, Camiseta. **Faltan los modos** (Tímido/Atrevido/Maleducado/Neutro) y SALIENDO |
+| `gaze.py` | Control P con zona muerta suave (sin integral) + foco con prioridad estricta a ME_MIRA e histéresis de 1,5 s |
+| `robot.py` | Lazo principal, resincronización por reinicio del ESP32, edad máxima del mundo (0,3 s), EventLog CSV en `logs/` |
+| `perception.py` | Proceso "personas" (YOLO26n 256 + tracker propio + rostros BlazeFace sobre recortes + solvePnP → ME_MIRA) y proceso "pose" (MediaPipe lite). Fijados a núcleos |
+| `tracker.py` | Tracker IoU propio (el ByteTrack de ultralytics costaba ~68 ms/cuadro en la Pi) |
+| `camera.py` | Backends ros2/picamera2/gstreamer/opencv; siempre entrega el último cuadro; `StaleFrame` |
+| `synthetic.py` | Personas y cámara virtuales, en lazo cerrado con el cuello simulado |
+
+`config.yaml` concentra **todos** los parámetros. `config.local.yaml` (por máquina, fuera de git) los sobreescribe.
+
+## Decisiones tomadas (no volver a discutir sin datos nuevos)
+- Todo corre en la Pi; Python puro; `rclpy` solo para leer la cámara. Codex coincidió (`docs/REVISION_CODEX_PI.md`).
+- YOLO26n exportado a NCNN con **entrada de 256 px** (`~/keepon/models/yolo26n_256_ncnn_model`): detectó 2 de 2 personas a 1,5 m, a 30 Hz solo.
+- Procesos separados, no hilos: NCNN y MediaPipe no liberan el GIL (medido: 2,11 s en serie vs 2,04 s en hilos).
+- Afinidad de núcleos: personas `[0,1]` con NCNN de 2 hilos y `openmp_blocktime=0`; pose `[2,3]`. NCNN y MediaPipe reubican sus hilos en 0-3, por eso `_repin_threads()` los vuelve a fijar cada 50 cuadros.
+- Rostros: BlazeFace (6 puntos) sobre un recorte de la cabeza en lugar de Face Landmarker (478 puntos, ~49 ms/cara).
+- ME_MIRA = ángulo entre el eje de la cara y la línea cara→cámara < `looking_deg` (15°, **sin validar**).
+- Intrínsecos tomados de `~/vision_estereo/config/calibracion/right_corregida.yaml` (fx=948 → **HFOV 37,3°**, no los 66° nominales: camera_ros a 640×480 recorta el sensor). cx=428 queda descentrado, así que el centro óptico no es el centro de la imagen. **Verificar que esa calibración corresponde a esta cámara.**
+
+## Comandos
+```bash
+# Notebook (venv en .venv). La variable evita que se carguen los plugins de pytest de ROS 2:
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q        # 81 tests
+.venv/bin/python scripts/sim_scenario.py --plot                        # escenario simulado de 30 s
+
+# Pi
+bash ~/keepon/scripts/ver_percepcion.sh          # visor en el navegador: http://100.116.96.71:8080/stream_viewer?topic=/keepon/percepcion
+bash ~/keepon/scripts/ver_percepcion.sh stop
+~/keepon/ver_personas.sh [stop]                  # solo YOLO (detector_node de vision_estereo), IMGSZ=256 por defecto
+~/keepon_env/bin/python scripts/perception_bench.py --secs 20   # (con camera_node corriendo)
+bash scripts/pi_bench.sh 15 [rapido]             # matriz de benchmark → logs/benchmark.csv
+```
+
+## Rendimiento medido en la Pi (30/09, 1 persona)
+- Personas + rostros: **16,9 Hz** (YOLO 34 ms + rostros 10 ms), edad del resultado 74 ms.
+- Pose: **10,0 Hz**, edad 149 ms. CPU total: 239 % de 400 %.
+- Rostro encontrado en el 80 % de las detecciones; ID estable. Detalle completo en `docs/ESTADO_PI.md`.
+
+## Dónde quedó la sesión (30/09/2026, noche)
+- Último commit subido: `ab4335c` (percepción en paralelo). **Sin commit:** `scripts/ver_percepcion.py`, `scripts/ver_percepcion.sh` y este `CLAUDE.md`.
+- **El visor de percepción quedó corriendo en la Pi** (`ver_percepcion.sh`) y ocupa la cámara. Detenerlo con `bash ~/keepon/scripts/ver_percepcion.sh stop`.
+- Se les pidió a los usuarios probar el visor (mirar / no mirar, girar la cabeza, levantar la mano, cruzarse) y anotar los grados de desvío para calibrar el umbral de ME_MIRA.
+
+## Próximos pasos (hacia M1, el 8/10: el robot sigue a una persona con detecciones reales)
+1. Con lo que reporten del visor: validar ME_MIRA y ajustar `looking_deg`; medir con 2–3 personas.
+2. **Integrar la percepción al robot:** de `DetResult` a `World` (timestamps por evidencia, filtros N-de-M), ME_MIRA sostenido ≥ 0,5 s, SALUDO (muñeca sobre el hombro + ≥ 2 oscilaciones), y el control de mirada con el centro óptico cx/cy en lugar del centro de la imagen.
+3. **Firmware del ESP32-S3:** portar `sim_esp32.py` + `trajectory.py`; timers LEDC separados para servos y buzzer; pruebas de conformidad contra el simulador. Necesita el ESP32 conectado a la Pi.
+4. Camisetas: grabar con la NoIR las prendas reales (Olimpia, Cerro, lisas) a 0,8/1,5/2,5 m; **decisión el 4/10** (luz LED controlada, filtro IR-cut o cámara normal).
+5. Pendientes técnicos: reconexión automática de `SerialLink`; autofoco (hoy `AfMode=0`, manual); secuencia de encendido de los servos; overlay completo (modo, dueño de recursos, ángulos) para T7; modos de personalidad y SALIENDO (M3).
+6. `docs/hoja_de_ruta.html` sigue en la v2 (los .md están en la v3).
+
+## Colaboración con Codex
+Se usa `codex exec --skip-git-repo-check -s read-only -o <salida.md> "<prompt>"` para revisiones. Revisiones guardadas: `docs/REVISION_CODEX.md` (plan), `docs/REVISION_CODEX_M0.md` (código; sus 8 fallos están corregidos y tienen tests en `tests/test_regresiones_codex.py`), `docs/REVISION_CODEX_PI.md` (hardware real).
+
+## Convenciones
+- Español en código, comentarios, docs y commits. Commits con `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
+- Git local: `user.email = hvelazquez@fiuna.edu.py` (el email global era un texto de relleno).
+- Cada cambio de rendimiento se **mide en la Pi** antes de darlo por bueno; los resultados van a `docs/ESTADO_PI.md`.
+- Los bugs encontrados se convierten en tests de regresión.
