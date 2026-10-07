@@ -13,7 +13,10 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 ## Hardware real
 - **Raspberry Pi 5, 4 GB**, Ubuntu 24.04 + ROS 2 Jazzy. **No se puede cambiar el SO**: la Pi se usa en otros proyectos.
 - **Camera Module 3 NoIR** (IMX708) en `i2c@80000`. Es NoIR, sin filtro IR, así que hay riesgo con los colores de las camisetas. La segunda NoIR (`i2c@88000`) aparece en libcamera pero no transmite ("Camera frontend has timed out": revisar el flex) y corre los índices: los scripts eligen la cámara **por nombre** (`CAMARA=/base/axi/pcie@120000/rp1/i2c@80000/imx708@1a`), no con `camera:=0`.
-- **ESP32-S3 WROOM** para los 3 servos y el buzzer, por USB nativo (`/dev/ttyACM0`). **Todavía no está conectado a la Pi** y el firmware no existe (`firmware/` está vacío).
+- **ESP32-C3-DevKitM-1** (no S3) para los 3 servos y el buzzer, por el micro-USB con puente UART (`/dev/ttyUSB0`; preferir `/dev/serial/by-id/...`). Pines: yaw GPIO0, pitch GPIO1, roll GPIO3, buzzer GPIO10; evitar 2/8/9 (strapping), 18/19 (USB) y 20/21 (UART0). Análisis completo en `docs/REVISION_CODEX_HW.md` (escrito para microservos). **Todavía no está conectada a la Pi** y el firmware del robot no existe (`firmware/` está vacío).
+- **Servos (07/10):** pitch **Hitec HS-7955TG** (~18 kgf·cm a 4,8 V), yaw **MG996R**, roll **MG995**. El **SM-S4315R es de rotación continua: no sirve como articulación**. MG90S y SG90 quedan de repuesto. Como son servos estándar (55–65 g), el rodamiento de yaw tiene que soportar el peso y el vuelco. Falta medir el recorrido real: yaw necesita 140°.
+- **Fuente de servos:** 6 V, separada de la de la Pi, con GND común; ≥ 6 A para los tres juntos (2,5–4,2 A por servo con el eje trabado). La ALP002 ajustable (3–24 V, **1,5 A**, **entrada 100–120 V de alterna: no enchufar a 220 V sin transformador**) sirve solo para probar un servo sin carga. Para las pruebas individuales, mejor la fuente de laboratorio con límite de corriente.
+- Pruebas de banco de los servos: `pruebas_servos/` (README con conexionado, procedimiento y planilla; `prueba_servo.ino` para Arduino-ESP32 3.x, sin compilar todavía).
 - La notebook (x86, GPU vieja, sin CUDA) sirve solo para desarrollar.
 
 ## Acceso a la Pi
@@ -29,7 +32,7 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 
 ## Arquitectura (Python puro; ROS 2 solo como fuente de cámara)
 ```
-camera_ros → keepon/perception.py (2 procesos) → World → Focus → behaviors → Arbiter → Actuators → Link → ESP32-S3
+camera_ros → keepon/perception.py (2 procesos) → World → Focus → behaviors → Arbiter → Actuators → Link → ESP32-C3
 ```
 | Módulo | Qué hace |
 |---|---|
@@ -96,7 +99,7 @@ Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_
 ## Próximos pasos (hacia M1, el 8/10: el robot sigue a una persona con detecciones reales)
 1. Con lo que reporten del visor: validar ME_MIRA y ajustar `looking_deg`; medir con 2–3 personas.
 2. **Integrar la percepción al robot:** de `DetResult` a `World` (timestamps por evidencia, filtros N-de-M), ME_MIRA sostenido ≥ 0,5 s, SALUDO (muñeca sobre el hombro + ≥ 2 oscilaciones), y el control de mirada con el centro óptico cx/cy en lugar del centro de la imagen.
-3. **Firmware del ESP32-S3:** portar `sim_esp32.py` + `trajectory.py`; timers LEDC separados para servos y buzzer; pruebas de conformidad contra el simulador. Necesita el ESP32 conectado a la Pi.
+3. **Firmware de la ESP32-C3:** antes, pasar cada servo por `pruebas_servos/` y completar la planilla (centro, extremos, grados/µs). Después, portar `sim_esp32.py` + `trajectory.py`; timers LEDC separados para servos y buzzer; pruebas de conformidad contra el simulador. Necesita el ESP32 conectado a la Pi.
 4. Camisetas: grabar con la NoIR las prendas reales (Olimpia, Cerro, lisas) a 0,8/1,5/2,5 m; **decisión el 4/10** (luz LED controlada, filtro IR-cut o cámara normal).
 5. Pendientes técnicos: reconexión automática de `SerialLink`; autofoco (hoy `AfMode=0`, manual); secuencia de encendido de los servos; overlay completo (modo, dueño de recursos, ángulos) para T7; modos de personalidad y SALIENDO (M3).
 6. `docs/hoja_de_ruta.html` sigue en la v2 (los .md están en la v3).
