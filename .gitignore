@@ -8,3 +8,6 @@ capturas/
 models/*_ncnn_model/
 config.local.yaml
 models/*.tflite
+
+# Compilados de Arduino
+pruebas_servos/**/build/

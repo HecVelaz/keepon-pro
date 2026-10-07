@@ -82,7 +82,7 @@ Con la fuente de laboratorio, si el indicador de **limitación de corriente (CC)
 
 ## Cargar el programa
 
-1. Arduino IDE 2 → Gestor de placas → instalar **esp32 de Espressif, versión 3.x** (el programa usa `ledcAttach`, que no existe en la 2.x).
+1. Desde la terminal (ya instalado en la notebook): ver los comandos `arduino-cli` en `CLAUDE.md`. O con el IDE: Arduino IDE 2 → Gestor de placas → instalar **esp32 de Espressif, versión 3.x** (el programa usa `ledcAttach`, que no existe en la 2.x).
 2. Placa: **ESP32C3 Dev Module**. Abrir `pruebas_servos/prueba_servo/prueba_servo.ino` y subirlo.
 3. Monitor serie a **115200 baud**, fin de línea **"Nueva línea"**. Escribir `h` para ver la ayuda.
 

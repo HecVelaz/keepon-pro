@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba HS-7955TG</title>
+<style>
+:root {
+  --bg: #f6f5f1; --panel: #ffffff; --ink: #1d1d1b; --muted: #6b6a64; --line: #dedcd4;
+  --accent: #2f6fd6; --ok: #1f8a4c; --warn: #c2410c; --err: #b42318;
+  --board: #20242b; --board-ink: #e7e9ee; --pin: #c9a227;
+  --wire-red: #d62828; --wire-black: #2b2b2b; --wire-yellow: #e0a800; --wire-usb: #8a8f98;
+  --servo: #2a2a2a; --horn: #2f80ed; --screen: #0e1a12; --screen-ink: #5cf08a;
+  --scope-bg: #0f1720; --scope-grid: #22303f; --scope-trace: #ffd23f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15161a; --panel: #1e2026; --ink: #ecebe6; --muted: #a09e96; --line: #33363f;
+    --accent: #6ea2ff; --ok: #4cc27f; --warn: #f08a4b; --err: #ff6b5e;
+    --board: #0c0e12; --wire-black: #9aa0a6; --servo: #3a3b40;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15161a; --panel: #1e2026; --ink: #ecebe6; --muted: #a09e96; --line: #33363f;
+  --accent: #6ea2ff; --ok: #4cc27f; --warn: #f08a4b; --err: #ff6b5e;
+  --board: #0c0e12; --wire-black: #9aa0a6; --servo: #3a3b40;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 1200px; margin: 0 auto; padding: 20px 16px 48px; }
+h1 { font-size: 1.5rem; margin: 0 0 4px; }
+h2 { font-size: 1.05rem; margin: 0 0 10px; }
+.sub { color: var(--muted); margin: 0 0 18px; }
+.grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 16px; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+svg { width: 100%; height: auto; display: block; }
+.mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+label { font-size: .9rem; color: var(--muted); }
+input[type=number] { width: 80px; padding: 5px 6px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--bg); color: var(--ink); font: inherit; }
+button { font: inherit; font-size: .88rem; padding: 6px 10px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; }
+#consola { height: 260px; overflow-y: auto; background: var(--scope-bg); color: #d6e2ee;
+  border-radius: 8px; padding: 8px 10px; font-size: .82rem; white-space: pre-wrap; }
+#consola .tx { color: #8ab4ff; }
+#consola .err { color: #ff8a80; }
+.cmd { display: flex; gap: 6px; margin-top: 8px; }
+.cmd input { flex: 1; min-width: 0; padding: 7px 8px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--bg); color: var(--ink); }
+.quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.aviso { padding: 8px 10px; border-radius: 8px; font-size: .9rem; margin-top: 10px; display: none; }
+.aviso.on { display: block; }
+.aviso.warn { background: color-mix(in srgb, var(--warn) 14%, transparent); color: var(--warn); }
+.aviso.err { background: color-mix(in srgb, var(--err) 14%, transparent); color: var(--err); }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; }
+.sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 6px; }
+ol { margin: 0; padding-left: 20px; }
+ol li { margin-bottom: 4px; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 900px) { .two { grid-template-columns: 1fr; } }
+.estado { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.estado div { background: var(--bg); border-radius: 8px; padding: 6px 8px; }
+.estado b { display: block; font-size: 1.05rem; }
+.estado span { font-size: .78rem; color: var(--muted); }
+.flujo { stroke-dasharray: 6 6; animation: flujo .6s linear infinite; }
+@keyframes flujo { to { stroke-dashoffset: -12; } }
+@media (prefers-reduced-motion: reduce) { .flujo { animation: none; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Prueba del servo HS-7955TG con la ESP32-C3</h1>
+  <p class="sub">Conexiones con la fuente de laboratorio y una ESP32 simulada que acepta los mismos comandos que
+    <span class="mono">pruebas_servos/prueba_servo/prueba_servo.ino</span>. El servo va en el canal de <b>pitch (GPIO1)</b>.</p>
+
+  <div class="grid">
+    <section class="card">
+      <h2>Conexiones</h2>
+      <svg id="diagrama" viewBox="0 0 900 520" role="img" aria-label="Diagrama de conexiones: fuente, ESP32-C3 y servo">
+        <!-- Cables (se dibujan primero para quedar debajo) -->
+        <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="5">
+          <path id="w-rojo" d="M95 203 V250 H760 V190" stroke="var(--wire-red)"/>
+          <path id="w-negro" d="M175 203 V228 H745 V190" stroke="var(--wire-black)"/>
+          <path id="w-gnd" d="M399 228 V312" stroke="var(--wire-black)"/>
+          <path id="w-senal" d="M775 190 V280 H435 V312" stroke="var(--wire-yellow)"/>
+          <path id="w-usb" d="M330 390 H210" stroke="var(--wire-usb)" stroke-width="7"/>
+        </g>
+        <path id="w-senal-flujo" class="flujo" d="M435 312 V280 H775 V190" fill="none" stroke="#fff" stroke-width="2" opacity="0"/>
+        <path id="w-rojo-flujo" class="flujo" d="M95 203 V250 H760 V190" fill="none" stroke="#fff" stroke-width="2" opacity="0"/>
+        <circle cx="399" cy="228" r="6" fill="var(--wire-black)"/>
+        <!-- Resistencia en la señal -->
+        <g transform="translate(600 280)">
+          <rect x="-22" y="-8" width="44" height="16" rx="3" fill="#d9c7a1" stroke="#8a7650"/>
+          <rect x="-12" y="-8" width="4" height="16" fill="#e67e22"/><rect x="-4" y="-8" width="4" height="16" fill="#e67e22"/><rect x="4" y="-8" width="4" height="16" fill="#8b4513"/>
+          <text x="0" y="26" text-anchor="middle" font-size="12" fill="var(--muted)">330 Ω (opcional)</text>
+        </g>
+        <text x="455" y="244" font-size="12" fill="var(--wire-red)">+6 V</text>
+        <text x="455" y="222" font-size="12" fill="var(--muted)">GND</text>
+        <text x="408" y="272" font-size="12" fill="var(--muted)">GND común</text>
+        <text x="660" y="272" font-size="12" fill="var(--wire-yellow)">señal PWM 50 Hz</text>
+
+        <!-- Fuente de laboratorio -->
+        <g>
+          <rect x="30" y="30" width="220" height="170" rx="10" fill="#c9ccd1" stroke="#8f949b"/>
+          <text x="140" y="52" text-anchor="middle" font-size="13" font-weight="600" fill="#2b2f36">FUENTE DE LABORATORIO</text>
+          <rect x="45" y="62" width="190" height="58" rx="4" fill="var(--screen)"/>
+          <text id="f-v" x="60" y="98" font-size="26" class="mono" fill="var(--screen-ink)">0.00</text>
+          <text x="128" y="98" font-size="13" fill="var(--screen-ink)">V</text>
+          <text id="f-a" x="148" y="98" font-size="26" class="mono" fill="#ff7a59">0.00</text>
+          <text x="218" y="98" font-size="13" fill="#ff7a59">A</text>
+          <text id="f-cc" x="60" y="114" font-size="11" fill="#55606a">CV</text>
+          <circle id="f-led" cx="220" cy="140" r="7" fill="#55606a"/>
+          <text x="190" y="144" font-size="11" fill="#2b2f36" text-anchor="end">ON</text>
+          <text x="45" y="144" font-size="11" fill="#2b2f36">6,0 V · límite</text>
+          <text id="f-lim" x="45" y="160" font-size="11" fill="#2b2f36">1,0 A</text>
+          <circle cx="95" cy="190" r="13" fill="var(--wire-red)" stroke="#6d1414" stroke-width="2"/>
+          <text x="95" y="195" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">+</text>
+          <circle cx="175" cy="190" r="13" fill="#222" stroke="#000" stroke-width="2"/>
+          <text x="175" y="195" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">−</text>
+        </g>
+
+        <!-- Notebook -->
+        <g>
+          <rect x="60" y="350" width="150" height="90" rx="6" fill="var(--panel)" stroke="var(--line)" stroke-width="2"/>
+          <rect x="72" y="360" width="126" height="60" rx="3" fill="var(--scope-bg)"/>
+          <text x="135" y="388" text-anchor="middle" font-size="11" class="mono" fill="#d6e2ee">monitor serie</text>
+          <text x="135" y="404" text-anchor="middle" font-size="11" class="mono" fill="#d6e2ee">115200 baud</text>
+          <rect x="45" y="440" width="180" height="10" rx="4" fill="var(--line)"/>
+          <text x="135" y="472" text-anchor="middle" font-size="12" fill="var(--muted)">Notebook (alimenta solo la ESP32)</text>
+          <text x="270" y="382" text-anchor="middle" font-size="11" fill="var(--muted)">USB</text>
+        </g>
+
+        <!-- ESP32-C3-DevKitM-1 -->
+        <g>
+          <rect x="330" y="312" width="300" height="150" rx="8" fill="var(--board)"/>
+          <rect x="560" y="345" width="70" height="84" rx="4" fill="#9aa3ad"/>
+          <text x="595" y="391" text-anchor="middle" font-size="10" fill="#2b2f36">C3-MINI-1</text>
+          <rect x="322" y="378" width="18" height="24" rx="3" fill="#b5bac1"/>
+          <text x="445" y="380" text-anchor="middle" font-size="14" font-weight="600" fill="var(--board-ink)">ESP32-C3-DevKitM-1</text>
+          <text x="445" y="398" text-anchor="middle" font-size="11" fill="#9aa3ad">vista con esta fila de pines arriba</text>
+          <g id="pines-sup"></g>
+          <g id="pines-inf"></g>
+        </g>
+
+        <!-- Servo HS-7955TG (vista superior) -->
+        <g>
+          <rect x="660" y="40" width="210" height="140" rx="10" fill="var(--servo)"/>
+          <rect x="645" y="70" width="240" height="20" rx="4" fill="var(--servo)"/>
+          <circle cx="652" cy="80" r="4" fill="var(--bg)"/><circle cx="878" cy="80" r="4" fill="var(--bg)"/>
+          <text x="820" y="150" text-anchor="middle" font-size="13" font-weight="700" fill="#f2d58a">HS-7955TG</text>
+          <text x="820" y="166" text-anchor="middle" font-size="10" fill="#c8c8c8">Hitec · pitch</text>
+          <g id="brazo" transform="rotate(0 730 115)">
+            <rect x="722" y="45" width="16" height="78" rx="8" fill="var(--horn)"/>
+            <circle cx="730" cy="60" r="3" fill="var(--servo)"/>
+            <circle cx="730" cy="75" r="3" fill="var(--servo)"/>
+          </g>
+          <circle cx="730" cy="115" r="14" fill="var(--horn)"/>
+          <circle cx="730" cy="115" r="5" fill="#ddd"/>
+          <rect x="738" y="180" width="44" height="10" fill="var(--servo)"/>
+          <text x="790" y="208" font-size="11" fill="var(--muted)">negro · rojo · amarillo</text>
+          <text id="s-ang" x="660" y="28" font-size="13" class="mono" fill="var(--ink)">flojo</text>
+        </g>
+      </svg>
+      <div class="estado">
+        <div><b id="e-pulso" class="mono">—</b><span>pulso GPIO1</span></div>
+        <div><b id="e-ang" class="mono">—</b><span>ángulo del brazo</span></div>
+        <div><b id="e-i" class="mono">0 mA</b><span>corriente del servo</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Fuente de laboratorio</h2>
+      <div class="row">
+        <label class="toggle"><input type="checkbox" id="c-on"> Encendida</label>
+        <label>V <input type="number" id="c-v" value="6.0" step="0.1" min="0" max="30"></label>
+        <label>Límite A <input type="number" id="c-lim" value="1.0" step="0.1" min="0" max="5"></label>
+      </div>
+      <div class="row">
+        <label class="toggle"><input type="checkbox" id="c-gnd" checked> GND de la fuente unido al GND de la ESP32</label>
+      </div>
+      <div id="aviso" class="aviso"></div>
+
+      <h2 style="margin-top:14px">Monitor serie (ESP32 simulada)</h2>
+      <div id="consola" class="mono" aria-live="polite"></div>
+      <form class="cmd" id="f-cmd">
+        <input id="i-cmd" class="mono" autocomplete="off" placeholder="escribí un comando y Enter (h = ayuda)">
+        <button class="primary" type="submit">Enviar</button>
+      </form>
+      <div class="quick" id="rapidos"></div>
+    </section>
+  </div>
+
+  <div class="two">
+    <section class="card">
+      <h2>Señal en GPIO1 (osciloscopio)</h2>
+      <svg id="scope" viewBox="0 0 500 170" aria-label="Forma de onda del PWM">
+        <rect width="500" height="170" rx="8" fill="var(--scope-bg)"/>
+        <g id="grilla" stroke="var(--scope-grid)" stroke-width="1"></g>
+        <polyline id="traza" fill="none" stroke="var(--scope-trace)" stroke-width="2"/>
+        <text id="scope-txt" x="12" y="20" font-size="12" class="mono" fill="#d6e2ee"></text>
+        <text x="488" y="160" font-size="10" text-anchor="end" fill="#7f8c99">0 a 3 ms de cada período de 20 ms · 3,3 V</text>
+      </svg>
+    </section>
+    <section class="card">
+      <h2>Conexiones a hacer</h2>
+      <table>
+        <tr><th>Desde</th><th>Hacia</th></tr>
+        <tr><td><span class="sw" style="background:var(--wire-red)"></span>Fuente <b>+</b> (6,0 V)</td><td>Cable <b>rojo</b> del servo</td></tr>
+        <tr><td><span class="sw" style="background:var(--wire-black)"></span>Fuente <b>−</b></td><td>Cable <b>negro</b> del servo</td></tr>
+        <tr><td><span class="sw" style="background:var(--wire-black)"></span>Fuente <b>−</b></td><td>Pin <b>GND</b> de la ESP32</td></tr>
+        <tr><td><span class="sw" style="background:var(--wire-yellow)"></span>ESP32 pin <b>1</b> (GPIO1)</td><td>Cable <b>amarillo</b> del servo</td></tr>
+        <tr><td><span class="sw" style="background:var(--wire-usb)"></span>ESP32 micro-USB</td><td>Notebook</td></tr>
+      </table>
+      <p style="margin:10px 0 0;color:var(--err);font-size:.9rem"><b>No conectar</b> nada a los pines 5V ni 3V3 de la placa.</p>
+    </section>
+  </div>
+
+  <section class="card" style="margin-top:16px">
+    <h2>Secuencia de la prueba real</h2>
+    <ol>
+      <li>Ajustar la fuente a <b>6,0 V</b> y el límite a <b>1,0 A</b> con todo desconectado; verificar con el multímetro.</li>
+      <li>Con la fuente <b>apagada</b>, hacer las conexiones de la tabla.</li>
+      <li>Conectar la ESP32 por USB, cargar <span class="mono">prueba_servo.ino</span> y abrir el monitor serie a 115200 baud con "Nueva línea".</li>
+      <li>Encender la fuente: el servo queda flojo y en silencio, con corriente casi nula.</li>
+      <li><span class="mono">e 1</span> → <span class="mono">c</span> → <span class="mono">p 1300</span> → <span class="mono">p 1700</span> → <span class="mono">b 1200 1800</span> → <span class="mono">s</span> → <span class="mono">o</span>.</li>
+      <li>Para terminar: <span class="mono">o</span>, apagar la fuente y recién ahí desconectar.</li>
+      <li>Si la fuente pasa a <b>CC</b> (limitación de corriente) con el servo quieto: apagar y revisar el tope mecánico o la polaridad.</li>
+    </ol>
+    <p style="color:var(--muted);font-size:.85rem;margin:10px 0 0">Simulación aproximada: el ángulo usa 0,09 °/µs y consumos típicos de fichas de vendedores
+      (reposo ~20 mA, en movimiento ~300 mA, trabado 3,4–4,2 A). Los valores reales se miden con la planilla de <span class="mono">pruebas_servos/README.md</span>.</p>
+  </section>
+</main>
+
+<script>
+// ---------- Pines de la placa ----------
+const FILA_SUP = ["GND","5V","5V","GND","10","1","0","GND","RST","GND","3","2","3V3","3V3","GND"];
+const FILA_INF = ["GND","19","18","GND","4","5","6","7","8","9","GND","RX","TX","GND",""];
+function dibujarPines(id, nombres, y, ty) {
+  const g = document.getElementById(id);
+  nombres.forEach((n, i) => {
+    if (!n) return;
+    const x = 345 + i * 18;
+    const usado = (id === "pines-sup" && (i === 3 || i === 5));
+    const c = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    c.setAttribute("x", x - 5); c.setAttribute("y", y - 5); c.setAttribute("width", 10); c.setAttribute("height", 10);
+    c.setAttribute("rx", 2); c.setAttribute("fill", usado ? "#fff" : "var(--pin)");
+    if (usado) { c.setAttribute("stroke", i === 5 ? "var(--wire-yellow)" : "var(--wire-black)"); c.setAttribute("stroke-width", 3); }
+    g.appendChild(c);
+    const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    t.setAttribute("x", x); t.setAttribute("y", ty); t.setAttribute("text-anchor", "middle");
+    t.setAttribute("font-size", n.length > 2 ? 7 : 9); t.setAttribute("fill", usado ? "#fff" : "#c8ccd3");
+    t.setAttribute("font-weight", usado ? 700 : 400);
+    t.textContent = n; g.appendChild(t);
+  });
+}
+dibujarPines("pines-sup", FILA_SUP, 322, 342);
+dibujarPines("pines-inf", FILA_INF, 452, 440);
+
+// ---------- Firmware simulado (misma lógica que prueba_servo.ino) ----------
+const NOMBRES = ["yaw", "pitch", "roll"], PINES = [0, 1, 3];
+const LIM_ABS_MIN = 500, LIM_ABS_MAX = 2500;
+const ejes = NOMBRES.map(() => ({ activo: false, pos: 1500, obj: 1500, min: 1000, max: 2000, barrido: false, a: 1500, b: 1500 }));
+let sel = 0, vel = 300;
+
+const consola = document.getElementById("consola");
+function out(txt, cls) {
+  const d = document.createElement("div");
+  if (cls) d.className = cls;
+  d.textContent = txt;
+  consola.appendChild(d);
+  while (consola.childNodes.length > 300) consola.removeChild(consola.firstChild);
+  consola.scrollTop = consola.scrollHeight;
+}
+const recortar = (us, e) => Math.min(e.max, Math.max(e.min, us));
+
+function ayuda() {
+  out("Comandos (el eje es el seleccionado con 'e'):\n" +
+      "  e <0|1|2>       seleccionar eje (0 yaw GPIO0, 1 pitch GPIO1, 2 roll GPIO3)\n" +
+      "  p <us>          ir al pulso <us> con rampa (recortado a los limites)\n" +
+      "  c               ir al centro (1500 us)\n" +
+      "  + / -           mover 10 us\n" +
+      "  b <us1> <us2>   barrido continuo ida y vuelta\n" +
+      "  s               detener barrido\n" +
+      "  o / O           apagar este eje / todos\n" +
+      "  v <us/s>        velocidad de la rampa (20..5000)\n" +
+      "  l <min> <max>   limites del eje (dentro de 500..2500)\n" +
+      "  ?  estado       h  ayuda");
+}
+function estado() {
+  let s = `vel=${vel} us/s  seleccionado=${sel} (${NOMBRES[sel]})`;
+  ejes.forEach((e, i) => {
+    s += `\n  ${i} ${NOMBRES[i].padEnd(5)} GPIO${PINES[i]} ${e.activo ? "ON " : "OFF"} pos=${Math.round(e.pos)} obj=${Math.round(e.obj)} lim=[${e.min},${e.max}]${e.barrido ? " barriendo" : ""}`;
+  });
+  out(s);
+}
+function irA(us) {
+  const e = ejes[sel];
+  us = recortar(us, e);
+  if (!e.activo) { e.activo = true; e.pos = us; }
+  e.obj = us; e.barrido = false;
+  out(`${NOMBRES[sel]} -> ${us} us`);
+}
+function procesar(cmd) {
+  const e = ejes[sel];
+  const nums = (cmd.slice(1).trim().match(/-?\d+/g) || []).map(Number);
+  switch (cmd[0]) {
+    case "e":
+      if (nums.length >= 1 && nums[0] >= 0 && nums[0] < 3) { sel = nums[0]; out(`eje ${sel} (${NOMBRES[sel]}), GPIO${PINES[sel]}`); }
+      else out("ERR: e <0|1|2>", "err");
+      break;
+    case "p": nums.length >= 1 ? irA(nums[0]) : out("ERR: p <us>", "err"); break;
+    case "c": irA(1500); break;
+    case "+": irA((e.activo ? e.obj : 1500) + 10); break;
+    case "-": irA((e.activo ? e.obj : 1500) - 10); break;
+    case "b":
+      if (nums.length >= 2) {
+        const a = recortar(nums[0], e), b = recortar(nums[1], e);
+        irA(a); e.barrido = true; e.a = a; e.b = b;
+        out(`barrido ${a} <-> ${b} us`);
+      } else out("ERR: b <us1> <us2>", "err");
+      break;
+    case "s": e.barrido = false; e.obj = e.pos; out(`barrido detenido en ${Math.round(e.pos)} us`); break;
+    case "o": e.activo = false; e.barrido = false; out(`${NOMBRES[sel]} apagado`); break;
+    case "O": ejes.forEach(x => { x.activo = false; x.barrido = false; }); out("todos apagados"); break;
+    case "v":
+      if (nums.length >= 1 && nums[0] >= 20 && nums[0] <= 5000) { vel = nums[0]; out(`vel = ${vel} us/s`); }
+      else out("ERR: v <20..5000>", "err");
+      break;
+    case "l":
+      if (nums.length >= 2 && LIM_ABS_MIN <= nums[0] && nums[0] < nums[1] && nums[1] <= LIM_ABS_MAX) {
+        e.min = nums[0]; e.max = nums[1]; out(`${NOMBRES[sel]} limites [${e.min}, ${e.max}] us`);
+      } else out("ERR: l <min> <max>, dentro de 500..2500", "err");
+      break;
+    case "?": estado(); break;
+    case "h": ayuda(); break;
+    default: out("comando desconocido (h = ayuda)", "err");
+  }
+}
+function pasoRampa(dt) {
+  const maxPaso = vel * dt;
+  ejes.forEach(e => {
+    if (!e.activo) return;
+    const err = e.obj - e.pos;
+    if (Math.abs(err) <= maxPaso) {
+      e.pos = e.obj;
+      if (e.barrido) e.obj = (e.obj === e.a) ? e.b : e.a;
+    } else e.pos += err > 0 ? maxPaso : -maxPaso;
+  });
+}
+
+// ---------- Servo y fuente simulados ----------
+const GRADOS_POR_US = 0.09;     // supuesto; medir el real
+const VEL_SERVO = 315;          // °/s sin carga a 4,8 V (0,19 s/60°)
+let angServo = 0;               // ángulo físico del brazo
+let moviendo = false;
+const $ = id => document.getElementById(id);
+
+function condiciones() {
+  const on = $("c-on").checked, v = parseFloat($("c-v").value) || 0, lim = parseFloat($("c-lim").value) || 0;
+  return { on, v, lim, gnd: $("c-gnd").checked };
+}
+function actualizarAviso(c) {
+  const av = $("aviso");
+  let txt = "", cls = "";
+  if (c.v > 6.0 && c.v <= 7.4) { txt = `${c.v.toFixed(1)} V: por encima de 6,0 V. Hitec garantiza 4,8–6,0 V; usar 6,0 V.`; cls = "warn"; }
+  else if (c.v > 7.4) { txt = `${c.v.toFixed(1)} V: ¡demasiado! Puede quemar el servo. Bajar a 6,0 V antes de encender.`; cls = "err"; }
+  else if (c.v < 4.8) { txt = `${c.v.toFixed(1)} V: por debajo del mínimo de 4,8 V; el servo no va a responder bien.`; cls = "warn"; }
+  else if (!c.gnd) { txt = "Sin GND común la señal del GPIO no tiene referencia: el servo no responde o tiembla."; cls = "err"; }
+  else if (c.lim < 0.5) { txt = "Límite de corriente bajo: al moverse, la fuente va a pasar a CC y el servo se va a frenar."; cls = "warn"; }
+  av.className = "aviso" + (txt ? " on " + cls : "");
+  av.textContent = txt;
+}
+
+let tAnt = performance.now();
+function tick() {
+  const ahora = performance.now();
+  const dt = Math.min(0.05, (ahora - tAnt) / 1000);
+  tAnt = ahora;
+  pasoRampa(dt);
+
+  const c = condiciones();
+  const e = ejes[1];   // el servo está en GPIO1 (pitch)
+  const alimentado = c.on && c.v >= 4.8 && c.v <= 7.4;
+  const recibe = e.activo && c.gnd;
+  let objetivo = angServo, corriente = 0;
+
+  if (c.on) corriente = 0.009;                       // electrónica del servo
+  if (alimentado && recibe) {
+    objetivo = (e.pos - 1500) * GRADOS_POR_US;
+    const necesita = Math.abs(objetivo - angServo) > 0.2 ? 0.30 : 0.02;
+    const factor = c.lim >= necesita ? 1 : c.lim / necesita;   // en CC el servo se frena
+    const paso = VEL_SERVO * factor * dt;
+    const d = objetivo - angServo;
+    angServo += Math.abs(d) <= paso ? d : Math.sign(d) * paso;
+    moviendo = necesita > 0.1;
+    corriente = Math.min(c.lim, necesita);
+  } else {
+    moviendo = false;
+    if (alimentado && e.activo && !c.gnd) angServo += (Math.random() - 0.5) * 0.6;   // temblor sin masa común
+  }
+  const enCC = c.on && corriente >= c.lim - 1e-6 && c.lim > 0;
+  const vSalida = !c.on ? 0 : enCC ? c.v * 0.85 : c.v;
+
+  // Dibujo
+  $("brazo").setAttribute("transform", `rotate(${angServo.toFixed(1)} 730 115)`);
+  $("f-v").textContent = vSalida.toFixed(2);
+  $("f-a").textContent = (c.on ? corriente : 0).toFixed(2);
+  $("f-lim").textContent = `${(c.lim).toFixed(1).replace(".", ",")} A`;
+  $("f-cc").textContent = enCC ? "CC  (limitando corriente)" : "CV";
+  $("f-cc").setAttribute("fill", enCC ? "#ff7a59" : "#55606a");
+  $("f-led").setAttribute("fill", c.on ? "#3ddc84" : "#55606a");
+  ["w-rojo", "w-negro", "w-gnd"].forEach(id => $(id).setAttribute("opacity", c.on ? 1 : 0.45));
+  $("w-senal").setAttribute("opacity", e.activo ? 1 : 0.45);
+  $("w-senal-flujo").setAttribute("opacity", e.activo ? 0.8 : 0);
+  $("w-rojo-flujo").setAttribute("opacity", c.on && moviendo ? 0.8 : 0);
+  $("e-pulso").textContent = e.activo ? `${Math.round(e.pos)} µs` : "sin pulso";
+  $("e-ang").textContent = (alimentado && recibe) || Math.abs(angServo) > 0.05 ? `${angServo >= 0 ? "+" : ""}${angServo.toFixed(1)}°` : "flojo";
+  $("s-ang").textContent = alimentado && recibe ? `${angServo >= 0 ? "+" : ""}${angServo.toFixed(1)}°` : (c.on ? "sin señal: flojo" : "sin alimentación");
+  $("e-i").textContent = `${Math.round((c.on ? corriente : 0) * 1000)} mA`;
+  dibujarScope(e);
+  actualizarAviso(c);
+  requestAnimationFrame(tick);
+}
+
+// ---------- Osciloscopio ----------
+(function grilla() {
+  const g = $("grilla");
+  for (let i = 1; i < 6; i++) {
+    const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+    const x = 20 + i * 460 / 6;
+    l.setAttribute("x1", x); l.setAttribute("x2", x); l.setAttribute("y1", 30); l.setAttribute("y2", 140);
+    g.appendChild(l);
+  }
+})();
+function dibujarScope(e) {
+  const x0 = 20, ancho = 460, yAlto = 50, yBajo = 130, ventanaUs = 3000;
+  if (!e.activo) {
+    $("traza").setAttribute("points", `${x0},${yBajo} ${x0 + ancho},${yBajo}`);
+    $("scope-txt").textContent = "GPIO1: sin pulso (servo flojo)";
+    return;
+  }
+  const xf = x0 + ancho * e.pos / ventanaUs;
+  $("traza").setAttribute("points", `${x0},${yBajo} ${x0 + 4},${yBajo} ${x0 + 4},${yAlto} ${xf},${yAlto} ${xf},${yBajo} ${x0 + ancho},${yBajo}`);
+  $("scope-txt").textContent = `GPIO1: pulso de ${Math.round(e.pos)} µs cada 20 ms (duty ${Math.round(e.pos * 16384 / 20000)}/16384)`;
+}
+
+// ---------- Interfaz ----------
+$("f-cmd").addEventListener("submit", ev => {
+  ev.preventDefault();
+  const cmd = $("i-cmd").value.trim();
+  if (!cmd) return;
+  out("> " + cmd, "tx");
+  procesar(cmd);
+  $("i-cmd").value = "";
+});
+["e 1", "c", "p 1300", "p 1700", "b 1200 1800", "s", "o", "?"].forEach(cmd => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "mono"; b.textContent = cmd;
+  b.addEventListener("click", () => { out("> " + cmd, "tx"); procesar(cmd); });
+  $("rapidos").appendChild(b);
+});
+
+out("Prueba de servos Keepon. Todos los ejes empiezan apagados.");
+out("(Simulación: primero encendé la fuente y después escribí 'e 1' y 'c'.)");
+requestAnimationFrame(tick);
+</script>
+</body>
+</html>

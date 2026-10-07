@@ -13,10 +13,11 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 ## Hardware real
 - **Raspberry Pi 5, 4 GB**, Ubuntu 24.04 + ROS 2 Jazzy. **No se puede cambiar el SO**: la Pi se usa en otros proyectos.
 - **Camera Module 3 NoIR** (IMX708) en `i2c@80000`. Es NoIR, sin filtro IR, así que hay riesgo con los colores de las camisetas. La segunda NoIR (`i2c@88000`) aparece en libcamera pero no transmite ("Camera frontend has timed out": revisar el flex) y corre los índices: los scripts eligen la cámara **por nombre** (`CAMARA=/base/axi/pcie@120000/rp1/i2c@80000/imx708@1a`), no con `camera:=0`.
-- **ESP32-C3-DevKitM-1** (no S3) para los 3 servos y el buzzer, por el micro-USB con puente UART (`/dev/ttyUSB0`; preferir `/dev/serial/by-id/...`). Pines: yaw GPIO0, pitch GPIO1, roll GPIO3, buzzer GPIO10; evitar 2/8/9 (strapping), 18/19 (USB) y 20/21 (UART0). Análisis completo en `docs/REVISION_CODEX_HW.md` (escrito para microservos). **Todavía no está conectada a la Pi** y el firmware del robot no existe (`firmware/` está vacío).
+- **ESP32-C3-DevKitM-1** (no S3) para los 3 servos y el buzzer, por el micro-USB con puente UART (`/dev/ttyUSB0`; preferir `/dev/serial/by-id/...`). Pines: yaw GPIO0, pitch GPIO1, roll GPIO3, buzzer GPIO10; evitar 2/8/9 (strapping), 18/19 (USB) y 20/21 (UART0). Análisis completo en `docs/REVISION_CODEX_HW.md` (escrito para microservos). Es un **clon con conversor CH340** (`1a86:7523`, `/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0`). Por ahora está conectada a la **notebook**, no a la Pi, y tiene cargado `pruebas_servos/prueba_servo.ino`. El firmware del robot no existe (`firmware/` está vacío).
 - **Servos (07/10):** pitch **Hitec HS-7955TG** (~18 kgf·cm a 4,8 V), yaw **MG996R**, roll **MG995**. El **SM-S4315R es de rotación continua: no sirve como articulación**. MG90S y SG90 quedan de repuesto. Como son servos estándar (55–65 g), el rodamiento de yaw tiene que soportar el peso y el vuelco. Falta medir el recorrido real: yaw necesita 140°.
 - **Fuente de servos:** 6 V, separada de la de la Pi, con GND común; ≥ 6 A para los tres juntos (2,5–4,2 A por servo con el eje trabado). La ALP002 ajustable (3–24 V, **1,5 A**, **entrada 100–120 V de alterna: no enchufar a 220 V sin transformador**) sirve solo para probar un servo sin carga. Para las pruebas individuales, mejor la fuente de laboratorio con límite de corriente.
-- Pruebas de banco de los servos: `pruebas_servos/` (README con conexionado, procedimiento y planilla; `prueba_servo.ino` para Arduino-ESP32 3.x, sin compilar todavía).
+- Pruebas de banco de los servos: `pruebas_servos/`: README con conexionado, procedimiento y planilla; `prueba_servo.ino` (comandos por serie a 115200: `e <eje>`, `c`, `p <us>`, `+`/`-`, `b <us1> <us2>`, `s`, `o`, `v <us/s>`, `l <min> <max>`, `?`); `simulador_hs7955tg.html` (diagrama de conexiones + ESP32 y fuente simuladas, se abre en el navegador).
+- La rampa del programa de prueba arranca en `v 300` (≈27 °/s con 0,09 °/µs supuestos): **el giro lento es a propósito**. El HS-7955TG da ~315 °/s sin carga; `config.yaml` limita pitch a 120 °/s (Codex recomendó empezar con 60 °/s ≈ `v 700`).
 - La notebook (x86, GPU vieja, sin CUDA) sirve solo para desarrollar.
 
 ## Acceso a la Pi
@@ -66,6 +67,11 @@ camera_ros → keepon/perception.py (2 procesos) → World → Focus → behavio
 PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q        # 81 tests
 .venv/bin/python scripts/sim_scenario.py --plot                        # escenario simulado de 30 s
 
+# ESP32-C3 desde la notebook (arduino-cli 1.1.1 en ~/.local/bin, núcleo esp32:esp32 3.3.12 en ~/.arduino15)
+cd pruebas_servos && ~/.local/bin/arduino-cli compile --fqbn esp32:esp32:esp32c3 --output-dir /tmp/build_servo prueba_servo
+~/.local/bin/arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32c3 --input-dir /tmp/build_servo
+~/.local/bin/arduino-cli monitor -p /dev/ttyUSB0 -c baudrate=115200   # uno solo a la vez en el puerto
+
 # Pi
 bash ~/keepon/scripts/ver_percepcion.sh          # visor en el navegador: http://100.116.96.71:8080/stream_viewer?topic=/keepon/percepcion
 bash ~/keepon/scripts/ver_percepcion.sh stop
@@ -91,6 +97,8 @@ Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_
 - Rostro encontrado en el 80 % de las detecciones; ID estable. Detalle completo en `docs/ESTADO_PI.md`.
 
 ## Dónde quedó la sesión (07/10/2026)
+- **Servos (tarde del 07/10):** compilado y flasheado `prueba_servo.ino` en la ESP32-C3 desde la notebook. **El HS-7955TG se mueve** en GPIO1 con fuente de laboratorio a 6 V (probado por el usuario y por serie: pulsos, rampa, barrido y apagado responden bien). Falta completar la planilla (extremos, grados/µs, banda muerta, corriente) y probar el MG996R (GPIO0) y el MG995 (GPIO3).
+- Si el puerto está ocupado, es casi siempre un `serial-monitor` abierto por el usuario (`fuser -v /dev/ttyUSB0`): pedir que lo cierre, no matarlo.
 - Todo commiteado y subido. Los dos visores eligen la cámara por nombre (la segunda NoIR había corrido los índices); ambos probados con la cámara real.
 - **`ver_personas.sh` quedó corriendo en la Pi** y ocupa la cámara. Detenerlo con `~/keepon/ver_personas.sh stop`.
 - Pendiente: revisar el flex de la segunda NoIR (`i2c@88000`) o desconectarla.
