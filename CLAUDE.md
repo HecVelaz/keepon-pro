@@ -12,7 +12,7 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 
 ## Hardware real
 - **Raspberry Pi 5, 4 GB**, Ubuntu 24.04 + ROS 2 Jazzy. **No se puede cambiar el SO**: la Pi se usa en otros proyectos.
-- **Camera Module 3 NoIR** (IMX708) en `camera:=0`. Es NoIR, sin filtro IR, así que hay riesgo con los colores de las camisetas. La segunda NoIR está desconectada.
+- **Camera Module 3 NoIR** (IMX708) en `i2c@80000`. Es NoIR, sin filtro IR, así que hay riesgo con los colores de las camisetas. La segunda NoIR (`i2c@88000`) aparece en libcamera pero no transmite ("Camera frontend has timed out": revisar el flex) y corre los índices: los scripts eligen la cámara **por nombre** (`CAMARA=/base/axi/pcie@120000/rp1/i2c@80000/imx708@1a`), no con `camera:=0`.
 - **ESP32-S3 WROOM** para los 3 servos y el buzzer, por USB nativo (`/dev/ttyACM0`). **Todavía no está conectado a la Pi** y el firmware no existe (`firmware/` está vacío).
 - La notebook (x86, GPU vieja, sin CUDA) sirve solo para desarrollar.
 
