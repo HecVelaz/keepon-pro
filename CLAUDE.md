@@ -71,14 +71,26 @@ bash ~/keepon/scripts/ver_percepcion.sh stop
 bash scripts/pi_bench.sh 15 [rapido]             # matriz de benchmark → logs/benchmark.csv
 ```
 
+## Visores en la Pi (uno a la vez: comparten cámara y puerto 8080)
+| | `scripts/ver_percepcion.sh` | `ver_personas.sh` (raíz del repo) |
+|---|---|---|
+| Qué muestra | Percepción completa de Keepon: personas (YOLO + tracker propio), rostros/ME_MIRA, pose con brazos (MediaPipe) | Solo recuadros de personas (YOLO26n 256 NCNN) |
+| Código | `scripts/ver_percepcion.py` → `keepon/perception.py` (2 procesos) | `detector_node` de `~/yolo_ws` (vision_estereo, sin modificar) |
+| Ver en | `/stream_viewer?topic=/keepon/percepcion` | `/stream_viewer?topic=/yolo/left/image_annotated` (cámara cruda: `/keepon_cam/image_raw`) |
+| Velocidad (07/10) | El tópico del overlay llega a ~5 Hz (es solo el video; la percepción se mide con `perception_bench.py`) | **30 FPS**, detecta 1–2 personas |
+| Uso | Calibrar ME_MIRA, ver brazos/SALUDO | Chequeo rápido de que cámara + YOLO andan |
+
+Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_node` tiene que dar vacío). Logs en `/tmp/keepon_*.log`.
+
 ## Rendimiento medido en la Pi (30/09, 1 persona)
 - Personas + rostros: **16,9 Hz** (YOLO 34 ms + rostros 10 ms), edad del resultado 74 ms.
 - Pose: **10,0 Hz**, edad 149 ms. CPU total: 239 % de 400 %.
 - Rostro encontrado en el 80 % de las detecciones; ID estable. Detalle completo en `docs/ESTADO_PI.md`.
 
-## Dónde quedó la sesión (30/09/2026, noche)
-- Último commit subido: `ab4335c` (percepción en paralelo). **Sin commit:** `scripts/ver_percepcion.py`, `scripts/ver_percepcion.sh` y este `CLAUDE.md`.
-- **El visor de percepción quedó corriendo en la Pi** (`ver_percepcion.sh`) y ocupa la cámara. Detenerlo con `bash ~/keepon/scripts/ver_percepcion.sh stop`.
+## Dónde quedó la sesión (07/10/2026)
+- Todo commiteado y subido. Los dos visores eligen la cámara por nombre (la segunda NoIR había corrido los índices); ambos probados con la cámara real.
+- **`ver_personas.sh` quedó corriendo en la Pi** y ocupa la cámara. Detenerlo con `~/keepon/ver_personas.sh stop`.
+- Pendiente: revisar el flex de la segunda NoIR (`i2c@88000`) o desconectarla.
 - Se les pidió a los usuarios probar el visor (mirar / no mirar, girar la cabeza, levantar la mano, cruzarse) y anotar los grados de desvío para calibrar el umbral de ME_MIRA.
 
 ## Próximos pasos (hacia M1, el 8/10: el robot sigue a una persona con detecciones reales)
