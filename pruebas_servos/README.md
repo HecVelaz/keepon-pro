@@ -87,6 +87,50 @@ Con la fuente de laboratorio, si el indicador de **limitación de corriente (CC)
 
 Todos los ejes arrancan **sin pulso**. El primer comando a un eje lo hace saltar a esa posición, porque la ESP32 no sabe dónde quedó el servo. Por eso las primeras pruebas se hacen **sin brazo cargado** y con el servo suelto o bien sujeto.
 
+## Manejar la prueba desde la terminal
+
+Abrir el monitor serie en la notebook (`arduino-cli` ya está instalado):
+
+```bash
+~/.local/bin/arduino-cli monitor -p /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0 -c baudrate=115200
+```
+
+- Se escribe un comando y se aprieta **Enter**. **Ctrl+C** para salir.
+- Usar la ruta `by-id` y no `/dev/ttyUSB0`: si la ESP32 se desconecta, al volver puede aparecer como `ttyUSB1`.
+- Al abrir el monitor la ESP32 se reinicia y pierde el eje elegido: empezar siempre con `e <eje>`.
+- Un solo programa por vez en el puerto. Si dice que está ocupado: `fuser -v /dev/ttyUSB*` muestra quién lo tiene.
+
+| Comando | Qué hace |
+|---|---|
+| `e 0` / `e 1` / `e 2` | Elige el eje: GPIO0 (yaw) / GPIO1 (pitch) / GPIO3 (roll) |
+| `c` | Va al centro (1500 µs) |
+| `p <us>` | Va a ese pulso con rampa (recortado a los límites) |
+| `+` / `-` | Mueve 10 µs (≈ 1°) |
+| `v <us/s>` | Velocidad de la rampa: 300 ≈ 27 °/s, 700 ≈ 60 °/s, 1300 ≈ 117 °/s, 3000 es rápido |
+| `l <min> <max>` | Límites del eje (por defecto 1000–2000; hasta 500–2500) |
+| `b <us1> <us2>` / `s` | Barrido de ida y vuelta / lo detiene |
+| `o` / `O` | Apaga el pulso de este eje / de todos |
+| `?` / `h` | Estado de los ejes / ayuda |
+
+Secuencia rápida para un servo nuevo:
+
+```
+e 0
+v 700
+c                 ← marcar 0°
+p 1600            ← ¿va a ~9° y se queda? (si gira sin parar es continuo: o)
+p 1200   p 1800   ← ¿27° a cada lado?
+p 1000   p 2000   ← ¿45°? → grados/µs
+```
+
+Lo que aprendimos en las pruebas del 09/10:
+- **Apagar la fuente antes de cambiar de servo.** Enchufar uno con la fuente prendida desconectó la ESP32 del USB.
+- Fuente: **6 V** para el HS-7955TG y **5 V** para los micro (MG90S, SG90), con límite de corriente ~3 A y ~1 A.
+- **Antes de conectar un servo desconocido, girarlo a mano sin alimentación:** si da vueltas completas sin tope, es de rotación continua (o está roto) y no sirve como articulación.
+- Si un servo barato zumba sin moverse con `v 300`, probar con `v 1500`: con pasos muy chicos, a veces el motor no arranca.
+- Para buscar los extremos: de a 100 µs hasta 900/2100, después de a 50. Los Hitec tienen límite electrónico (dejan de moverse sin forzar); los micro pueden tener tope mecánico.
+- La banda muerta de los micro se nota poco con el oído: pegar una tira de papel larga al brazo como puntero.
+
 ## Procedimiento por servo (uno a la vez, sin carga)
 
 Conectar solo el servo que se prueba, en el canal del eje que se le asigna (por ejemplo, el HS-7955TG en GPIO1 → `e 1`).
@@ -100,6 +144,9 @@ Conectar solo el servo que se prueba, en el canal del eje que se le asigna (por 
 7. **Barrido y temperatura:** `v 300` y `b 1200 1800` durante 5 minutos. Escuchar el ruido, tocar la carcasa y ver si tiembla en los extremos. `s` para detenerlo.
 8. **Consumo:** multímetro en serie con el + del servo. Medir en reposo, en barrido y sosteniendo con la mano una carga suave. **No dejarlo trabado** más de 1–2 s.
 9. **Reposo:** con el servo quieto en el centro, ¿zumba? Los digitales suelen hacerlo. En un robot social se nota.
+10. **Velocidad del robot:** `v` con el límite del eje en `config.yaml` (yaw `v 2000`, pitch `v 1300`, roll `v 1000`) y `b 1300 1700`. ¿Se mueve parejo y frena limpio en los extremos?
+11. **Sin señal:** `p 1700`, después `o`, y empujar el brazo con suavidad. ¿Queda flojo o mantiene la posición con fuerza? Define qué hace el firmware en el STOP.
+12. **Encendido:** fuente apagada, brazo a mano a −30/−40°, prender la fuente sin pulso (¿se mueve solo?) y después `c` (¿qué tan brusco va al centro?).
 
 Después, los tres juntos con `b` en los tres ejes: medir la tensión en la bornera mientras se mueven. Tiene que mantenerse ≥ 5,5 V con fuente de 6 V. Si la ESP32 o la Pi se reinician, hay un problema de masa o de fuente.
 
