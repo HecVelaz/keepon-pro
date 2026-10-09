@@ -109,7 +109,7 @@ Completar una columna por servo. Estos datos van después a la calibración del 
 | Medida | HS-7955TG | SM-S4315R |
 |---|---|---|
 | Fecha / quién | 09/10, Héctor + Claude por serie | |
-| ¿Posición o continuo? | Posición | |
+| ¿Posición o continuo? | Posición | **Continuo** (09/10: quieto con 1500 µs, gira sin parar con 1600 µs y hacia el otro lado con 1400 µs; con 1500 µs y pulso activo, si se lo gira a mano se queda donde lo dejan). No sirve como articulación |
 | Pulso del centro (µs) | 1500 (marcado como 0°) | — |
 | Extremo seguro mín / máx (µs) | 750 / 2250 (≈ −68° / +68–70°). Son límites **electrónicos**: con 700 o 2300 µs no se mueve más y no fuerza. En el firmware: 760 / 2240 | — |
 | Pulso a −45° / +45° (µs) | 1000 / 2000 | — |
