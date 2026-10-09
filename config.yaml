@@ -24,7 +24,12 @@ neck:
       min_us: 600                # ≈ −81° (no se encontró tope hasta 500 µs)
       max_us: 2450               # ≈ +80°
       signo: 1                   # FALTA: definir con el servo montado qué sentido es "izquierda"
-    roll: null                   # falta servo
+    roll:                        # SG90 (5 V), medido el 09/10
+      centro_us: 1500            # ajustar al montar: el brazo queda algo inclinado por las estrías
+      grados_por_us: 0.090       # simétrico: ±45° en 1000/2000 µs
+      min_us: 1000               # no se buscaron los topes (engranajes plásticos); roll pide ±20°
+      max_us: 2000
+      signo: 1                   # FALTA: definir con el servo montado
 
 serial:
   port: /dev/ttyACM0             # ESP32-S3 por USB nativo (CDC). Con conversor CH340/CP210x sería /dev/ttyUSB0
