@@ -9,18 +9,16 @@ Esto **no** es el firmware del robot. `prueba_servo/prueba_servo.ino` es un prog
 | Servo | Tipo | Par (4,8 V / 6 V) | Peso | Cables (−, +, señal) | ¿Sirve? |
 |---|---|---|---|---|---|
 | Hitec **HS-7955TG** | Digital, posición | ~18 / 24 kgf·cm | 65 g | negro, rojo, amarillo | **Sí** → pitch |
-| TowerPro **MG996R** | Analógico/digital, posición | ~9,4 / 11 kgf·cm | 55 g | marrón, rojo, naranja | **Sí** → yaw |
-| TowerPro **MG995** | Digital, posición | ~8,5 / 10 kgf·cm | 55 g | marrón, rojo, naranja | **Sí** → roll |
 | SpringRC **SM-S4315R** | **Rotación continua** (la "R") | — | 60 g | (verificar) | **No como articulación** |
 
 Pares tomados de fichas de vendedores. Hay que comprobarlos con las pruebas, no darlos por buenos.
 
 **Por qué el SM-S4315R no sirve:** en un servo de rotación continua el pulso controla la **velocidad**, no la posición. Con 1500 µs se queda quieto, y con otros pulsos gira sin parar. No tiene realimentación de ángulo, así que no puede mantener la cabeza en un ángulo. La prueba 1 lo confirma: si gira sin detenerse, es de rotación continua. (El modelo de posición equivalente es el SM-S4315**M**.)
 
-**Asignación propuesta:**
-- **Pitch → HS-7955TG**, el de más par, porque pitch es el eje que carga contra la gravedad. Su cuerpo va montado sobre la plataforma de yaw.
-- **Yaw → MG996R**. Con el eje vertical, la gravedad no le hace par, pero el **rodamiento** tiene que soportar el peso y el vuelco: ahora los servos que se mueven pesan ~120 g más que con los micro.
-- **Roll → MG995**. Es el que tiene peor fama de temblor y banda muerta, y en roll se nota menos.
+**Asignación:**
+- **Pitch → HS-7955TG** (caracterizado el 09/10, ver la planilla), el de más par, porque pitch es el eje que carga contra la gravedad. Su cuerpo va montado sobre la plataforma de yaw.
+- **Yaw → falta servo.** Tiene que dar **140°** de recorrido. Con el eje vertical, la gravedad no le hace par, pero el **rodamiento** tiene que soportar el peso y el vuelco de lo que va arriba.
+- **Roll → falta servo.** Necesita ±20°.
 - Los micro (MG90S/SG90) quedan de repuesto o para pruebas.
 
 ## Conexionado
@@ -34,9 +32,9 @@ Pares tomados de fichas de vendedores. Hay que comprobarlos con las pruebas, no 
                                    └── GND de la ESP32-C3   (masa común)
 
  ESP32-C3-DevKitM-1                         señal (amarillo/naranja)
-   GPIO0 ──[330 Ω]──────────────────────── servo YAW   (MG996R)
+   GPIO0 ──[330 Ω]──────────────────────── servo YAW   (falta servo)
    GPIO1 ──[330 Ω]──────────────────────── servo PITCH (HS-7955TG)
-   GPIO3 ──[330 Ω]──────────────────────── servo ROLL  (MG995)
+   GPIO3 ──[330 Ω]──────────────────────── servo ROLL  (falta servo)
    GND   ───────────────────────────────── bornera GND
    USB   ───────────────────────────────── notebook (alimenta SOLO a la ESP32)
 ```
@@ -108,20 +106,20 @@ Después, los tres juntos con `b` en los tres ejes: medir la tensión en la born
 
 Completar una columna por servo. Estos datos van después a la calibración del firmware (centro, límites y sentido por eje).
 
-| Medida | HS-7955TG | MG996R | MG995 | SM-S4315R |
-|---|---|---|---|---|
-| Fecha / quién | | | | |
-| ¿Posición o continuo? | | | | |
-| Pulso del centro (µs) | | | | — |
-| Extremo seguro mín / máx (µs) | | | | — |
-| Pulso a −45° / +45° (µs) | | | | — |
-| Grados por µs | | | | — |
-| Banda muerta (µs) | | | | — |
-| Holgura (°) | | | | — |
-| Corriente reposo / barrido (mA) | | | | |
-| Temperatura tras 5 min | | | | |
-| ¿Zumba en reposo? | | | | |
-| Observaciones | | | | |
+| Medida | HS-7955TG | SM-S4315R |
+|---|---|---|
+| Fecha / quién | 09/10, Héctor + Claude por serie | |
+| ¿Posición o continuo? | Posición | |
+| Pulso del centro (µs) | 1500 (marcado como 0°) | — |
+| Extremo seguro mín / máx (µs) | 750 / 2250 (≈ −68° / +68–70°). Son límites **electrónicos**: con 700 o 2300 µs no se mueve más y no fuerza. En el firmware: 760 / 2240 | — |
+| Pulso a −45° / +45° (µs) | 1000 / 2000 | — |
+| Grados por µs | **0,090**, lineal en todo el recorrido (27° en 1200 y 1800, 36° en 1100 y 1900, 54° en 900 y 2100). Recorrido total ≈ 137° | — |
+| Banda muerta (µs) | ≤ 2 en los dos sentidos (responde a 1500→1502 y a 1502→1500) | — |
+| Holgura (°) | ≤ 1 (1600 µs desde 1400 y desde 1800) | — |
+| Corriente reposo / barrido (mA) | 6 / 150 (v 300) – 200–450 (v 1300, ±18°) | |
+| Temperatura tras 5 min | Frío (`b 1200 1800` a `v 300`) | |
+| ¿Zumba en reposo? | No: silencio en el centro | |
+| Observaciones | A 117 °/s (`v 1300`) se mueve parejo y frena limpio; a `v 3000` es rápido. Ruido de engranajes continuo al moverse lento, sin golpes periódicos. **Sin pulso mantiene la última posición con fuerza** (pita y consume 0,15–0,22 A si se lo empuja): apagar el pulso no lo afloja. Al prender la fuente sin pulso no se mueve; el primer pulso lo lleva a la posición a velocidad máxima (58° rápido, sin pasarse) | |
 
 ## Rangos que tiene que cubrir cada eje (enunciado)
 

@@ -9,6 +9,17 @@ neck:
   home: [0.0, 0.0, 0.0]          # postura calibrada, mirada al frente
   vmax: [180.0, 120.0, 90.0]     # velocidad máxima por eje [°/s] (yaw, pitch, roll)
   amax: [600.0, 400.0, 300.0]    # aceleración máxima por eje [°/s²]
+  # Calibración de los servos (planilla de pruebas_servos/README.md). La usa el firmware para pasar de grados a µs:
+  # pulso = centro_us + signo · grados / grados_por_us, recortado a [min_us, max_us].
+  servos:
+    pitch:                       # Hitec HS-7955TG, medido el 09/10 (6 V, sin carga)
+      centro_us: 1500
+      grados_por_us: 0.090       # lineal y simétrico: ±45° en 1000/2000 µs
+      min_us: 760                # límites electrónicos 750/2250 µs (≈ ±68°): ahí deja de moverse, sin forzar
+      max_us: 2240
+      signo: 1                   # FALTA: definir con el servo montado qué sentido es "arriba"
+    yaw: null                    # falta servo (necesita 140° de recorrido)
+    roll: null                   # falta servo
 
 serial:
   port: /dev/ttyACM0             # ESP32-S3 por USB nativo (CDC). Con conversor CH340/CP210x sería /dev/ttyUSB0
