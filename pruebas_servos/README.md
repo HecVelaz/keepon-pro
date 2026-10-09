@@ -9,6 +9,7 @@ Esto **no** es el firmware del robot. `prueba_servo/prueba_servo.ino` es un prog
 | Servo | Tipo | Par (4,8 V / 6 V) | Peso | Cables (−, +, señal) | ¿Sirve? |
 |---|---|---|---|---|---|
 | Hitec **HS-7955TG** | Digital, posición | ~18 / 24 kgf·cm | 65 g | negro, rojo, amarillo | **Sí** → pitch |
+| TowerPro **MG90S** (micro) | Posición | 1,8 / 2,2 kgf·cm | 13,4 g | marrón, rojo, naranja | **Sí** → yaw provisorio |
 | SpringRC **SM-S4315R** | **Rotación continua** (la "R") | — | 60 g | (verificar) | **No como articulación** |
 
 Pares tomados de fichas de vendedores. Hay que comprobarlos con las pruebas, no darlos por buenos.
@@ -17,9 +18,9 @@ Pares tomados de fichas de vendedores. Hay que comprobarlos con las pruebas, no 
 
 **Asignación:**
 - **Pitch → HS-7955TG** (caracterizado el 09/10, ver la planilla), el de más par, porque pitch es el eje que carga contra la gravedad. Su cuerpo va montado sobre la plataforma de yaw.
-- **Yaw → falta servo.** Tiene que dar **140°** de recorrido. Con el eje vertical, la gravedad no le hace par, pero el **rodamiento** tiene que soportar el peso y el vuelco de lo que va arriba.
+- **Yaw → MG90S, provisorio** (caracterizado el 09/10): da ~177° y es muy silencioso, pero tiene ~10 veces menos par que el HS y banda muerta de 20–30 µs. Sirve para avanzar con el firmware; para la cabeza final conviene un servo estándar que dé **140°**. Con el eje vertical, la gravedad no le hace par, pero el **rodamiento** tiene que soportar el peso y el vuelco de lo que va arriba.
 - **Roll → falta servo.** Necesita ±20°.
-- Los micro (MG90S/SG90) quedan de repuesto o para pruebas.
+- El SG90 queda de repuesto.
 
 ## Conexionado
 
@@ -106,20 +107,20 @@ Después, los tres juntos con `b` en los tres ejes: medir la tensión en la born
 
 Completar una columna por servo. Estos datos van después a la calibración del firmware (centro, límites y sentido por eje).
 
-| Medida | HS-7955TG | SM-S4315R |
-|---|---|---|
-| Fecha / quién | 09/10, Héctor + Claude por serie | |
-| ¿Posición o continuo? | Posición | **Continuo** (09/10: quieto con 1500 µs, gira sin parar con 1600 µs y hacia el otro lado con 1400 µs; con 1500 µs y pulso activo, si se lo gira a mano se queda donde lo dejan). No sirve como articulación |
-| Pulso del centro (µs) | 1500 (marcado como 0°) | — |
-| Extremo seguro mín / máx (µs) | 750 / 2250 (≈ −68° / +68–70°). Son límites **electrónicos**: con 700 o 2300 µs no se mueve más y no fuerza. En el firmware: 760 / 2240 | — |
-| Pulso a −45° / +45° (µs) | 1000 / 2000 | — |
-| Grados por µs | **0,090**, lineal en todo el recorrido (27° en 1200 y 1800, 36° en 1100 y 1900, 54° en 900 y 2100). Recorrido total ≈ 137° | — |
-| Banda muerta (µs) | ≤ 2 en los dos sentidos (responde a 1500→1502 y a 1502→1500) | — |
-| Holgura (°) | ≤ 1 (1600 µs desde 1400 y desde 1800) | — |
-| Corriente reposo / barrido (mA) | 6 / 150 (v 300) – 200–450 (v 1300, ±18°) | |
-| Temperatura tras 5 min | Frío (`b 1200 1800` a `v 300`) | |
-| ¿Zumba en reposo? | No: silencio en el centro | |
-| Observaciones | A 117 °/s (`v 1300`) se mueve parejo y frena limpio; a `v 3000` es rápido. Ruido de engranajes continuo al moverse lento, sin golpes periódicos. **Sin pulso mantiene la última posición con fuerza** (pita y consume 0,15–0,22 A si se lo empuja): apagar el pulso no lo afloja. Al prender la fuente sin pulso no se mueve; el primer pulso lo lleva a la posición a velocidad máxima (58° rápido, sin pasarse) | |
+| Medida | HS-7955TG | MG90S (5 V) | SM-S4315R |
+|---|---|---|---|
+| Fecha / quién | 09/10, Héctor + Claude por serie | 09/10, Héctor + Claude por serie | |
+| ¿Posición o continuo? | Posición | Posición | **Continuo** (09/10: quieto con 1500 µs, gira sin parar con 1600 µs y hacia el otro lado con 1400 µs; con 1500 µs y pulso activo, si se lo gira a mano se queda donde lo dejan). No sirve como articulación |
+| Pulso del centro (µs) | 1500 (marcado como 0°) | 1500 (marcado como 0°) | — |
+| Extremo seguro mín / máx (µs) | 750 / 2250 (≈ −68° / +68–70°). Son límites **electrónicos**: con 700 o 2300 µs no se mueve más y no fuerza. En el firmware: 760 / 2240 | No se encontró tope: 500 µs ≈ −97° y 2450 µs ≈ +80° sin zumbar. En el firmware: 600 / 2450 (−81° / +80°) | — |
+| Pulso a −45° / +45° (µs) | 1000 / 2000 | 1000 / ~2050 | — |
+| Grados por µs | **0,090**, lineal en todo el recorrido (27° en 1200 y 1800, 36° en 1100 y 1900, 54° en 900 y 2100). Recorrido total ≈ 137° | **Asimétrico:** 0,090 en el lado − (lineal hasta 600 µs; de 550 a 500 se estira) y ~0,085 en el lado + (40° en 2000, 59° en 2200, 68° en 2300, 76° en 2400). ±70° ≈ 722 / 2324 µs. Recorrido ≥ 177° | — |
+| Banda muerta (µs) | ≤ 2 en los dos sentidos (responde a 1500→1502 y a 1502→1500) | 20–30 en los dos sentidos (≈ 2–2,5°; la hoja dice 5) | — |
+| Holgura (°) | ≤ 1 (1600 µs desde 1400 y desde 1800) | No se nota (1600 µs desde 1400 y desde 1800) | — |
+| Corriente reposo / barrido (mA) | 6 / 150 (v 300) – 200–450 (v 1300, ±18°) | 1 / 120 (v 300) – 60–160 (v 2000, ±18°) | |
+| Temperatura tras 5 min | Frío (`b 1200 1800` a `v 300`) | Frío (`b 1200 1800` a `v 300`) | |
+| ¿Zumba en reposo? | No: silencio en el centro | No: muy silencioso, incluso en los extremos | |
+| Observaciones | A 117 °/s (`v 1300`) se mueve parejo y frena limpio; a `v 3000` es rápido. Ruido de engranajes continuo al moverse lento, sin golpes periódicos. **Sin pulso mantiene la última posición con fuerza** (pita y consume 0,15–0,22 A si se lo empuja): apagar el pulso no lo afloja. Al prender la fuente sin pulso no se mueve; el primer pulso lo lleva a la posición a velocidad máxima (58° rápido, sin pasarse) | A 180 °/s (`v 2000`) parejo y frena limpio. **Sin pulso queda flojo** (al revés que el HS): en el STOP el firmware tiene que seguir mandando el último pulso. Al prender la fuente sin pulso no se mueve; el primer pulso lo lleva a la posición rápido, sin pasarse | |
 
 ## Rangos que tiene que cubrir cada eje (enunciado)
 
