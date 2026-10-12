@@ -17,22 +17,27 @@ neck:
       grados_por_us: 0.090       # lineal y simétrico: ±45° en 1000/2000 µs
       min_us: 760                # límites electrónicos 750/2250 µs (≈ ±68°): ahí deja de moverse, sin forzar
       max_us: 2240
-      signo: 1                   # FALTA: definir con el servo montado qué sentido es "arriba"
+      signo: 1                   # pulso mayor = HORARIO visto de frente al eje: al revés que los RDS3218 (12/10,
+                                 # comparado con el yaw, los dos ejes hacia el mismo lado y 1500 → 1700 µs).
+                                 # FALTA: con el servo montado, qué sentido es "arriba"
     yaw:                         # DSSERVO RDS3218 n.º 2 (versión de 270°), medido el 12/10 sin carga
       centro_us: 1500
       grados_por_us: [0.13, 0.136]   # [lado de pulsos < 1500, lado de pulsos > 1500]. Medido: −39° en 1200,
                                      # −65° en 1000, −70° en 960; +39° en 1800, ≈ +67° en 2000, +75° en 2040
       min_us: 950                # ≈ −71°. No tiene tope (llega a −130° / +140° con 500/2500 µs):
       max_us: 2020               # ≈ +71°  estos límites son lo único que protege el cableado
-      signo: 1                   # pulso mayor = antihorario visto desde arriba. FALTA: con el servo montado, qué sentido es "izquierda"
+      signo: 1                   # pulso mayor = antihorario visto de frente al eje (confirmado el 12/10 con 1700 µs).
+                                 # FALTA: con el servo montado, qué sentido es "izquierda"
       # El n.º 1 (11-12/10) era simétrico: 0.13, 950/2050 µs. No son intercambiables sin recalibrar.
       # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
-    roll:                        # SG90 (5 V), medido el 09/10
-      centro_us: 1500            # ajustar al montar: el brazo queda algo inclinado por las estrías
-      grados_por_us: 0.090       # simétrico: ±45° en 1000/2000 µs
-      min_us: 1000               # no se buscaron los topes (engranajes plásticos); roll pide ±20°
-      max_us: 2000
-      signo: 1                   # FALTA: definir con el servo montado
+    roll:                        # DSSERVO RDS3218 n.º 1, medido el 11-12/10 sin carga (desde el 12/10 en roll)
+      centro_us: 1500
+      grados_por_us: 0.13        # simétrico y lineal entre 1000 y 2000 µs (±65°); hacia los extremos sube a 0,15-0,16
+      min_us: 1000               # ≈ −65°. No tiene tope (llega a ±143° con 500/2500 µs): estos límites
+      max_us: 2000               # ≈ +65°  protegen el cableado. Roll pide solo ±20° (≈ ±154 µs)
+      signo: 1                   # pulso mayor = antihorario visto de frente al eje (12/10: 1700 µs → antihorario).
+                                 # FALTA: con el servo montado, qué sentido es "derecha"
+      # Antes: SG90 (09/10, 5 V), 0.090 simétrico, 1000/2000 µs; queda de repuesto.
 
 serial:
   port: /dev/ttyACM0             # ESP32-S3 por USB nativo (CDC). Con conversor CH340/CP210x sería /dev/ttyUSB0
