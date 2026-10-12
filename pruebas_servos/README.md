@@ -20,7 +20,7 @@ Pares tomados de fichas de vendedores. Hay que comprobarlos con las pruebas, no 
 
 **Asignación:**
 - **Pitch → HS-7955TG** (caracterizado el 09/10, ver la planilla), el de más par, porque pitch es el eje que carga contra la gravedad. Su cuerpo va montado sobre la plataforma de yaw.
-- **Yaw → RDS3218** (caracterizado el 11–12/10, decidido el 12/10): versión de 270°, 0,13 °/µs en el centro, ±70° con ≈ 960 / 2040 µs, banda muerta ≤ 2 µs, sin holgura. **No tiene tope**: los límites del firmware (950 / 2050 µs) son lo único que protege el cableado. Sin pulso mantiene la posición. Reemplaza al MG90S, que queda de repuesto. Con el eje vertical la gravedad no le hace par, pero el **rodamiento** tiene que soportar el peso y el vuelco de lo que va arriba.
+- **Yaw → RDS3218 n.º 2** (caracterizado el 12/10; en `config.yaml`): versión de 270°, asimétrico 0,13 / 0,136 °/µs, ±70° con ≈ 960 / 2010 µs, banda muerta ≤ 2 µs hacia abajo y 4–6 µs hacia arriba, sin holgura. **No tiene tope**: los límites del firmware (950 / 2020 µs) son lo único que protege el cableado. Sin pulso mantiene la posición. El n.º 1 (simétrico, 0,13 °/µs, 950 / 2050 µs) queda de repuesto: **no son intercambiables sin recalibrar**. Marcar cada uno con cinta. Reemplaza al MG90S, que también queda de repuesto. Con el eje vertical la gravedad no le hace par, pero el **rodamiento** tiene que soportar el peso y el vuelco de lo que va arriba.
 - **Roll → SG90** (caracterizado el 09/10). Roll pide poco par si el eje pasa cerca del centro de gravedad de la cabeza (≈ 0,15 kgf·cm para 150 g a 1 cm, según `docs/REVISION_CODEX_HW.md`). Es liviano, lo que alivia a pitch y yaw. Engranajes plásticos: tratarlo con cuidado y tener repuesto.
 
 ## Conexionado
