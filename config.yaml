@@ -18,12 +18,13 @@ neck:
       min_us: 760                # límites electrónicos 750/2250 µs (≈ ±68°): ahí deja de moverse, sin forzar
       max_us: 2240
       signo: 1                   # FALTA: definir con el servo montado qué sentido es "arriba"
-    yaw:                         # MG90S PROVISORIO (5 V), medido el 09/10. Asimétrico: una pendiente por lado
+    yaw:                         # DSSERVO RDS3218 (versión de 270°), medido el 11-12/10 sin carga
       centro_us: 1500
-      grados_por_us: [0.090, 0.085]   # [lado de pulsos < 1500, lado de pulsos > 1500]
-      min_us: 600                # ≈ −81° (no se encontró tope hasta 500 µs)
-      max_us: 2450               # ≈ +80°
+      grados_por_us: 0.13        # simétrico entre 1000 y 2000 µs (±65°); hacia los extremos sube a 0,15–0,16
+      min_us: 950                # ≈ −72°. No tiene tope (llega a ±143° con 500/2500 µs):
+      max_us: 2050               # ≈ +72°  estos límites son lo único que protege el cableado
       signo: 1                   # FALTA: definir con el servo montado qué sentido es "izquierda"
+      # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
     roll:                        # SG90 (5 V), medido el 09/10
       centro_us: 1500            # ajustar al montar: el brazo queda algo inclinado por las estrías
       grados_por_us: 0.090       # simétrico: ±45° en 1000/2000 µs
