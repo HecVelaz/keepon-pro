@@ -107,7 +107,8 @@ Abrir el monitor serie en la notebook (`arduino-cli` ya está instalado):
 | `c` | Va al centro (1500 µs) |
 | `p <us>` | Va a ese pulso con rampa (recortado a los límites) |
 | `+` / `-` | Mueve 10 µs (≈ 1°) |
-| `v <us/s>` | Velocidad de la rampa: 300 ≈ 27 °/s, 700 ≈ 60 °/s, 1300 ≈ 117 °/s, 3000 es rápido |
+| `v <us/s>` | Velocidad de la rampa de **todos** los ejes. Con el HS (0,09 °/µs): 300 ≈ 27 °/s, 700 ≈ 60 °/s, 1300 ≈ 117 °/s, 3000 es rápido |
+| `w <us/s>` | Velocidad solo del eje seleccionado. Para que ejes con recorridos distintos lleguen juntos: `w` = recorrido en µs / tiempo deseado en s |
 | `l <min> <max>` | Límites del eje (por defecto 1000–2000; hasta 500–2500) |
 | `b <us1> <us2>` / `s` | Barrido de ida y vuelta / lo detiene |
 | `o` / `O` | Apaga el pulso de este eje / de todos |

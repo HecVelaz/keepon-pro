@@ -35,11 +35,11 @@ struct Eje {
   bool barrido;     // ida y vuelta entre bar_a y bar_b
   int bar_a;
   int bar_b;
+  float vel_us_s;   // velocidad de la rampa de este eje en µs/s
 };
 
 Eje ejes[NUM_EJES];
 int sel = 0;                  // eje seleccionado
-float vel_us_s = 300.0f;      // velocidad de la rampa en µs/s (~54 °/s si 0,18 °/µs)
 uint32_t t_ant_ms = 0;
 char linea[64];
 int largo = 0;
@@ -60,11 +60,11 @@ int recortar(int us, const Eje &e) {
 }
 
 void estado() {
-  Serial.printf("vel=%.0f us/s  seleccionado=%d (%s)\n", vel_us_s, sel, NOMBRES[sel]);
+  Serial.printf("seleccionado=%d (%s)\n", sel, NOMBRES[sel]);
   for (int i = 0; i < NUM_EJES; i++) {
     const Eje &e = ejes[i];
-    Serial.printf("  %d %-5s GPIO%d %s pos=%.0f obj=%.0f lim=[%d,%d]%s\n", i, NOMBRES[i], PINES[i],
-                  e.activo ? "ON " : "OFF", e.pos_us, e.obj_us, e.min_us, e.max_us,
+    Serial.printf("  %d %-5s GPIO%d %s pos=%.0f obj=%.0f lim=[%d,%d] vel=%.0f%s\n", i, NOMBRES[i], PINES[i],
+                  e.activo ? "ON " : "OFF", e.pos_us, e.obj_us, e.min_us, e.max_us, e.vel_us_s,
                   e.barrido ? " barriendo" : "");
   }
 }
@@ -79,7 +79,8 @@ void ayuda() {
   Serial.println("  s               detener barrido (mantiene la posicion)");
   Serial.println("  o               apagar pulsos de este eje (servo flojo)");
   Serial.println("  O               apagar todos los ejes");
-  Serial.println("  v <us/s>        velocidad de la rampa (20..5000)");
+  Serial.println("  v <us/s>        velocidad de la rampa de TODOS los ejes (20..5000)");
+  Serial.println("  w <us/s>        velocidad de la rampa solo de este eje (20..5000)");
   Serial.println("  l <min> <max>   limites del eje (dentro de 500..2500)");
   Serial.println("  ?               estado      h  esta ayuda");
 }
@@ -144,9 +145,17 @@ void procesar(char *cmd) {
       break;
     case 'v':
       if (sscanf(cmd + 1, "%d", &a) == 1 && a >= 20 && a <= 5000) {
-        vel_us_s = a;
-        Serial.printf("vel = %d us/s\n", a);
+        for (int i = 0; i < NUM_EJES; i++) ejes[i].vel_us_s = a;
+        Serial.printf("vel = %d us/s (todos)\n", a);
       } else Serial.println("ERR: v <20..5000>");
+      break;
+    case 'w':
+      // Con una velocidad por eje, ejes con recorridos distintos tardan lo mismo:
+      // vel = recorrido / tiempo deseado.
+      if (sscanf(cmd + 1, "%d", &a) == 1 && a >= 20 && a <= 5000) {
+        e.vel_us_s = a;
+        Serial.printf("%s vel = %d us/s\n", NOMBRES[sel], a);
+      } else Serial.println("ERR: w <20..5000>");
       break;
     case 'l':
       if (sscanf(cmd + 1, "%d %d", &a, &b) == 2 && LIM_ABS_MIN <= a && a < b && b <= LIM_ABS_MAX) {
@@ -176,16 +185,25 @@ void leer_serie() {
   }
 }
 
-// Avanza cada eje hacia su objetivo a velocidad constante (rampa) y escribe el PWM.
+// Avanza cada eje hacia su objetivo a su velocidad (rampa) y escribe el PWM.
 void paso_rampa(float dt) {
-  float max_paso = vel_us_s * dt;
   for (int i = 0; i < NUM_EJES; i++) {
     Eje &e = ejes[i];
+    float max_paso = e.vel_us_s * dt;
     if (e.activo) {
       float error = e.obj_us - e.pos_us;
       if (fabsf(error) <= max_paso) {
         e.pos_us = e.obj_us;
-        if (e.barrido) e.obj_us = (e.obj_us == e.bar_a) ? e.bar_b : e.bar_a;
+        if (e.barrido) {
+          // Lo que sobra del paso se usa en el tramo de vuelta. Sin esto, cada extremo
+          // redondea hacia arriba a un período de 10 ms, distinto en cada eje, y ejes
+          // que deberían ir juntos se desfasan de a poco.
+          float sobra = max_paso - fabsf(error);
+          e.obj_us = (e.obj_us == e.bar_a) ? e.bar_b : e.bar_a;
+          float resto = e.obj_us - e.pos_us;
+          if (sobra > fabsf(resto)) sobra = fabsf(resto);
+          e.pos_us += (resto > 0) ? sobra : -sobra;
+        }
       } else {
         e.pos_us += (error > 0) ? max_paso : -max_paso;
       }
@@ -197,7 +215,7 @@ void paso_rampa(float dt) {
 void setup() {
   Serial.begin(115200);
   for (int i = 0; i < NUM_EJES; i++) {
-    ejes[i] = {false, 1500, 1500, 1000, 2000, false, 1500, 1500};
+    ejes[i] = {false, 1500, 1500, 1000, 2000, false, 1500, 1500, 300.0f};  // 300 µs/s: giro lento a propósito
     if (!ledcAttach(PINES[i], FREC_HZ, RES_BITS)) {
       Serial.printf("ERR: no se pudo configurar LEDC en GPIO%d\n", PINES[i]);
     }
