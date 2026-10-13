@@ -30,15 +30,17 @@ neck:
                                  # FALTA: con el servo montado, qué sentido es "izquierda"
       # El n.º 1 (11-12/10) era simétrico: 0.13, 950/2050 µs. No son intercambiables sin recalibrar.
       # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
-    roll:                        # TowerPro MG90S, medido el 09/10 a 5 V (desde el 12/10 en roll, a 6 V)
+    roll:                        # TowerPro MG996R, medido el 13/10 a 6 V, sin carga
       centro_us: 1500
-      grados_por_us: [0.090, 0.085]  # asimétrico: [lado de pulsos < 1500, lado de pulsos > 1500]
-      min_us: 1000               # ≈ −45° / +42°: de sobra para los ±20° de roll
+      grados_por_us: 0.092       # lineal y simétrico: ±55° en 900/2100 µs, ±64° en 800/2200 µs
+      min_us: 1000               # ≈ ±46°: de sobra para los ±20° de roll (sin tope hasta 800/2300 µs)
       max_us: 2000
-      signo: 1                   # pulso mayor = antihorario visto de frente al eje (12/10, 6 V: 550 µs → horario).
-                                 # FALTA: con el servo montado, qué sentido es "derecha"
-      # Sin pulso queda flojo: en el STOP hay que seguir mandando el último pulso. Banda muerta 20-30 µs.
-      # Antes: RDS3218 n.º 1 (descartado el 12/10: vibra quieto cerca de 1500 µs, ≈ 0,5 A) y SG90 (repuesto).
+      signo: 1                   # FALTA: sentido de giro (no se anotó el 13/10) y, montado, qué sentido es "derecha"
+      # Banda muerta GRANDE, ~100-110 µs (≈ 10°) e intermitente: de +10° a 0° no volvió en 3 de 10 intentos.
+      # Pasos de 20° andan siempre. Conviene mandarle el objetivo de un solo movimiento, no acercarse de a poco.
+      # Sin pulso queda flojo: en el STOP hay que seguir mandando el último pulso. Pesa 55 g.
+      # Antes: MG90S (09-13/10, [0.090, 0.085], 1000/2000 µs, banda muerta 20-30 µs; queda de repuesto),
+      # RDS3218 n.º 1 (descartado el 12/10: vibra quieto cerca de 1500 µs) y SG90 (repuesto).
 
 serial:
   port: /dev/ttyACM0             # ESP32-S3 por USB nativo (CDC). Con conversor CH340/CP210x sería /dev/ttyUSB0
