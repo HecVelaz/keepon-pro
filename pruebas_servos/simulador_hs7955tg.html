@@ -265,7 +265,7 @@ dibujarPines("pines-sup", FILA_SUP, 322, 342);
 dibujarPines("pines-inf", FILA_INF, 452, 440);
 
 // ---------- Firmware simulado (misma lógica que prueba_servo.ino) ----------
-const NOMBRES = ["yaw", "pitch", "roll"], PINES = [0, 1, 3];
+const NOMBRES = ["yaw", "pitch", "roll"], PINES = [0, 1, 4];
 const LIM_ABS_MIN = 500, LIM_ABS_MAX = 2500;
 const ejes = NOMBRES.map(() => ({ activo: false, pos: 1500, obj: 1500, min: 1000, max: 2000, barrido: false, a: 1500, b: 1500 }));
 let sel = 0, vel = 300;
@@ -283,7 +283,7 @@ const recortar = (us, e) => Math.min(e.max, Math.max(e.min, us));
 
 function ayuda() {
   out("Comandos (el eje es el seleccionado con 'e'):\n" +
-      "  e <0|1|2>       seleccionar eje (0 yaw GPIO0, 1 pitch GPIO1, 2 roll GPIO3)\n" +
+      "  e <0|1|2>       seleccionar eje (0 yaw GPIO0, 1 pitch GPIO1, 2 roll GPIO4)\n" +
       "  p <us>          ir al pulso <us> con rampa (recortado a los limites)\n" +
       "  c               ir al centro (1500 us)\n" +
       "  + / -           mover 10 us\n" +

@@ -30,14 +30,15 @@ neck:
                                  # FALTA: con el servo montado, qué sentido es "izquierda"
       # El n.º 1 (11-12/10) era simétrico: 0.13, 950/2050 µs. No son intercambiables sin recalibrar.
       # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
-    roll:                        # DSSERVO RDS3218 n.º 1, medido el 11-12/10 sin carga (desde el 12/10 en roll)
+    roll:                        # TowerPro MG90S, medido el 09/10 a 5 V (desde el 12/10 en roll, a 6 V)
       centro_us: 1500
-      grados_por_us: 0.13        # simétrico y lineal entre 1000 y 2000 µs (±65°); hacia los extremos sube a 0,15-0,16
-      min_us: 1000               # ≈ −65°. No tiene tope (llega a ±143° con 500/2500 µs): estos límites
-      max_us: 2000               # ≈ +65°  protegen el cableado. Roll pide solo ±20° (≈ ±154 µs)
-      signo: 1                   # pulso mayor = antihorario visto de frente al eje (12/10: 1700 µs → antihorario).
+      grados_por_us: [0.090, 0.085]  # asimétrico: [lado de pulsos < 1500, lado de pulsos > 1500]
+      min_us: 1000               # ≈ −45° / +42°: de sobra para los ±20° de roll
+      max_us: 2000
+      signo: 1                   # pulso mayor = antihorario visto de frente al eje (12/10, 6 V: 550 µs → horario).
                                  # FALTA: con el servo montado, qué sentido es "derecha"
-      # Antes: SG90 (09/10, 5 V), 0.090 simétrico, 1000/2000 µs; queda de repuesto.
+      # Sin pulso queda flojo: en el STOP hay que seguir mandando el último pulso. Banda muerta 20-30 µs.
+      # Antes: RDS3218 n.º 1 (descartado el 12/10: vibra quieto cerca de 1500 µs, ≈ 0,5 A) y SG90 (repuesto).
 
 serial:
   port: /dev/ttyACM0             # ESP32-S3 por USB nativo (CDC). Con conversor CH340/CP210x sería /dev/ttyUSB0

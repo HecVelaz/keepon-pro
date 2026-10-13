@@ -13,7 +13,7 @@
 
 // --- Pines y PWM (recomendados en docs/REVISION_CODEX_HW.md, sección C) ---
 const int NUM_EJES = 3;
-const int PINES[NUM_EJES] = {0, 1, 3};                  // GPIO de la señal
+const int PINES[NUM_EJES] = {0, 1, 4};                  // GPIO de la señal
 const char *NOMBRES[NUM_EJES] = {"yaw", "pitch", "roll"};
 const uint32_t FREC_HZ = 50;                             // los servos esperan un pulso cada 20 ms
 const uint8_t RES_BITS = 14;                             // 1,22 µs por paso de duty
@@ -71,7 +71,7 @@ void estado() {
 
 void ayuda() {
   Serial.println("Comandos (el eje es el seleccionado con 'e'):");
-  Serial.println("  e <0|1|2>       seleccionar eje (0 yaw GPIO0, 1 pitch GPIO1, 2 roll GPIO3)");
+  Serial.println("  e <0|1|2>       seleccionar eje (0 yaw GPIO0, 1 pitch GPIO1, 2 roll GPIO4)");
   Serial.println("  p <us>          ir al pulso <us> con rampa (recortado a los limites)");
   Serial.println("  c               ir al centro (1500 us)");
   Serial.println("  + / -           mover 10 us (para buscar extremos y banda muerta)");

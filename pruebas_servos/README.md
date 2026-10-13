@@ -21,7 +21,7 @@ Pares tomados de fichas de vendedores. Hay que comprobarlos con las pruebas, no 
 **Asignación:**
 - **Pitch → HS-7955TG** (caracterizado el 09/10, ver la planilla), el de más par, porque pitch es el eje que carga contra la gravedad. Su cuerpo va montado sobre la plataforma de yaw.
 - **Yaw → RDS3218 n.º 2** (caracterizado el 12/10; en `config.yaml`): versión de 270°, asimétrico 0,13 / 0,136 °/µs, ±70° con ≈ 960 / 2010 µs, banda muerta ≤ 2 µs hacia abajo y 4–6 µs hacia arriba, sin holgura. **No tiene tope**: los límites del firmware (950 / 2020 µs) son lo único que protege el cableado. Sin pulso mantiene la posición. El n.º 1 (simétrico, 0,13 °/µs, 950 / 2050 µs) queda de repuesto: **no son intercambiables sin recalibrar**. Marcar cada uno con cinta. Reemplaza al MG90S, que también queda de repuesto. Con el eje vertical la gravedad no le hace par, pero el **rodamiento** tiene que soportar el peso y el vuelco de lo que va arriba.
-- **Roll → RDS3218 n.º 1** (desde el 12/10; antes, SG90, que queda de repuesto). Con los tres servos juntos (12/10) el roll vibraba en reposo por un falso contacto de la señal en el protoboard: en el robot, soldar o usar conectores con traba. Lo que sigue es lo que se evaluó para el SG90: Roll pide poco par si el eje pasa cerca del centro de gravedad de la cabeza (≈ 0,15 kgf·cm para 150 g a 1 cm, según `docs/REVISION_CODEX_HW.md`). Es liviano, lo que alivia a pitch y yaw. Engranajes plásticos: tratarlo con cuidado y tener repuesto.
+- **Roll → RDS3218 n.º 1** (desde el 12/10; antes, SG90, que queda de repuesto). Vibración del roll (12/10): solo anda bien (también a `v 1500`, ±45°); vibra (≈ 0,5 A) cuando el HS-7955TG está conectado **y recibe pulso**. No vibra con el HS conectado sin pulso, ni con el GPIO1 mandando pulsos sin el HS. No es el pin (pasa igual en GPIO3 y GPIO4) ni la señal del GPIO1. El RDS n.º 2 **no** vibra con el HS activo, y el n.º 1 vibró una vez estando solo: el n.º 1 tiene poco margen (¿potenciómetro gastado?) y el ruido de alimentación del HS lo dispara. **Confirmado intercambiando los RDS** (n.º 1 en GPIO0, n.º 2 en GPIO4, `v 1500`, 1300 ↔ 1700 µs): la vibración (≈ 0,5 A) **sigue al n.º 1**. Se calma si se lo lleva a 1300 µs. **El n.º 1 queda descartado para el robot.** Con el HS (GPIO0) y el n.º 2 (GPIO4) juntos a `v 1500`, el pulso del HS en espejo: sin vibración y sincronizados. Remedio previsto: capacitor de 1000–2200 µF + 100 nF cerca de los servos, GND en estrella y, si no alcanza, otro canal de fuente para el HS (GND común). Lo que sigue es lo que se evaluó para el SG90: Roll pide poco par si el eje pasa cerca del centro de gravedad de la cabeza (≈ 0,15 kgf·cm para 150 g a 1 cm, según `docs/REVISION_CODEX_HW.md`). Es liviano, lo que alivia a pitch y yaw. Engranajes plásticos: tratarlo con cuidado y tener repuesto.
 
 ## Conexionado
 
@@ -36,7 +36,7 @@ Pares tomados de fichas de vendedores. Hay que comprobarlos con las pruebas, no 
  ESP32-C3-DevKitM-1                         señal (amarillo/naranja)
    GPIO0 ──[330 Ω]──────────────────────── servo YAW   (falta servo)
    GPIO1 ──[330 Ω]──────────────────────── servo PITCH (HS-7955TG)
-   GPIO3 ──[330 Ω]──────────────────────── servo ROLL  (falta servo)
+   GPIO4 ──[330 Ω]──────────────────────── servo ROLL  (RDS3218 n.º 1)
    GND   ───────────────────────────────── bornera GND
    USB   ───────────────────────────────── notebook (alimenta SOLO a la ESP32)
 ```
@@ -45,7 +45,7 @@ Pares tomados de fichas de vendedores. Hay que comprobarlos con las pruebas, no 
 |---|---|---|
 | GPIO0 | señal de yaw | fila de abajo de la placa |
 | GPIO1 | señal de pitch | fila de abajo |
-| GPIO3 | señal de roll | fila de abajo |
+| GPIO4 | señal de roll | fila de los pines 4–9, entre un GND y el GPIO5. Hasta el 12/10 era GPIO3: con los tres servos moviéndose, el roll temblaba |
 | GPIO10 | (buzzer, más adelante) | no se usa en esta prueba |
 | GND | bornera GND | **obligatorio**: sin masa común el servo no entiende la señal |
 | 5V / 3V3 | **nada** | no alimentar servos desde la placa |
@@ -103,7 +103,7 @@ Abrir el monitor serie en la notebook (`arduino-cli` ya está instalado):
 
 | Comando | Qué hace |
 |---|---|
-| `e 0` / `e 1` / `e 2` | Elige el eje: GPIO0 (yaw) / GPIO1 (pitch) / GPIO3 (roll) |
+| `e 0` / `e 1` / `e 2` | Elige el eje: GPIO0 (yaw) / GPIO1 (pitch) / GPIO4 (roll) |
 | `c` | Va al centro (1500 µs) |
 | `p <us>` | Va a ese pulso con rampa (recortado a los límites) |
 | `+` / `-` | Mueve 10 µs (≈ 1°) |
@@ -158,7 +158,7 @@ Completar una columna por servo. Estos datos van después a la calibración del 
 | Medida | HS-7955TG | MG90S (5 V) | SG90 (5 V) | SM-S4315R | RDS3218 n.º 1 | RDS3218 n.º 2 |
 |---|---|---|---|---|---|---|
 | Fecha / quién | 09/10, Héctor + Claude por serie | 09/10, Héctor + Claude por serie | 09/10, Héctor + Claude por serie | | 11–12/10, Héctor + Claude por serie | 12/10, Héctor + Claude por serie |
-| ¿Posición o continuo? | Posición. Sentido (12/10): pulso mayor = **horario** visto de frente al eje, al revés que los dos RDS3218 (comparado lado a lado con el n.º 2, 1500 → 1700 µs) | Posición | Posición | **Continuo** (09/10: quieto con 1500 µs, gira sin parar con 1600 µs y hacia el otro lado con 1400 µs; con 1500 µs y pulso activo, si se lo gira a mano se queda donde lo dejan). No sirve como articulación | Posición (11/10: con `p 1600` y `p 1400` se movió un poco y se quedó quieto). Con el sketch de grados (`prueba_grados/`) va a cada ángulo de 0 a 180 (527–2382 µs). Sin alimentación el eje gira libre: en este modelo no indica falla. Sentido (12/10): pulso mayor = antihorario visto de frente al eje | Posición (`p 1600` → +13° y quieto). Sentido: pulso mayor = antihorario visto desde arriba |
+| ¿Posición o continuo? | Posición. Sentido (12/10): pulso mayor = **horario** visto de frente al eje, al revés que los dos RDS3218 (comparado lado a lado con el n.º 2, 1500 → 1700 µs) | Posición. Sentido (12/10, 6 V): pulso mayor = antihorario visto de frente al eje (550 µs → horario, 2450 µs → antihorario), como los RDS3218 | Posición | **Continuo** (09/10: quieto con 1500 µs, gira sin parar con 1600 µs y hacia el otro lado con 1400 µs; con 1500 µs y pulso activo, si se lo gira a mano se queda donde lo dejan). No sirve como articulación | Posición (11/10: con `p 1600` y `p 1400` se movió un poco y se quedó quieto). Con el sketch de grados (`prueba_grados/`) va a cada ángulo de 0 a 180 (527–2382 µs). Sin alimentación el eje gira libre: en este modelo no indica falla. Sentido (12/10): pulso mayor = antihorario visto de frente al eje | Posición (`p 1600` → +13° y quieto). Sentido: pulso mayor = antihorario visto desde arriba |
 | Pulso del centro (µs) | 1500 (marcado como 0°) | 1500 (marcado como 0°) | 1500 (el brazo queda algo inclinado por las estrías: corregir al montar) | — | 1500 (marcado como 0°) | 1500 (el brazo no queda derecho por las estrías; se marcó el 0° donde quedó) |
 | Extremo seguro mín / máx (µs) | 750 / 2250 (≈ −68° / +68–70°). Son límites **electrónicos**: con 700 o 2300 µs no se mueve más y no fuerza. En el firmware: 760 / 2240 | No se encontró tope: 500 µs ≈ −97° y 2450 µs ≈ +80° sin zumbar. En el firmware: 600 / 2450 (−81° / +80°) | No se buscaron los topes (engranajes plásticos; roll pide ±20°). Probado hasta 1000 / 2000 µs. En el firmware: 1000 / 2000 | — | No se encontró tope ni límite: 500 µs ≈ −143° y 2500 µs ≈ +145° (recorrido ≈ 288°). Para yaw (±70°): ≈ 960 / 2040 µs | No se encontró tope ni límite: 500 µs ≈ −130° y 2500 µs ≈ +140° (recorrido ≈ 270°), sin ruido. Para yaw (±70°): ≈ 960 / 2010 µs (con 2040 µs llega a +75°) |
 | Pulso a −45° / +45° (µs) | 1000 / 2000 | 1000 / ~2050 | 1000 / 2000 | — | ≈ 1145 / 1846 (interpolado) | ≈ 1154 / 1843 (interpolado) |
