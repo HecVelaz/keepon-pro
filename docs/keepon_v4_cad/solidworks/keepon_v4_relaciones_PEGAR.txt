@@ -40,9 +40,10 @@ Sub main()
     ' 1) La caja base queda fija; lo demás se libera para que lo ubiquen las relaciones
     Fijar "caja_base", True
     Fijar "tapa_base", False
-    Fijar "bateria_zeee_3s_8000", False
     Fijar "powerbank_xiaomi_pb2020mi", False
-    Fijar "regulador_6v_20a", False
+    Fijar "bornera_6v", False
+    Fijar "capacitor_2200uf", False
+    Fijar "bornes_fuente_6v", False
     Fijar "esp32c3", False
     Fijar "porta_esp32", False
     Fijar "buzzer", False
@@ -74,9 +75,10 @@ Sub main()
 
     ' 2) Grupos rígidos: tres planos coincidentes con la pieza de referencia del grupo
     Rigida "tapa_base", "caja_base"
-    Rigida "bateria_zeee_3s_8000", "caja_base"
     Rigida "powerbank_xiaomi_pb2020mi", "caja_base"
-    Rigida "regulador_6v_20a", "caja_base"
+    Rigida "bornera_6v", "caja_base"
+    Rigida "capacitor_2200uf", "caja_base"
+    Rigida "bornes_fuente_6v", "caja_base"
     Rigida "esp32c3", "caja_base"
     Rigida "porta_esp32", "caja_base"
     Rigida "buzzer", "caja_base"

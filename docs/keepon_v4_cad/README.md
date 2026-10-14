@@ -1,8 +1,9 @@
-# Keepon pro v4: cabeza de la v3 + cuello de la v1 + baterías en la base
+# Keepon pro v4: cabeza de la v3 + cuello de la v1 + alimentación en la base
 
 - **De la v3** (`../keepon_v3_cad/`): la cabeza completa (Pi 5 parada adentro, cámara-nariz, ojos, cinta con la U y el doblez en Z), los tres servos, los soportes de pitch, la horquilla y los brazos dobles. Son las mismas piezas, sin cambios.
 - **De la v1** (`../keepon_mg996r_step/`, `cuerpo.png`): la disposición de los motores. Es una columna compacta: el yaw vertical en la base, una **base en U** sobre su brazo, y **el eje de pitch justo encima del eje de yaw**. En la v3 el pitch estaba 20 mm adelante, sobre un plato de Ø146.
-- **Nuevo:** la caja base lleva las dos baterías: la **LiPo Zeee** para los servos y el **powerbank Xiaomi** para la Pi. Adelante, en una bahía, van el regulador de 6 V, la ESP32 y el buzzer.
+- **Nuevo:** la caja base lleva el **powerbank Xiaomi** para la Pi y, en la pared de atrás, **dos bornes para la fuente de laboratorio** que alimenta los servos (decisión del 14/10). Adelante, en una bahía, van la bornera de 6 V con el capacitor, la ESP32 y el buzzer.
+- **Salieron la LiPo Zeee y el regulador de 6 V.** Su lugar queda libre; la caja conserva la medida (ver "Achicar la caja" más abajo).
 
 ![frente](vistas/01_frente_iso.png)
 
@@ -28,50 +29,62 @@ Vista de arriba (+X es la cara del robot):
 ```
  atrás (−X)                                                  adelante (+X)
  ┌──────────────────────────────────────────────────┬──────────────────┐
- │ [interruptor]                                    │ ESP32 (parada)   │ ← buzzer en la pared
+ │ [interruptor de los servos]                      │ ESP32 (parada)   │ ← buzzer en la pared
  │  POWERBANK XIAOMI 128 × 73 × 32 (5 V → Pi)       │ bornera USB-C    │   (agujeros de sonido)
  │                    ┌──────┐                      ├──────────────────┤
- │─ ─ ─ ─ tabique ─ ─ │ YAW  │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │ REGULADOR 6 V    │
- │  LiPo ZEEE 138 × 47│RDS3218 (cuelga de la tapa)  │ (parado, rieles) │ ← ranuras de
- │  × 36 (→ servos)   └──────┘   ○ paso de cables   │                  │   ventilación
+ │─ ─ ─ ─ tabique ─ ─ │ YAW  │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │   ○ capacitor    │
+ ◎ bornes  (lugar libre│RDS3218 (cuelga de la tapa)  │ BORNERA 6 V      │
+ ◎ 6 V    de la LiPo) └──────┘   ○ paso de cables   │ (+6 V y GND)     │
  └──────────────────────────────────────────────────┴──────────────────┘
 ```
 
-- **Baterías acostadas** contra la pared de atrás, lado a lado, con un tabique entre las dos y topes adelante. Se fijan con velcro adhesivo en el piso.
-- **El servo de yaw cuelga de la tapa** (con la brida por debajo, como en la v3) y queda **2,5 mm por encima de la LiPo**.
+- **Powerbank acostado** contra la pared de atrás, del lado izquierdo, con un tabique del lado del hueco y un tope adelante. Se fija con velcro adhesivo en el piso.
+- **Bornes de 6 V** (banana de 4 mm, rojo y negro, 19 mm entre centros) en la pared de atrás, del lado derecho, por debajo del interruptor. Agujeros de Ø8: medir el borne que compren. Por adentro dan al **lugar libre de la LiPo**, que queda para el cableado y el bucle del yaw.
+- **El servo de yaw cuelga de la tapa** (con la brida por debajo, como en la v3).
 - **Bahía de adelante:**
-  - el **regulador de 6 V** va parado entre dos rieles, con el disipador hacia arriba y ranuras de ventilación en los dos costados;
+  - la **bornera de 6 V** (20 × 40 mm), donde estaba el regulador: reparte +6 V y GND a los tres servos y lleva el **capacitor de 2200 µF + 100 nF**. Va con 2 tornillos M3 al piso o con cinta doble faz;
   - la **ESP32** va parada en `porta_esp32`, tomada de los extremos cortos para que los pines queden libres, con un paso para el micro-USB;
   - la **bornera USB-C** del powerbank;
   - el **buzzer**, en un aro de la pared de adelante con 5 agujeros para el sonido.
-- **Pared de atrás:** el interruptor (corte de 19,2 × 12,8), por encima del powerbank. **Pared izquierda:** una ranura frente al powerbank para su cable y su botón.
-- **Tapa:** 4 tornillos M3 a columnas que cuelgan de las esquinas, por encima de las baterías y del regulador. Para cargar la LiPo hay que sacar la tapa: el balanceador queda adentro.
+- **Pared de atrás:** el interruptor de los servos (corte de 19,2 × 12,8), por encima del powerbank, y los dos bornes. **Pared izquierda:** una ranura frente al powerbank para su cable y su botón (se carga sin abrir la caja).
+- **Tapa:** 4 tornillos M3 a columnas que cuelgan de las esquinas.
 
 ## Alimentación
 
 ```
- LiPo Zeee 3S (11,1 V) ─ Deans ─ fusible 10 A ─ interruptor ─ regulador 6 V ─┬─ RDS3218 (yaw)
-                                                                             ├─ HS-7955TG (pitch)
-                                                     2200 µF + 100 nF ───────┼─ MG996R (roll)
-                                                                             └─ GND ─┐
- Powerbank Xiaomi ─ USB-C ─ bornera ─ 5 V / GND (20 AWG) ─▶ GPIO 2/4 y 6 de la Pi 5   │ GND común
-                                                                                      │ (por la ESP32)
- Pi 5 (cabeza) ─ USB-A ─▶ micro-USB de la ESP32 (base) ─ GPIO0/1/4 ─ señales ─────────┘
+ Fuente de laboratorio ─ bananas 18 AWG ─ bornes ─ interruptor ─ bornera 6 V ─┬─ RDS3218 (yaw)
+ (6,0 V, límite 4–5 A,    (~1 m)          (pared   (solo +6 V)                ├─ HS-7955TG (pitch)
+  sobre la mesa)                           de atrás)   2200 µF + 100 nF ──────┼─ MG996R (roll)
+                                                                              └─ GND ─┐
+ Powerbank Xiaomi ─ USB-C ─ bornera ─ 5 V / GND (20 AWG) ─▶ GPIO 2/4 y 6 de la Pi 5    │ GND común
+                                                                                       │ (por la ESP32)
+ Pi 5 (cabeza) ─ USB-A ─▶ micro-USB de la ESP32 (base) ─ GPIO0/1/4 ─ señales ──────────┘
                                                         └ GPIO10 ─ 2N2222 ─ buzzer
 ```
+
+Son **dos fuentes separadas**: los picos de los servos (sobre todo el HS-7955TG) quedan en el bus de 6 V y no reinician la Pi. Lo único que se une es el GND.
 
 - **Pi 5 con el powerbank:** el puerto USB-C de la Pi queda tapado por la cinta (como en la v3), así que entra **por el GPIO** (5 V en los pines 2 y 4, GND en el 6). El powerbank da 5 V / 3 A por puerto sin negociar PD: la Pi arranca, avisa que la fuente no es de 5 A y **limita los USB a 600 mA**. Eso alcanza para la ESP32. La Pi consume ~7 W típico y 12 W de pico, unos 2,4 A: entra en los 3 A.
   - Duración estimada: 20 000 mAh × 3,7 V ≈ 74 Wh; con ~65 Wh útiles a 5 V y 7 W, **unas 9 h**.
   - Usar 20 AWG de la base a la cabeza (≈ 0,8 m ida y vuelta: ≈ 0,08 V de caída a 3 A). Medir que lleguen ≥ 4,9 V a los pines con la percepción corriendo.
-- **Servos con la LiPo:** el regulador de 6 V (módulo de 20 A) alimenta los tres servos. Los 3 juntos trabados piden hasta ~12 A; en uso normal, 2–3 A. Duración: 8000 mAh × 11,1 V ≈ 89 Wh, sobra para la demo.
-- **GND común:** el negativo de la LiPo (bus de 6 V) se une al GND de la ESP32. Sin GND común, los servos no se mueven. La Pi y el powerbank quedan unidos a esa masa por el USB.
-- Alarma de tensión en el balanceador de la LiPo (pita si una celda baja de ~3,5 V).
+  - **Bornera USB-C:** una placa USB-C hembra **con resistencias de 5,1 kΩ en CC1 y CC2**. Sin ellas, el powerbank no detecta carga y no entrega los 5 V. Verificarlo con el multímetro antes de conectar la Pi.
+  - **No forzar `usb_max_current_enable`** en la Pi: el powerbank no da más de 3 A.
+- **Servos con la fuente de laboratorio:** **6,0 V** (máximo absoluto 7,4 V: el MG996R y el RDS3218 no aguantan más). En uso normal los tres piden 2–3 A, con picos de ~1 A por servo en los giros rápidos; trabados, 2,5–4,2 A cada uno.
+  - **Límite de corriente en 4–5 A** (≥ 6 A si la fuente lo permite). Con 3 A o menos, en los movimientos bruscos la fuente entra en limitación, baja la tensión y los servos tiemblan o pierden fuerza.
+  - **No usar la ALP002** (1,5 A, entrada de 110 V).
+  - Cable de 18 AWG o más grueso hasta los bornes, y el capacitor en la bornera de 6 V: el cable largo tiene inductancia.
+- **Interruptor de los servos:** corta solo el +6 V. Es la parada de emergencia física y la **única forma de aflojar el HS-7955TG** (sin pulso mantiene la posición con fuerza; el STOP del firmware lo congela, no lo afloja). Que sea de ≥ 10 A.
+- **GND común:** el negativo de los bornes (bus de 6 V) se une al GND de la ESP32. Sin GND común, los servos no se mueven. La Pi y el powerbank quedan unidos a esa masa por el USB.
+- **Secuencia:**
+  1. Encender: primero el powerbank (arranca la Pi y la ESP32 toma 5 V por el USB), después la fuente con el interruptor de los servos, con la cabeza cerca de home: el HS-7955TG salta a velocidad máxima con el primer pulso.
+  2. Apagar: primero el interruptor de los servos (o la fuente), después la Pi.
+  3. Antes de conectar o cambiar un servo, cortar los 6 V (en el banco, enchufar uno en caliente desconectó la ESP32 del USB).
 
 ## Cableado por las articulaciones
 
 | Articulación | Qué cruza | Cómo |
 |---|---|---|
-| **Yaw** (±70°) | 5 V + GND de la Pi (20 AWG), USB Pi → ESP32, cables de servo del HS y del MG996R (3 + 3 hilos) | Pasan por el **paso fijo de la tapa** (Ø10, a 26 mm del eje, hacia −Y) y por la **ranura en arco de la base en U** (±72°), que siempre queda sobre el paso. Adentro de la caja, dejar un bucle de ~10 cm por encima de la LiPo para los ±70°. El cable del RDS3218 ya está adentro. |
+| **Yaw** (±70°) | 5 V + GND de la Pi (20 AWG), USB Pi → ESP32, cables de servo del HS y del MG996R (3 + 3 hilos) | Pasan por el **paso fijo de la tapa** (Ø10, a 26 mm del eje, hacia −Y) y por la **ranura en arco de la base en U** (±72°), que siempre queda sobre el paso. Adentro de la caja, dejar un bucle de ~10 cm en el lugar libre de la LiPo para los ±70°. El cable del RDS3218 ya está adentro. |
 | **Pitch** (−20/+30°) | Lo mismo menos el HS, que es fijo al soporte izquierdo | Bajan por detrás de la horquilla, por la ventana de su piso, con un bucle de servicio cerca del eje de pitch. |
 | **Roll** (±20°) | 5 V + GND de la Pi y USB a la ESP32 (salen de la cabeza) | Bucle alrededor del brazo del MG996R. |
 | Dentro de la cabeza | Cinta de la cámara | **No cruza ninguna articulación**: la Pi y la cámara giran juntas (U + doblez en Z, ver la v3). |
@@ -92,11 +105,12 @@ Vista de arriba (+X es la cara del robot):
 | Pi 5 → placa de roll | 4 × M2,5 × 6 |
 | Caja de la cabeza → placa de roll | 4 × M2,5 × 12 desde atrás |
 | Cámara → cara | 4 × M2 × 5 a los separadores; nariz y ojos pegados |
-| Regulador, ESP32, baterías | Rieles, `porta_esp32` y topes impresos; velcro debajo de las baterías |
+| Bornera de 6 V, ESP32, powerbank | 2 × M3 × 8 al piso (o doble faz), `porta_esp32` y topes impresos; velcro debajo del powerbank |
+| Bornes de 6 V → pared de atrás | La tuerca de cada borne, por adentro |
 
 ## Orden de montaje
 
-1. Caja: velcro y baterías (los conectores hacia la bahía), regulador entre los rieles, `porta_esp32` con la ESP32, buzzer en su aro, interruptor en la pared de atrás. Cablear la potencia (ver arriba).
+1. Caja: velcro y powerbank, bornes e interruptor en la pared de atrás, bornera de 6 V con el capacitor, `porta_esp32` con la ESP32, buzzer en su aro. Cablear la potencia (ver arriba).
 2. Tapa: atornillar el RDS3218 por debajo y llevar su cable a la ESP32. Pasar los cables que suben por el paso de la tapa y cerrar la caja.
 3. Base en U al brazo del yaw (con el servo centrado en 1500 µs y la U mirando al frente), y los soportes de pitch a la U.
 4. HS-7955TG al soporte izquierdo; horquilla con el MG996R al brazo del HS y al pivote M4.
@@ -112,7 +126,7 @@ cd docs/keepon_v4_cad/fuente
 
 - **Sin interferencias** en la pose 0, en 15 poses de pitch × roll (pitch −32 / −16 / +11 / +22, roll −22 / 0 / +22) y con el yaw en ±70° con la nariz abajo.
 - **Holgura mínima: 2 mm** (la horquilla contra el soporte derecho, igual que en la v3). La base en U se recortó adelante (x ≤ 32 mm) para que la cabeza no la toque con la nariz abajo y roll.
-- El servo de yaw queda 2,5 mm por encima de la LiPo.
+- La bornera, el capacitor y los bornes no tocan nada (pose 0, todas las piezas contra todas).
 
 ## SolidWorks
 
@@ -125,12 +139,17 @@ cd docs/keepon_v4_cad/fuente
 | Qué | Valor usado |
 |---|---|
 | Powerbank Xiaomi | 128 × 73 × 32 mm (aproximado, según la ficha) |
-| LiPo Zeee | 138 × 47 × 36 mm (ficha) |
-| Regulador de 6 V | 65 × 50 × 25 mm (parado: 25 × 65 × 50) |
+| Bornes de banana | agujero de Ø8, 19 mm entre centros (`BORNE_AGUJERO`, `BORNES_Y`) |
+| Bornera de 6 V | 20 × 40 × 16 mm (`BORNERA6`) |
 | Lo de la v3 | Cinta, cooler, brazo de los servos y salida de la cinta (ver `../keepon_v3_cad/README.md`) |
 
 ## Pendiente
 
 - Probar la macro de relaciones en SolidWorks.
 - Medir la tensión en los pines de la Pi con el powerbank y la percepción corriendo.
+- Medir la corriente de los tres servos en la fuente de laboratorio con el robot armado (seguimiento y gestos rápidos) para fijar el límite de corriente.
+
+## Achicar la caja
+
+La medida de 182 × 133 se pensó para la LiPo y el powerbank lado a lado. Sin la LiPo, sobran ~50 mm en Y del lado derecho. No se achicó todavía porque ese lado también da apoyo a la tapa donde cuelga el yaw y deja lugar para el bucle de cables. Si se achica, cambiar `CAJA_Y` (y los `BORNES_Y`) en `fuente/keepon_v4_cad.py` y volver a correr `--verificar`; la altura no puede cambiar (el yaw se monta igual que en la v3).
 - Con el robot armado, comprobar que la base en U no cabecee: el yaw sigue sin rodamiento, aunque ahora con un 35 % menos de vuelco.

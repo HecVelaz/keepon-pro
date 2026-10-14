@@ -8,11 +8,12 @@ IMPRIMIR = pieza propia (step/ y stl/); COMPRADO = componente (step/componentes/
 CAJA BASE (fija)
 ================================================================================================
 Pieza                            X × Y × Z                Volumen    Tipo
-caja_base                        182,0 × 133,0 × 70,0     208,6 cm³  IMPRIMIR
+caja_base                        182,0 × 133,0 × 70,0     207,5 cm³  IMPRIMIR
 tapa_base                        182,0 × 133,0 × 4,0      92,8 cm³   IMPRIMIR
-bateria_zeee_3s_8000             138,0 × 47,0 × 36,0                 COMPRADO
 powerbank_xiaomi_pb2020mi        128,0 × 73,0 × 32,0                 COMPRADO
-regulador_6v_20a                 25,0 × 65,0 × 50,0                  COMPRADO
+bornera_6v                       20,0 × 40,0 × 16,0                  COMPRADO
+capacitor_2200uf                 13,0 × 13,0 × 25,0                  COMPRADO
+bornes_fuente_6v                 32,0 × 30,0 × 11,0                  COMPRADO
 esp32c3                          11,7 × 48,3 × 25,4                  COMPRADO
 porta_esp32                      18,0 × 56,3 × 32,4       4,7 cm³    IMPRIMIR
 buzzer                           9,5 × 12,0 × 12,0                   COMPRADO
@@ -58,9 +59,9 @@ ojo_izq                          3,5 × 25,0 × 25,0        1,3 cm³    IMPRIMIR
 ojo_der                          3,5 × 25,0 × 25,0        1,3 cm³    IMPRIMIR
 
 ================================================================================================
-BATERÍAS (de docs/Fotos)
+ALIMENTACIÓN
 ================================================================================================
-Zeee LiPo 3S 8000 mAh 100C: 138 × 47 × 36, 11,1 V (12,6 V cargada), Deans, 493 g → servos (por el regulador de 6 V)
+Fuente de laboratorio (externa, sobre la mesa): 6,0 V, límite de corriente 4–5 A (ideal ≥ 6 A) → bornes de la pared de atrás → interruptor → bornera de 6 V → los 3 servos
 Xiaomi PB2020MI 20000 mAh: 128 × 73 × 32 (aprox., MEDIR), 5 V 3 A por puerto, 342 g → Pi 5 por el GPIO
 
 ================================================================================================
@@ -75,13 +76,14 @@ Tornillo M4 × 20 + 2 arandelas + tuerca autofrenante 1      M4               Pi
 Tornillo M2,5 × 6 autorroscante                      4      M2,5             Pi 5 a la placa de roll.
 Tornillo M2,5 × 12 autorroscante                     4      M2,5             Caja de la cabeza a la placa de roll.
 Tornillo M2 × 5                                      4      M2               Cámara a la cara.
-Velcro adhesivo                                      2      ≈ 100 × 20       Debajo de cada batería (además de los topes).
-Conector Deans (T) hembra + fusible 10 A en línea    1      —                LiPo → interruptor → regulador de 6 V.
-Cable USB-C macho → bornera (o bornera USB-C)        1      10 × 12 placa    Powerbank → 5 V y GND hacia la Pi.
+Velcro adhesivo                                      1      ≈ 100 × 20       Debajo del powerbank (además de los topes).
+Bornes de panel para banana de 4 mm, rojo y negro    2      agujero ≈ Ø8     Pared de atrás: entrada de la fuente.
+Cable banana–banana (o banana–cocodrilo) 18 AWG      2      ≈ 1 m            Fuente de laboratorio → bornes (rojo y negro).
+Placa USB-C hembra con 5,1 kΩ en CC1/CC2             1      10 × 12 placa    Powerbank → 5 V y GND hacia la Pi (sin las 5,1 kΩ el powerbank no entrega 5 V).
 Cable rojo/negro 20 AWG                              1 m    —                5 V de la Pi: de la base a la cabeza (cruza yaw, pitch y roll).
-Cable 16 AWG rojo/negro                              0,5 m  —                LiPo → regulador → bus de 6 V.
+Cable 18 AWG rojo/negro                              0,5 m  —                Bornes → interruptor → bornera de 6 V.
 Alargues de servo macho-hembra                       2      ≈ 30 cm          Pitch y roll hasta la ESP32 (cruzan el yaw).
 Cable USB-A acodado → micro-USB, flexible            1      ≈ 50 cm          Pi (en la cabeza) → ESP32 (en la base).
-Capacitor 2200 µF / 16 V + 100 nF                    1      Ø13 × 25         Bus de 6 V, junto al regulador.
+Capacitor 2200 µF / 16 V + 100 nF                    1      Ø13 × 25         Bus de 6 V, en la bornera (modelado el electrolítico).
+Tornillo M3 × 8 autorroscante                        2      M3               Bornera de 6 V al piso de la caja (o cinta doble faz).
 2N2222 + 1 kΩ + 10 kΩ (+ 1N4148)                     1      TO-92            Buzzer desde el GPIO10.
-Alarma de tensión LiPo                               1      ≈ 40 × 25 × 10   En el balanceador de la Zeee.

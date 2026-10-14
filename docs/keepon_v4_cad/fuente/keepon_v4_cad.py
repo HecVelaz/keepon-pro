@@ -1,12 +1,14 @@
-"""Modelo mecánico de Keepon pro v4: cabeza de la v3 sobre el cuello compacto de la v1, y las baterías en la base.
+"""Modelo mecánico de Keepon pro v4: cabeza de la v3 sobre el cuello compacto de la v1, y la alimentación en la base.
 
 - Cabeza, servos, soportes de pitch, horquilla y brazos: los de la v3 (../../keepon_v3_cad/fuente/keepon_v3_cad.py),
   sin cambios.
 - Disposición de los motores: la de la v1 (../../keepon_mg996r_step/): el eje de pitch pasa justo por encima del eje
   de yaw (en la v3 estaba 20 mm adelante) y el plato de Ø146 se reemplaza por una base en U compacta. El centro de
   masa de la cabeza queda más cerca del eje del yaw, que no tiene rodamiento.
-- Alimentación: la LiPo Zeee 3S 8000 mAh alimenta los servos (por el regulador de 6 V) y el powerbank Xiaomi
-  PB2020MI alimenta la Pi 5 (5 V por el GPIO). Las dos van en la caja base, con el regulador, la ESP32 y el buzzer.
+- Alimentación (decisión del 14/10): una fuente de laboratorio externa da los 6 V de los servos (entra por dos bornes
+  de panel en la pared de atrás) y el powerbank Xiaomi PB2020MI alimenta la Pi 5 (5 V por el GPIO). En la caja base
+  van el powerbank, la bornera de 6 V con el capacitor, la ESP32 y el buzzer. La LiPo y el regulador de 6 V salieron:
+  su lugar queda libre.
 
     ~/cq_env/bin/python keepon_v4_cad.py [--verificar]   # escribe ../step, ../stl, ../solidworks y ../vistas
 
@@ -33,23 +35,25 @@ DX = -k3.X_PITCH       # todo lo que va arriba del plato de la v3 se corre esto 
 X_PITCH = 0.0
 Z_PITCH = k3.Z_PITCH   # misma altura que en la v3 (la caja base mide lo mismo)
 
-# --- Baterías (docs/Fotos/bateria zee y docs/Fotos/Bateria powerbank xiaomi) ----------------
-ZEEE = (138.0, 47.0, 36.0)      # LiPo Zeee 3S 8000 mAh 100C, 11,1 V, Deans, 493 g
+# --- Powerbank (docs/Fotos/Bateria powerbank xiaomi) -------------------------------------------
 XIAOMI = (128.0, 73.0, 32.0)    # powerbank Xiaomi PB2020MI 20000 mAh, 5 V 3 A, 342 g (medidas aproximadas: MEDIR)
 
 # --- Caja base ---------------------------------------------------------------------------------
-CAJA_X, CAJA_Y, CAJA_Z = 182.0, 133.0, 70.0    # exterior sin la tapa: las dos baterías acostadas, lado a lado
+CAJA_X, CAJA_Y, CAJA_Z = 182.0, 133.0, 70.0    # exterior sin la tapa (medida pensada para la LiPo y el powerbank)
 PARED, PISO, TAPA_T = 3.0, 3.0, 4.0
 X_IN0, X_IN1 = -CAJA_X / 2 + PARED, CAJA_X / 2 - PARED
 Y_IN0, Y_IN1 = -CAJA_Y / 2 + PARED, CAJA_Y / 2 - PARED
-# Baterías acostadas, a lo largo de X, contra la pared de atrás; adelante queda la bahía de la electrónica
-ZEEE_POS = (X_IN0, Y_IN0 + 0.5)                     # esquina (x, y): lado derecho del robot (−Y)
-XIAOMI_POS = (X_IN0, ZEEE_POS[1] + ZEEE[1] + 5.0)    # lado izquierdo, con un tabique de 3 mm en el medio
+# Powerbank acostado, a lo largo de X, contra la pared de atrás y del lado izquierdo (+Y). Del lado derecho (−Y)
+# queda libre el hueco de 138 × 47 donde iba la LiPo (pasan los cables de los bornes y el bucle del yaw).
+HUECO = (138.0, 47.0)                               # lugar libre de la LiPo, del lado derecho
+XIAOMI_POS = (X_IN0, Y_IN0 + 0.5 + HUECO[1] + 5.0)   # esquina (x, y), con un tabique de 3 mm del lado del hueco
 TOPE_ALTO = 10.0                                    # altura de los topes y del tabique
-X_BAHIA = ZEEE_POS[0] + ZEEE[0] + 4.0               # desde acá hacia adelante: regulador, ESP32, buzzer
-REG6 = (25.0, 65.0, 50.0)                           # regulador 12 → 6 V 20 A, PARADO (espesor × largo × alto)
-# Las columnas de la tapa cuelgan de la pared: las de atrás por encima de las baterías, las de adelante del regulador
-COLUMNA_Z0 = (PISO + ZEEE[2] + 2.0, PISO + REG6[2] + 2.0)
+X_BAHIA = X_IN0 + HUECO[0] + 4.0                    # desde acá hacia adelante: bornera de 6 V, ESP32, buzzer
+BORNERA6 = (20.0, 40.0, 16.0)                       # bornera de distribución de 6 V y GND (x × y × z), en el piso
+CAP = (6.5, 25.0)                                   # capacitor de 2200 µF / 16 V parado (radio, alto)
+Y_ESP0 = Y_IN0 + 74.0                               # la ESP32 queda donde estaba (al lado del viejo regulador)
+# Las columnas de la tapa cuelgan de la pared: las de atrás por encima del powerbank, las de adelante de la bahía
+COLUMNA_Z0 = (PISO + 38.0, PISO + 52.0)
 
 # --- Base en U (reemplaza al plato de Ø146) --------------------------------------------------
 PLATO_X = (-32.0, 32.0)          # adelante, la cabeza baja hasta acá con la nariz abajo
@@ -67,9 +71,9 @@ assert abs(Z_TAPA0 - v2.Z_TAPA0) < 1e-9, "la caja tiene que medir lo mismo que e
 Y_SOP_IZQ, Y_SOP_DER = v2.Y_SOP_IZQ, v2.Y_SOP_DER
 PASO_XY = (PASO_R * math.cos(math.radians(PASO_ANG)), PASO_R * math.sin(math.radians(PASO_ANG)))
 
-# El servo de yaw cuelga de la tapa: no puede tocar las baterías
+# El servo de yaw cuelga de la tapa: no puede tocar el powerbank
 _z_servo = Z_TAPA0 - RDS3218.Fb
-assert _z_servo > PISO + ZEEE[2] + 2, "el servo de yaw toca la LiPo"
+assert _z_servo > PISO + XIAOMI[2] + 2, "el servo de yaw toca el powerbank"
 
 
 def esquinas_tapa():
@@ -83,38 +87,30 @@ def esquinas_tapa():
 
 
 def caja_base():
-    """Caja con las dos baterías acostadas atrás y la bahía de la electrónica adelante.
-    Se imprime boca arriba; las columnas de las esquinas cuelgan por encima de las baterías (con soporte)."""
+    """Caja con el powerbank acostado atrás, los bornes de 6 V en la pared de atrás y la bahía de la electrónica adelante.
+    Se imprime boca arriba; las columnas de las esquinas cuelgan (con soporte)."""
     ext = caja(-CAJA_X / 2, CAJA_X / 2, -CAJA_Y / 2, CAJA_Y / 2, 0, CAJA_Z)
     c = restar(ext, caja(X_IN0, X_IN1, Y_IN0, Y_IN1, PISO, CAJA_Z + 1))
-    # Columnas de la tapa (M3 autorroscante), arriba de las baterías
+    # Columnas de la tapa (M3 autorroscante)
     for x, y in esquinas_tapa():
         sx, sy = math.copysign(1, x), math.copysign(1, y)
         z0 = COLUMNA_Z0[0] if x < 0 else COLUMNA_Z0[1]
         col = unir(cil(5.0, z0, CAJA_Z, x, y), caja(*sorted((x, x + sx * 6)), *sorted((y, y + sy * 6)), z0, CAJA_Z))
         c = unir(c, restar(col, cil(M3_ROSCA / 2, CAJA_Z - 16, CAJA_Z + 1, x, y)))
-    # Topes de las baterías: tabique entre las dos y topes adelante (no se deslizan)
-    zx, zy = ZEEE_POS
+    # Topes del powerbank: tabique del lado del hueco y tope adelante (no se desliza)
     xx, xy = XIAOMI_POS
-    c = unir(c, caja(zx + 10, zx + ZEEE[0] - 10, zy + ZEEE[1] + 1, xy - 1, PISO, PISO + TOPE_ALTO),
-             caja(zx + ZEEE[0] + 0.5, zx + ZEEE[0] + 3.5, zy, zy + ZEEE[1], PISO, PISO + TOPE_ALTO),
+    c = unir(c, caja(xx + 10, xx + XIAOMI[0] - 10, xy - 4, xy - 1, PISO, PISO + TOPE_ALTO),
              caja(xx + XIAOMI[0] + 0.5, xx + XIAOMI[0] + 3.5, xy, xy + XIAOMI[1], PISO, PISO + TOPE_ALTO))
-    # Rieles del regulador (va parado, con el disipador hacia arriba)
-    rx0, ry0 = X_BAHIA + 3, Y_IN0 + 1
-    for x in (rx0 - 2, rx0 + REG6[0]):
-        c = unir(c, caja(x, x + 2, ry0, ry0 + REG6[1], PISO, PISO + 6))
     # Portabuzzer en la pared de adelante, con agujeros para el sonido
     bz = BUZZER_YZ
     c = unir(c, restar(cil_eje(7.5, (X_IN1 - 9, *bz), (X_IN1 + 0.1, *bz)), cil_eje(6.1, (X_IN1 - 10, *bz), (X_IN1, *bz))))
     c = restar(c, *[cil_eje(1.0, (X_IN1 - 1, bz[0] + dy, bz[1] + dz), (CAJA_X / 2 + 1, bz[0] + dy, bz[1] + dz))
                     for dy, dz in ((0, 0), (3, 0), (-3, 0), (0, 3), (0, -3))])
-    # Pared de atrás: interruptor de balancín (corte estándar 19,2 × 12,8), por encima del powerbank
+    # Pared de atrás: interruptor de balancín de los servos (corte estándar 19,2 × 12,8), por encima del powerbank
     c = restar(c, caja(-CAJA_X / 2 - 1, X_IN0 + 1, LLAVE_Y - 9.6, LLAVE_Y + 9.6, LLAVE_Z, LLAVE_Z + 12.8))
-    # Ventilación del regulador (los dos laterales de la bahía)
-    for k in range(4):
-        x = X_BAHIA + 5 + k * 6
-        c = restar(c, caja(x, x + 3, -CAJA_Y / 2 - 1, Y_IN0 + 1, 15, 50))
-        c = restar(c, caja(x, x + 3, Y_IN1 - 1, CAJA_Y / 2 + 1, 15, 50))
+    # Pared de atrás, del lado del hueco: dos bornes de panel (banana de 4 mm) para la fuente de laboratorio
+    for y in BORNES_Y:
+        c = restar(c, cil_eje(BORNE_AGUJERO / 2, (-CAJA_X / 2 - 1, y, BORNES_Z), (X_IN0 + 1, y, BORNES_Z)))
     # Lateral izquierdo: ranura para el cable del powerbank (cargarlo sin abrir) y su botón
     c = restar(c, caja(xx + 20, xx + 50, Y_IN1 - 1, CAJA_Y / 2 + 1, PISO + 8, PISO + 22))
     return c
@@ -160,24 +156,32 @@ def porta_esp32():
 # ============================================================================================
 # Componentes de la base (comprados)
 # ============================================================================================
-ESP_X = X_BAHIA + 16.0                      # plano de la placa de la ESP32 (parada, normal a X), al lado del regulador
-ESP_Y = (Y_IN0 + 1 + REG6[1] + 8, Y_IN0 + 1 + REG6[1] + 8 + 48.3)
+ESP_X = X_BAHIA + 16.0                      # plano de la placa de la ESP32 (parada, normal a X)
+ESP_Y = (Y_ESP0, Y_ESP0 + 48.3)
 ESP_Z0 = PISO + 5.0
 ESP_Z1 = ESP_Z0 + 25.4
 BUZZER_YZ = (35.0, 55.0)
 LLAVE_Y, LLAVE_Z = 30.0, 48.0
+BORNES_Y, BORNES_Z = (-45.0, -26.0), 35.0   # rojo y negro, 19 mm entre centros (la medida estándar de las bananas)
+BORNE_AGUJERO = 8.0                         # agujero de montaje del borne (MEDIR el que compren)
+BORNERA_POS = (X_BAHIA + 3, Y_IN0 + 1)      # esquina de la bornera de 6 V, donde estaba el regulador
+CAP_XY = (X_BAHIA + 13, Y_IN0 + 1 + BORNERA6[1] + 12)
 assert ESP_Y[1] + 4 < Y_IN1, "la ESP32 no entra en la bahía"
 assert LLAVE_Z > PISO + XIAOMI[2] + 2, "el interruptor toca el powerbank"
+assert max(BORNES_Y) + 6 < XIAOMI_POS[1], "los bornes chocan con el powerbank"
+assert CAP_XY[1] + CAP[0] + 2 < ESP_Y[0] - 4, "el capacitor toca el soporte de la ESP32"
 
 
 def base_componentes():
-    zx, zy = ZEEE_POS
     xx, xy = XIAOMI_POS
-    zeee = caja(zx, zx + ZEEE[0], zy, zy + ZEEE[1], PISO, PISO + ZEEE[2])
     xiaomi = (cq.Workplane("XY").box(XIAOMI[0], XIAOMI[1], XIAOMI[2]).edges("|Z").fillet(10).val()
               .translate(V(xx + XIAOMI[0] / 2, xy + XIAOMI[1] / 2, PISO + XIAOMI[2] / 2)))
-    rx0, ry0 = X_BAHIA + 3, Y_IN0 + 1
-    reg = caja(rx0, rx0 + REG6[0], ry0, ry0 + REG6[1], PISO, PISO + REG6[2])
+    bx, by = BORNERA_POS
+    bornera = caja(bx, bx + BORNERA6[0], by, by + BORNERA6[1], PISO, PISO + BORNERA6[2])
+    capacitor = cil(CAP[0], PISO, PISO + CAP[1], *CAP_XY)
+    # Bornes de panel: el cuerpo afuera de la pared de atrás y el vástago roscado adentro (hacia el hueco libre)
+    bornes = unir(*[unir(cil_eje(5.5, (-CAJA_X / 2 - 14, y, BORNES_Z), (-CAJA_X / 2, y, BORNES_Z)),
+                         cil_eje(2.0, (X_IN0, y, BORNES_Z), (X_IN0 + 15, y, BORNES_Z))) for y in BORNES_Y])
     x = ESP_X
     esp = unir(caja(x - 0.8, x + 0.8, ESP_Y[0], ESP_Y[1], ESP_Z0, ESP_Z1),
                caja(x + 0.8, x + 3.2, ESP_Y[0] + 30, ESP_Y[0] + 46, ESP_Z0 + 6, ESP_Z1 - 6),     # módulo
@@ -185,8 +189,8 @@ def base_componentes():
                caja(x - 8.5, x - 0.8, ESP_Y[0] + 5, ESP_Y[0] + 43, ESP_Z1 - 3, ESP_Z1 - 0.5))
     buzzer = cil_eje(6.0, (X_IN1 - 9.5, *BUZZER_YZ), (X_IN1, *BUZZER_YZ))
     llave = caja(-CAJA_X / 2 - 3, X_IN0 + 19, LLAVE_Y - 9.4, LLAVE_Y + 9.4, LLAVE_Z + 0.2, LLAVE_Z + 12.6)
-    usbc = caja(X_IN1 - 9, X_IN1 - 1, Y_IN0 + REG6[1] + 4, Y_IN0 + REG6[1] + 16, PISO, PISO + 1.6)   # bornera USB-C del powerbank
-    return zeee, xiaomi, reg, esp, buzzer, llave, usbc
+    usbc = caja(X_IN1 - 9, X_IN1 - 1, Y_IN0 + 69, Y_IN0 + 81, PISO, PISO + 1.6)   # bornera USB-C del powerbank
+    return xiaomi, bornera, capacitor, bornes, esp, buzzer, llave, usbc
 
 
 # ============================================================================================
@@ -206,10 +210,11 @@ def ensamble(yaw=0.0, pitch=0.0, roll=0.0, con_base=True):
     if con_base:
         add("caja_base", caja_base(), k3.COLOR_IMPRESO, True)
         add("tapa_base", tapa_base(), k3.COLOR_TAPA, True)
-        zeee, xiaomi, reg, esp, buzzer, llave, usbc = base_componentes()
-        add("bateria_zeee_3s_8000", zeee, cq.Color(0.2, 0.2, 0.25))
+        xiaomi, bornera, capacitor, bornes, esp, buzzer, llave, usbc = base_componentes()
         add("powerbank_xiaomi_pb2020mi", xiaomi, cq.Color(0.75, 0.76, 0.78))
-        add("regulador_6v_20a", reg, cq.Color(0.15, 0.35, 0.75))
+        add("bornera_6v", bornera, cq.Color(0.15, 0.35, 0.75))
+        add("capacitor_2200uf", capacitor, cq.Color(0.1, 0.2, 0.5))
+        add("bornes_fuente_6v", bornes, cq.Color(0.75, 0.1, 0.1))
         add("esp32c3", esp, cq.Color(0.1, 0.1, 0.12))
         add("porta_esp32", porta_esp32(), k3.COLOR_IMPRESO, True)
         add("buzzer", buzzer, cq.Color(0.1, 0.1, 0.1))
@@ -333,16 +338,18 @@ OTROS = [
     ("Tornillo M2,5 × 6 autorroscante", 4, "M2,5", "Pi 5 a la placa de roll."),
     ("Tornillo M2,5 × 12 autorroscante", 4, "M2,5", "Caja de la cabeza a la placa de roll."),
     ("Tornillo M2 × 5", 4, "M2", "Cámara a la cara."),
-    ("Velcro adhesivo", 2, "≈ 100 × 20", "Debajo de cada batería (además de los topes)."),
-    ("Conector Deans (T) hembra + fusible 10 A en línea", 1, "—", "LiPo → interruptor → regulador de 6 V."),
-    ("Cable USB-C macho → bornera (o bornera USB-C)", 1, "10 × 12 placa", "Powerbank → 5 V y GND hacia la Pi."),
+    ("Velcro adhesivo", 1, "≈ 100 × 20", "Debajo del powerbank (además de los topes)."),
+    ("Bornes de panel para banana de 4 mm, rojo y negro", 2, "agujero ≈ Ø8", "Pared de atrás: entrada de la fuente."),
+    ("Cable banana–banana (o banana–cocodrilo) 18 AWG", 2, "≈ 1 m", "Fuente de laboratorio → bornes (rojo y negro)."),
+    ("Placa USB-C hembra con 5,1 kΩ en CC1/CC2", 1, "10 × 12 placa", "Powerbank → 5 V y GND hacia la Pi (sin las "
+     "5,1 kΩ el powerbank no entrega 5 V)."),
     ("Cable rojo/negro 20 AWG", "1 m", "—", "5 V de la Pi: de la base a la cabeza (cruza yaw, pitch y roll)."),
-    ("Cable 16 AWG rojo/negro", "0,5 m", "—", "LiPo → regulador → bus de 6 V."),
+    ("Cable 18 AWG rojo/negro", "0,5 m", "—", "Bornes → interruptor → bornera de 6 V."),
     ("Alargues de servo macho-hembra", 2, "≈ 30 cm", "Pitch y roll hasta la ESP32 (cruzan el yaw)."),
     ("Cable USB-A acodado → micro-USB, flexible", 1, "≈ 50 cm", "Pi (en la cabeza) → ESP32 (en la base)."),
-    ("Capacitor 2200 µF / 16 V + 100 nF", 1, "Ø13 × 25", "Bus de 6 V, junto al regulador."),
+    ("Capacitor 2200 µF / 16 V + 100 nF", 1, "Ø13 × 25", "Bus de 6 V, en la bornera (modelado el electrolítico)."),
+    ("Tornillo M3 × 8 autorroscante", 2, "M3", "Bornera de 6 V al piso de la caja (o cinta doble faz)."),
     ("2N2222 + 1 kΩ + 10 kΩ (+ 1N4148)", 1, "TO-92", "Buzzer desde el GPIO10."),
-    ("Alarma de tensión LiPo", 1, "≈ 40 × 25 × 10", "En el balanceador de la Zeee."),
 ]
 
 
@@ -363,9 +370,9 @@ def escribir_lista(raiz, piezas):
             vol = f"{forma.Volume() / 1000:.1f} cm³".replace(".", ",") if impresa else ""
             L.append(f"{nombre:32s} {dim:24s} {vol:10s} {'IMPRIMIR' if impresa else 'COMPRADO'}")
         L.append("")
-    L += ["=" * 96, "BATERÍAS (de docs/Fotos)", "=" * 96,
-          f"Zeee LiPo 3S 8000 mAh 100C: {ZEEE[0]:.0f} × {ZEEE[1]:.0f} × {ZEEE[2]:.0f}, 11,1 V (12,6 V cargada), Deans, "
-          "493 g → servos (por el regulador de 6 V)",
+    L += ["=" * 96, "ALIMENTACIÓN", "=" * 96,
+          "Fuente de laboratorio (externa, sobre la mesa): 6,0 V, límite de corriente 4–5 A (ideal ≥ 6 A) → bornes de "
+          "la pared de atrás → interruptor → bornera de 6 V → los 3 servos",
           f"Xiaomi PB2020MI 20000 mAh: {XIAOMI[0]:.0f} × {XIAOMI[1]:.0f} × {XIAOMI[2]:.0f} (aprox., MEDIR), 5 V 3 A por "
           "puerto, 342 g → Pi 5 por el GPIO", "",
           "=" * 96, "NO MODELADO: TORNILLERÍA, CABLES Y CONECTORES", "=" * 96,
