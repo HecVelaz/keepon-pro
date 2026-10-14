@@ -139,3 +139,93 @@ def test_stale_world_releases_target():
         rig.link.advance(DT)
     assert any(m.startswith("PERCEPCION sin datos") for m in rig.log)
     assert rig.robot.focus.target is None and rig.owner(NECK) == "OBSERVADOR"
+
+
+# ====================================================================================
+# Revisión de arquitectura (docs/REVISION_CODEX_ARQ.md, "Correcciones concretas")
+# ====================================================================================
+
+# 7. El control de mirada centra en el centro óptico (cx, cy), no en (320, 240) --------
+def test_gaze_centers_on_optical_center():
+    from keepon.gaze import GazeController
+
+    cfg = load_config()
+    w = World.from_cfg(cfg)
+    c = cfg["camera"]
+    assert (w.cx, w.cy) == (c["cx"], c["cy"])
+    g = GazeController(cfg)
+    ref = [0.0, 0.0, 0.0]
+    p = Person(1, c["cx"], c["cy"], 300)  # rostro justo sobre el eje óptico
+    for _ in range(20):
+        ref = g.update(ref, p, w, 0.05)
+    assert ref == [0.0, 0.0, 0.0]  # antes giraba ≈ 6,5° en yaw buscando el centro de la imagen
+
+
+def test_world_without_intrinsics_uses_image_center():
+    w = World(0.0, 640, 480, 66.0)
+    assert (w.cx, w.cy, w.fy) == (320, 240, w.fx)
+
+
+def test_sim_tracking_converges_with_offset_optical_center():
+    """En lazo cerrado con la cámara sintética (que proyecta con los mismos intrínsecos),
+    una persona quieta a 15° termina mirada de frente: yaw → 15°."""
+    rig = Rig([SynthPerson(1, appear=0.2, az=const(15.0))])
+    rig.run_until(4.0)
+    assert abs(rig.link.neck_pos[0] - 15.0) < 1.5
+
+
+# 8. Cola de percepción: siempre lo último, sin acumular ni bloquear ------------------
+def test_perception_queue_keeps_latest_and_never_blocks():
+    import multiprocessing as mp
+    import time
+
+    from keepon.perception import DetResult, Perception, _put_latest
+
+    q = mp.get_context("spawn").Queue(maxsize=Perception.QUEUE_SIZE)
+    t0 = time.monotonic()
+    for n in range(50):  # nadie lee: con put() bloqueante esto se colgaba al llenarse
+        _put_latest(q, DetResult("personas", n, 0.0, 0.0, 0.0))
+    assert time.monotonic() - t0 < 5.0
+    time.sleep(0.2)  # que el último termine de pasar por el pipe
+    got = []
+    while True:
+        try:
+            got.append(q.get(timeout=0.2).frame)
+        except Exception:  # noqa: BLE001 - queue.Empty
+            break
+    assert 1 <= len(got) <= Perception.QUEUE_SIZE
+    assert got[-1] == 49  # el más nuevo nunca se pierde cuando el principal no lee
+
+
+# 9. Saludo dentro de los límites de pitch ---------------------------------------------
+def test_greeting_nod_within_pitch_limits():
+    """nod = A·sin²(πt/T) = A/2·(1 − cos(2πt/T)): v = (A/2)(2π/T), a = (A/2)(2π/T)²."""
+    import math
+
+    cfg = load_config()
+    c, n = cfg["greeting"], cfg["neck"]
+    w = 2 * math.pi / c["nod_period_s"]
+    assert c["nod_amp"] / 2 * w <= n["vmax"][1]
+    assert c["nod_amp"] / 2 * w ** 2 <= n["amax"][1]
+
+
+# 10. STOP: se enclava aunque el enlace falle, y se reintenta -----------------------
+def test_stop_latches_even_if_link_fails():
+    rig = Rig([SynthPerson(1, appear=0.2, az=const(15.0))])
+    rig.run_until(1.0)
+    assert rig.owner(NECK) == "SEGUIMIENTO"
+
+    real_write = rig.link._write
+
+    def broken(line):
+        raise OSError("puerto desconectado")
+
+    rig.link._write = broken
+    rig.robot.stop()  # antes: la excepción salía antes de enclavar el árbitro
+    assert rig.robot.arb.stopped
+    assert rig.owner(NECK) is None and rig.owner(BUZZER) is None
+
+    rig.link._write = real_write
+    rig.robot.tick(rig.cam.observe(rig.t, rig.link.neck_pos))
+    assert rig.link.esp.state == "STOPPED"  # el STOP pendiente salió en el siguiente tick
+    assert "STOP transmitido" in rig.log

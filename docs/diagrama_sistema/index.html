@@ -78,101 +78,116 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <body>
 <main>
 <h1>Keepon pro: diagrama del sistema</h1>
-<p class="sub">Alimentación, datos y señales desde la batería LiPo de 12 V / 8000 mAh hasta los tres servos del cuello, el buzzer, la ESP32-C3, la Raspberry Pi 5 y la Camera Module 3 NoIR. Los bloques en línea continua ya los tienen; los de <span style="color:var(--falta)">trazo naranja</span> faltan comprar o armar.</p>
+<p class="sub">Alimentación, datos y señales desde la batería LiPo de 12 V / 8000 mAh hasta los tres servos del cuello, el buzzer, la ESP32-C3, la Raspberry Pi 5 y la Camera Module 3 NoIR, con la disposición del modelo mecánico v3 (<span class="mono">docs/keepon_v3_cad/</span>: la Pi va dentro de la cabeza). Los bloques en línea continua ya los tienen; los de <span style="color:var(--falta)">trazo naranja</span> faltan comprar o armar.</p>
 
 <div class="card scroll">
-<svg class="diag" viewBox="0 0 1240 800" role="img" aria-label="Diagrama de bloques del sistema Keepon pro, por zonas: cabeza, plataforma giratoria y caja base">
+<svg class="diag" viewBox="0 0 1240 910" role="img" aria-label="Diagrama de bloques del sistema Keepon pro, por zonas: cabeza, plataforma giratoria y caja base">
   <defs>
     <g id="bt"><rect width="52" height="15" style="fill:var(--tenes)" rx="3"/><text x="26" y="11" text-anchor="middle">TENÉS</text></g>
     <g id="bf"><rect width="52" height="15" style="fill:var(--falta)" rx="3"/><text x="26" y="11" text-anchor="middle">FALTA</text></g>
   </defs>
 
   <!-- ============ ZONAS ============ -->
-  <rect class="zona" x="8" y="14" width="1224" height="134" rx="12"/>
+  <rect class="zona" x="8" y="14" width="1224" height="244" rx="12"/>
   <text class="zt" x="22" y="38">CABEZA</text>
   <text class="t2" x="22" y="56">se mueve con pitch y roll</text>
-  <rect class="zona" x="8" y="162" width="1224" height="328" rx="12"/>
-  <text class="zt" x="22" y="186">PLATAFORMA GIRATORIA</text>
-  <text class="t2" x="22" y="204">gira con el yaw (±70°)</text>
-  <text class="t2" x="22" y="220">sobre un rodamiento</text>
-  <rect class="zona" x="8" y="512" width="1224" height="280" rx="12"/>
-  <text class="zt" x="22" y="536">CAJA BASE</text>
-  <text class="t2" x="22" y="554">fija · ~20 × 15 × 8 cm</text>
+  <text class="t2" x="22" y="72">75 × 107 × 40 mm</text>
+  <rect class="zona" x="8" y="272" width="1224" height="328" rx="12"/>
+  <text class="zt" x="22" y="296">PLATAFORMA GIRATORIA</text>
+  <text class="t2" x="22" y="314">gira con el yaw (±70°)</text>
+  <text class="t2" x="22" y="330">sobre un rodamiento</text>
+  <rect class="zona" x="8" y="622" width="1224" height="280" rx="12"/>
+  <text class="zt" x="22" y="646">CAJA BASE</text>
+  <text class="t2" x="22" y="664">fija · ~20 × 15 × 8 cm</text>
 
   <!-- Ejes que separan las zonas -->
-  <line class="eje" x1="200" y1="155" x2="1232" y2="155"/>
-  <text class="et" x="660" y="159" text-anchor="middle">pitch + roll: cruzan la cinta CSI (solo se dobla) y el cable del servo de roll</text>
-  <line class="eje" x1="200" y1="501" x2="1232" y2="501"/>
-  <text class="et" x="980" y="505" text-anchor="middle">eje de yaw: cruzan solo cables redondos, en espiral</text>
+  <line class="eje" x1="200" y1="265" x2="1232" y2="265"/>
+  <text class="et" x="720" y="269" text-anchor="middle">pitch + roll: cables redondos con bucle de servicio · la cinta CSI no cruza</text>
+  <line class="eje" x1="200" y1="611" x2="1232" y2="611"/>
+  <text class="et" x="980" y="615" text-anchor="middle">eje de yaw: cruzan solo cables redondos, en espiral</text>
 
   <!-- ============ CABLES ============ -->
   <!-- 12 V: batería → fusible → interruptor → reparto -->
-  <path class="w w12" d="M184 630 H214 M298 630 H322 M406 630 H420 V570 H440 M420 630 V710 H440"/>
-  <circle class="dot" cx="420" cy="630" r="5" style="fill:var(--v12)"/>
-  <path class="w wg" d="M184 680 H430 V600 H440 M430 680 V745 H440"/>
-  <circle class="dot" cx="430" cy="680" r="5" style="fill:var(--gnd)"/>
-  <text class="wl" x="190" y="620">XT60 · 14 AWG</text>
-  <text class="wl" x="220" y="696">GND común</text>
+  <path class="w w12" d="M184 740 H214 M298 740 H322 M406 740 H420 V680 H440 M420 740 V820 H440"/>
+  <circle class="dot" cx="420" cy="740" r="5" style="fill:var(--v12)"/>
+  <path class="w wg" d="M184 790 H430 V710 H440 M430 790 V855 H440"/>
+  <circle class="dot" cx="430" cy="790" r="5" style="fill:var(--gnd)"/>
+  <text class="wl" x="190" y="730">XT60 · 14 AWG</text>
+  <text class="wl" x="220" y="806">GND común</text>
 
-  <!-- 5,1 V: regulador (base) → Pi (plataforma), cruza el yaw -->
-  <path class="w w5" d="M550 550 V370"/>
-  <path class="w wg" d="M575 550 V370"/>
-  <text class="wl" x="583" y="470">5,1 V USB-C</text>
+  <!-- 5,1 V: regulador (base) → pines del GPIO de la Pi (cabeza), cruza yaw, pitch y roll -->
+  <path class="w w5" d="M550 660 V230"/>
+  <path class="w wg" d="M575 660 V230"/>
+  <text class="wl" x="583" y="430">5,1 V → GPIO pines 2/4</text>
+  <text class="wl" x="583" y="446">GND → pin 6 · ≥ 20 AWG</text>
 
-  <!-- CSI: Pi → cámara, cruza pitch/roll -->
-  <path class="w wc" d="M520 200 V130"/>
-  <text class="wl" x="532" y="182">cinta CSI 15–20 cm</text>
+  <!-- CSI: cámara ↔ Pi, dentro de la cabeza -->
+  <path class="w wc" d="M400 95 H440"/>
+  <text class="wl" x="232" y="160">cinta CSI ~150 mm, U fija:</text>
+  <text class="wl" x="232" y="175">no se mueve con ningún eje</text>
 
   <!-- USB: Pi → ESP32 -->
-  <path class="w wu" d="M670 280 H720"/>
-  <text class="wl" x="674" y="272">USB</text>
+  <path class="w wu" d="M670 150 H695 V400 H720"/>
+  <text class="wl" x="702" y="290">USB acodado</text>
 
   <!-- Bus de 6 V en la base -->
-  <path class="w w6" d="M610 710 H1200 V100 H1180"/>
-  <path class="w wg" d="M610 745 H1220 V115 H1180"/>
-  <path class="w w6" d="M1200 290 H1180"/>
-  <path class="w wg" d="M1220 305 H1180"/>
-  <g class="dot" style="fill:var(--v6)"><circle cx="1200" cy="290" r="4"/><circle cx="740" cy="710" r="4"/></g>
-  <g class="dot" style="fill:var(--gnd)"><circle cx="1220" cy="305" r="4"/><circle cx="830" cy="745" r="4"/></g>
-  <text class="wl" x="900" y="704">+6 V servos · 14–16 AWG</text>
-  <text class="wl" x="900" y="762">GND servos</text>
+  <path class="w w6" d="M610 820 H1200 V100 H1180"/>
+  <path class="w wg" d="M610 855 H1220 V115 H1180"/>
+  <path class="w w6" d="M1200 400 H1180"/>
+  <path class="w wg" d="M1220 415 H1180"/>
+  <g class="dot" style="fill:var(--v6)"><circle cx="1200" cy="400" r="4"/><circle cx="740" cy="820" r="4"/></g>
+  <g class="dot" style="fill:var(--gnd)"><circle cx="1220" cy="415" r="4"/><circle cx="830" cy="855" r="4"/></g>
+  <text class="wl" x="900" y="814">+6 V servos · 14–16 AWG</text>
+  <text class="wl" x="900" y="872">GND servos</text>
   <!-- bajadas al servo de yaw -->
-  <path class="w w6" d="M740 710 V680"/>
-  <path class="w wg" d="M830 745 V680"/>
+  <path class="w w6" d="M740 820 V790"/>
+  <path class="w wg" d="M830 855 V790"/>
 
   <!-- Capacitor sobre el bus -->
   <g>
-    <path class="w w6" d="M650 710 V721"/><path class="w wg" d="M650 745 V731"/>
-    <line x1="639" y1="722" x2="661" y2="722" stroke-width="3" style="stroke:var(--ink)"/>
-    <path d="M639 730 Q650 726 661 730" fill="none" stroke-width="3" style="stroke:var(--ink)"/>
-    <circle class="dot" cx="650" cy="710" r="4" style="fill:var(--v6)"/><circle class="dot" cx="650" cy="745" r="4" style="fill:var(--gnd)"/>
+    <path class="w w6" d="M650 820 V831"/><path class="w wg" d="M650 855 V841"/>
+    <line x1="639" y1="832" x2="661" y2="832" stroke-width="3" style="stroke:var(--ink)"/>
+    <path d="M639 840 Q650 836 661 840" fill="none" stroke-width="3" style="stroke:var(--ink)"/>
+    <circle class="dot" cx="650" cy="820" r="4" style="fill:var(--v6)"/><circle class="dot" cx="650" cy="855" r="4" style="fill:var(--gnd)"/>
   </g>
-  <text class="wl" x="622" y="776" style="fill:var(--falta) !important">C 2200 µF/16 V + 100 nF</text>
+  <text class="wl" x="622" y="886" style="fill:var(--falta) !important">C 2200 µF/16 V + 100 nF</text>
 
   <!-- Señales PWM -->
-  <path class="w ws" d="M760 400 V560"/>
-  <text class="wl" x="768" y="470">GPIO0 → yaw</text>
-  <path class="w ws" d="M890 250 H1020"/>
-  <text class="wl" x="898" y="242">GPIO1 → pitch</text>
-  <path class="w ws" d="M860 190 V85 H1020"/>
+  <path class="w ws" d="M760 510 V670"/>
+  <text class="wl" x="768" y="580">GPIO0 → yaw</text>
+  <path class="w ws" d="M890 360 H1020"/>
+  <text class="wl" x="898" y="352">GPIO1 → pitch</text>
+  <path class="w ws" d="M860 300 V85 H1020"/>
   <text class="wl" x="900" y="78">GPIO4 → roll</text>
-  <path class="w ws" d="M890 380 H920"/>
+  <path class="w ws" d="M890 490 H920"/>
 
   <!-- GND de la ESP32 al GND de servos (obligatorio) -->
-  <path class="w wg" d="M880 400 V470 H1220"/>
-  <circle class="dot" cx="1220" cy="470" r="5" style="fill:var(--gnd)"/>
-  <text class="wl" x="1040" y="463">GND ESP32 ↔ GND servos</text>
+  <path class="w wg" d="M880 510 V580 H1220"/>
+  <circle class="dot" cx="1220" cy="580" r="5" style="fill:var(--gnd)"/>
+  <text class="wl" x="1040" y="573">GND ESP32 ↔ GND servos</text>
 
   <!-- Balanceador → alarma -->
-  <path class="w" d="M104 710 V730" style="stroke:var(--muted);stroke-width:2;stroke-dasharray:4 3"/>
+  <path class="w" d="M104 820 V840" style="stroke:var(--muted);stroke-width:2;stroke-dasharray:4 3"/>
 
   <!-- ============ BLOQUES ============ -->
   <!-- Cabeza -->
-  <rect class="blk" x="430" y="40" width="200" height="90" rx="8"/>
-  <text class="t1" x="442" y="64">Camera Module 3 NoIR</text>
-  <text class="t2" x="442" y="82">IMX708 · i2c@80000</text>
-  <text class="t2" x="442" y="98">en la placa de roll</text>
-  <use href="#bt" x="570" y="112"/>
+  <rect class="blk" x="220" y="50" width="180" height="90" rx="8"/>
+  <text class="t1" x="232" y="74">Camera Module 3 NoIR</text>
+  <text class="t2" x="232" y="92">IMX708 · i2c@80000</text>
+  <text class="t2" x="232" y="108">en el ojo izquierdo</text>
+  <use href="#bt" x="340" y="122"/>
+
+  <rect class="blk" x="440" y="30" width="230" height="200" rx="8"/>
+  <text class="t1" x="454" y="56">Raspberry Pi 5 · 4 GB</text>
+  <text class="t2" x="454" y="76">parada sobre la placa de roll</text>
+  <text class="t2" x="454" y="92">Ubuntu 24.04 + ROS 2 Jazzy</text>
+  <text class="t2" x="454" y="108">YOLO26n + MediaPipe</text>
+  <text class="t2" x="454" y="124">árbitro + comportamientos</text>
+  <text class="t2" x="454" y="140">~7 W típico, 12 W pico</text>
+  <text class="t2" x="454" y="156">5 V por el GPIO (USB-C tapado)</text>
+  <text class="t2" x="454" y="172">USB-A arriba</text>
+  <text class="t2" x="454" y="194" style="fill:var(--recom) !important">+ Active Cooler</text>
+  <use href="#bt" x="610" y="212"/>
 
   <rect class="blk" x="1020" y="40" width="160" height="90" rx="8"/>
   <text class="t1" x="1032" y="64">ROLL · MG996R</text>
@@ -181,85 +196,76 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <use href="#bt" x="1120" y="112"/>
 
   <!-- Plataforma -->
-  <rect class="blk" x="440" y="200" width="230" height="170" rx="8"/>
-  <text class="t1" x="454" y="226">Raspberry Pi 5 · 4 GB</text>
-  <text class="t2" x="454" y="246">Ubuntu 24.04 + ROS 2 Jazzy</text>
-  <text class="t2" x="454" y="262">YOLO26n + MediaPipe</text>
-  <text class="t2" x="454" y="278">árbitro + comportamientos</text>
-  <text class="t2" x="454" y="294">~7 W típico, 12 W pico</text>
-  <text class="t2" x="454" y="318" style="fill:var(--recom) !important">+ disipador activo</text>
-  <use href="#bt" x="610" y="352"/>
+  <rect class="blk" x="720" y="300" width="170" height="210" rx="8"/>
+  <text class="t1" x="732" y="324">ESP32-C3-DevKitM-1</text>
+  <text class="t2" x="732" y="342">CH340 · /dev/ttyUSB0</text>
+  <text class="t2" x="732" y="406">GPIO0 yaw · GPIO1 pitch</text>
+  <text class="t2" x="732" y="422">GPIO4 roll · GPIO10 buzzer</text>
+  <text class="t2" x="732" y="438">LEDC 50 Hz / 14 bits</text>
+  <text class="t2" x="732" y="454">watchdog 500 ms</text>
+  <text class="t2" x="732" y="470">5 V por el USB de la Pi</text>
+  <use href="#bt" x="830" y="490"/>
 
-  <rect class="blk" x="720" y="190" width="170" height="210" rx="8"/>
-  <text class="t1" x="732" y="214">ESP32-C3-DevKitM-1</text>
-  <text class="t2" x="732" y="232">CH340 · /dev/ttyUSB0</text>
-  <text class="t2" x="732" y="296">GPIO0 yaw · GPIO1 pitch</text>
-  <text class="t2" x="732" y="312">GPIO4 roll · GPIO10 buzzer</text>
-  <text class="t2" x="732" y="328">LEDC 50 Hz / 14 bits</text>
-  <text class="t2" x="732" y="344">watchdog 500 ms</text>
-  <text class="t2" x="732" y="360">5 V por el USB de la Pi</text>
-  <use href="#bt" x="830" y="196"/>
+  <rect class="blk falta" x="920" y="450" width="100" height="100" rx="8"/>
+  <text class="t1" x="930" y="472">Buzzer</text>
+  <text class="t2" x="930" y="490">pasivo, 2N2222</text>
+  <text class="t2" x="930" y="506">1 kΩ base</text>
+  <text class="t2" x="930" y="522">10 kΩ B-E</text>
+  <use href="#bf" x="962" y="532"/>
 
-  <rect class="blk falta" x="920" y="340" width="100" height="100" rx="8"/>
-  <text class="t1" x="930" y="362">Buzzer</text>
-  <text class="t2" x="930" y="380">pasivo, 2N2222</text>
-  <text class="t2" x="930" y="396">1 kΩ base</text>
-  <text class="t2" x="930" y="412">10 kΩ B-E</text>
-  <use href="#bf" x="962" y="422"/>
-
-  <rect class="blk" x="1020" y="200" width="160" height="120" rx="8"/>
-  <text class="t1" x="1032" y="224">PITCH</text>
-  <text class="t2" x="1032" y="242">Hitec HS-7955TG</text>
-  <text class="t2" x="1032" y="258">−20/+30° · 760–2240 µs</text>
-  <text class="t2" x="1032" y="274">mueve toda la cabeza</text>
-  <use href="#bt" x="1120" y="302"/>
+  <rect class="blk" x="1020" y="310" width="160" height="120" rx="8"/>
+  <text class="t1" x="1032" y="334">PITCH</text>
+  <text class="t2" x="1032" y="352">Hitec HS-7955TG</text>
+  <text class="t2" x="1032" y="368">+30° arriba / −20° abajo</text>
+  <text class="t2" x="1032" y="384">760–2240 µs</text>
+  <use href="#bt" x="1120" y="412"/>
 
   <!-- Base -->
-  <rect class="blk" x="24" y="600" width="160" height="110" rx="8"/>
-  <rect x="64" y="592" width="22" height="8" rx="2" style="fill:var(--ink)"/><rect x="122" y="592" width="22" height="8" rx="2" style="fill:var(--ink)"/>
-  <text class="t1" x="36" y="626">Batería LiPo 3S</text>
-  <text class="t2" x="36" y="646">11,1 V nom. · 12,6 V</text>
-  <text class="t2" x="36" y="662">8000 mAh ≈ 89 Wh</text>
-  <text class="t2" x="36" y="678">corte 10,5 V</text>
-  <use href="#bt" x="124" y="692"/>
+  <rect class="blk" x="24" y="710" width="160" height="110" rx="8"/>
+  <rect x="64" y="702" width="22" height="8" rx="2" style="fill:var(--ink)"/><rect x="122" y="702" width="22" height="8" rx="2" style="fill:var(--ink)"/>
+  <text class="t1" x="36" y="736">Batería LiPo 3S</text>
+  <text class="t2" x="36" y="756">11,1 V nom. · 12,6 V</text>
+  <text class="t2" x="36" y="772">8000 mAh ≈ 89 Wh</text>
+  <text class="t2" x="36" y="788">corte 10,5 V</text>
+  <use href="#bt" x="124" y="802"/>
 
-  <rect class="blk falta" x="24" y="730" width="160" height="50" rx="8"/>
-  <text class="t1" x="36" y="752">Alarma de tensión</text>
-  <text class="t2" x="36" y="770">en el balanceador</text>
-  <use href="#bf" x="124" y="762"/>
+  <rect class="blk falta" x="24" y="840" width="160" height="50" rx="8"/>
+  <text class="t1" x="36" y="862">Alarma de tensión</text>
+  <text class="t2" x="36" y="880">en el balanceador</text>
+  <use href="#bf" x="124" y="872"/>
 
-  <rect class="blk falta" x="214" y="608" width="84" height="44" rx="6"/>
-  <text class="t1" x="226" y="628">Fusible</text>
-  <text class="t2" x="226" y="644">10 A (ATO)</text>
-  <rect class="blk falta" x="322" y="608" width="84" height="44" rx="6"/>
-  <text class="t1" x="332" y="628">Interruptor</text>
-  <text class="t2" x="332" y="644">≥ 15 A</text>
-  <use href="#bf" x="276" y="586"/>
+  <rect class="blk falta" x="214" y="718" width="84" height="44" rx="6"/>
+  <text class="t1" x="226" y="738">Fusible</text>
+  <text class="t2" x="226" y="754">10 A (ATO)</text>
+  <rect class="blk falta" x="322" y="718" width="84" height="44" rx="6"/>
+  <text class="t1" x="332" y="738">Interruptor</text>
+  <text class="t2" x="332" y="754">≥ 15 A</text>
+  <use href="#bf" x="276" y="696"/>
 
-  <rect class="blk falta" x="440" y="550" width="170" height="70" rx="8"/>
-  <text class="t1" x="452" y="574">Regulador → Pi</text>
-  <text class="t2" x="452" y="594">12 V → 5,1 V · 5 A</text>
-  <use href="#bf" x="552" y="602"/>
+  <rect class="blk falta" x="440" y="660" width="170" height="70" rx="8"/>
+  <text class="t1" x="452" y="684">Regulador → Pi</text>
+  <text class="t2" x="452" y="704">12 V → 5,1 V · 5 A</text>
+  <use href="#bf" x="552" y="712"/>
 
-  <rect class="blk falta" x="440" y="690" width="170" height="80" rx="8"/>
-  <text class="t1" x="452" y="714">Regulador → servos</text>
-  <text class="t2" x="452" y="734">12 V → 6,0 V · ≥ 10 A</text>
-  <text class="t2" x="452" y="750">(módulo 20 A)</text>
-  <use href="#bf" x="552" y="752"/>
+  <rect class="blk falta" x="440" y="800" width="170" height="80" rx="8"/>
+  <text class="t1" x="452" y="824">Regulador → servos</text>
+  <text class="t2" x="452" y="844">12 V → 6,0 V · ≥ 10 A</text>
+  <text class="t2" x="452" y="860">(módulo 20 A)</text>
+  <use href="#bf" x="552" y="862"/>
 
-  <rect class="blk" x="700" y="560" width="170" height="120" rx="8"/>
-  <text class="t1" x="712" y="584">YAW</text>
-  <text class="t2" x="712" y="602">DSSERVO RDS3218 n.º 2</text>
-  <text class="t2" x="712" y="618">±70° · 950–2020 µs</text>
-  <text class="t2" x="712" y="634">gira la plataforma</text>
-  <use href="#bt" x="810" y="566"/>
+  <rect class="blk" x="700" y="670" width="170" height="120" rx="8"/>
+  <text class="t1" x="712" y="694">YAW</text>
+  <text class="t2" x="712" y="712">DSSERVO RDS3218 n.º 2</text>
+  <text class="t2" x="712" y="728">±70° · 950–2020 µs</text>
+  <text class="t2" x="712" y="744">gira la plataforma</text>
+  <use href="#bt" x="810" y="676"/>
 
-  <rect class="blk falta" x="900" y="560" width="200" height="90" rx="8"/>
-  <text class="t1" x="912" y="584">Rodamiento giratorio</text>
-  <text class="t2" x="912" y="602">tipo "lazy susan" o 6806</text>
-  <text class="t2" x="912" y="618">carga el peso y el vuelco,</text>
-  <text class="t2" x="912" y="634">no el eje del servo</text>
-  <use href="#bf" x="1040" y="566"/>
+  <rect class="blk falta" x="900" y="670" width="200" height="90" rx="8"/>
+  <text class="t1" x="912" y="694">Rodamiento giratorio</text>
+  <text class="t2" x="912" y="712">tipo "lazy susan" o 6806</text>
+  <text class="t2" x="912" y="728">carga el peso y el vuelco,</text>
+  <text class="t2" x="912" y="744">no el eje del servo</text>
+  <use href="#bf" x="1040" y="740"/>
 </svg>
 <div class="legend">
   <span><i style="background:var(--v12)"></i>12 V batería</span>
@@ -273,9 +279,11 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 </div>
 </div>
 
-<div class="nota"><strong>La Pi va sobre la plataforma de yaw</strong>, junto con la ESP32 y el buzzer, para que la cinta de la cámara no se tuerza. Por el eje de yaw cruzan solo cinco cables redondos (5,1 V y GND de la Pi, 6 V y GND de pitch/roll, señal del yaw), con una espiral de servicio para los ±70°. La cinta CSI solo se dobla con pitch y roll: montarla con su ancho paralelo al eje de pitch y con un bucle suave.</div>
+<div class="nota"><strong>La Pi va parada dentro de la cabeza</strong>, atornillada a la placa de roll, y la cámara en el ojo izquierdo del robot. Como la Pi y la cámara se mueven juntas, la cinta de ~150 mm queda fija con una curva en U y no se dobla con ningún eje. A cambio, de la cabeza bajan dos cables redondos: el de 5,1 V/GND de la Pi y el USB a la ESP32. Con el cable del servo de roll, se les deja un bucle de servicio en roll (alrededor del horn) y en pitch (cerca del eje). Por el eje de yaw cruzan cinco cables (5,1 V y GND de la Pi, 6 V y GND de pitch/roll, señal del yaw), con una espiral para los ±70°. La ESP32 y el buzzer siguen en la plataforma de yaw.</div>
 
-<div class="nota"><strong>Dos reguladores distintos desde la batería:</strong> uno de 12 → 6 V para los servos y otro de 12 → 5,1 V para la Pi. Los servos (picos de varios amperes) y la Pi nunca comparten regulador: si el HS-7955TG arranca de golpe, la caída de tensión queda en el bus de 6 V y no reinicia la Pi ni la ESP32. Lo único que se une es el GND.</div>
+<div class="nota"><strong>La Pi se alimenta por el GPIO, no por el USB-C</strong>: en la cabeza, el USB-C queda tapado por la curva de la cinta. Los 5,1 V entran por los pines 2 y 4 y el GND por el 6. El GPIO no tiene la protección del USB-C, así que el regulador tiene que estar bien ajustado y la tensión se mide <em>en los pines</em>, con la percepción corriendo y los servos moviéndose: el cable recorre los tres ejes y cae tensión. Sin USB-C, la Pi limita los USB a 600 mA; a la ESP32 le alcanza.</div>
+
+<div class="nota"><strong>Dos reguladores distintos desde la batería:</strong> uno de 12 → 6 V para los servos y otro de 12 → 5,1 V para la Pi. Los servos (picos de varios amperes) y la Pi nunca comparten regulador: si el HS-7955TG arranca de golpe, la caída de tensión queda en el bus de 6 V y no reinicia la Pi ni la ESP32. Esto pesa más ahora que la Pi entra por el GPIO, sin protección. Lo único que se une es el GND.</div>
 
 <h2>Lo que falta</h2>
 <div class="card scroll">
@@ -283,18 +291,19 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <thead><tr><th>Componente</th><th>Estado</th><th>Para qué / qué comprar</th></tr></thead>
 <tbody>
 <tr><td>Step-down 12 → 6 V, ≥ 10 A</td><td><span class="tag t-falta">FALTA</span></td><td>Alimenta los tres servos. Tres servos trabados piden hasta ~12 A; uno de 8 A (XL4016) queda justo. Buscar un módulo de 20 A / 300 W con ajuste de tensión. <strong>Ajustarlo a 6,0 V con el multímetro antes de conectar los servos.</strong> Verificar que IN− y OUT− estén unidos (algunos módulos CC/CV miden la corriente en el negativo y no lo están).</td></tr>
-<tr><td>Step-down 12 → 5,1 V, 5 A, salida USB-C</td><td><span class="tag t-falta">FALTA</span></td><td>Alimenta la Pi 5. Con menos de 5 A la Pi arranca, pero avisa y limita el USB a 600 mA (a la ESP32 le alcanza). Mejor por USB-C que por los pines de 5 V del GPIO, que saltean la protección.</td></tr>
+<tr><td>Step-down 12 → 5,1 V, 5 A, salida a bornera</td><td><span class="tag t-falta">FALTA</span></td><td>Alimenta la Pi 5 por los pines 2/4 (5 V) y 6 (GND) del GPIO: en la v3 el USB-C queda tapado, así que no hace falta que tenga salida USB-C. Bien regulado y con poco rizado, porque el GPIO no tiene protección. Cable de ≥ 20 AWG (cruza yaw, pitch y roll); ajustar para que lleguen 5,1 V <em>a los pines</em>, sin pasar de 5,25 V.</td></tr>
 <tr><td>Fusible 10 A + portafusible</td><td><span class="tag t-falta">FALTA</span></td><td>Lo más cerca posible del positivo de la batería. Una LiPo en cortocircuito entrega cientos de amperes.</td></tr>
 <tr><td>Interruptor general</td><td><span class="tag t-falta">FALTA</span></td><td>De ≥ 15 A sobre el positivo. Sirve además como parada de emergencia física en la demo.</td></tr>
 <tr><td>Conector XT60 hembra + cable 14–16 AWG</td><td><span class="tag t-falta">FALTA</span></td><td>Si la batería trae XT60 o T-Dean, el conector que combine. Cable de 14–16 AWG para los tramos de 12 V y 6 V; los de servo, alargues comunes.</td></tr>
 <tr><td>Alarma de tensión LiPo</td><td><span class="tag t-falta">FALTA</span></td><td>Va en el conector de balanceo y pita cuando una celda baja de ~3,5 V. La LiPo no tiene protección propia: descargarla de más la arruina.</td></tr>
 <tr><td>Capacitor 2200 µF / 16 V + 100 nF</td><td><span class="tag t-falta">FALTA</span></td><td>Sobre el bus de 6 V, cerca de los servos. Ya estaba recomendado en las pruebas de banco.</td></tr>
 <tr><td>Buzzer pasivo + 2N2222 + 1 kΩ + 10 kΩ</td><td><span class="tag t-falta">FALTA</span></td><td>El buzzer que pide el enunciado (GPIO10). Si es electromagnético, agregar un diodo 1N4148 en paralelo.</td></tr>
-<tr><td>Bornera o barra de GND (estrella)</td><td><span class="tag t-falta">FALTA</span></td><td>Un único punto donde se juntan los negativos de los dos step-down y el GND de la ESP32. Sin GND común, ningún servo se mueve.</td></tr>
+<tr><td>Bornera o barra de GND (estrella)</td><td><span class="tag t-falta">FALTA</span></td><td>Un único punto donde se juntan los negativos de los dos step-down y el GND de la ESP32 (la Pi queda unida a través del USB). Sin GND común, ningún servo se mueve.</td></tr>
 <tr><td>Cargador balanceador LiPo + bolsa ignífuga</td><td><span class="tag t-falta">FALTA</span></td><td>Si todavía no tienen. Cargar siempre con balanceo y a 1C (8 A) o menos.</td></tr>
-<tr><td>Disipador activo de la Pi 5</td><td><span class="tag t-recom">RECOM.</span></td><td>La percepción usa ~240 % de CPU de forma sostenida; sin ventilador la Pi baja la frecuencia y cae la tasa de percepción.</td></tr>
-<tr><td>Rodamiento giratorio para el yaw</td><td><span class="tag t-falta">FALTA</span></td><td>Tipo "lazy susan" o rodamiento de sección delgada (p. ej. 6806, 30×42×7 mm). La plataforma lleva la Pi, la ESP32, el pitch y la cabeza: el peso y el vuelco van sobre el rodamiento y el servo solo hace girar.</td></tr>
-<tr><td>Cinta CSI de 15–20 cm</td><td><span class="tag t-recom">RECOM.</span></td><td>Con la Pi en la plataforma alcanza una cinta corta (22→15 pines para la Pi 5). Solo se dobla con pitch y roll; nunca torcerla ni marcarle pliegues.</td></tr>
+<tr><td>Active Cooler de la Pi 5</td><td><span class="tag t-recom">RECOM.</span></td><td>La percepción usa ~240 % de CPU de forma sostenida; sin ventilador la Pi baja la frecuencia y cae la tasa de percepción. En la v3 va dentro de la cabeza cerrada: medir su altura (<span class="mono">COOLER_H</span>, se supusieron 11 mm) y la temperatura con la cabeza armada (<span class="mono">/sys/class/thermal/thermal_zone0/temp</span>).</td></tr>
+<tr><td>Rodamiento giratorio para el yaw</td><td><span class="tag t-falta">FALTA</span></td><td>Tipo "lazy susan" o rodamiento de sección delgada (p. ej. 6806, 30×42×7 mm). La plataforma lleva la ESP32, el buzzer, el pitch y la cabeza con la Pi (~160 g armada): el peso y el vuelco van sobre el rodamiento y el servo solo hace girar.</td></tr>
+<tr><td>Cinta CSI ~150 mm (22→15)</td><td><span class="tag t-tenes">TENÉS</span></td><td>Alcanza justo porque la Pi está en la cabeza: el recorrido con la U usa 147 de 150 mm. <strong>Antes de imprimir:</strong> medirla de punta a punta (<span class="mono">FFC_LARGO</span>) y mirar hacia qué extremo de la Pi sale del conector (<span class="mono">PI_CSI_SALIDA</span>). Nunca torcerla ni marcarle pliegues.</td></tr>
+<tr><td>Cable USB-A acodado a micro-USB</td><td><span class="tag t-recom">RECOM.</span></td><td>Los USB-A de la Pi quedan arriba en la cabeza. El cable baja por roll y pitch hasta la ESP32: tiene que ser flexible y con bucle de servicio.</td></tr>
 <tr><td>Divisor 100 kΩ / 22 kΩ a un ADC libre</td><td><span class="tag t-recom">OPCIONAL</span></td><td>Si quieren mostrar la tensión de la batería en el overlay (12,6 V → 2,27 V). Usar un pin ADC1 que no sea de strapping, p. ej. GPIO3.</td></tr>
 </tbody>
 </table>
@@ -309,11 +318,11 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <tbody>
 <tr><td>Batería +</td><td>Fusible → interruptor → entradas de los dos step-down</td><td>12 V</td></tr>
 <tr><td>Batería −</td><td>IN− de los dos step-down</td><td>—</td></tr>
-<tr><td>Step-down Pi</td><td>Pi 5, USB-C</td><td>5,1 V, cruza el yaw</td></tr>
+<tr><td>Step-down Pi</td><td>Pi 5, GPIO pines 2/4 (5 V) y 6 (GND)</td><td>5,1 V, cruza yaw, pitch y roll</td></tr>
 <tr><td>Step-down servos +</td><td>V+ (rojo) de los 3 servos</td><td>6,0 V</td></tr>
 <tr><td>Step-down servos −</td><td>GND (marrón/negro) de los 3 servos</td><td>estrella</td></tr>
-<tr><td>Pi USB-A</td><td>ESP32-C3 micro-USB</td><td class="mono">/dev/serial/by-id/usb-1a86_…</td></tr>
-<tr><td>Pi CSI (CAM/DISP 0)</td><td>Camera Module 3 NoIR</td><td>cinta 22→15, cruza pitch/roll</td></tr>
+<tr><td>Pi USB-A (arriba)</td><td>ESP32-C3 micro-USB</td><td>cable acodado, cruza roll y pitch · <span class="mono">/dev/serial/by-id/usb-1a86_…</span></td></tr>
+<tr><td>Pi CSI (CAM/DISP 0)</td><td>Camera Module 3 NoIR</td><td>cinta 22→15 de ~150 mm, U fija dentro de la cabeza</td></tr>
 <tr><td>ESP32 GPIO0</td><td>señal yaw (RDS3218)</td><td>3,3 V, 50 Hz</td></tr>
 <tr><td>ESP32 GPIO1</td><td>señal pitch (HS-7955TG)</td><td>3,3 V, 50 Hz</td></tr>
 <tr><td>ESP32 GPIO4</td><td>señal roll (MG996R)</td><td>3,3 V, 50 Hz</td></tr>
@@ -349,6 +358,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <li><strong>Nunca conectar la batería directo a los servos ni a la Pi.</strong> 12,6 V queman los tres servos (máximo 6–7,4 V) y la Pi.</li>
 <li>Ajustar la salida de cada step-down con el multímetro <em>antes</em> de conectar nada: muchos módulos vienen de fábrica en otra tensión.</li>
 <li>Apagar con el interruptor antes de conectar o cambiar servos (en el banco, enchufar uno en caliente desconectó la ESP32 del USB).</li>
+<li>Medir los 5,1 V en los pines del GPIO de la Pi antes de conectarla, y otra vez con los servos moviéndose. Nunca alimentarla a la vez por el GPIO y por el USB-C.</li>
 <li>El HS-7955TG salta a velocidad máxima con el primer pulso después de encender: el firmware tiene que arrancar en home.</li>
 <li>Las señales de 3,3 V de la ESP32 ya movieron los tres servos en el banco: no hace falta adaptador de nivel.</li>
 <li>La segunda NoIR (<span class="mono">i2c@88000</span>) no transmite: desconectarla del robot final.</li>

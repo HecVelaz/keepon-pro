@@ -132,4 +132,6 @@ observer:
 greeting:
   nods: 3
   nod_amp: 12.0                  # [°] en pitch
-  nod_period_s: 0.5
+  nod_period_s: 1.0              # nod = amp·sin²(π t / T): pide (amp/2)(2π/T)² ≈ 237 °/s² y 38 °/s,
+                                 # dentro de amax/vmax de pitch (400 °/s², 120 °/s). Con 0,5 s pedía
+                                 # ~947 °/s²: la rampa lo recortaba y el cabeceo salía atrasado y deformado (Codex)

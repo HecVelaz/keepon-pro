@@ -54,7 +54,7 @@ class SynthCamera:
         self.rng = random.Random(seed)
         self.hist: deque = deque()
         self.last_seen: dict[int, float] = {}
-        self.world = World(0.0, self.w, self.h, self.hfov)
+        self.world = World.from_cfg(cfg)  # proyecta con los mismos intrínsecos que usa el control
 
     def observe(self, t: float, neck_pos: tuple[float, float, float]) -> World:
         # La imagen que llega ahora fue tomada hace `latency` segundos.
@@ -64,15 +64,14 @@ class SynthCamera:
         yaw, pitch, _ = self.hist[0][1]
         w = self.world
         w.t = t
-        f = w.fx
         for sp in self.persons:
             if not sp.present(t):
                 continue
             rel_az, rel_el = sp.az(t) - yaw, sp.el(t) - pitch
             if abs(rel_az) >= 80 or abs(rel_el) >= 80:
                 continue
-            u = w.img_w / 2 + f * math.tan(math.radians(rel_az)) + self.rng.gauss(0, self.noise)
-            v = w.img_h / 2 - f * math.tan(math.radians(rel_el)) + self.rng.gauss(0, self.noise)
+            u = w.cx + w.fx * math.tan(math.radians(rel_az)) + self.rng.gauss(0, self.noise)
+            v = w.cy - w.fy * math.tan(math.radians(rel_el)) + self.rng.gauss(0, self.noise)
             if not (0 <= u < w.img_w and 0 <= v < w.img_h):
                 continue
             p = w.persons.get(sp.id) or Person(sp.id, u, v, sp.size)

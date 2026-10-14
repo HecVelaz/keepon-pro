@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import time
+from dataclasses import replace
 from pathlib import Path
 
 from . import ROOT
@@ -49,16 +50,33 @@ class Robot:
         self._target = None
         self._hello_t = -1e9
         self._perception_ok = True
+        self._stop_unsent = False  # STOP del operador que todavía no se pudo transmitir
         self.max_world_age = cfg["perception"]["max_age_s"]
 
     # ------------------------------------------------------------ operador
     def stop(self) -> None:
+        """Primero se enclava el STOP localmente y después se transmite: si la escritura
+        falla (cable suelto, puerto caído), el robot igual queda detenido de este lado
+        y el STOP se reintenta en cada tick hasta que salga (revisión de Codex)."""
         now = self.link.now()
-        self.link.send("STOP")
         for g in self.arb.emergency_stop(now):
             self.behaviors[g.behavior].on_cancel(g, self._ctx(now, 0.0, None))
+        self._send_stop(now)
+
+    def _send_stop(self, now: float) -> None:
+        try:
+            self.link.send("STOP")
+        except Exception as e:  # noqa: BLE001 - cualquier error del enlace: se reintenta
+            if not self._stop_unsent:
+                self.log(now, f"STOP no transmitido ({type(e).__name__}: {e}); se reintenta")
+            self._stop_unsent = True
+        else:
+            if self._stop_unsent:
+                self.log(now, "STOP transmitido")
+            self._stop_unsent = False
 
     def resume(self) -> None:
+        # Al revés que stop(): si RESUME no sale, el árbitro sigue detenido (lo seguro).
         self.link.send("RESUME")
         self.arb.resume(self.link.now())
 
@@ -72,7 +90,7 @@ class Robot:
             self.behaviors[g.behavior].on_cancel(g, self._ctx(now, 0.0, None))
         self.act.reset_after_reboot(self.cfg["neck"]["home"])
         if self.arb.stopped:
-            self.link.send("STOP")  # el STOP del operador sobrevive al reinicio
+            self._send_stop(now)  # el STOP del operador sobrevive al reinicio
 
     def tick(self, world: World, world_age: float = 0.0) -> None:
         """world_age: segundos desde que se capturó el cuadro que originó `world`."""
@@ -82,6 +100,8 @@ class Robot:
         self.act.process(self.link.poll())
         if self.act.rebooted:
             self._resync(now)
+        if self._stop_unsent and self.arb.stopped:
+            self._send_stop(now)
         if not self.act.session:  # sin sesión no se comanda nada; reintentar HELLO cada 0,5 s
             if now - self._hello_t > 0.5:
                 self.link.hello()
@@ -93,7 +113,7 @@ class Robot:
             self.log(now, "PERCEPCION ok" if ok else f"PERCEPCION sin datos frescos ({world_age:.2f} s)")
             self._perception_ok = ok
         if not ok:  # nadie es visible "ahora": el foco mantiene y luego libera por lost_hold
-            world = World(world.t + world_age, world.img_w, world.img_h, world.hfov_deg, world.persons)
+            world = replace(world, t=world.t + world_age)
 
         target = self.focus.update(world)
         if target != self._target:

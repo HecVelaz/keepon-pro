@@ -42,13 +42,14 @@ class GazeController:
         return math.copysign(max(0.0, abs(e) - dz), e)
 
     def update(self, ref: list[float], p: Person, w: World, dt: float) -> list[float]:
-        cx, cy, f = w.img_w / 2, w.img_h / 2, w.fx
-        ex = math.degrees(math.atan((p.u - cx) / f))
-        ey = -math.degrees(math.atan((p.v - cy) / f))
+        # Se centra al rostro en el CENTRO ÓPTICO (cx, cy), no en el centro de la imagen:
+        # con la calibración actual están 108 px corridos en u (≈ 6,5° de error en yaw).
+        ex = math.degrees(math.atan((p.u - w.cx) / w.fx))
+        ey = -math.degrees(math.atan((p.v - w.cy) / w.fy))
         self.ex += self.alpha * (ex - self.ex)
         self.ey += self.alpha * (ey - self.ey)
-        dzx = math.degrees(math.atan(self.dz * w.img_w / f))
-        dzy = math.degrees(math.atan(self.dz * w.img_h / f))
+        dzx = math.degrees(math.atan(self.dz * w.img_w / w.fx))
+        dzy = math.degrees(math.atan(self.dz * w.img_h / w.fy))
         vy = _sat(self.kp * self._soft_dz(self.ex, dzx), self.vmax[0])
         vp = _sat(self.kp * self._soft_dz(self.ey, dzy), self.vmax[1])
         return [ref[0] + vy * dt, ref[1] + vp * dt, ref[2]]
@@ -71,7 +72,7 @@ class Focus:
         """(mira, puntaje). ME_MIRA tiene prioridad estricta (T4); tamaño y centrado
         sólo ordenan dentro de cada grupo."""
         _, ws, wc = self.w
-        centered = 1.0 - min(1.0, abs(p.u - w.img_w / 2) / (w.img_w / 2))
+        centered = 1.0 - min(1.0, abs(p.u - w.cx) / (w.img_w / 2))  # "centrada" = cerca del eje óptico
         return p.looking, ws * min(1.0, p.size / w.img_h) + wc * centered
 
     def _better(self, a: Person, b: Person, w: World) -> bool:

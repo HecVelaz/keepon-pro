@@ -36,10 +36,11 @@ def test_same_gesture_not_answered_twice(result):
 
 def test_tracking_converges(result):
     _, trace, _ = result
-    # Persona quieta de 10 a 16 s: error < 5 % del ancho y sin oscilación.
-    errs = [r[6] for r in trace if 11.0 <= r[0] <= 16.0 and r[4] == "SEGUIMIENTO"]
+    # Persona quieta de 9,5 a 16 s. El saludo (3 cabeceos de 1 s) tiene el cuello hasta
+    # ~11 s y en ~0,6 s la recentra: desde 12 s, error < 5 % del ancho y sin oscilación.
+    errs = [r[6] for r in trace if 12.0 <= r[0] <= 16.0 and r[4] == "SEGUIMIENTO"]
     assert errs and max(abs(e) for e in errs) < 32
-    yaws = [r[1] for r in trace if 11.0 <= r[0] <= 13.4]
+    yaws = [r[1] for r in trace if 12.0 <= r[0] <= 13.4]
     assert max(yaws) - min(yaws) < 0.5
 
 

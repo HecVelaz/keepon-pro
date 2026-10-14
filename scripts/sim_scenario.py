@@ -25,8 +25,8 @@ def scenario() -> list[SynthPerson]:
     """Línea de tiempo (s):
      0- 3  nadie                          -> OBSERVADOR
      3     aparece A a la derecha, camina -> SEGUIMIENTO
-     8     A saluda                       -> SALUDO (cuello + buzzer)
-    10     A con camiseta de Olimpia      -> POLCA (buzzer) mientras sigue
+     8     A saluda                       -> SALUDO (cuello + buzzer, 3 cabeceos de 1 s)
+    11.5   A con camiseta de Olimpia      -> POLCA (buzzer) mientras sigue
     13.5   A saluda durante la polca      -> SALUDO interrumpe la POLCA
     14     A saluda otra vez (cooldown)   -> ignorado
     16     A deja de mirar; aparece B (Cerro) mirando -> ABUCHEO; foco pasa a B tras 1,5 s
@@ -35,7 +35,7 @@ def scenario() -> list[SynthPerson]:
     26     todos se van                   -> OBSERVADOR
     """
     A = SynthPerson(1, appear=3.0, leave=26.0, az=ramp(3.5, 9.5, 30.0, -15.0), el=const(8.0), size=320,
-                    looking=[(6.0, 16.0)], shirt=[(10.0, 26.0, "OLIMPIA")], waves=[8.0, 13.5, 14.0],
+                    looking=[(6.0, 16.0)], shirt=[(11.5, 26.0, "OLIMPIA")], waves=[8.0, 13.5, 14.0],
                     hidden=[(17.0, 17.5)])
     B = SynthPerson(2, appear=16.0, leave=26.0, az=const(-5.0), el=const(4.0), size=420,
                     looking=[(16.0, 26.0)], shirt=[(16.0, 26.0, "CERRO")])
@@ -62,7 +62,7 @@ def run(duration: float = 30.0, rate: float = 40.0, echo: bool = True):
         robot.tick(world)
         own = {r: (g.behavior if (g := robot.arb.owner[r]) else "-") for r in (NECK, BUZZER)}
         tgt = world.visible(robot.focus.target)
-        err = (tgt.u - world.img_w / 2) if tgt else None
+        err = (tgt.u - world.cx) if tgt else None  # contra el centro óptico, como el control
         trace.append((t, *link.neck_pos, own[NECK], own[BUZZER], err, link.esp.sound))
         link.advance(dt)
         t += dt

@@ -12,7 +12,10 @@ directamente del tópico ROS 2 de la cámara:
   proceso "pose":      Pose Landmarker multi-persona (hombros, codos, muñecas)
 
 Los resultados vuelven al proceso principal por colas (mensajes chicos, sin
-imágenes). Cada resultado lleva el número de cuadro y su marca de tiempo.
+imágenes), una por proceso y de capacidad mínima: si el principal se atrasa, el
+resultado viejo se descarta y queda el nuevo (`_put_latest`). Así nunca se
+acumula un retraso ni se bloquea un proceso de IA. Cada resultado lleva el
+número de cuadro y su marca de tiempo.
 """
 
 from __future__ import annotations
@@ -165,6 +168,28 @@ def _cpu_seconds() -> float:
 
 
 # ------------------------------------------------------------------ procesos
+def _put_latest(out: mp.Queue, r: DetResult) -> None:
+    """Entrega sin bloquear, quedándose con lo más nuevo.
+
+    Antes era una cola de 64 con put() bloqueante: si el principal no leía, se
+    juntaban hasta ~2,4 s de resultados viejos y después los procesos se trababan
+    (revisión de Codex). Ahora, si la cola está llena se saca el resultado viejo
+    y se pone el nuevo. Sólo este proceso escribe en su cola."""
+    try:
+        out.put_nowait(r)
+        return
+    except queue.Full:
+        pass
+    try:
+        out.get(timeout=0.05)  # timeout: el viejo puede estar todavía en tránsito por el pipe
+    except queue.Empty:
+        pass
+    try:
+        out.put_nowait(r)
+    except queue.Full:
+        pass  # el principal acaba de leer y otro quedó adelante: se pierde este, viene otro en ~60 ms
+
+
 def _worker_personas(cfg: dict, out: mp.Queue, stop) -> None:
     p = cfg["perception"]
     _pin(p.get("cores_personas"))
@@ -233,7 +258,7 @@ def _worker_personas(cfg: dict, out: mp.Queue, stop) -> None:
         t1 = time.perf_counter()
         if n % 50 == 1 or n < 5:
             _repin_threads(cores)
-        out.put(DetResult("personas", n, stamp, time.time(), (t1 - t0) * 1e3, persons=persons,
+        _put_latest(out, DetResult("personas", n, stamp, time.time(), (t1 - t0) * 1e3, persons=persons,
                           parts={"yolo": (t_yolo - t0) * 1e3, "rostros": (t1 - t_yolo) * 1e3}))
     cam.close()
     face.close()
@@ -274,7 +299,7 @@ def _worker_pose(cfg: dict, out: mp.Queue, stop) -> None:
                  for lm in res.pose_landmarks]
         if n % 50 == 1 or n < 5:
             _repin_threads(cores)  # MediaPipe también crea hilos con afinidad propia
-        out.put(DetResult("pose", n, stamp, time.time(), (time.perf_counter() - t0) * 1e3, poses=poses))
+        _put_latest(out, DetResult("pose", n, stamp, time.time(), (time.perf_counter() - t0) * 1e3, poses=poses))
     cam.close()
     pose.close()
 
@@ -283,27 +308,30 @@ class Perception:
     """Arranca los procesos y entrega siempre el resultado más reciente de cada uno."""
 
     WORKERS = {"personas": _worker_personas, "pose": _worker_pose}
+    QUEUE_SIZE = 2  # por proceso: como mucho un resultado de atraso (~60-100 ms)
 
     def __init__(self, cfg: dict, workers=("personas", "pose")):
         ctx = mp.get_context("spawn")  # proceso limpio: rclpy y MediaPipe no se llevan con fork
         self.stop = ctx.Event()
-        self.q: mp.Queue = ctx.Queue(maxsize=64)
-        self.procs = {k: ctx.Process(target=self.WORKERS[k], args=(cfg, self.q, self.stop), daemon=True, name=f"keepon_{k}")
+        self.queues: dict[str, mp.Queue] = {k: ctx.Queue(maxsize=self.QUEUE_SIZE) for k in workers}
+        self.procs = {k: ctx.Process(target=self.WORKERS[k], args=(cfg, self.queues[k], self.stop), daemon=True,
+                                     name=f"keepon_{k}")
                       for k in workers}
         for pr in self.procs.values():
             pr.start()
         self.latest: dict[str, DetResult] = {}
 
     def poll(self) -> list[DetResult]:
-        """Vacía la cola sin bloquear; devuelve los resultados nuevos."""
+        """Vacía las colas sin bloquear; devuelve los resultados nuevos, en orden por proceso."""
         got = []
-        while True:
-            try:
-                r = self.q.get_nowait()
-            except queue.Empty:
-                break
-            self.latest[r.kind] = r
-            got.append(r)
+        for q in self.queues.values():
+            while True:
+                try:
+                    r = q.get_nowait()
+                except queue.Empty:
+                    break
+                self.latest[r.kind] = r
+                got.append(r)
         return got
 
     def pids(self) -> dict[str, int]:

@@ -70,7 +70,7 @@ camera_ros → keepon/perception.py (2 procesos) → World → Focus → behavio
 ## Comandos
 ```bash
 # Notebook (venv en .venv). La variable evita que se carguen los plugins de pytest de ROS 2:
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q        # 81 tests
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q        # 87 tests
 .venv/bin/python scripts/sim_scenario.py --plot                        # escenario simulado de 30 s
 
 # ESP32-C3 desde la notebook (arduino-cli 1.1.1 en ~/.local/bin, núcleo esp32:esp32 3.3.12 en ~/.arduino15)
@@ -103,7 +103,7 @@ Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_
 - Rostro encontrado en el 80 % de las detecciones; ID estable. Detalle completo en `docs/ESTADO_PI.md`.
 
 ## Dónde quedó la sesión (14/10/2026)
-- **Revisión de arquitectura de Codex** en `docs/REVISION_CODEX_ARQ.md`: mantener la ESP32 (el enunciado pide microcontrolador + protocolo; watchdog independiente de Linux), Pi en la cabeza por la cinta de 150 mm, cara plana. **Encontró 4 fallos de código, pendientes de corregir con tests de regresión:** `gaze.py:45` usa (320, 240) en vez de cx/cy; la cola de `perception.py:290` (64 resultados, `put()` bloqueante) acumula hasta ~2,4 s; el saludo pide ~947 °/s² con `amax` de pitch 400; `Robot.stop()` transmite antes de enclavar.
+- **Revisión de arquitectura de Codex** en `docs/REVISION_CODEX_ARQ.md`: mantener la ESP32 (el enunciado pide microcontrolador + protocolo; watchdog independiente de Linux), Pi en la cabeza por la cinta de 150 mm, cara plana. **Sus 4 fallos de código se corrigieron el 14/10** (tests 7–10 de `tests/test_regresiones_codex.py`): el control de mirada y el foco usan cx/cy (`World.from_cfg`, `World.K`); una cola por proceso de tamaño 2 con `_put_latest` (descarta lo viejo, nunca bloquea); `nod_period_s` 1,0 s (≈ 237 °/s²); `Robot.stop()` enclava primero y reintenta el STOP si el enlace falla. **Falta medir en la Pi la cola nueva** (`perception_bench.py`): la Pi no respondía por SSH. Quedan sin hacer los puntos 3 (asociar pose y persona por timestamp) y 6 (watchdog/reanudación) de la misma lista. `docs/diagrama_sistema/index.html` ya está en la v3.
 - **Modelo mecánico v3** en `docs/keepon_v3_cad/` (reemplaza al v2 para imprimir; el cuello se importa del v2): cabeza de 75 × 107 × 40 mm con la **Pi parada adentro** sobre la placa de roll y la cámara en el ojo izquierdo del robot (corrida 19 mm, alineada con la cinta). En la Pi 5, los conectores CAM/DISP son perpendiculares al borde de los HDMI: la cinta sale a lo largo del lado largo. Cinta fija con una U de radio 6,5 mm (147 de 150 mm). Sin interferencias en 15 poses.
   - Consecuencias: **la Pi se alimenta por el GPIO** (el USB-C queda tapado por la cinta), los USB-A quedan arriba (cable acodado a la ESP32), y **el pitch se monta con +30° arriba y −20° abajo** (más de ~22° abajo la cara toca el plato).
   - **Falta verificar en la Pi:** hacia qué extremo sale la cinta del conector (`PI_CSI_SALIDA`, se asumió el USB-C), el largo exacto de la cinta y la altura del Active Cooler.

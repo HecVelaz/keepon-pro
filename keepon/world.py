@@ -35,10 +35,33 @@ class World:
     img_h: int
     hfov_deg: float
     persons: dict[int, Person] = field(default_factory=dict)
+    # Intrínsecos de la cámara (fx, fy, cx, cy) [px]. Sin ellos se supone una cámara
+    # ideal: focal a partir de hfov_deg y centro óptico en el centro de la imagen.
+    K: tuple[float, float, float, float] | None = None
+
+    @classmethod
+    def from_cfg(cls, cfg: dict, t: float = 0.0) -> "World":
+        """Mundo vacío con el tamaño de imagen y los intrínsecos de config.yaml."""
+        c = cfg["camera"]
+        K = (c["fx"], c["fy"], c["cx"], c["cy"]) if "fx" in c else None
+        return cls(t, c["size"][0], c["size"][1], c["hfov_deg"], K=K)
 
     @property
     def fx(self) -> float:
-        return (self.img_w / 2) / math.tan(math.radians(self.hfov_deg) / 2)
+        return self.K[0] if self.K else (self.img_w / 2) / math.tan(math.radians(self.hfov_deg) / 2)
+
+    @property
+    def fy(self) -> float:
+        return self.K[1] if self.K else self.fx
+
+    @property
+    def cx(self) -> float:
+        """Centro óptico: es el punto de la imagen que queda sobre el eje de la cámara."""
+        return self.K[2] if self.K else self.img_w / 2
+
+    @property
+    def cy(self) -> float:
+        return self.K[3] if self.K else self.img_h / 2
 
     def visible(self, pid: int | None) -> Person | None:
         p = self.persons.get(pid) if pid is not None else None
