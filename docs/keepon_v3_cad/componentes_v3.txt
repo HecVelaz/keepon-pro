@@ -1,0 +1,146 @@
+KEEPON PRO v3 · COMPONENTES (sin las piezas impresas)
+Generado el 14/10/2026 por docs/keepon_v3_cad/fuente/componentes.py
+
+Medidas en mm. «MEDIR» = verificar con calibre antes de imprimir.
+
+====================================================================================================
+1. COMPONENTES MODELADOS EN EL CAD
+   (están en step/keepon_v3_componentes.step y cada uno en step/componentes/<archivo>.step)
+   Caja envolvente en la posición del robot: X (hacia la cara) × Y (de lado a lado) × Z (alto).
+   «Desde» = esquina mínima de la caja, respecto del origen del robot (eje de yaw, piso de la caja base).
+====================================================================================================
+Componente                                                 X × Y × Z              Desde (x, y, z)          Archivo
+Batería LiPo 3S 8000 mAh (MEDIR)                           50,0 × 166,0 × 37,0    (36,0; -83,0; 3,0)       bateria_lipo_3s.step
+Regulador 12 → 6 V, módulo 20 A                            50,0 × 65,0 × 25,0     (-94,0; -80,0; 3,0)      regulador_6v_20a.step
+Regulador 12 → 5,1 V, 5 A                                  32,0 × 55,0 × 15,0     (-94,0; 20,0; 3,0)       regulador_5v_5a.step
+Interruptor de balancín                                    25,0 × 18,8 × 12,4     (-103,0; -9,4; 34,2)     interruptor.step
+Servo de yaw DSSERVO RDS3218                               54,5 × 20,0 × 45,5     (-37,2; -10,0; 41,5)     servo_yaw_rds3218.step
+Brazo doble del RDS3218 (38 mm)                            38,0 × 9,0 × 5,5       (-19,0; -4,5; 82,5)      horn_yaw.step
+ESP32-C3-DevKitM-1                                         48,3 × 25,4 × 4,0      (-55,0; -12,7; 104,0)    esp32c3.step
+Buzzer pasivo Ø12                                          12,0 × 12,0 × 9,5      (-11,0; -52,0; 93,0)     buzzer.step
+Servo de pitch Hitec HS-7955TG                             20,0 × 42,0 × 54,0     (10,0; -67,5; 120,0)     servo_pitch_hs7955tg.step
+Brazo doble del HS-7955TG (38 mm)                          9,0 × 5,5 × 38,0       (15,5; -30,0; 138,0)     horn_pitch.step
+Servo de roll TowerPro MG996R                              46,0 × 19,7 × 54,0     (10,0; -9,8; 119,7)      servo_roll_mg996r.step
+Brazo doble del MG996R (38 mm)                             3,6 × 9,0 × 38,0       (53,4; -4,5; 138,0)      horn_roll.step
+Raspberry Pi 5: placa                                      1,6 × 56,0 × 85,0      (65,0; -28,0; 132,0)     pi5_pcb.step
+Raspberry Pi 5: USB, Ethernet, USB-C, micro-HDMI y GPIO    16,0 × 55,7 × 81,2     (66,6; -26,5; 138,8)     pi5_puertos.step
+Raspberry Pi 5: conectores CAM/DISP                        1,8 × 15,4 × 9,5       (66,6; 11,4; 178,3)      pi5_conectores_csi.step
+Active Cooler de la Pi 5 (MEDIR la altura)                 11,0 × 30,0 × 48,0     (66,6; -20,0; 146,0)     pi5_active_cooler.step
+Camera Module 3 NoIR: placa                                1,0 × 25,0 × 24,0      (85,3; 6,6; 199,3)       camara_pcb.step
+Camera Module 3 NoIR: lente                                10,5 × 8,5 × 8,5       (86,3; 14,9; 209,5)      camara_lente.step
+Camera Module 3 NoIR: conector de la cinta                 2,5 × 20,0 × 5,5       (82,8; 9,1; 199,3)       camara_conector.step
+Cinta FFC CSI 22 → 15 pines, 150 mm (MEDIR)                16,3 × 16,0 × 75,9     (68,0; 11,1; 123,3)      cinta_ffc.step
+
+Servos (medidas nominales del modelo, sin brida ni eje):
+  RDS3218    cuerpo 40,0 × 20,0 × 40,5 · brida 54,5 × 2,5 de espesor, agujeros 49,5 × 10,0 · eje a 17,0 sobre la brida, a 10,0 del extremo · brazo doble de 38,0
+  HS-7955TG  cuerpo 40,0 × 20,0 × 37,0 · brida 54,0 × 2,5 de espesor, agujeros 48,0 × 10,0 · eje a 15,0 sobre la brida, a 10,0 del extremo · brazo doble de 38,0
+  MG996R     cuerpo 40,7 × 19,7 × 42,9 · brida 54,0 × 2,5 de espesor, agujeros 49,5 × 10,0 · eje a 16,0 sobre la brida, a 10,0 del extremo · brazo doble de 38,0
+
+====================================================================================================
+2. ACTUADORES
+====================================================================================================
+Componente                                           Cant.  Dimensiones                                Estado
+Servo de yaw · DSSERVO RDS3218 (n.º 2)               1      Cuerpo 40,0 × 20,0 × 40,5 · Brida 54,5 (agujeros 49,5 × 10,0) · Eje a 17,0 sobre la brida TENEMOS
+                                                           ↳ GPIO0. 270°, ±70° ≈ 960/2010 µs (límites 950/2020). Sin tope mecánico. Picos de ~1 A. ≈ 60 g. Sin rodamiento: su eje sostiene todo el plato (≈ 330 g, ≈ 1,3 kgf·cm de vuelco).
+Servo de pitch · Hitec HS-7955TG                     1      Cuerpo 40,0 × 20,0 × 37,0 · Brida 54,0 (agujeros 48,0 × 10,0) · Eje a 15,0 sobre la brida TENEMOS
+                                                           ↳ GPIO1. ~18 kgf·cm, engranajes de titanio. Límites 760/2240 µs. Montado +30° arriba / −20° abajo. Sin pulso se mantiene firme.
+Servo de roll · TowerPro MG996R                      1      Cuerpo 40,7 × 19,7 × 42,9 · Brida 54,0 (agujeros 49,5 × 10,0) · Eje a 16,0 sobre la brida TENEMOS
+                                                           ↳ GPIO4. Límites 1000/2000 µs (roll ±20°). Banda muerta ~10°. Sin pulso queda flojo. 55 g.
+Brazo doble de plástico (uno por servo)              3      38,0 de punta a punta · cubo Ø9,0 · ancho 6,5 → 4,0 · espesor 2,5 · agujeros cada ≈ 2,5–3 (MEDIR) TENEMOS
+                                                           ↳ El mismo en los tres servos (foto docs/Fotos/brazo_servo.jpeg). Plato, horquilla y placa de roll tienen una ranura a cada lado del eje: el tornillo entra en el agujero del brazo que quede debajo. Ojo: el HS-7955TG tiene estriado Hitec (24 dientes) y el RDS3218 y el MG996R de 25: cada brazo tiene que ser el de su servo.
+Servo de repuesto · TowerPro MG90S                   1      22,8 × 12,2 × 28,5                         TENEMOS
+                                                           ↳ Repuesto de roll (0,09 °/µs, banda muerta 20–30 µs). No se usa en el diseño.
+
+====================================================================================================
+3. TORNILLERÍA
+====================================================================================================
+Componente                                           Cant.  Dimensiones                                Estado
+Tornillo M3 × 10–12 + tuerca                         12     M3                                         FALTA
+                                                           ↳ Bridas de los servos: 4 por servo (RDS a la tapa, HS al soporte izquierdo, MG996R a la horquilla).
+Tornillo M3 × 16 autorroscante / inserto             4      M3                                         FALTA
+                                                           ↳ Tapa a las columnas de la caja base.
+Tornillo M3 × 10 + tuerca                            7      M3                                         FALTA
+                                                           ↳ Soportes de pitch al plato (4), cuna de la ESP32 (2) y portabuzzer (1).
+Tornillo M2 × 8 autorroscante (brazo)                6      M2                                         FALTA
+                                                           ↳ Piezas a los brazos: 2 por brazo, uno en cada ranura (plato, horquilla, placa de roll). El central viene con el servo.
+Tornillo M4 × 20 + 2 arandelas + tuerca autofrenante 1      M4                                         FALTA
+                                                           ↳ Pivote del pitch (soporte derecho ↔ horquilla).
+Tornillo M2,5 × 6 autorroscante                      4      M2,5                                       FALTA
+                                                           ↳ Pi 5 a los separadores de la placa de roll.
+Tornillo M2,5 × 12 autorroscante                     4      M2,5                                       FALTA
+                                                           ↳ Caja de la cabeza a la placa de roll (desde atrás).
+Tornillo M2 × 5                                      4      M2                                         FALTA
+                                                           ↳ Cámara a los separadores de la cara.
+Cinta de velcro                                      1      ≈ 20 de ancho                              FALTA
+                                                           ↳ Sujeta la batería (ranuras en el piso de la caja).
+
+====================================================================================================
+4. ELECTRÓNICA: PROCESAMIENTO, VISIÓN Y CONTROL
+====================================================================================================
+Componente                                           Cant.  Dimensiones                                Estado
+Raspberry Pi 5 · 4 GB                                1      85 × 56 × 17 (con USB/Ethernet) · agujeros 58 × 49, M2,5 TENEMOS
+                                                           ↳ Ubuntu 24.04 + ROS 2 Jazzy. Percepción (YOLO26n + MediaPipe), árbitro y comportamientos. Va parada dentro de la cabeza; se alimenta por el GPIO (pines 2/4 = 5 V, 6 = GND). ~7 W típico, 12 W pico.
+Active Cooler de la Pi 5                             1      ≈ 48 × 30 × 11 sobre la placa (MEDIR la altura) RECOM.
+                                                           ↳ Sin ventilador la Pi baja la frecuencia con ~240 % de CPU sostenido.
+Tarjeta microSD                                      1      15 × 11 × 1                                TENEMOS
+                                                           ↳ Sistema de la Pi (ya instalada).
+Camera Module 3 NoIR estándar · (RSP-CAM-V3-NOIR, IMX708) 1      25 × 24 × 11,5 · agujeros 21 × 12,5, M2 · lente a 14,5 del borde inferior TENEMOS
+                                                           ↳ En el ojo izquierdo del robot. 66° H nominal, sin filtro IR. Conector de 22 pines.
+Cinta FFC CSI 22 → 15 pines                          1      ≈ 150 de largo × 16 de ancho (MEDIR)       TENEMOS
+                                                           ↳ Recorrido con la U fija: 147 de 150 mm. Nunca torcerla ni plegarla.
+ESP32-C3-DevKitM-1 (clon CH340)                      1      48,3 × 25,4 × ≈ 12 (con pines)             TENEMOS
+                                                           ↳ Controla los 3 servos y el buzzer (LEDC 50 Hz / 14 bits, watchdog 500 ms). /dev/serial/by-id/usb-1a86_…
+Cable USB-A acodado → micro-USB                      1      ≈ 50 cm                                    RECOM.
+                                                           ↳ Pi (USB-A arriba en la cabeza) → ESP32. Flexible, con bucle de servicio en roll y pitch.
+
+====================================================================================================
+5. ELECTRÓNICA: ALIMENTACIÓN
+====================================================================================================
+Componente                                           Cant.  Dimensiones                                Estado
+Batería LiPo 3S 8000 mAh                             1      166 × 50 × 37 (MEDIR)                      TENEMOS
+                                                           ↳ 11,1 V nominal, 12,6 V cargada, ≈ 89 Wh. Corte a 10,5 V. ≈ 550 g. Va en la caja base.
+Regulador 12 → 6,0 V, ≥ 10 A (módulo 20 A / 300 W)   1      ≈ 65 × 50 × 25                             FALTA
+                                                           ↳ Alimenta los tres servos. Ajustar a 6,0 V antes de conectarlos. Verificar que IN− y OUT− estén unidos.
+Regulador 12 → 5,1 V, 5 A, salida a bornera          1      ≈ 55 × 32 × 15                             FALTA
+                                                           ↳ Alimenta la Pi por el GPIO. Sin pasar de 5,25 V en los pines. Cable ≥ 20 AWG.
+Fusible 10 A (ATO) + portafusible                    1      19 × 5 × 19 (fusible)                      FALTA
+                                                           ↳ Lo más cerca del + de la batería.
+Interruptor de balancín ≥ 15 A                       1      corte 19,2 × 12,8 en la pared              FALTA
+                                                           ↳ Sobre el positivo. Es también la parada de emergencia física.
+Conector XT60 hembra                                 1      16 × 8 × 15                                FALTA
+                                                           ↳ El que combine con la batería.
+Cable 14–16 AWG (rojo + negro)                       1 m    —                                          FALTA
+                                                           ↳ Tramos de 12 V y 6 V.
+Cable 20 AWG (5 V de la Pi)                          1 m    —                                          FALTA
+                                                           ↳ De la caja a la cabeza: cruza yaw, pitch y roll.
+Alargues de servo (macho-hembra)                     3      ≈ 30 cm                                    FALTA
+                                                           ↳ Los servos de pitch y roll suben por el cuello.
+Alarma de tensión LiPo                               1      ≈ 40 × 25 × 10                             FALTA
+                                                           ↳ En el balanceador; pita si una celda baja de ~3,5 V.
+Capacitor electrolítico 2200 µF / 16 V               1      Ø13 × 25                                   FALTA
+                                                           ↳ Bus de 6 V, cerca de los servos.
+Capacitor cerámico 100 nF                            1      5 × 3                                      FALTA
+                                                           ↳ En paralelo con el de 2200 µF.
+Bornera / barra de GND en estrella                   1      ≈ 30 × 10 × 10                             FALTA
+                                                           ↳ Une los negativos de los reguladores y el GND de la ESP32. Sin GND común no se mueve ningún servo.
+Cargador balanceador LiPo + bolsa ignífuga           1      —                                          FALTA
+                                                           ↳ Cargar con balanceo a 1C (8 A) o menos.
+
+====================================================================================================
+6. ELECTRÓNICA: BUZZER Y SEÑALES
+====================================================================================================
+Componente                                           Cant.  Dimensiones                                Estado
+Buzzer pasivo                                        1      Ø12 × 9,5                                  FALTA
+                                                           ↳ Sonidos del robot (GPIO10). En el portabuzzer, sobre el plato.
+Transistor 2N2222                                    1      TO-92 (4,5 × 3,5 × 4,5)                    FALTA
+                                                           ↳ Conmuta el buzzer desde el 5 V de la ESP32.
+Resistencia 1 kΩ, 1/4 W                              1      6 × 2,3                                    FALTA
+                                                           ↳ GPIO10 → base del 2N2222.
+Resistencia 10 kΩ, 1/4 W                             1      6 × 2,3                                    FALTA
+                                                           ↳ Base → emisor (lo mantiene apagado al arrancar).
+Diodo 1N4148                                         1      4 × 2                                      FALTA
+                                                           ↳ Solo si el buzzer es electromagnético: en paralelo, en inversa.
+Resistencias 100 kΩ + 22 kΩ                          1      6 × 2,3 c/u                                OPCIONAL
+                                                           ↳ Divisor para medir la batería con un ADC (12,6 V → 2,27 V), p. ej. GPIO3.
+
+No hay rodamiento de yaw: el plato se atornilla al horn del RDS3218.

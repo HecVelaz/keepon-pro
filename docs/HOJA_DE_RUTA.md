@@ -47,7 +47,7 @@ El control visual no escribe al puerto serie: genera propuestas y sólo el árbi
 - Medir masa, centro de gravedad, torque (τ ≈ Σ m·g·d en la postura más desfavorable) y consumo con los 3 servos a la vez. Pitch es el eje más exigente.
 
 ### H1. Mecánica (cabeza + cuello 3 GDL)
-- Serie yaw → pitch → roll; yaw sobre rodamiento. Rangos: yaw ±70°, pitch −20°/+30°, roll ±20°; topes mecánicos más allá del límite de software.
+- Serie yaw → pitch → roll; yaw sin rodamiento (el plato apoyado en el horn del RDS3218; no se consigue rodamiento). Rangos: yaw ±70°, pitch −20°/+30°, roll ±20°; topes mecánicos más allá del límite de software.
 - Cabeza liviana (< 250 g) y equilibrada; ojos fijos grandes (LEDs al final). HOME = postura calibrada.
 - **Tres ejes operativos el 8/10.**
 

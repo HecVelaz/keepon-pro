@@ -24,8 +24,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "keepon_v2_cad" / "
 import keepon_cad as v2   # noqa: E402
 from keepon_cad import (V, caja, cil, cil_eje, unir, restar, rot, HOLGURA, M3, M3_ROSCA,  # noqa: E402
                         M25_ROSCA, M2_ROSCA, RDS3218, HS7955, MG996R, YAW, PITCH, ROLL,
-                        servo_modelo, horn_modelo, horn_agujeros, Z_PLATO0, Z_PLATO1, Z_PITCH,
-                        X_PITCH, X_PLACA0, X_PLACA1, Y_SOP_IZQ, Y_SOP_DER, ROD_R_AGUJ_SUP,
+                        servo_modelo, Z_PLATO0, Z_PLATO1, Z_PITCH,
+                        X_PITCH, X_PLACA0, X_PLACA1, Y_SOP_IZQ, Y_SOP_DER, M4,
                         PASO_CABLES_R, PASO_CABLES_ANCHO, PASO_CABLES_ARCO)
 
 # ============================================================================================
@@ -72,6 +72,22 @@ CABEZA_R_ESQ = 10.0    # radio de las esquinas de la cara
 OJO_D = 20.0           # los dos ojos: en el derecho del público (izquierdo del robot, +Y) va la cámara
 LENTE_AGUJERO = 4.6    # radio del agujero para la lente
 COSTILLA_D = 6.0       # costillas de las paredes donde se atornilla la caja a la placa (M2,5)
+
+# --- Brazo de los servos -----------------------------------------------------------------------
+# Brazo doble de plástico (docs/Fotos/brazo_servo.jpeg): el mismo en los tres servos, en lugar del horn
+# circular de la v2. Medido: largo de punta a punta y paso de los agujeros (≈ 2,5; en la foto da ≈ 3).
+# El resto se estimó de la foto con la escala de los 38 mm: MEDIR.
+BRAZO_L = 38.0         # de punta a punta (medido)
+BRAZO_CUBO_D = 9.0     # anillo del cubo central (MEDIR)
+BRAZO_ANCHO = (6.5, 4.0)   # ancho junto al cubo y en la punta (MEDIR)
+BRAZO_T = 2.5          # espesor de los brazos (MEDIR)
+BRAZO_AGUJEROS = (7.0, 10.0, 13.0, 16.0)   # radios de los agujeros de cada brazo (MEDIR)
+# Las piezas que van sobre el brazo no tienen agujeros fijos sino una ranura a cada lado del eje:
+# el tornillo M2 autorroscante pasa por la ranura y entra en el agujero del brazo que quede debajo,
+# sea cual sea el paso real. Cubre los agujeros entre estos radios:
+RANURA_R = (5.5, 14.5)
+RANURA_ANCHO = 2.4     # pasante para M2
+CUBO_ALIVIO = (10.5, 1.0)  # rebaje en la pieza por si el cubo sobresale del brazo (diámetro, profundidad)
 
 # --- Barrido que se verifica (config.yaml: pitch −20/+30, roll ±20) ---------------------------
 # Se monta el pitch para que los 30° sean hacia ARRIBA (la persona está más alta que el robot).
@@ -142,6 +158,55 @@ assert Z_LENTE + OJO_D / 2 < Z_CAB1 - 1, "el ojo no entra en la cara"
 # ============================================================================================
 
 
+def brazo_modelo(s):
+    """Brazo doble en el sistema local del servo: a lo largo de x local, con la cara de arriba en S + 1
+    (donde apoya la pieza, igual que el horn circular de la v2)."""
+    z1 = s.S + 1.0
+    z0 = z1 - BRAZO_T
+    w0, w1 = BRAZO_ANCHO
+    xp = BRAZO_L / 2 - w1 / 2          # centro de la punta redondeada
+    perfil = (cq.Workplane("XY").polyline([(-xp, -w1 / 2), (0, -w0 / 2), (xp, -w1 / 2), (xp, w1 / 2), (0, w0 / 2),
+                                           (-xp, w1 / 2)]).close().extrude(BRAZO_T).val().translate(V(0, 0, z0)))
+    puntas = [cil(w1 / 2, z0, z1, sx * xp, 0) for sx in (-1, 1)]
+    cubo = cil(BRAZO_CUBO_D / 2, s.H - s.Fb + 0.5, z1)
+    b = unir(perfil, *puntas, cubo)
+    agujeros = [cil(0.75, z0 - 1, z1 + 1, sx * r, 0) for sx in (-1, 1) for r in BRAZO_AGUJEROS]
+    return restar(b, cil(1.3, z1 - 3, z1 + 1), *agujeros)
+
+
+def brazo_agujeros(s, espesor=10.0):
+    """Recortes de la pieza que se atornilla al brazo: una ranura a cada lado (a lo largo de x local),
+    el acceso al tornillo central y un rebaje para el cubo."""
+    z0 = s.S + 1.0 - 0.5
+    r0, r1 = RANURA_R
+    a = RANURA_ANCHO / 2
+    rec = []
+    for sx in (-1, 1):
+        rec.append(caja(min(sx * r0, sx * r1), max(sx * r0, sx * r1), -a, a, z0, z0 + espesor))
+        rec += [cil(a, z0, z0 + espesor, sx * r, 0) for r in (r0, r1)]
+    rec.append(cil(3.5, z0, z0 + espesor))
+    rec.append(cil(CUBO_ALIVIO[0] / 2, z0, s.S + 1.0 + CUBO_ALIVIO[1]))
+    return rec
+
+
+def horquilla_cabeza():
+    """La horquilla de la v2 con las ranuras para el brazo del HS-7955TG en lugar de los agujeros del horn."""
+    t = v2.HORQ_T
+    xa, xb = X_PITCH - 12, v2.X_FRENTE_HORQ + t
+    za, zb = Z_PITCH - 42, Z_PITCH + 18
+    yl = v2.Y_HORQ
+    izq = caja(xa, xb, yl, yl + t, za, Z_PITCH + 16)
+    der = caja(xa, xb, -yl - t, -yl, za, Z_PITCH + 16)
+    frente = caja(v2.X_FRENTE_HORQ, xb, yl, -yl, za, zb)
+    piso = caja(xa, xb, yl, -yl, za, za + t)
+    h = unir(izq, der, frente, piso)
+    recortes = [ROLL(v2.servo_ventana(MG996R))] + [ROLL(x) for x in v2.servo_agujeros(MG996R, -1, t + 1)]
+    recortes += [PITCH(x) for x in brazo_agujeros(HS7955, espesor=t + 1)]
+    recortes.append(cil_eje(M4 / 2, (X_PITCH, -yl - t - 1, Z_PITCH), (X_PITCH, -yl + 1, Z_PITCH)))
+    recortes.append(caja(xa + 6, v2.X_FRENTE_HORQ - 4, -12, 12, za - 1, za + t + 1))   # paso de cables
+    return restar(h, *recortes)
+
+
 def rect_redondeado_yz(y0, y1, z0, z1, x0, x1, r):
     w = (cq.Workplane("YZ").center((y0 + y1) / 2, (z0 + z1) / 2).rect(y1 - y0, z1 - z0)
          .extrude(x1 - x0).edges("|X").fillet(r))
@@ -151,7 +216,7 @@ def rect_redondeado_yz(y0, y1, z0, z1, x0, x1, r):
 def plato_yaw():
     p = restar(cil(PLATO_D / 2, Z_PLATO0, Z_PLATO1),
                caja(PLATO_X_FRENTE, PLATO_D, -PLATO_D, PLATO_D, Z_PLATO0 - 1, Z_PLATO1 + 1))
-    recortes = [YAW(h) for h in horn_agujeros(RDS3218, espesor=v2.PLATO_T + 1)]
+    recortes = [YAW(h) for h in brazo_agujeros(RDS3218, espesor=v2.PLATO_T + 1)]
     ranura = None
     for k in range(17):
         ang = math.radians(-PASO_CABLES_ARCO + 2 * PASO_CABLES_ARCO * k / 16)
@@ -159,13 +224,23 @@ def plato_yaw():
                 PASO_CABLES_R * math.cos(ang), PASO_CABLES_R * math.sin(ang))
         ranura = c if ranura is None else ranura.fuse(c)
     recortes.append(ranura.clean())
-    recortes += [cil(M3 / 2, Z_PLATO0 - 1, Z_PLATO1 + 1, ROD_R_AGUJ_SUP * math.cos(math.radians(30 + 60 * k)),
-                     ROD_R_AGUJ_SUP * math.sin(math.radians(30 + 60 * k))) for k in range(6)]
     for y in (Y_SOP_IZQ - 7, Y_SOP_DER + 7):
         recortes += [cil(M3 / 2, Z_PLATO0 - 1, Z_PLATO1 + 1, X_PITCH + dx, y) for dx in (-7, 7)]
     recortes += [cil(M3 / 2, Z_PLATO0 - 1, Z_PLATO1 + 1, x, ESP_Y0 + 12.7) for x in (ESP_X0 - 7.5, ESP_X0 + 55.8)]
     recortes.append(cil(M3 / 2, Z_PLATO0 - 1, Z_PLATO1 + 1, -5, -64))     # portabuzzer (el de la v2)
     return restar(p, *recortes)
+
+
+def tapa_base():
+    """La tapa de la v2 sin el rodamiento (no lo tenemos): sin el aro elevador ni sus 6 agujeros.
+    El plato queda apoyado solo en el horn del yaw, 14 mm por encima de la tapa."""
+    t = caja(-v2.CAJA_X / 2, v2.CAJA_X / 2, -v2.CAJA_Y / 2, v2.CAJA_Y / 2, v2.Z_TAPA0, v2.Z_TAPA1)
+    recortes = [YAW(v2.servo_ventana(RDS3218))] + [YAW(h) for h in v2.servo_agujeros(RDS3218, -1, v2.TAPA_T + 1)]
+    # Paso de cables fijo (los cables suben desde la caja y entran a la ranura del plato)
+    recortes.append(cil(PASO_CABLES_ANCHO / 2, v2.Z_TAPA0 - 1, v2.Z_TAPA1 + 1, PASO_CABLES_R, 0))
+    ex, ey = v2.CAJA_X / 2 - 8, v2.CAJA_Y / 2 - 8
+    recortes += [cil(M3 / 2, v2.Z_TAPA0 - 1, v2.Z_TAPA1 + 1, sx * ex, sy * ey) for sx in (-1, 1) for sy in (-1, 1)]
+    return restar(t, *recortes)
 
 
 def cuna_esp32():
@@ -196,7 +271,7 @@ def placa_roll():
     p = rect_redondeado_yz(-Y_CAB, Y_CAB, Z_PITCH + Z_CAB0, Z_PITCH + Z_CAB1, X_PLACA0, X_PLACA1, CABEZA_R_ESQ)
     # Separadores de la Pi
     p = unir(p, *[cil_eje(3.0, (X_PLACA1 - 0.5, y, z), (X_PI0, y, z)) for y, z in pi_agujeros_yz()])
-    recortes = [ROLL(x) for x in horn_agujeros(MG996R, espesor=6)]
+    recortes = [ROLL(x) for x in brazo_agujeros(MG996R, espesor=6)]
     recortes += [cil_eje(M25_ROSCA / 2, (X_PLACA0 + 1, y, z), (X_PI0 + 1, y, z)) for y, z in pi_agujeros_yz()]
     # Tornillos M2,5 de la caja (pasantes, cabeza del lado de atrás)
     recortes += [cil_eje(1.5, (X_PLACA0 - 1, y, z), (X_PLACA1 + 1, y, z)) for y, z in costillas_yz()]
@@ -350,16 +425,15 @@ def ensamble(yaw=0.0, pitch=0.0, roll=0.0, con_base=True):
 
     if con_base:
         add("caja_base", v2.caja_base(), COLOR_IMPRESO, True)
-        add("tapa_base", v2.tapa_base(), COLOR_TAPA, True)
+        add("tapa_base", tapa_base(), COLOR_TAPA, True)
         bat, r6, r5, llave = v2.base_componentes()
         add("bateria_lipo_3s", bat, cq.Color(0.55, 0.57, 0.62))
         add("regulador_6v_20a", r6, cq.Color(0.15, 0.35, 0.75))
         add("regulador_5v_5a", r5, cq.Color(0.1, 0.1, 0.1))
         add("interruptor", llave, cq.Color(0.8, 0.1, 0.1))
-        add("rodamiento_yaw", v2.rodamiento(), GRIS)
     add("servo_yaw_rds3218", YAW(servo_modelo(RDS3218)), cq.Color(0.12, 0.12, 0.12))
 
-    add("horn_yaw", YAW(horn_modelo(RDS3218)), GRIS, grupo="yaw")
+    add("horn_yaw", YAW(brazo_modelo(RDS3218)), GRIS, grupo="yaw")
     add("plato_yaw", plato_yaw(), COLOR_IMPRESO, True, "yaw")
     x0, y0, zb = ESP_X0, ESP_Y0, Z_PLATO1 + ESP_ALTURA
     add("esp32c3", unir(caja(x0, x0 + 48.3, y0, y0 + 25.4, zb, zb + 1.6),
@@ -372,11 +446,11 @@ def ensamble(yaw=0.0, pitch=0.0, roll=0.0, con_base=True):
     add("soporte_pitch_der", v2.soporte_pitch_der(), COLOR_IMPRESO, True, "yaw")
     add("servo_pitch_hs7955tg", PITCH(servo_modelo(HS7955)), cq.Color(0.08, 0.08, 0.08), grupo="yaw")
 
-    add("horn_pitch", PITCH(horn_modelo(HS7955)), GRIS, grupo="pitch")
-    add("horquilla_cabeza", v2.horquilla_cabeza(), COLOR_IMPRESO, True, "pitch")
+    add("horn_pitch", PITCH(brazo_modelo(HS7955)), GRIS, grupo="pitch")
+    add("horquilla_cabeza", horquilla_cabeza(), COLOR_IMPRESO, True, "pitch")
     add("servo_roll_mg996r", ROLL(servo_modelo(MG996R)), cq.Color(0.15, 0.25, 0.6), grupo="pitch")
 
-    add("horn_roll", ROLL(horn_modelo(MG996R)), GRIS, grupo="roll")
+    add("horn_roll", ROLL(brazo_modelo(MG996R)), GRIS, grupo="roll")
     add("placa_roll", placa_roll(), COLOR_IMPRESO, True, "roll")
     pcb, puertos, conectores, cooler = pi5()
     add("pi5_pcb", pcb, cq.Color(0.05, 0.45, 0.2), grupo="roll")
@@ -474,6 +548,376 @@ def exportar(raiz: Path):
     return piezas
 
 
+# ============================================================================================
+# Relaciones de posición para SolidWorks
+# ============================================================================================
+# El STEP no guarda relaciones de posición: solo la posición de cada pieza. Por eso se genera una
+# macro (solidworks/keepon_v3_relaciones.bas) que las agrega al ensamble importado:
+#   - Cada grupo rígido tiene una pieza de referencia. Las demás piezas del grupo se le pegan con
+#     tres planos coincidentes (Alzado, Planta y Vista lateral): todas las piezas se exportan con el
+#     mismo origen (el del robot), así que sus planos coinciden.
+#   - Entre grupos, una bisagra por eje: una relación concéntrica entre dos caras cilíndricas que
+#     están sobre el eje, más un plano coincidente perpendicular al eje (traba el desplazamiento).
+# La caja base queda fija. Resultado: el ensamble se mueve solo en yaw, pitch y roll.
+REFERENCIA = {"base": "caja_base", "yaw": "plato_yaw", "pitch": "horquilla_cabeza", "roll": "placa_roll"}
+
+# (eje, pieza móvil y radio de su cilindro, pieza fija y radio, punto del eje, dirección,
+#  plano perpendicular: pieza móvil, pieza fija). Radios y puntos en mm.
+BISAGRAS = [
+    ("yaw", ("plato_yaw", 3.5), ("servo_yaw_rds3218", 3.0), (0.0, 0.0, 0.0), (0, 0, 1),
+     ("plato_yaw", "caja_base")),                       # agujero central del plato ↔ eje del RDS3218
+    ("pitch", ("horquilla_cabeza", M4 / 2), ("soporte_pitch_der", M4 / 2), (X_PITCH, 0.0, Z_PITCH), (0, 1, 0),
+     ("horquilla_cabeza", "plato_yaw")),                # pivote M4 de la horquilla ↔ el del soporte
+    ("roll", ("horn_roll", BRAZO_CUBO_D / 2), ("servo_roll_mg996r", 3.0), (0.0, 0.0, Z_PITCH), (1, 0, 0),
+     ("placa_roll", "horquilla_cabeza")),               # cubo del brazo del MG996R ↔ su eje
+]
+
+
+def tiene_cilindro(forma, r, p, e, tol_r=0.02, tol_eje=0.1):
+    """¿La pieza tiene una cara cilíndrica de radio r cuyo eje pasa por p con dirección e?
+    Es la misma búsqueda que hace la macro: así se sabe antes de abrir SolidWorks que la encuentra."""
+    from OCP.BRepAdaptor import BRepAdaptor_Surface
+    for f in forma.Faces():
+        if f.geomType() != "CYLINDER":
+            continue
+        cy = BRepAdaptor_Surface(f.wrapped).Cylinder()
+        if abs(cy.Radius() - r) > tol_r:
+            continue
+        d, o = cy.Axis().Direction(), cy.Axis().Location()
+        if abs(d.X() * e[0] + d.Y() * e[1] + d.Z() * e[2]) < 0.9999:
+            continue
+        v = (p[0] - o.X(), p[1] - o.Y(), p[2] - o.Z())
+        t = v[0] * d.X() + v[1] * d.Y() + v[2] * d.Z()
+        if v[0] ** 2 + v[1] ** 2 + v[2] ** 2 - t * t < tol_eje ** 2:
+            return True
+    return False
+
+
+def verificar_relaciones(piezas):
+    """Devuelve la lista de problemas (vacía si la macro va a encontrar todo)."""
+    formas = {p[0]: p[1] for p in piezas}
+    grupos = {p[0]: p[4] for p in piezas}
+    problemas = [n for n in REFERENCIA.values() if n not in formas]
+    for eje, (pm, rm), (pf, rf), punto, d, (qm, qf) in BISAGRAS:
+        for n, r in ((pm, rm), (pf, rf)):
+            if n not in formas or not tiene_cilindro(formas[n], r, punto, d):
+                problemas.append(f"bisagra {eje}: no hay un cilindro de r = {r} mm sobre el eje en {n}")
+        if grupos.get(qm) == grupos.get(qf):
+            problemas.append(f"bisagra {eje}: {qm} y {qf} están en el mismo grupo")
+    return problemas
+
+
+def macro_solidworks(piezas):
+    """Texto de la macro VBA (módulo .bas) que crea las relaciones de posición."""
+    fijas = [p[0] for p in piezas if p[0] != REFERENCIA["base"]]
+    rigidas = [(p[0], REFERENCIA[p[4]]) for p in piezas if p[0] != REFERENCIA[p[4]]]
+    L = [
+        'Attribute VB_Name = "KeeponRelaciones"',
+        "' Relaciones de posición del ensamble Keepon pro v3.",
+        "' GENERADO por fuente/keepon_v3_cad.py: no editar a mano (se sobreescribe).",
+        "'",
+        "' Uso (ver README.md): abrir step/keepon_v3_ensamble.step en SolidWorks, guardarlo como",
+        "' ensamble (.SLDASM) sin mover nada, y ejecutar main.",
+        "'   - Cada grupo rígido (base, yaw, pitch, roll) se arma con planos coincidentes contra su",
+        "'     pieza de referencia: todas las piezas tienen el mismo origen, el del robot.",
+        "'   - Entre grupos, una bisagra por eje: concéntrica entre dos cilindros que están sobre el",
+        "'     eje + plano coincidente perpendicular al eje.",
+        "' Los planos y las caras se buscan por tipo y por geometría, no por nombre: anda igual con",
+        "' SolidWorks en español o en inglés.",
+        "Option Explicit",
+        "",
+        "Const TOL_RADIO As Double = 0.00002   ' 0,02 mm (SolidWorks trabaja en metros)",
+        "Const TOL_EJE As Double = 0.0001      ' 0,1 mm",
+        "",
+        "Dim swApp As SldWorks.SldWorks",
+        "Dim swModel As SldWorks.ModelDoc2",
+        "Dim swAssy As SldWorks.AssemblyDoc",
+        "Dim errores As String",
+        "Dim nRel As Long",
+        "Dim listadas As Boolean",
+        "",
+        "Sub main()",
+        "    Set swApp = Application.SldWorks",
+        "    Set swModel = swApp.ActiveDoc",
+        "    If swModel Is Nothing Then",
+        '        MsgBox "Abrir primero el ensamble (keepon_v3_ensamble.step)."',
+        "        Exit Sub",
+        "    End If",
+        "    If swModel.GetType <> swDocASSEMBLY Then",
+        '        MsgBox "El documento activo no es un ensamble."',
+        "        Exit Sub",
+        "    End If",
+        "    Set swAssy = swModel",
+        '    errores = ""',
+        "    nRel = 0",
+        "    listadas = False",
+        "",
+        "    ' 1) La caja base queda fija; lo demás se libera para que lo ubiquen las relaciones",
+        f'    Fijar "{REFERENCIA["base"]}", True',
+    ]
+    L += [f'    Fijar "{n}", False' for n in fijas]
+    L += ["", "    ' 2) Grupos rígidos: tres planos coincidentes con la pieza de referencia del grupo"]
+    L += [f'    Rigida "{n}", "{ref}"' for n, ref in rigidas]
+    L += ["", "    ' 3) Bisagras: yaw (eje Z), pitch (eje Y) y roll (eje X)"]
+    for eje, (pm, rm), (pf, rf), (px, py, pz), (ex, ey, ez), (qm, qf) in BISAGRAS:
+        L.append(f'    Bisagra "{eje}", "{pm}", {rm:.4f}, "{pf}", {rf:.4f}, {px:.4f}, {py:.4f}, {pz:.4f}, '
+                 f'{ex}, {ey}, {ez}, "{qm}", "{qf}"')
+    L += [
+        "",
+        "    swModel.ClearSelection2 True",
+        "    swModel.EditRebuild3",
+        '    If errores = "" Then',
+        '        MsgBox nRel & " relaciones de posición creadas. El robot se mueve en yaw, pitch y roll."',
+        "    Else",
+        '        MsgBox nRel & " relaciones creadas. Problemas:" & vbCrLf & errores',
+        "    End If",
+        "End Sub",
+        "",
+        "' Busca un componente por nombre: acepta 'plato_yaw-1' o 'algo/plato_yaw-1'.",
+        "Function Pieza(nombre As String) As SldWorks.Component2",
+        "    Dim v As Variant, i As Long, c As SldWorks.Component2, n As String, p As Long",
+        "    v = swAssy.GetComponents(False)",
+        "    If IsEmpty(v) Then Exit Function",
+        "    For i = 0 To UBound(v)",
+        "        Set c = v(i)",
+        "        n = c.Name2",
+        '        p = InStrRev(n, "/")',
+        "        If p > 0 Then n = Mid(n, p + 1)",
+        '        p = InStrRev(n, "-")',
+        "        If p > 0 And IsNumeric(Mid(n, p + 1)) Then n = Left(n, p - 1)",
+        "        If n = nombre Then",
+        "            Set Pieza = c",
+        "            Exit Function",
+        "        End If",
+        "    Next i",
+        "    ' Segunda pasada: SolidWorks a veces les agrega un prefijo al importar ('ensamble - caja_base-1').",
+        "    ' Se acepta el nombre dentro del de la pieza si no está pegado a otra palabra (buzzer no es porta_buzzer).",
+        "    For i = 0 To UBound(v)",
+        "        Set c = v(i)",
+        "        n = c.Name2",
+        "        p = InStr(n, nombre)",
+        "        Do While p > 0",
+        "            If Borde(n, p - 1) And Borde(n, p + Len(nombre)) Then",
+        "                Set Pieza = c",
+        "                Exit Function",
+        "            End If",
+        "            p = InStr(p + 1, n, nombre)",
+        "        Loop",
+        "    Next i",
+        '    errores = errores & "No se encontró la pieza " & nombre & vbCrLf',
+        "    If Not listadas Then",
+        "        listadas = True",
+        '        errores = errores & "  (nombres que tiene el ensamble: "',
+        "        For i = 0 To UBound(v)",
+        "            If i < 8 Then",
+        '                Set c = v(i): errores = errores & c.Name2 & ", "',
+        "            End If",
+        "        Next i",
+        '        errores = errores & "...)" & vbCrLf',
+        "    End If",
+        "End Function",
+        "",
+        "' ¿El carácter k de n es un borde de palabra (o está fuera del texto)?",
+        "Function Borde(n As String, k As Long) As Boolean",
+        "    Dim ch As String",
+        "    If k < 1 Or k > Len(n) Then",
+        "        Borde = True",
+        "    Else",
+        "        ch = Mid(n, k, 1)",
+        '        Borde = Not (ch Like "[A-Za-z0-9_]")',
+        "    End If",
+        "End Function",
+        "",
+        "Sub Fijar(nombre As String, fija As Boolean)",
+        "    Dim c As SldWorks.Component2",
+        "    Set c = Pieza(nombre)",
+        "    If c Is Nothing Then Exit Sub",
+        "    swModel.ClearSelection2 True",
+        "    c.Select4 False, Nothing, False",
+        "    If fija Then",
+        "        swAssy.FixComponent",
+        "    Else",
+        "        swAssy.UnfixComponent",
+        "    End If",
+        "End Sub",
+        "",
+        "' k-ésimo plano de referencia del componente: 1 = Alzado (XY), 2 = Planta (XZ), 3 = Vista lateral (YZ).",
+        "Function Plano(c As SldWorks.Component2, k As Long) As SldWorks.Feature",
+        "    Dim f As SldWorks.Feature, i As Long",
+        "    Set f = c.FirstFeature",
+        "    Do While Not f Is Nothing",
+        '        If f.GetTypeName2 = "RefPlane" Then',
+        "            i = i + 1",
+        "            If i = k Then",
+        "                Set Plano = f",
+        "                Exit Function",
+        "            End If",
+        "        End If",
+        "        Set f = f.GetNextFeature",
+        "    Loop",
+        "End Function",
+        "",
+        "' Índice del plano de referencia perpendicular a la dirección (ex, ey, ez).",
+        "Function PlanoNormal(c As SldWorks.Component2, ex As Double, ey As Double, ez As Double) As Long",
+        "    Dim k As Long, f As SldWorks.Feature, rp As SldWorks.RefPlane, d As Variant",
+        "    For k = 1 To 3",
+        "        Set f = Plano(c, k)",
+        "        If Not f Is Nothing Then",
+        "            Set rp = f.GetSpecificFeature2",
+        "            d = rp.Transform.ArrayData   ' (6-8): normal del plano",
+        "            If Abs(d(6) * ex + d(7) * ey + d(8) * ez) > 0.99 Then",
+        "                PlanoNormal = k",
+        "                Exit Function",
+        "            End If",
+        "        End If",
+        "    Next k",
+        "    ' Si no se pudo leer: el orden estándar de los planos",
+        "    If ez <> 0 Then",
+        "        PlanoNormal = 1",
+        "    ElseIf ey <> 0 Then",
+        "        PlanoNormal = 2",
+        "    Else",
+        "        PlanoNormal = 3",
+        "    End If",
+        "End Function",
+        "",
+        "' Cara cilíndrica de radio r (mm) cuyo eje pasa por (px, py, pz) (mm) con dirección (ex, ey, ez).",
+        "Function Cilindro(c As SldWorks.Component2, r As Double, px As Double, py As Double, pz As Double, _",
+        "                  ex As Double, ey As Double, ez As Double) As SldWorks.Face2",
+        "    Dim cuerpos As Variant, info As Variant, i As Long, b As SldWorks.Body2",
+        "    Dim f As SldWorks.Face2, s As SldWorks.Surface, p As Variant",
+        "    Dim n As Double, ax As Double, ay As Double, az As Double",
+        "    Dim dx As Double, dy As Double, dz As Double, t As Double",
+        "    cuerpos = c.GetBodies3(swSolidBody, info)",
+        "    If IsEmpty(cuerpos) Then Exit Function",
+        "    For i = 0 To UBound(cuerpos)",
+        "        Set b = cuerpos(i)",
+        "        Set f = b.GetFirstFace",
+        "        Do While Not f Is Nothing",
+        "            Set s = f.GetSurface",
+        "            If s.IsCylinder Then",
+        "                p = s.CylinderParams   ' origen (0-2), eje (3-5), radio (6), en metros",
+        "                If Abs(p(6) - r / 1000#) < TOL_RADIO Then",
+        "                    n = Sqr(p(3) ^ 2 + p(4) ^ 2 + p(5) ^ 2)",
+        "                    ax = p(3) / n: ay = p(4) / n: az = p(5) / n",
+        "                    If Abs(ax * ex + ay * ey + az * ez) > 0.9999 Then",
+        "                        dx = px / 1000# - p(0): dy = py / 1000# - p(1): dz = pz / 1000# - p(2)",
+        "                        t = dx * ax + dy * ay + dz * az",
+        "                        If dx ^ 2 + dy ^ 2 + dz ^ 2 - t ^ 2 < TOL_EJE ^ 2 Then",
+        "                            Set Cilindro = f",
+        "                            Exit Function",
+        "                        End If",
+        "                    End If",
+        "                End If",
+        "            End If",
+        "            Set f = f.GetNextFace",
+        "        Loop",
+        "    Next i",
+        "End Function",
+        "",
+        "Function SelPlano(c As SldWorks.Component2, k As Long) As Boolean",
+        "    Dim f As SldWorks.Feature",
+        "    Set f = Plano(c, k)",
+        "    If f Is Nothing Then Exit Function",
+        "    SelPlano = f.Select2(True, 1)",
+        "End Function",
+        "",
+        "Function SelCara(f As SldWorks.Face2) As Boolean",
+        "    Dim e As SldWorks.Entity, sd As SldWorks.SelectData",
+        "    Set sd = swModel.SelectionManager.CreateSelectData",
+        "    sd.Mark = 1",
+        "    Set e = f",
+        "    SelCara = e.Select4(True, sd)",
+        "End Function",
+        "",
+        "' Crea la relación con lo que está seleccionado y le pone nombre.",
+        "Sub Relacion(tipo As Long, nombre As String)",
+        "    Dim est As Long, m As SldWorks.Mate2, f As SldWorks.Feature",
+        "    Set m = swAssy.AddMate5(tipo, swMateAlignCLOSEST, False, 0, 0, 0, 1, 1, 0, 0, 0, False, False, 0, est)",
+        "    If m Is Nothing Then",
+        '        errores = errores & nombre & " (error " & est & ")" & vbCrLf',
+        "    Else",
+        "        Set f = m",
+        "        f.Name = nombre",
+        "        nRel = nRel + 1",
+        "    End If",
+        "    swModel.ClearSelection2 True",
+        "End Sub",
+        "",
+        "Sub Rigida(nombre As String, ref As String)",
+        "    Dim a As SldWorks.Component2, b As SldWorks.Component2, k As Long, ok As Boolean",
+        "    Dim planos As Variant",
+        '    planos = Array("", "XY", "XZ", "YZ")',
+        "    Set a = Pieza(nombre)",
+        "    Set b = Pieza(ref)",
+        "    If a Is Nothing Or b Is Nothing Then Exit Sub",
+        "    For k = 1 To 3",
+        "        swModel.ClearSelection2 True",
+        "        ok = SelPlano(a, k)",
+        "        ok = SelPlano(b, k) And ok",
+        "        If ok Then",
+        '            Relacion swMateCOINCIDENT, nombre & " = " & ref & " (" & planos(k) & ")"',
+        "        Else",
+        '            errores = errores & "No se pudieron seleccionar los planos de " & nombre & vbCrLf',
+        "        End If",
+        "    Next k",
+        "End Sub",
+        "",
+        "Sub Bisagra(eje As String, movil As String, rMovil As Double, fija As String, rFija As Double, _",
+        "            px As Double, py As Double, pz As Double, ex As Double, ey As Double, ez As Double, _",
+        "            planoMovil As String, planoFija As String)",
+        "    Dim cm As SldWorks.Component2, cf As SldWorks.Component2, fm As SldWorks.Face2, ff As SldWorks.Face2",
+        "    Dim qm As SldWorks.Component2, qf As SldWorks.Component2, k As Long, ok As Boolean",
+        "    Set cm = Pieza(movil)",
+        "    Set cf = Pieza(fija)",
+        "    Set qm = Pieza(planoMovil)",
+        "    Set qf = Pieza(planoFija)",
+        "    If cm Is Nothing Or cf Is Nothing Or qm Is Nothing Or qf Is Nothing Then Exit Sub",
+        "    ' Eje: concéntrica entre los dos cilindros",
+        "    Set fm = Cilindro(cm, rMovil, px, py, pz, ex, ey, ez)",
+        "    Set ff = Cilindro(cf, rFija, px, py, pz, ex, ey, ez)",
+        "    If fm Is Nothing Or ff Is Nothing Then",
+        '        errores = errores & "Bisagra " & eje & ": no se encontraron las caras del eje" & vbCrLf',
+        "    Else",
+        "        swModel.ClearSelection2 True",
+        "        ok = SelCara(fm)",
+        "        ok = SelCara(ff) And ok",
+        '        If ok Then Relacion swMateCONCENTRIC, "Bisagra " & eje & ": eje (" & movil & " - " & fija & ")"',
+        "    End If",
+        "    ' Plano perpendicular al eje: traba el deslizamiento a lo largo del eje",
+        "    k = PlanoNormal(qm, ex, ey, ez)",
+        "    swModel.ClearSelection2 True",
+        "    ok = SelPlano(qm, k)",
+        "    ok = SelPlano(qf, k) And ok",
+        '    If ok Then Relacion swMateCOINCIDENT, "Bisagra " & eje & ": plano (" & planoMovil & " - " & planoFija & ")"',
+        "End Sub",
+    ]
+    return "\r\n".join(L) + "\r\n"
+
+
+def carga_yaw():
+    """Peso y momento de vuelco sobre el eje del RDS3218, que ahora carga todo (no hay rodamiento).
+    Impreso: PLA a 1,24 g/cm³ con ~50 % de relleno efectivo. Comprados: masas aproximadas."""
+    masas = {"servo_pitch_hs7955tg": 65, "servo_roll_mg996r": 55, "esp32c3": 6, "buzzer": 3, "camara_pcb": 4,
+             "pi5_pcb": 46, "pi5_active_cooler": 24, "horn_yaw": 3, "horn_pitch": 3, "horn_roll": 3}
+    peor = None
+    for pitch in (-PITCH_ARRIBA, 0.0, PITCH_ABAJO):
+        for roll in (-ROLL_MAX, 0.0, ROLL_MAX):
+            m_tot, mx, my = 0.0, 0.0, 0.0
+            for n, forma, _, impresa, grupo in ensamble(pitch=pitch, roll=roll, con_base=False):
+                if grupo == "base":
+                    continue
+                m = forma.Volume() / 1000 * 1.24 * 0.5 if impresa else masas.get(n, 0.0)
+                c = forma.Center()
+                m_tot += m
+                mx, my = mx + m * c.x, my + m * c.y
+            r = math.hypot(mx, my) / m_tot          # distancia horizontal del centro de masa al eje [mm]
+            fila = (pitch, roll, round(m_tot), round(r, 1), round(m_tot * r / 10000, 2))
+            if peor is None or fila[4] > peor[4]:
+                peor = fila
+    return peor   # (pitch, roll, masa [g], brazo [mm], momento [kgf·cm])
+
+
 def resumen():
     _, largo = ffc_puntos()
     return {
@@ -497,7 +941,21 @@ if __name__ == "__main__":
         if impresa:
             bb = forma.BoundingBox()
             print(f"  {nombre:20s} {bb.xlen:6.1f} × {bb.ylen:6.1f} × {bb.zlen:6.1f} mm, {forma.Volume() / 1000:6.1f} cm³")
+    problemas = verificar_relaciones(piezas)
+    if problemas:
+        raise SystemExit("relaciones de posición: " + "; ".join(problemas))
+    (raiz / "solidworks").mkdir(exist_ok=True)
+    # cp1252: el editor de VBA de SolidWorks no lee UTF-8 (los acentos saldrían mal)
+    macro = macro_solidworks(piezas)
+    (raiz / "solidworks" / "keepon_v3_relaciones.bas").write_bytes(macro.encode("cp1252"))
+    # La misma macro sin la línea "Attribute": para pegarla en el editor de VBA (pegada, esa línea da error)
+    (raiz / "solidworks" / "keepon_v3_relaciones_PEGAR.txt").write_bytes(
+        macro.split("\r\n", 1)[1].encode("cp1252"))
+    print("macro de relaciones de posición: solidworks/keepon_v3_relaciones.bas")
     if "--verificar" in sys.argv:
+        pitch, roll, m, r, mom = carga_yaw()
+        print(f"carga sobre el eje del yaw (peor pose: pitch {pitch}, roll {roll}): {m} g, "
+              f"centro de masa a {r} mm del eje → {mom} kgf·cm de vuelco")
         for pose, lista in verificar().items():
             print("pose (pitch, roll)", pose, "OK" if not lista else lista)
         for fila in holgura_minima():

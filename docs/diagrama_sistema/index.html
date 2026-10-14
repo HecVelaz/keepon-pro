@@ -95,7 +95,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <rect class="zona" x="8" y="272" width="1224" height="328" rx="12"/>
   <text class="zt" x="22" y="296">PLATAFORMA GIRATORIA</text>
   <text class="t2" x="22" y="314">gira con el yaw (±70°)</text>
-  <text class="t2" x="22" y="330">sobre un rodamiento</text>
+  <text class="t2" x="22" y="330">sin rodamiento: sobre el horn</text>
   <rect class="zona" x="8" y="622" width="1224" height="280" rx="12"/>
   <text class="zt" x="22" y="646">CAJA BASE</text>
   <text class="t2" x="22" y="664">fija · ~20 × 15 × 8 cm</text>
@@ -257,15 +257,10 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <text class="t1" x="712" y="694">YAW</text>
   <text class="t2" x="712" y="712">DSSERVO RDS3218 n.º 2</text>
   <text class="t2" x="712" y="728">±70° · 950–2020 µs</text>
-  <text class="t2" x="712" y="744">gira la plataforma</text>
+  <text class="t2" x="712" y="744">gira y sostiene el plato</text>
+  <text class="t2" x="712" y="760">(sin rodamiento)</text>
   <use href="#bt" x="810" y="676"/>
 
-  <rect class="blk falta" x="900" y="670" width="200" height="90" rx="8"/>
-  <text class="t1" x="912" y="694">Rodamiento giratorio</text>
-  <text class="t2" x="912" y="712">tipo "lazy susan" o 6806</text>
-  <text class="t2" x="912" y="728">carga el peso y el vuelco,</text>
-  <text class="t2" x="912" y="744">no el eje del servo</text>
-  <use href="#bf" x="1040" y="740"/>
 </svg>
 <div class="legend">
   <span><i style="background:var(--v12)"></i>12 V batería</span>
@@ -301,7 +296,6 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <tr><td>Bornera o barra de GND (estrella)</td><td><span class="tag t-falta">FALTA</span></td><td>Un único punto donde se juntan los negativos de los dos step-down y el GND de la ESP32 (la Pi queda unida a través del USB). Sin GND común, ningún servo se mueve.</td></tr>
 <tr><td>Cargador balanceador LiPo + bolsa ignífuga</td><td><span class="tag t-falta">FALTA</span></td><td>Si todavía no tienen. Cargar siempre con balanceo y a 1C (8 A) o menos.</td></tr>
 <tr><td>Active Cooler de la Pi 5</td><td><span class="tag t-recom">RECOM.</span></td><td>La percepción usa ~240 % de CPU de forma sostenida; sin ventilador la Pi baja la frecuencia y cae la tasa de percepción. En la v3 va dentro de la cabeza cerrada: medir su altura (<span class="mono">COOLER_H</span>, se supusieron 11 mm) y la temperatura con la cabeza armada (<span class="mono">/sys/class/thermal/thermal_zone0/temp</span>).</td></tr>
-<tr><td>Rodamiento giratorio para el yaw</td><td><span class="tag t-falta">FALTA</span></td><td>Tipo "lazy susan" o rodamiento de sección delgada (p. ej. 6806, 30×42×7 mm). La plataforma lleva la ESP32, el buzzer, el pitch y la cabeza con la Pi (~160 g armada): el peso y el vuelco van sobre el rodamiento y el servo solo hace girar.</td></tr>
 <tr><td>Cinta CSI ~150 mm (22→15)</td><td><span class="tag t-tenes">TENÉS</span></td><td>Alcanza justo porque la Pi está en la cabeza: el recorrido con la U usa 147 de 150 mm. <strong>Antes de imprimir:</strong> medirla de punta a punta (<span class="mono">FFC_LARGO</span>) y mirar hacia qué extremo de la Pi sale del conector (<span class="mono">PI_CSI_SALIDA</span>). Nunca torcerla ni marcarle pliegues.</td></tr>
 <tr><td>Cable USB-A acodado a micro-USB</td><td><span class="tag t-recom">RECOM.</span></td><td>Los USB-A de la Pi quedan arriba en la cabeza. El cable baja por roll y pitch hasta la ESP32: tiene que ser flexible y con bucle de servicio.</td></tr>
 <tr><td>Divisor 100 kΩ / 22 kΩ a un ADC libre</td><td><span class="tag t-recom">OPCIONAL</span></td><td>Si quieren mostrar la tensión de la batería en el overlay (12,6 V → 2,27 V). Usar un pin ADC1 que no sea de strapping, p. ej. GPIO3.</td></tr>
