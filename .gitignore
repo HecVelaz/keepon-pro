@@ -11,3 +11,6 @@ models/*.tflite
 
 # Compilados de Arduino
 pruebas_servos/**/build/
+
+# Comprimidos para compartir (se regeneran desde la carpeta)
+docs/*.zip
