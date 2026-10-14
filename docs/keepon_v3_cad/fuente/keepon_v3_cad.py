@@ -69,7 +69,10 @@ PARED = 2.0            # paredes de la caja de la cabeza
 CARA_T = 2.5           # espesor de la cara
 PLACA_T = X_PLACA1 - X_PLACA0
 CABEZA_R_ESQ = 10.0    # radio de las esquinas de la cara
-OJO_D = 20.0           # los dos ojos: en el derecho del público (izquierdo del robot, +Y) va la cámara
+OJO_D = 20.0           # los dos ojos (decorativos)
+OJO_Y = 22.0           # separación de cada ojo al centro de la cara
+OJO_SOBRE_NARIZ = 15.0 # los ojos van esta altura por encima de la lente
+NARIZ_D = 14.0         # la nariz es la cámara: tapón con el agujero de la lente, en el centro de la cara
 LENTE_AGUJERO = 4.6    # radio del agujero para la lente
 COSTILLA_D = 6.0       # costillas de las paredes donde se atornilla la caja a la placa (M2,5)
 
@@ -119,22 +122,30 @@ def caja_pi(u0, u1, v0, v1, h0, h1):
     return caja(X_PI1 + h0, X_PI1 + h1, ya, yb, Z_PITCH + za, Z_PITCH + zb)
 
 
-Y_CAM = pi_v_a_y(PI_CSI_V)             # la cámara queda alineada con la cinta: ningún doblez de costado
+Y_FFC = pi_v_a_y(PI_CSI_V)             # la cinta sale del conector de la Pi corrida 19 mm al costado
+Y_CAM = 0.0                            # la cámara (la nariz) va en el centro de la cara
 Z_PI_BAJO = pi_u_a_z(0 if PI_CSI_SALIDA == "usbc" else PI_L)
 U_SALIDA = PI_CSI_U - 2.2 if PI_CSI_SALIDA == "usbc" else PI_CSI_U + 2.2
 Z_SALIDA = pi_u_a_z(U_SALIDA)          # donde la cinta sale del conector, hacia abajo
 
-# Recorrido de la cinta (plano XZ, en y = Y_CAM):
+# Recorrido de la cinta (plano XZ, en y = Y_FFC hasta el doblez):
 #   1) sale del conector a h = 1,5 y se separa a h = 4,5 (pasa por encima de los HDMI y el USB-C)
 #   2) baja pegada a la Pi hasta debajo de su borde
 #   3) curva en U hacia adelante (radio FFC_R)
-#   4) sube por delante de la Pi y entra desde abajo al conector de la cámara
+#   4) sube por delante de la Pi hasta el doblez en Z: dos pliegues a 45° la corren al centro (y = 0)
+#   5) sigue subiendo y entra desde abajo al conector de la cámara
+# Los pliegues se hacen una vez al armar y la cinta queda quieta. El tramo horizontal del doblez
+# gasta |Y_FFC| de cinta: por eso la cámara queda más abajo que si subiera derecha.
 X_FFC1 = X_PI1 + 4.5
 X_FFC3 = X_FFC1 + 2 * FFC_R
 Z_FFC_U = Z_PI_BAJO - 1.5 - 0.5        # fin de los tramos rectos (el USB-C sobresale ~1 mm)
 _largo_fijo = (math.hypot(3.0, 4.0) + (Z_SALIDA - 4.0 - Z_FFC_U) + math.pi * FFC_R
                - Z_FFC_U + 2 * FFC_INSERCION)
-Z_CAM_BAJO = FFC_LARGO - FFC_HOLGURA - _largo_fijo     # el largo de la cinta ubica la cámara
+DOBLEZ_Y = abs(Y_FFC - Y_CAM)          # corrimiento del doblez en Z (línea media)
+Z_CAM_BAJO = FFC_LARGO - FFC_HOLGURA - _largo_fijo - DOBLEZ_Y   # el largo de la cinta ubica la cámara
+Z_DOBLEZ = (Z_FFC_U + Z_CAM_BAJO) / 2  # altura de la línea media del tramo horizontal del doblez
+assert Z_DOBLEZ - FFC_ANCHO / 2 > Z_FFC_U + 2 and Z_DOBLEZ + FFC_ANCHO / 2 < Z_CAM_BAJO - 2, \
+    "no hay lugar para el doblez en Z"
 X_CAM0 = X_FFC3 + CAM_CONECTOR         # cara trasera de la placa de la cámara
 X_CARA1 = X_CAM0 + CAM_LARGO           # frente de la cara: la lente queda al ras
 X_CARA0 = X_CARA1 - CARA_T
@@ -148,9 +159,12 @@ Z_CAB0, Z_CAB1 = _z_abajo_int - PARED, _z_arriba_int + PARED
 Y_CAB = PI_A / 2 + 1.5 + COSTILLA_D + PARED      # semiancho: Pi + HDMI que sobresalen + costilla + pared
 Y_COSTILLA = PI_A / 2 + 1.5 + COSTILLA_D / 2
 Z_COSTILLAS = (Z_PI_BAJO + 10, Z_PI_BAJO + 62)
-Z_OJOS = Z_LENTE
+Z_OJOS = Z_LENTE + OJO_SOBRE_NARIZ
 
-assert Z_LENTE + OJO_D / 2 < Z_CAB1 - 1, "el ojo no entra en la cara"
+assert Z_OJOS + OJO_D / 2 + 2.5 < Z_CAB1 - 1, "el ojo no entra en la cara"
+# Los agujeros de los ojos no pueden cortar los separadores de la cámara (r = 2,5)
+assert math.hypot(OJO_Y - 10.5, Z_OJOS - (Z_LENTE + CAM_ARRIBA - 2.0)) > OJO_D / 2 + 3.0, \
+    "los ojos chocan con los separadores de la cámara"
 
 
 # ============================================================================================
@@ -301,8 +315,10 @@ def caja_cabeza():
            for y, z in camara_agujeros_yz()]
     c = unir(c, *cost, *sep)
     recortes = []
-    for y in (Y_CAM, -Y_CAM):                                        # ojos
+    for y in (OJO_Y, -OJO_Y):                                        # ojos
         recortes.append(cil_eje(OJO_D / 2, (X_CARA0 - 1, y, Z_PITCH + Z_OJOS), (X_CARA1 + 1, y, Z_PITCH + Z_OJOS)))
+    zl = Z_PITCH + Z_LENTE                                           # nariz = cámara
+    recortes.append(cil_eje(NARIZ_D / 2, (X_CARA0 - 1, Y_CAM, zl), (X_CARA1 + 1, Y_CAM, zl)))
     # Arriba: los dos USB-A (para el cable de la ESP32; conviene uno acodado) y ranuras de ventilación
     ya, yb = sorted((pi_v_a_y(20), pi_v_a_y(56) - 0.5))
     recortes.append(caja(X_PI1 + 0.5, X_PI1 + 17, ya, yb, z1 - PARED - 1, z1 + 1))
@@ -324,19 +340,26 @@ def camara_agujeros_yz():
     return [(Y_CAM + sy * 10.5, z) for sy in (-1, 1) for z in (z_sup, z_sup - 12.5)]
 
 
-def ojo(lado):
-    """Tapón negro para cada ojo, con un bisel de 1 mm por delante de la cara (se pega).
-    El del lado de la cámara tiene el agujero de la lente, avellanado a 40° para no recortar la imagen."""
-    y = Y_CAM * lado
-    z = Z_PITCH + Z_OJOS
-    tapon = cil_eje(OJO_D / 2 - 0.15, (X_CARA0, y, z), (X_CARA1, y, z))
-    bisel = cil_eje(OJO_D / 2 + 2.5, (X_CARA1, y, z), (X_CARA1 + 1.0, y, z))
-    o = unir(tapon, bisel)
-    if lado > 0:
+def tapon(y, z, d, lente=False):
+    """Tapón negro para un agujero de la cara, con un bisel de 1 mm por delante (se pega).
+    El de la nariz tiene el agujero de la lente, avellanado a 40° para no recortar la imagen."""
+    t = cil_eje(d / 2 - 0.15, (X_CARA0, y, z), (X_CARA1, y, z))
+    bisel = cil_eje(d / 2 + 2.5, (X_CARA1, y, z), (X_CARA1 + 1.0, y, z))
+    o = unir(t, bisel)
+    if lente:
         o = o.cut(cil_eje(LENTE_AGUJERO, (X_CARA0 - 1, y, z), (X_CARA1 + 2, y, z)))
         o = o.cut(cq.Solid.makeCone(LENTE_AGUJERO, LENTE_AGUJERO + 1.6 * math.tan(math.radians(40)), 1.61,
                                     V(X_CARA1 - 0.6, y, z), V(1, 0, 0)))
     return o.clean()
+
+
+def ojo(lado):
+    """lado = +1: ojo izquierdo del robot (+Y); −1: derecho."""
+    return tapon(OJO_Y * lado, Z_PITCH + Z_OJOS, OJO_D)
+
+
+def nariz():
+    return tapon(Y_CAM, Z_PITCH + Z_LENTE, NARIZ_D, lente=True)
 
 
 # ============================================================================================
@@ -369,7 +392,8 @@ def camara():
 
 
 def ffc_puntos(paso=1.0):
-    """Línea media de la cinta en el plano XZ (coordenadas absolutas). Devuelve (puntos, largo)."""
+    """Línea media de la cinta hasta el doblez en Z, en el plano XZ (coordenadas absolutas).
+    Devuelve (puntos, largo total de la cinta, contando el doblez, el tramo final y las inserciones)."""
     z0 = Z_PITCH
     pts = []
 
@@ -388,8 +412,9 @@ def ffc_puntos(paso=1.0):
     for k in range(1, 40):
         t = math.pi * k / 40
         pts.append((xc - FFC_R * math.cos(t), z0 + Z_FFC_U - FFC_R * math.sin(t)))
-    recta((X_FFC3, z0 + Z_FFC_U), (X_FFC3, z0 + Z_CAM_BAJO))
-    largo = sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1)) + 2 * FFC_INSERCION
+    recta((X_FFC3, z0 + Z_FFC_U), (X_FFC3, z0 + Z_DOBLEZ))
+    largo = (sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1)) + DOBLEZ_Y
+             + (Z_CAM_BAJO - Z_DOBLEZ) + 2 * FFC_INSERCION)
     return pts, largo
 
 
@@ -405,8 +430,16 @@ def ffc():
         nx, nz = -dz / n, dx / n
         ida.append((p[0] + nx * e, p[1] + nz * e))
         vuelta.append((p[0] - nx * e, p[1] - nz * e))
-    plano = cq.Plane(origin=(0, Y_CAM, 0), xDir=(1, 0, 0), normal=(0, -1, 0))
-    return cq.Workplane(plano).polyline(ida + vuelta[::-1]).close().extrude(FFC_ANCHO / 2, both=True).val()
+    plano = cq.Plane(origin=(0, Y_FFC, 0), xDir=(1, 0, 0), normal=(0, -1, 0))
+    tramo1 = cq.Workplane(plano).polyline(ida + vuelta[::-1]).close().extrude(FFC_ANCHO / 2, both=True).val()
+    # Doblez en Z (simplificado): el tramo 1 llega hasta arriba del pliegue, el tramo horizontal queda
+    # por delante (la cinta da vuelta en cada pliegue) y el tramo 2 sube desde el centro hasta la cámara.
+    w, zd = FFC_ANCHO / 2, Z_PITCH + Z_DOBLEZ
+    y0, y1 = sorted((Y_CAM, Y_FFC))
+    tramo1 = unir(tramo1, caja(X_FFC3 - e, X_FFC3 + e, Y_FFC - w, Y_FFC + w, zd, zd + w))
+    horizontal = caja(X_FFC3 + e, X_FFC3 + 3 * e, y0 - w, y1 + w, zd - w, zd + w)
+    tramo2 = caja(X_FFC3 - e, X_FFC3 + e, Y_CAM - w, Y_CAM + w, zd - w, Z_PITCH + Z_CAM_BAJO + FFC_INSERCION)
+    return unir(tramo1, horizontal, tramo2)
 
 
 # ============================================================================================
@@ -463,8 +496,9 @@ def ensamble(yaw=0.0, pitch=0.0, roll=0.0, con_base=True):
     add("camara_conector", cconector, cq.Color(0.9, 0.9, 0.9), grupo="roll")
     add("cinta_ffc", ffc(), cq.Color(0.85, 0.5, 0.15), grupo="roll")
     add("caja_cabeza", caja_cabeza(), COLOR_IMPRESO, True, "roll")
-    add("ojo_camara", ojo(1), cq.Color(0.05, 0.05, 0.05), True, "roll")
-    add("ojo_otro", ojo(-1), cq.Color(0.05, 0.05, 0.05), True, "roll")
+    add("nariz_camara", nariz(), cq.Color(0.05, 0.05, 0.05), True, "roll")
+    add("ojo_izq", ojo(1), cq.Color(0.05, 0.05, 0.05), True, "roll")
+    add("ojo_der", ojo(-1), cq.Color(0.05, 0.05, 0.05), True, "roll")
 
     orden = {"base": 0, "yaw": 1, "pitch": 2, "roll": 3}
     for p in piezas:
@@ -481,7 +515,7 @@ def ensamble(yaw=0.0, pitch=0.0, roll=0.0, con_base=True):
 # Contactos a propósito: horn sobre el eje, cinta dentro de sus conectores, tapón de la lente
 IGNORAR = {("servo_yaw_rds3218", "horn_yaw"), ("servo_pitch_hs7955tg", "horn_pitch"),
            ("servo_roll_mg996r", "horn_roll"), ("pi5_conectores_csi", "cinta_ffc"),
-           ("cinta_ffc", "camara_conector"), ("camara_lente", "ojo_camara")}
+           ("cinta_ffc", "camara_conector"), ("camara_lente", "nariz_camara")}
 
 
 def interferencias(piezas, solo_entre_grupos=False, tol=1.0):

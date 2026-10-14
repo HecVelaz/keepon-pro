@@ -91,7 +91,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <rect class="zona" x="8" y="14" width="1224" height="244" rx="12"/>
   <text class="zt" x="22" y="38">CABEZA</text>
   <text class="t2" x="22" y="56">se mueve con pitch y roll</text>
-  <text class="t2" x="22" y="72">75 × 107 × 40 mm</text>
+  <text class="t2" x="22" y="72">75 × 104 × 40 mm</text>
   <rect class="zona" x="8" y="272" width="1224" height="328" rx="12"/>
   <text class="zt" x="22" y="296">PLATAFORMA GIRATORIA</text>
   <text class="t2" x="22" y="314">gira con el yaw (±70°)</text>
@@ -174,7 +174,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <rect class="blk" x="220" y="50" width="180" height="90" rx="8"/>
   <text class="t1" x="232" y="74">Camera Module 3 NoIR</text>
   <text class="t2" x="232" y="92">IMX708 · i2c@80000</text>
-  <text class="t2" x="232" y="108">en el ojo izquierdo</text>
+  <text class="t2" x="232" y="108">es la nariz de la cara</text>
   <use href="#bt" x="340" y="122"/>
 
   <rect class="blk" x="440" y="30" width="230" height="200" rx="8"/>
@@ -274,7 +274,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 </div>
 </div>
 
-<div class="nota"><strong>La Pi va parada dentro de la cabeza</strong>, atornillada a la placa de roll, y la cámara en el ojo izquierdo del robot. Como la Pi y la cámara se mueven juntas, la cinta de ~150 mm queda fija con una curva en U y no se dobla con ningún eje. A cambio, de la cabeza bajan dos cables redondos: el de 5,1 V/GND de la Pi y el USB a la ESP32. Con el cable del servo de roll, se les deja un bucle de servicio en roll (alrededor del horn) y en pitch (cerca del eje). Por el eje de yaw cruzan cinco cables (5,1 V y GND de la Pi, 6 V y GND de pitch/roll, señal del yaw), con una espiral para los ±70°. La ESP32 y el buzzer siguen en la plataforma de yaw.</div>
+<div class="nota"><strong>La Pi va parada dentro de la cabeza</strong>, atornillada a la placa de roll, y la cámara es la nariz, en el centro de la cara. Como la Pi y la cámara se mueven juntas, la cinta de ~150 mm queda fija (una curva en U y un doblez en Z que la lleva al centro) y no se mueve con ningún eje. A cambio, de la cabeza bajan dos cables redondos: el de 5,1 V/GND de la Pi y el USB a la ESP32. Con el cable del servo de roll, se les deja un bucle de servicio en roll (alrededor del horn) y en pitch (cerca del eje). Por el eje de yaw cruzan cinco cables (5,1 V y GND de la Pi, 6 V y GND de pitch/roll, señal del yaw), con una espiral para los ±70°. La ESP32 y el buzzer siguen en la plataforma de yaw.</div>
 
 <div class="nota"><strong>La Pi se alimenta por el GPIO, no por el USB-C</strong>: en la cabeza, el USB-C queda tapado por la curva de la cinta. Los 5,1 V entran por los pines 2 y 4 y el GND por el 6. El GPIO no tiene la protección del USB-C, así que el regulador tiene que estar bien ajustado y la tensión se mide <em>en los pines</em>, con la percepción corriendo y los servos moviéndose: el cable recorre los tres ejes y cae tensión. Sin USB-C, la Pi limita los USB a 600 mA; a la ESP32 le alcanza.</div>
 

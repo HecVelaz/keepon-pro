@@ -104,8 +104,10 @@ def piezas_impresas():
                        "por atrás. Plana, separadores hacia arriba."),
         "caja_cabeza": ("Caja de la cabeza (cara)", "Cara + paredes, abierta atrás. Imprimir apoyada sobre la cara, "
                         "sin soportes."),
-        "ojo_camara": ("Ojo con la cámara", "Tapón negro con el agujero de la lente (avellanado a 40°). Se pega."),
-        "ojo_otro": ("Ojo sin cámara", "Tapón negro. Se pega."),
+        "nariz_camara": ("Nariz (cámara)", "Tapón negro Ø14 en el centro de la cara, con el agujero de la lente "
+                         "(avellanado a 40°). Se pega."),
+        "ojo_izq": ("Ojo izquierdo", "Tapón negro Ø20, decorativo. Se pega."),
+        "ojo_der": ("Ojo derecho", "Tapón negro Ø20, decorativo. Se pega."),
     }
     filas, total = [], 0.0
     for nombre, forma, _, impresa, _ in k.ensamble():
@@ -173,9 +175,9 @@ PROCESAMIENTO = [
     ("Tarjeta microSD", 1, "15 × 11 × 1", "Sistema de la Pi (ya instalada).", "TENEMOS"),
     ("Camera Module 3 NoIR estándar<br/>(RSP-CAM-V3-NOIR, IMX708)", 1,
      "25 × 24 × 11,5<br/>agujeros 21 × 12,5, M2<br/>lente a 14,5 del borde inferior",
-     "En el ojo izquierdo del robot. 66° H nominal, sin filtro IR. Conector de 22 pines.", "TENEMOS"),
+     "Es la nariz, en el centro de la cara. 66° H nominal, sin filtro IR. Conector de 22 pines.", "TENEMOS"),
     ("Cinta FFC CSI 22 → 15 pines", 1, "≈ 150 de largo × 16 de ancho (MEDIR)",
-     "Recorrido con la U fija: 147 de 150 mm. Nunca torcerla ni plegarla.", "TENEMOS"),
+     "Recorrido con la U y el doblez en Z (dos pliegues a 45°, una sola vez): 147 de 150 mm. No torcerla.", "TENEMOS"),
     ("ESP32-C3-DevKitM-1 (clon CH340)", 1, "48,3 × 25,4 × ≈ 12 (con pines)",
      "Controla los 3 servos y el buzzer (LEDC 50 Hz / 14 bits, watchdog 500 ms). /dev/serial/by-id/usb-1a86_…",
      "TENEMOS"),
@@ -248,7 +250,7 @@ def main():
         img = Image(str(vista), width=95 * mm, height=95 * mm * 900 / 1100)
         resumen = [
             ["Altura total", "≈ 227 mm"],
-            ["Cabeza (ancho × alto × fondo)", "75 × 107 × 40 mm"],
+            ["Cabeza (ancho × alto × fondo)", "75 × 104 × 40 mm"],
             ["Caja base", "200 × 190 × 74 mm (con tapa)"],
             ["Plato de yaw", "Ø146 mm, en D, sin rodamiento"],
             ["Rangos", "yaw ±70°, pitch −20/+30°, roll ±20°"],

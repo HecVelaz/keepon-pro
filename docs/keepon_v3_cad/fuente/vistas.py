@@ -59,9 +59,9 @@ if __name__ == "__main__":
     render("03_costado", p0, (40, 600, 150), (40, 0, 150), zoom=1.1)
     # Interior de la cabeza: sin la caja, se ve la Pi parada, la cinta en U y la cámara
     render("04_cabeza_interior", p0, (190, 200, zc + 60), (80, 10, zc + 15), zoom=1.0,
-           ocultar=("caja_cabeza", "ojo_camara", "ojo_otro"))
+           ocultar=("caja_cabeza", "nariz_camara", "ojo_izq", "ojo_der"))
     render("05_cinta_corte", p0, (80, 400, zc + 10), (80, 0, zc + 10), zoom=1.6,
-           ocultar=("caja_cabeza", "ojo_camara", "ojo_otro", "placa_roll"), translucidas=("pi5_puertos",))
+           ocultar=("caja_cabeza", "nariz_camara", "ojo_izq", "ojo_der", "placa_roll"), translucidas=("pi5_puertos",))
     pa = k.ensamble(pitch=k.PITCH_ABAJO, roll=k.ROLL_MAX)
     render("06_nariz_abajo_roll", pa, (480, 330, 260), (20, 0, 130))
     pb = k.ensamble(yaw=40, pitch=-k.PITCH_ARRIBA, roll=-k.ROLL_MAX)

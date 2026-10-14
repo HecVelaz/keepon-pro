@@ -1,6 +1,6 @@
 # Keepon pro v3: cabeza plana con la Pi adentro
 
-La Pi 5 va **parada dentro de la cabeza**, atornillada a la placa de roll, y la cámara en uno de los ojos. La Pi y la cámara se mueven juntas, así que la cinta de 150 mm **no se dobla ni se tuerce con ningún movimiento** (yaw, pitch ni roll): queda fija con una sola curva en U. Es lo que recomendó la revisión de Codex (`docs/REVISION_CODEX_ARQ.md`, sección 2).
+La Pi 5 va **parada dentro de la cabeza**, atornillada a la placa de roll, y la cámara es **la nariz**, en el centro de la cara, con los dos ojos (decorativos) arriba. La Pi y la cámara se mueven juntas, así que la cinta de 150 mm **no se dobla ni se tuerce con ningún movimiento** (yaw, pitch ni roll): queda fija con una sola curva en U. Es lo que recomendó la revisión de Codex (`docs/REVISION_CODEX_ARQ.md`, sección 2).
 
 El cuello es el de la v2 (`../keepon_v2_cad/`): mismos servos, caja base, soportes de pitch y horquilla. El script importa esas piezas. La diferencia es que **la v3 no lleva rodamiento de yaw** (no tenemos uno): la tapa y el plato son propios de la v3 (ver "Yaw sin rodamiento").
 
@@ -8,7 +8,7 @@ El cuello es el de la v2 (`../keepon_v2_cad/`): mismos servos, caja base, soport
 
 | | v2 | v3 |
 |---|---|---|
-| Cabeza | esfera Ø165 | **75 × 107 × 40 mm** (ancho × alto × fondo) |
+| Cabeza | esfera Ø165 | **75 × 104 × 40 mm** (ancho × alto × fondo) |
 | Cuerpo | elipsoide Ø200 | no tiene |
 | Plato de yaw | Ø180 | Ø146, cortado adelante (forma de D) |
 | Altura total | ≈ 240 mm | ≈ 227 mm |
@@ -20,19 +20,24 @@ Cabeza armada: unos 160 g (70 de la Pi con el cooler). El centro de masa queda u
 ## La cinta
 
 ```
-   cámara (ojo)          La Pi va parada, con los componentes hacia la cara.
-   ┌──┐                  La cinta sale del conector hacia abajo, baja pegada a la Pi
-   │  │← entra desde     (pasa por encima de los micro-HDMI y del USB-C), da una U de
-   └┬─┘  abajo           radio 6,5 mm debajo de la Pi y sube por delante hasta la cámara.
-    │      ┌─┐
-    │      │P│← conector  Recorrido + inserciones: 147 mm de 150. Sobran 3 mm, para no
-    │      │i│   CSI      tirar de los conectores.
-    │      │ │
-    ╰──U───╯ │
+   de costado                      de frente (tramo que sube por delante de la Pi)
+   cámara (nariz)
+   ┌──┐                              ┌──┐ cámara, en y = 0
+   │  │← entra desde abajo           └┬─┘
+   └┬─┘                               │  tramo 2 (y = 0)
+    │      ┌─┐                   ┌────┘  ← pliegue a 45°
+    │      │P│← conector CSI     │ ← tramo horizontal: 19 mm al centro
+    │      │i│                   └────┐  ← pliegue a 45°
+    │      │ │                        │  tramo 1 (y = 19, alineado con el conector)
+    ╰──U───╯ │                        U
 ```
 
-- **Sin torsión ni dobleces de costado:** en el plano de la Pi 5 (`raspberry-pi-5-mechanical-drawing.pdf`), los conectores CAM/DISP están **perpendiculares** al borde de los HDMI. La cinta sale a lo largo del lado largo, con su ancho a lo largo del corto. Por eso la Pi va parada (con el lado largo vertical) y la cámara está corrida 19 mm hacia el costado, alineada con la cinta: es el ojo izquierdo del robot (el derecho visto de frente).
-- La U es estática: la cinta nunca se mueve. 6,5 mm de radio es mucho para una FFC quieta.
+La cinta sale del conector hacia abajo, baja pegada a la Pi (pasa por encima de los micro-HDMI y del USB-C), da una U de radio 6,5 mm debajo de la Pi y sube por delante. A media altura, un **doblez en Z** (dos pliegues a 45°) la corre 19 mm al centro, y sigue subiendo hasta la cámara. Recorrido + inserciones: 147 mm de 150 (sobran 3 mm, para no tirar de los conectores).
+
+- **Por qué hace falta el doblez:** en el plano de la Pi 5 (`raspberry-pi-5-mechanical-drawing.pdf`), los conectores CAM/DISP están **perpendiculares** al borde de los HDMI. La cinta sale a lo largo del lado largo, con su ancho a lo largo del corto, corrida 19 mm del centro. Para que la cámara sea la nariz, en el centro de la cara, hay que correr la cinta esos 19 mm.
+- **Cómo plegarla:** con la cinta conectada a la Pi y pasada por la U, marcar la altura del primer pliegue (`Z_DOBLEZ`, ≈ 2 mm debajo del eje de roll) y doblarla a 45° hacia el centro, apretando con el dedo, sin uñas ni pinzas. A 19 mm, doblarla otra vez a 45° hacia arriba. Los contactos quedan del mismo lado que antes (cada pliegue da vuelta la cinta). Se pliega **una sola vez**: no abrirla y volver a doblarla.
+- El tramo horizontal gasta 19 mm de cinta. Por eso la nariz queda a ≈ 38 mm sobre el eje de roll y no en el centro exacto de la cara (≈ 15 mm): ahí se termina la cinta de 150 mm. Para el centro exacto haría falta una cinta de ≈ 127 mm.
+- La U y los pliegues son estáticos: la cinta nunca se mueve. 6,5 mm de radio es mucho para una FFC quieta.
 - El largo de la cinta **ubica la cámara**: si `FFC_LARGO` cambia, el script mueve la cámara (y la cabeza) solo.
 - La U queda a la vista por la abertura de abajo de la cabeza: se puede revisar sin desarmar.
 
@@ -102,7 +107,7 @@ Cómo están armadas (todas las piezas se exportan con el origen del robot, así
 |---|---|---|
 | `caja_cabeza` | 39 cm³ | Apoyada sobre la cara, sin soportes |
 | `placa_roll` | 30 cm³ | Plana; los separadores de la Pi hacia arriba |
-| `ojo_camara`, `ojo_otro` | 1 + 1 cm³ | En negro, con el bisel apoyado en la cama |
+| `nariz_camara`, `ojo_izq`, `ojo_der` | 0,4 + 1,3 + 1,3 cm³ | En negro, con el bisel apoyado en la cama. La nariz tiene el agujero de la lente |
 | `plato_yaw` | 57 cm³ | Plano |
 | `cuna_esp32`, `porta_buzzer` | 7 + 1 cm³ | Como en la v2 |
 | `soporte_pitch_izq/der`, `horquilla_cabeza` | 10 + 13 + 26 cm³ | Las mismas de la v2 |
@@ -137,5 +142,5 @@ cd docs/keepon_v3_cad/fuente
 
 - Confirmar `PI_CSI_SALIDA` y medir lo de la tabla de arriba antes de imprimir.
 - El cooler toma aire de adelante (16 mm hasta la cara) y lo saca por los costados. Medir la temperatura de la Pi con la cabeza cerrada y la percepción corriendo (`vcgencmd measure_temp` no está en Ubuntu: usar `cat /sys/class/thermal/thermal_zone0/temp`).
-- La imagen no necesita rotarse (la cámara va derecha), pero la lente no está sobre el eje de roll: queda 19 mm al costado y 57 mm arriba. El control de mirada usa ángulos de la imagen, así que no cambia nada; solo hay que tenerlo en cuenta al calibrar.
-- El alto de 107 mm lo fija la Pi parada (85 mm + la U de la cinta + la cámara). Para algo más bajo haría falta otra cinta (más corta, o una que permita poner la Pi acostada).
+- La imagen no necesita rotarse (la cámara va derecha). La lente está en el plano de simetría, pero no sobre el eje de roll: queda 38 mm arriba. El control de mirada usa ángulos de la imagen, así que no cambia nada; solo hay que tenerlo en cuenta al calibrar.
+- El alto de 104 mm lo fija la Pi parada (85 mm + la U de la cinta). Para algo más bajo haría falta otra cinta (más corta, o una que permita poner la Pi acostada).

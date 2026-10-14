@@ -69,8 +69,9 @@ Sub main()
     Fijar "camara_conector", False
     Fijar "cinta_ffc", False
     Fijar "caja_cabeza", False
-    Fijar "ojo_camara", False
-    Fijar "ojo_otro", False
+    Fijar "nariz_camara", False
+    Fijar "ojo_izq", False
+    Fijar "ojo_der", False
 
     ' 2) Grupos rígidos: tres planos coincidentes con la pieza de referencia del grupo
     Rigida "tapa_base", "caja_base"
@@ -99,8 +100,9 @@ Sub main()
     Rigida "camara_conector", "placa_roll"
     Rigida "cinta_ffc", "placa_roll"
     Rigida "caja_cabeza", "placa_roll"
-    Rigida "ojo_camara", "placa_roll"
-    Rigida "ojo_otro", "placa_roll"
+    Rigida "nariz_camara", "placa_roll"
+    Rigida "ojo_izq", "placa_roll"
+    Rigida "ojo_der", "placa_roll"
 
     ' 3) Bisagras: yaw (eje Z), pitch (eje Y) y roll (eje X)
     Bisagra "yaw", "plato_yaw", 3.5000, "servo_yaw_rds3218", 3.0000, 0.0000, 0.0000, 0.0000, 0, 0, 1, "plato_yaw", "caja_base"
