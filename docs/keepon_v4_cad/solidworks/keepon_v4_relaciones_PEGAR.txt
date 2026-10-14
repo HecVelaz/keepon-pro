@@ -48,7 +48,7 @@ Sub main()
     Fijar "porta_esp32", False
     Fijar "buzzer", False
     Fijar "interruptor", False
-    Fijar "usb_c_bornera", False
+    Fijar "bornera_5v", False
     Fijar "plato_yaw", False
     Fijar "servo_yaw_rds3218", False
     Fijar "horn_yaw", False
@@ -83,7 +83,7 @@ Sub main()
     Rigida "porta_esp32", "caja_base"
     Rigida "buzzer", "caja_base"
     Rigida "interruptor", "caja_base"
-    Rigida "usb_c_bornera", "caja_base"
+    Rigida "bornera_5v", "caja_base"
     Rigida "servo_yaw_rds3218", "caja_base"
     Rigida "horn_yaw", "plato_yaw"
     Rigida "soporte_pitch_izq", "plato_yaw"

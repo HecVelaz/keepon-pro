@@ -189,8 +189,9 @@ def base_componentes():
                caja(x - 8.5, x - 0.8, ESP_Y[0] + 5, ESP_Y[0] + 43, ESP_Z1 - 3, ESP_Z1 - 0.5))
     buzzer = cil_eje(6.0, (X_IN1 - 9.5, *BUZZER_YZ), (X_IN1, *BUZZER_YZ))
     llave = caja(-CAJA_X / 2 - 3, X_IN0 + 19, LLAVE_Y - 9.4, LLAVE_Y + 9.4, LLAVE_Z + 0.2, LLAVE_Z + 12.6)
-    usbc = caja(X_IN1 - 9, X_IN1 - 1, Y_IN0 + 69, Y_IN0 + 81, PISO, PISO + 1.6)   # bornera USB-C del powerbank
-    return xiaomi, bornera, capacitor, bornes, esp, buzzer, llave, usbc
+    # Bornera de 5 V (2 polos): llega el cable USB-A del powerbank y sale el de 20 AWG a los pines de la Pi
+    bornera5 = caja(X_IN1 - 9, X_IN1 - 1, Y_IN0 + 69, Y_IN0 + 81, PISO, PISO + 10)
+    return xiaomi, bornera, capacitor, bornes, esp, buzzer, llave, bornera5
 
 
 # ============================================================================================
@@ -210,7 +211,7 @@ def ensamble(yaw=0.0, pitch=0.0, roll=0.0, con_base=True):
     if con_base:
         add("caja_base", caja_base(), k3.COLOR_IMPRESO, True)
         add("tapa_base", tapa_base(), k3.COLOR_TAPA, True)
-        xiaomi, bornera, capacitor, bornes, esp, buzzer, llave, usbc = base_componentes()
+        xiaomi, bornera, capacitor, bornes, esp, buzzer, llave, bornera5 = base_componentes()
         add("powerbank_xiaomi_pb2020mi", xiaomi, cq.Color(0.75, 0.76, 0.78))
         add("bornera_6v", bornera, cq.Color(0.15, 0.35, 0.75))
         add("capacitor_2200uf", capacitor, cq.Color(0.1, 0.2, 0.5))
@@ -219,7 +220,7 @@ def ensamble(yaw=0.0, pitch=0.0, roll=0.0, con_base=True):
         add("porta_esp32", porta_esp32(), k3.COLOR_IMPRESO, True)
         add("buzzer", buzzer, cq.Color(0.1, 0.1, 0.1))
         add("interruptor", llave, cq.Color(0.8, 0.1, 0.1))
-        add("usb_c_bornera", usbc, cq.Color(0.1, 0.4, 0.2))
+        add("bornera_5v", bornera5, cq.Color(0.1, 0.4, 0.2))
     add("plato_yaw", plato_yaw(), k3.COLOR_IMPRESO, True, "yaw")
     # Todo lo de la v3 por encima del plato (en la pose pedida de pitch y roll), corrido a la disposición de la v1
     for nombre, forma, color, impresa, grupo in k3.ensamble(pitch=pitch, roll=roll, con_base=False):
@@ -341,8 +342,8 @@ OTROS = [
     ("Velcro adhesivo", 1, "≈ 100 × 20", "Debajo del powerbank (además de los topes)."),
     ("Bornes de panel para banana de 4 mm, rojo y negro", 2, "agujero ≈ Ø8", "Pared de atrás: entrada de la fuente."),
     ("Cable banana–banana (o banana–cocodrilo) 18 AWG", 2, "≈ 1 m", "Fuente de laboratorio → bornes (rojo y negro)."),
-    ("Placa USB-C hembra con 5,1 kΩ en CC1/CC2", 1, "10 × 12 placa", "Powerbank → 5 V y GND hacia la Pi (sin las "
-     "5,1 kΩ el powerbank no entrega 5 V)."),
+    ("Cable USB-A macho → 2 hilos (≥ 22 AWG) + bornera de 2 polos", 1, "8 × 12 × 10", "Salida USB-A del powerbank "
+     "→ 5 V y GND hacia la Pi (el USB-A da 5 V sin negociar: no hace falta placa con 5,1 kΩ)."),
     ("Cable rojo/negro 20 AWG", "1 m", "—", "5 V de la Pi: de la base a la cabeza (cruza yaw, pitch y roll)."),
     ("Cable 18 AWG rojo/negro", "0,5 m", "—", "Bornes → interruptor → bornera de 6 V."),
     ("Alargues de servo macho-hembra", 2, "≈ 30 cm", "Pitch y roll hasta la ESP32 (cruzan el yaw)."),

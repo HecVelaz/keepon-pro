@@ -30,7 +30,7 @@ Vista de arriba (+X es la cara del robot):
  atrás (−X)                                                  adelante (+X)
  ┌──────────────────────────────────────────────────┬──────────────────┐
  │ [interruptor de los servos]                      │ ESP32 (parada)   │ ← buzzer en la pared
- │  POWERBANK XIAOMI 128 × 73 × 32 (5 V → Pi)       │ bornera USB-C    │   (agujeros de sonido)
+ │  POWERBANK XIAOMI 128 × 73 × 32 (5 V → Pi)       │ bornera 5 V      │   (agujeros de sonido)
  │                    ┌──────┐                      ├──────────────────┤
  │─ ─ ─ ─ tabique ─ ─ │ YAW  │ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │   ○ capacitor    │
  ◎ bornes  (lugar libre│RDS3218 (cuelga de la tapa)  │ BORNERA 6 V      │
@@ -44,7 +44,7 @@ Vista de arriba (+X es la cara del robot):
 - **Bahía de adelante:**
   - la **bornera de 6 V** (20 × 40 mm), donde estaba el regulador: reparte +6 V y GND a los tres servos y lleva el **capacitor de 2200 µF + 100 nF**. Va con 2 tornillos M3 al piso o con cinta doble faz;
   - la **ESP32** va parada en `porta_esp32`, tomada de los extremos cortos para que los pines queden libres, con un paso para el micro-USB;
-  - la **bornera USB-C** del powerbank;
+  - la **bornera de 5 V** (2 polos): llega el cable USB-A del powerbank y sale el de 20 AWG a la Pi;
   - el **buzzer**, en un aro de la pared de adelante con 5 agujeros para el sonido.
 - **Pared de atrás:** el interruptor de los servos (corte de 19,2 × 12,8), por encima del powerbank, y los dos bornes. **Pared izquierda:** una ranura frente al powerbank para su cable y su botón (se carga sin abrir la caja).
 - **Tapa:** 4 tornillos M3 a columnas que cuelgan de las esquinas.
@@ -56,7 +56,7 @@ Vista de arriba (+X es la cara del robot):
  (6,0 V, límite 4–5 A,    (~1 m)          (pared   (solo +6 V)                ├─ HS-7955TG (pitch)
   sobre la mesa)                           de atrás)   2200 µF + 100 nF ──────┼─ MG996R (roll)
                                                                               └─ GND ─┐
- Powerbank Xiaomi ─ USB-C ─ bornera ─ 5 V / GND (20 AWG) ─▶ GPIO 2/4 y 6 de la Pi 5    │ GND común
+ Powerbank Xiaomi ─ USB-A ─ bornera 5 V ─ 5 V / GND (20 AWG) ─▶ GPIO 2/4 y 6 de la Pi 5 │ GND común
                                                                                        │ (por la ESP32)
  Pi 5 (cabeza) ─ USB-A ─▶ micro-USB de la ESP32 (base) ─ GPIO0/1/4 ─ señales ──────────┘
                                                         └ GPIO10 ─ 2N2222 ─ buzzer
@@ -67,7 +67,8 @@ Son **dos fuentes separadas**: los picos de los servos (sobre todo el HS-7955TG)
 - **Pi 5 con el powerbank:** el puerto USB-C de la Pi queda tapado por la cinta (como en la v3), así que entra **por el GPIO** (5 V en los pines 2 y 4, GND en el 6). El powerbank da 5 V / 3 A por puerto sin negociar PD: la Pi arranca, avisa que la fuente no es de 5 A y **limita los USB a 600 mA**. Eso alcanza para la ESP32. La Pi consume ~7 W típico y 12 W de pico, unos 2,4 A: entra en los 3 A.
   - Duración estimada: 20 000 mAh × 3,7 V ≈ 74 Wh; con ~65 Wh útiles a 5 V y 7 W, **unas 9 h**.
   - Usar 20 AWG de la base a la cabeza (≈ 0,8 m ida y vuelta: ≈ 0,08 V de caída a 3 A). Medir que lleguen ≥ 4,9 V a los pines con la percepción corriendo.
-  - **Bornera USB-C:** una placa USB-C hembra **con resistencias de 5,1 kΩ en CC1 y CC2**. Sin ellas, el powerbank no detecta carga y no entrega los 5 V. Verificarlo con el multímetro antes de conectar la Pi.
+  - **Desde la salida USB-A del powerbank:** el USB-A entrega 5 V sin negociar, así que alcanza con un cable USB-A macho cortado a dos hilos (que sean de ≥ 22 AWG: muchos cables USB traen hilos de 28 AWG y caen tensión a 3 A) hasta la bornera de 5 V. **No hace falta la placa USB-C con resistencias de 5,1 kΩ.**
+  - **Si al armar la cabeza el USB-C de la Pi queda libre** (depende de hacia dónde sale la cinta, `PI_CSI_SALIDA`, sin verificar), mejor todavía: un cable USB-C acodado directo del powerbank a la Pi. Así funciona hoy en el banco, conserva la protección de entrada de la Pi y se eliminan la bornera de 5 V y el cable al GPIO.
   - **No forzar `usb_max_current_enable`** en la Pi: el powerbank no da más de 3 A.
 - **Servos con la fuente de laboratorio:** **6,0 V** (máximo absoluto 7,4 V: el MG996R y el RDS3218 no aguantan más). En uso normal los tres piden 2–3 A, con picos de ~1 A por servo en los giros rápidos; trabados, 2,5–4,2 A cada uno.
   - **Límite de corriente en 4–5 A** (≥ 6 A si la fuente lo permite). Con 3 A o menos, en los movimientos bruscos la fuente entra en limitación, baja la tensión y los servos tiemblan o pierden fuerza.

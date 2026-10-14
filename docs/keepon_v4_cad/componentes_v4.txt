@@ -18,7 +18,7 @@ esp32c3                          11,7 × 48,3 × 25,4                  COMPRADO
 porta_esp32                      18,0 × 56,3 × 32,4       4,7 cm³    IMPRIMIR
 buzzer                           9,5 × 12,0 × 12,0                   COMPRADO
 interruptor                      25,0 × 18,8 × 12,4                  COMPRADO
-usb_c_bornera                    8,0 × 12,0 × 1,6                    COMPRADO
+bornera_5v                       8,0 × 12,0 × 10,0                   COMPRADO
 servo_yaw_rds3218                54,5 × 20,0 × 45,5                  COMPRADO
 
 ================================================================================================
@@ -79,7 +79,7 @@ Tornillo M2 × 5                                      4      M2               C�
 Velcro adhesivo                                      1      ≈ 100 × 20       Debajo del powerbank (además de los topes).
 Bornes de panel para banana de 4 mm, rojo y negro    2      agujero ≈ Ø8     Pared de atrás: entrada de la fuente.
 Cable banana–banana (o banana–cocodrilo) 18 AWG      2      ≈ 1 m            Fuente de laboratorio → bornes (rojo y negro).
-Placa USB-C hembra con 5,1 kΩ en CC1/CC2             1      10 × 12 placa    Powerbank → 5 V y GND hacia la Pi (sin las 5,1 kΩ el powerbank no entrega 5 V).
+Cable USB-A macho → 2 hilos (≥ 22 AWG) + bornera de 2 polos 1      8 × 12 × 10      Salida USB-A del powerbank → 5 V y GND hacia la Pi (el USB-A da 5 V sin negociar: no hace falta placa con 5,1 kΩ).
 Cable rojo/negro 20 AWG                              1 m    —                5 V de la Pi: de la base a la cabeza (cruza yaw, pitch y roll).
 Cable 18 AWG rojo/negro                              0,5 m  —                Bornes → interruptor → bornera de 6 V.
 Alargues de servo macho-hembra                       2      ≈ 30 cm          Pitch y roll hasta la ESP32 (cruzan el yaw).

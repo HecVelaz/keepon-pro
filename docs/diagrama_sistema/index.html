@@ -133,7 +133,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   </g>
   <text class="wl" x="452" y="812" style="fill:var(--falta) !important">C 2200 µF/16 V + 100 nF</text>
 
-  <!-- 5 V: powerbank → bornera USB-C → pines del GPIO de la Pi (cabeza), cruza yaw, pitch y roll -->
+  <!-- 5 V: powerbank (USB-A) → bornera de 5 V → pines del GPIO de la Pi (cabeza), cruza yaw, pitch y roll -->
   <path class="w w5" d="M400 522 H430"/>
   <path class="w w5" d="M470 500 V230"/>
   <path class="w wg" d="M495 500 V230"/>
@@ -215,8 +215,8 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <use href="#bt" x="340" y="592"/>
 
   <rect class="blk falta" x="430" y="500" width="140" height="60" rx="6"/>
-  <text class="t1" x="440" y="520">Bornera USB-C</text>
-  <text class="t2" x="440" y="536">5,1 kΩ en CC1/CC2</text>
+  <text class="t1" x="440" y="520">Bornera 5 V</text>
+  <text class="t2" x="440" y="536">cable USB-A → 2 hilos</text>
   <use href="#bf" x="510" y="566"/>
 
   <rect class="blk falta" x="220" y="720" width="90" height="80" rx="6"/>
@@ -281,7 +281,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <tr><td>Interruptor de los servos, ≥ 10 A</td><td><span class="tag t-falta">FALTA</span></td><td>De balancín (corte 19,2 × 12,8), sobre el +6 V. Es la parada de emergencia física en la demo y la única forma de aflojar el HS-7955TG, que sin pulso sigue haciendo fuerza.</td></tr>
 <tr><td>Bornera de distribución de 6 V</td><td><span class="tag t-falta">FALTA</span></td><td>Un único punto donde se juntan +6 V y GND de los tres servos, el capacitor y el GND de la ESP32 (estrella). Va en la bahía de adelante de la caja.</td></tr>
 <tr><td>Capacitor 2200 µF / 16 V + 100 nF</td><td><span class="tag t-falta">FALTA</span></td><td>En la bornera de 6 V. Con la fuente lejos, el cable largo tiene inductancia y el capacitor da los picos de los servos.</td></tr>
-<tr><td>Placa USB-C hembra con 5,1 kΩ en CC1/CC2</td><td><span class="tag t-falta">FALTA</span></td><td>Saca 5 V y GND del powerbank hacia los pines de la Pi. <strong>Sin las resistencias de 5,1 kΩ el powerbank no entrega 5 V.</strong> Medir con el multímetro antes de conectar la Pi.</td></tr>
+<tr><td>Cable USB-A macho → 2 hilos + bornera de 2 polos</td><td><span class="tag t-falta">FALTA</span></td><td>Saca 5 V y GND de la salida USB-A del powerbank hacia los pines de la Pi. El USB-A entrega 5 V sin negociar: no hace falta placa USB-C con resistencias. Hilos de ≥ 22 AWG (muchos cables USB traen 28 AWG y caen tensión a 3 A). <strong>Si en la cabeza el USB-C de la Pi queda libre</strong> (sin verificar: <span class="mono">PI_CSI_SALIDA</span>), usar en su lugar un cable USB-C acodado directo, como en el banco.</td></tr>
 <tr><td>Buzzer pasivo + 2N2222 + 1 kΩ + 10 kΩ</td><td><span class="tag t-falta">FALTA</span></td><td>El buzzer que pide el enunciado (GPIO10). Si es electromagnético, agregar un diodo 1N4148 en paralelo.</td></tr>
 <tr><td>Active Cooler de la Pi 5</td><td><span class="tag t-recom">RECOM.</span></td><td>La percepción usa ~240 % de CPU de forma sostenida; sin ventilador la Pi baja la frecuencia y cae la tasa de percepción. Va dentro de la cabeza cerrada: medir su altura (<span class="mono">COOLER_H</span>, se supusieron 11 mm) y la temperatura con la cabeza armada (<span class="mono">/sys/class/thermal/thermal_zone0/temp</span>).</td></tr>
 <tr><td>Cinta CSI ~150 mm (22→15)</td><td><span class="tag t-tenes">TENÉS</span></td><td>Alcanza justo porque la Pi está en la cabeza: el recorrido con la U usa 147 de 150 mm. <strong>Antes de imprimir:</strong> medirla de punta a punta (<span class="mono">FFC_LARGO</span>) y mirar hacia qué extremo de la Pi sale del conector (<span class="mono">PI_CSI_SALIDA</span>). Nunca torcerla ni marcarle pliegues.</td></tr>
@@ -301,7 +301,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <tr><td>Fuente de laboratorio −</td><td>Borne negro → GND de la bornera</td><td>estrella</td></tr>
 <tr><td>Bornera +6 V</td><td>V+ (rojo) de los 3 servos</td><td>6,0 V</td></tr>
 <tr><td>Bornera GND</td><td>GND (marrón/negro) de los 3 servos</td><td>estrella</td></tr>
-<tr><td>Powerbank (USB-C)</td><td>Bornera USB-C → Pi 5, GPIO pines 2/4 (5 V) y 6 (GND)</td><td>5 V, 20 AWG, cruza yaw, pitch y roll</td></tr>
+<tr><td>Powerbank (USB-A)</td><td>Bornera de 5 V → Pi 5, GPIO pines 2/4 (5 V) y 6 (GND)</td><td>5 V, 20 AWG, cruza yaw, pitch y roll</td></tr>
 <tr><td>Pi USB-A (arriba)</td><td>ESP32-C3 micro-USB</td><td>cable acodado, baja a la base · <span class="mono">/dev/serial/by-id/usb-1a86_…</span></td></tr>
 <tr><td>Pi CSI (CAM/DISP 0)</td><td>Camera Module 3 NoIR</td><td>cinta 22→15 de ~150 mm, U fija dentro de la cabeza</td></tr>
 <tr><td>ESP32 GPIO0</td><td>señal yaw (RDS3218)</td><td>3,3 V, 50 Hz</td></tr>
