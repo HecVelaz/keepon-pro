@@ -12,7 +12,7 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 
 ## Hardware real
 - **Raspberry Pi 5, 4 GB**, Ubuntu 24.04 + ROS 2 Jazzy. **No se puede cambiar el SO**: la Pi se usa en otros proyectos.
-- **Camera Module 3 NoIR** (IMX708) en `i2c@80000`. Es NoIR, sin filtro IR, así que hay riesgo con los colores de las camisetas. La segunda NoIR (`i2c@88000`) aparece en libcamera pero no transmite ("Camera frontend has timed out": revisar el flex) y corre los índices: los scripts eligen la cámara **por nombre** (`CAMARA=/base/axi/pcie@120000/rp1/i2c@80000/imx708@1a`), no con `camera:=0`.
+- **Camera Module 3 NoIR estándar** (RSP-CAM-V3-NOIR, **no la Wide**: 66° H nominal, lente de 11,5 mm; la foto de `docs/Fotos/camera Noir module 3/` es de la Wide, solo ilustrativa) (IMX708) en `i2c@80000`. Cinta disponible: **~150 mm** (15→22 pines): por eso la Pi tiene que ir en la cabeza, sobre roll (`docs/REVISION_CODEX_ARQ.md`). Es NoIR, sin filtro IR, así que hay riesgo con los colores de las camisetas. La segunda NoIR (`i2c@88000`) aparece en libcamera pero no transmite ("Camera frontend has timed out": revisar el flex) y corre los índices: los scripts eligen la cámara **por nombre** (`CAMARA=/base/axi/pcie@120000/rp1/i2c@80000/imx708@1a`), no con `camera:=0`.
 - **ESP32-C3-DevKitM-1** (no S3) para los 3 servos y el buzzer, por el micro-USB con puente UART (`/dev/ttyUSB0`; preferir `/dev/serial/by-id/...`). Pines: yaw GPIO0, pitch GPIO1, roll **GPIO4** (antes GPIO3; se cambió el 12/10 buscando una vibración que al final era del servo, y quedó así: el GPIO3 está al lado del GPIO2, de strapping), buzzer GPIO10; evitar 2/8/9 (strapping), 18/19 (USB) y 20/21 (UART0). Análisis completo en `docs/REVISION_CODEX_HW.md` (escrito para microservos). Es un **clon con conversor CH340** (`1a86:7523`, `/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0`). Por ahora está conectada a la **notebook**, no a la Pi, y tiene cargado `pruebas_servos/prueba_servo.ino`. El firmware del robot no existe (`firmware/` está vacío).
 - **Servos (asignación del 12/10, todos en `neck.servos` de `config.yaml`; planilla completa en `pruebas_servos/README.md`):**
   - **yaw = DSSERVO RDS3218 n.º 2** (GPIO0): 270°, asimétrico 0,13/0,136 °/µs (lista `[lado <1500, lado >1500]`), ±70° ≈ 960/2010 µs, límites 950/2020 (no tiene tope: los límites protegen el cableado), banda muerta ≤ 2 µs abajo y 4–6 µs arriba, picos de ~1 A a 260 °/s. **Sin pulso mantiene la posición.**
@@ -102,7 +102,16 @@ Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_
 - Pose: **10,0 Hz**, edad 149 ms. CPU total: 239 % de 400 %.
 - Rostro encontrado en el 80 % de las detecciones; ID estable. Detalle completo en `docs/ESTADO_PI.md`.
 
-## Dónde quedó la sesión (13/10/2026)
+## Dónde quedó la sesión (14/10/2026)
+- **Revisión de arquitectura de Codex** en `docs/REVISION_CODEX_ARQ.md`: mantener la ESP32 (el enunciado pide microcontrolador + protocolo; watchdog independiente de Linux), Pi en la cabeza por la cinta de 150 mm, cara plana. **Encontró 4 fallos de código, pendientes de corregir con tests de regresión:** `gaze.py:45` usa (320, 240) en vez de cx/cy; la cola de `perception.py:290` (64 resultados, `put()` bloqueante) acumula hasta ~2,4 s; el saludo pide ~947 °/s² con `amax` de pitch 400; `Robot.stop()` transmite antes de enclavar.
+- **Modelo mecánico v3** en `docs/keepon_v3_cad/` (reemplaza al v2 para imprimir; el cuello se importa del v2): cabeza de 75 × 107 × 40 mm con la **Pi parada adentro** sobre la placa de roll y la cámara en el ojo izquierdo del robot (corrida 19 mm, alineada con la cinta). En la Pi 5, los conectores CAM/DISP son perpendiculares al borde de los HDMI: la cinta sale a lo largo del lado largo. Cinta fija con una U de radio 6,5 mm (147 de 150 mm). Sin interferencias en 15 poses.
+  - Consecuencias: **la Pi se alimenta por el GPIO** (el USB-C queda tapado por la cinta), los USB-A quedan arriba (cable acodado a la ESP32), y **el pitch se monta con +30° arriba y −20° abajo** (más de ~22° abajo la cara toca el plato).
+  - **Falta verificar en la Pi:** hacia qué extremo sale la cinta del conector (`PI_CSI_SALIDA`, se asumió el USB-C), el largo exacto de la cinta y la altura del Active Cooler.
+- Los intrínsecos de `config.yaml` (fx = 948 → 37°) probablemente no son de esta cámara a 640 × 480 (la estándar tiene 66°): hay que calibrar con un tablero.
+- La Pi no respondió por SSH en toda la sesión (timeout por Tailscale).
+- CadQuery 2.8 en `~/cq_env` (con VTK para las vistas: `docs/keepon_v3_cad/fuente/vistas.py`).
+
+## Sesión anterior (13/10/2026)
 - **Roll pasó al MG996R** (decisión del grupo; MG90S de repuesto). Se caracterizó en el banco: ver la sección "MG996R (13/10)" de `pruebas_servos/README.md`. Falta anotar su sentido de giro.
 - **El banco ya quedó conectado como en el robot:** RDS3218 n.º 2 en GPIO0 (yaw), HS-7955TG en GPIO1 (pitch), MG996R en GPIO4 (roll). Barrido 0 ↔ 45° los tres juntos a ≈ 180 °/s, sincronizados con `w`: bien. `prueba_servo.ino` sigue en la ESP32-C3, conectada a la notebook.
 - Manejo por serie sin reiniciar la ESP32: un proceso Python deja el puerto abierto y reenvía los comandos de un FIFO. Para mandar varios ejes **a la vez**, escribir todas las líneas juntas (`printf 'e 0\nb 1500 1843\ne 1\nb 1500 1000\n' > fifo`). Abrir el puerto de cero reinicia la ESP32 una vez (todos los ejes quedan sin pulso).
@@ -114,7 +123,7 @@ Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_
   - Antes de empezar: anotar el sentido de giro del MG996R (pulso mayor = ¿horario o antihorario?, de frente al eje) y corregir `serial.port` de `config.yaml`, que todavía dice `/dev/ttyACM0` (ESP32-S3): es `/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0` (CH340).
   - La ESP32 sigue en la notebook; para la integración hay que pasarla a la Pi.
 
-## Sesión anterior (07/10/2026)
+## Sesión del 07/10/2026
 - Al cambiar servos, apagar antes la fuente: enchufar uno con la fuente prendida desconectó la ESP32 del USB (y otra vez se reinició por pérdida de alimentación, `rst:0x1 (POWERON)` en el log).
 - Si el puerto está ocupado, es casi siempre un `serial-monitor` abierto por el usuario (`fuser -v /dev/ttyUSB0`): pedir que lo cierre, no matarlo.
 - Todo commiteado y subido. Los dos visores eligen la cámara por nombre (la segunda NoIR había corrido los índices); ambos probados con la cámara real.
