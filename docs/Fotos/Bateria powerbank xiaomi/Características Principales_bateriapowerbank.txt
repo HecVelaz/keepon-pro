@@ -1,0 +1,24 @@
+Características Principales:
+
+Marca: Xiaomi
+Modelo: PB2020MI
+Tipo de Batería: Iones de Litio
+Capacidad de las Celdas: 20000 mAh (3.7 V, 74 Wh)
+Capacidad Nominal: 13000 mAh (5 V)
+Potencia Máxima: 22.5 W (Carga rápida bidireccional)
+Salidas Simultáneas: 3 dispositivos
+Dimensiones: 128 mm x 73 mm x 32 mm (aproximadas)
+Peso: 342 gramos (aproximado)
+Color: Gris claro (Light Gray)
+Características adicionales: Cable USB-C integrado y modo de carga de baja corriente.
+
+Puertos:
+Puertos de Entrada (para cargar el power bank): USB-C / Cable USB-C integrado
+Puertos de Salida (para cargar dispositivos): USB-C / Cable USB-C integrado / USB-A
+Parámetros de Carga (Salida Máxima 22.5 W):
+Salida Cable USB-C integrado (OUT1): 5V=3A / 9V=2.23A / 10V=2.25A / 12V=1.67A (máx.)
+Salida Puerto USB-C (OUT2): 5V=3A / 9V=2.23A / 10V=2.25A / 12V=1.67A (máx.)
+Salida Puerto USB-A (OUT3): 5V=3A / 9V=2.23A / 10V=2.25A / 12V=1.67A (máx.)
+Parámetros de Entrada (Carga del Power Bank):
+Entrada Cable USB-C integrado (IN1): 5V=3A / 9V=2.5A
+Entrada Puerto USB-C (IN2): 5V=3A / 9V=2.5A

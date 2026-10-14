@@ -64,7 +64,7 @@ Carga estimada sobre el eje (`--verificar`, PLA con ~50 % de relleno): **≈ 330
 
 ## Brazo de los servos
 
-Los tres servos llevan el **mismo brazo doble de plástico** (`docs/Fotos/brazo_servo.jpeg`) en lugar del horn circular de la v2. Medido: 38 mm de punta a punta, con los agujeros cada ≈ 2,5 mm (en la foto da ≈ 3). Lo demás se estimó de la foto (cubo Ø9, ancho 6,5 → 4 mm, espesor 2,5) y hay que medirlo (`BRAZO_*` en el script).
+Los tres servos llevan el **mismo brazo doble de plástico** (`docs/Fotos/brazo  servo/brazo_servo.jpeg`) en lugar del horn circular de la v2. Medido: 38 mm de punta a punta, con los agujeros cada ≈ 2,5 mm (en la foto da ≈ 3). Lo demás se estimó de la foto (cubo Ø9, ancho 6,5 → 4 mm, espesor 2,5) y hay que medirlo (`BRAZO_*` en el script).
 
 - El plato, la horquilla y la placa de roll **no tienen agujeros fijos para el brazo**: tienen una **ranura** de 2,4 mm a cada lado del eje, de r = 5,5 a 14,5 mm. El tornillo M2 autorroscante pasa por la ranura y entra en el agujero del brazo que quede debajo, sea cual sea el paso real. Van 2 por brazo (uno de cada lado) y el tornillo central del servo.
 - Las piezas tienen un rebaje de Ø10,5 × 1 mm alrededor del eje, por si el cubo sobresale del brazo.

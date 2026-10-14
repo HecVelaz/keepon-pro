@@ -1,0 +1,87 @@
+KEEPON PRO v4 · COMPONENTES Y DIMENSIONES
+Generado por docs/keepon_v4_cad/fuente/keepon_v4_cad.py
+
+Medidas en mm: caja envolvente en la posición del robot, X (hacia la cara) × Y (de lado a lado) × Z (alto).
+IMPRIMIR = pieza propia (step/ y stl/); COMPRADO = componente (step/componentes/).
+
+================================================================================================
+CAJA BASE (fija)
+================================================================================================
+Pieza                            X × Y × Z                Volumen    Tipo
+caja_base                        182,0 × 133,0 × 70,0     208,6 cm³  IMPRIMIR
+tapa_base                        182,0 × 133,0 × 4,0      92,8 cm³   IMPRIMIR
+bateria_zeee_3s_8000             138,0 × 47,0 × 36,0                 COMPRADO
+powerbank_xiaomi_pb2020mi        128,0 × 73,0 × 32,0                 COMPRADO
+regulador_6v_20a                 25,0 × 65,0 × 50,0                  COMPRADO
+esp32c3                          11,7 × 48,3 × 25,4                  COMPRADO
+porta_esp32                      18,0 × 56,3 × 32,4       4,7 cm³    IMPRIMIR
+buzzer                           9,5 × 12,0 × 12,0                   COMPRADO
+interruptor                      25,0 × 18,8 × 12,4                  COMPRADO
+usb_c_bornera                    8,0 × 12,0 × 1,6                    COMPRADO
+servo_yaw_rds3218                54,5 × 20,0 × 45,5                  COMPRADO
+
+================================================================================================
+GIRA CON EL YAW
+================================================================================================
+Pieza                            X × Y × Z                Volumen    Tipo
+plato_yaw                        64,0 × 116,0 × 4,0       25,9 cm³   IMPRIMIR
+horn_yaw                         38,0 × 9,0 × 5,5                    COMPRADO
+soporte_pitch_izq                28,0 × 19,0 × 85,0       9,6 cm³    IMPRIMIR
+soporte_pitch_der                28,0 × 19,0 × 77,0       12,8 cm³   IMPRIMIR
+servo_pitch_hs7955tg             20,0 × 42,0 × 54,0                  COMPRADO
+
+================================================================================================
+GIRA CON EL PITCH
+================================================================================================
+Pieza                            X × Y × Z                Volumen    Tipo
+horn_pitch                       9,0 × 5,5 × 38,0                    COMPRADO
+horquilla_cabeza                 36,0 × 49,0 × 60,0       25,7 cm³   IMPRIMIR
+servo_roll_mg996r                46,0 × 19,7 × 54,0                  COMPRADO
+
+================================================================================================
+GIRA CON EL ROLL (la cabeza)
+================================================================================================
+Pieza                            X × Y × Z                Volumen    Tipo
+horn_roll                        3,6 × 9,0 × 38,0                    COMPRADO
+placa_roll                       8,0 × 75,0 × 103,8       28,3 cm³   IMPRIMIR
+pi5_pcb                          1,6 × 56,0 × 85,0                   COMPRADO
+pi5_puertos                      16,0 × 55,7 × 81,2                  COMPRADO
+pi5_conectores_csi               1,8 × 15,4 × 9,5                    COMPRADO
+pi5_active_cooler                11,0 × 30,0 × 48,0                  COMPRADO
+camara_pcb                       1,0 × 25,0 × 24,0                   COMPRADO
+camara_lente                     10,5 × 8,5 × 8,5                    COMPRADO
+camara_conector                  2,5 × 20,0 × 5,5                    COMPRADO
+cinta_ffc                        16,6 × 35,1 × 60,8                  COMPRADO
+caja_cabeza                      35,8 × 75,0 × 103,8      38,0 cm³   IMPRIMIR
+nariz_camara                     3,5 × 19,0 × 19,0        0,4 cm³    IMPRIMIR
+ojo_izq                          3,5 × 25,0 × 25,0        1,3 cm³    IMPRIMIR
+ojo_der                          3,5 × 25,0 × 25,0        1,3 cm³    IMPRIMIR
+
+================================================================================================
+BATERÍAS (de docs/Fotos)
+================================================================================================
+Zeee LiPo 3S 8000 mAh 100C: 138 × 47 × 36, 11,1 V (12,6 V cargada), Deans, 493 g → servos (por el regulador de 6 V)
+Xiaomi PB2020MI 20000 mAh: 128 × 73 × 32 (aprox., MEDIR), 5 V 3 A por puerto, 342 g → Pi 5 por el GPIO
+
+================================================================================================
+NO MODELADO: TORNILLERÍA, CABLES Y CONECTORES
+================================================================================================
+Elemento                                             Cant.  Medida           Dónde va
+Tornillo M3 × 10–12 + tuerca                         12     M3               Bridas de los servos (4 por servo).
+Tornillo M3 × 16 autorroscante                       4      M3               Tapa a las columnas de la caja.
+Tornillo M3 × 10 + tuerca                            4      M3               Soportes de pitch a la base en U.
+Tornillo M2 × 8 autorroscante                        6      M2               Base en U, horquilla y placa de roll a los brazos (2 por brazo).
+Tornillo M4 × 20 + 2 arandelas + tuerca autofrenante 1      M4               Pivote del pitch.
+Tornillo M2,5 × 6 autorroscante                      4      M2,5             Pi 5 a la placa de roll.
+Tornillo M2,5 × 12 autorroscante                     4      M2,5             Caja de la cabeza a la placa de roll.
+Tornillo M2 × 5                                      4      M2               Cámara a la cara.
+Velcro adhesivo                                      2      ≈ 100 × 20       Debajo de cada batería (además de los topes).
+Conector Deans (T) hembra + fusible 10 A en línea    1      —                LiPo → interruptor → regulador de 6 V.
+Cable USB-C macho → bornera (o bornera USB-C)        1      10 × 12 placa    Powerbank → 5 V y GND hacia la Pi.
+Cable rojo/negro 20 AWG                              1 m    —                5 V de la Pi: de la base a la cabeza (cruza yaw, pitch y roll).
+Cable 16 AWG rojo/negro                              0,5 m  —                LiPo → regulador → bus de 6 V.
+Alargues de servo macho-hembra                       2      ≈ 30 cm          Pitch y roll hasta la ESP32 (cruzan el yaw).
+Cable USB-A acodado → micro-USB, flexible            1      ≈ 50 cm          Pi (en la cabeza) → ESP32 (en la base).
+Capacitor 2200 µF / 16 V + 100 nF                    1      Ø13 × 25         Bus de 6 V, junto al regulador.
+2N2222 + 1 kΩ + 10 kΩ (+ 1N4148)                     1      TO-92            Buzzer desde el GPIO10.
+Alarma de tensión LiPo                               1      ≈ 40 × 25 × 10   En el balanceador de la Zeee.

@@ -77,7 +77,7 @@ LENTE_AGUJERO = 4.6    # radio del agujero para la lente
 COSTILLA_D = 6.0       # costillas de las paredes donde se atornilla la caja a la placa (M2,5)
 
 # --- Brazo de los servos -----------------------------------------------------------------------
-# Brazo doble de plástico (docs/Fotos/brazo_servo.jpeg): el mismo en los tres servos, en lugar del horn
+# Brazo doble de plástico (docs/Fotos/brazo  servo/brazo_servo.jpeg): el mismo en los tres servos, en lugar del horn
 # circular de la v2. Medido: largo de punta a punta y paso de los agujeros (≈ 2,5; en la foto da ≈ 3).
 # El resto se estimó de la foto con la escala de los 38 mm: MEDIR.
 BRAZO_L = 38.0         # de punta a punta (medido)
