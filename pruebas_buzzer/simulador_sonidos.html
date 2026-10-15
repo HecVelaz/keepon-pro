@@ -185,34 +185,36 @@ const SONIDOS = [
 - 30
 3500 1800 160
 - 55` },
-  { nombre: "POLCA", objetivo: 6000, comp: "Hincha de Olimpia · prioridad 2",
-    info: "Fragmento reconocible de la polca del Club Olimpia (Paraguay). La melodía de abajo es un marcador: hay que transcribir la real.",
-    tabla: `# MARCADOR: reemplazar por la polca del Club Olimpia (Paraguay) transcrita.
-# Cada línea: nota y duración en ms, más un silencio corto para separar las notas.
-G5 230 ; - 20
-E6 230 ; - 20
-E6 230 ; - 20
-D6 230 ; - 20
-C6 230 ; - 20
-D6 230 ; - 20
-E6 230 ; - 20
-G5 230 ; - 20
-F5 230 ; - 20
-D6 230 ; - 20
-D6 230 ; - 20
-C6 230 ; - 20
-B5 230 ; - 20
-C6 230 ; - 20
-D6 230 ; - 20
-G5 230 ; - 20
-G5 230 ; - 20
-E6 230 ; - 20
-G6 230 ; - 20
-F6 230 ; - 20
-E6 230 ; - 20
-D6 230 ; - 20
-C6 230 ; - 20
-C6 230 ; - 20` },
+  { nombre: "POLCA", objetivo: 7104, comp: "Hincha de Olimpia · prioridad 2",
+    info: "Polca del Club Olimpia (Paraguay): la primera frase de la partitura (compases 1 a 8), en Fa mayor a negra con puntillo = 135, una octava más arriba que la partitura.",
+    tabla: `# Polca del Club Olimpia (Paraguay): primera frase, compases 1 a 8 de la partitura
+# (pruebas_buzzer/notas polca de olimpia/). 6/8, negra con puntillo = 135, Fa mayor.
+# Corchea 148 ms, compás 888 ms. Cada nota deja 15 ms de silencio para que se separen.
+# Una octava más arriba que la partitura (Mi5–Fa6, 659–1397 Hz): escrita, cae donde el buzzer suena débil.
+# compás 1: Re5 · cuatrillo Re5 Do5 Si♭4 La4
+D6 429 ; - 15
+D6 96 ; - 15 ; C6 96 ; - 15 ; Bb5 96 ; - 15 ; A5 96 ; - 15
+# compás 2: Re5 · cuatrillo Re5 Do5 Si♭4 La4
+D6 429 ; - 15
+D6 96 ; - 15 ; C6 96 ; - 15 ; Bb5 96 ; - 15 ; A5 96 ; - 15
+# compás 3: Re5 · cuatrillo Re5 Do5 Si♭4 La4
+D6 429 ; - 15
+D6 96 ; - 15 ; C6 96 ; - 15 ; Bb5 96 ; - 15 ; A5 96 ; - 15
+# compás 4: Re5 · silencio · La4 Si♭4 Si♮4 (semicorcheas)
+D6 429 ; - 15
+- 222
+A5 64 ; - 10 ; Bb5 64 ; - 10 ; B5 64 ; - 10
+# compás 5
+C6 133 ; - 15 ; Bb5 133 ; - 15 ; A5 133 ; - 15
+G5 133 ; - 15 ; F5 133 ; - 15 ; E5 133 ; - 15
+# compás 6
+F5 133 ; - 15 ; A5 133 ; - 15 ; C6 133 ; - 15
+F6 133 ; - 15 ; E6 133 ; - 15 ; D6 133 ; - 15
+# compás 7
+C6 133 ; - 15 ; Bb5 133 ; - 15 ; A5 133 ; - 15
+G5 133 ; - 15 ; F5 133 ; - 15 ; E5 133 ; - 15
+# compás 8: Fa4 (blanca con puntillo)
+F5 848 ; - 40` },
   { nombre: "POLCA_CERRO", objetivo: 6000, comp: "Extra · hincha de Cerro (opcional)",
     info: "Polca del Club Cerro Porteño (Paraguay). Es un extra: según la Tabla 1, ante la camiseta de Cerro el robot hace el ABUCHEO. La melodía de abajo es un marcador: hay que transcribir la real.",
     tabla: `# MARCADOR: reemplazar por la polca del Club Cerro Porteño (Paraguay) transcrita.
