@@ -1,6 +1,6 @@
 # AGENTS.md: Keepon pro
 
-Instrucciones para agentes de código (Codex y otros). **La fuente de verdad es `CLAUDE.md`**: hardware, acceso a la Pi, arquitectura, decisiones tomadas, comandos y estado de la última sesión. Leerlo antes de hacer cualquier cosa. Este archivo resume solo lo imprescindible (al 14/10/2026).
+Instrucciones para agentes de código (Codex y otros). **La fuente de verdad es `CLAUDE.md`**: hardware, acceso a la Pi, arquitectura, decisiones tomadas, comandos y estado de la última sesión. Leerlo antes de hacer cualquier cosa. Este archivo resume solo lo imprescindible (al 15/10/2026).
 
 ## Proyecto
 Cabeza robótica social de 3 GDL (yaw/pitch/roll) con visión artificial, µTP de Robótica II (FIUNA). Demo física obligatoria el 30/10/2026. Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md`.
@@ -13,6 +13,8 @@ Cabeza robótica social de 3 GDL (yaw/pitch/roll) con visión artificial, µTP d
 - Los bugs encontrados se convierten en tests de regresión. Tests: `PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q` (121; 34 compilan el firmware con g++).
 - En la Pi (`ssh r2d2@100.116.96.71`), todo va en `~/keepon` y `~/keepon_env`. **No modificar** `~/vision_estereo`, `~/yolo_env`, `~/camera_ws` ni `~/yolo_ws`.
 - Las revisiones de Codex se piden en modo solo lectura y se guardan en `docs/REVISION_CODEX*.md`.
+- **Nombres de archivos y carpetas sin espacios** (guion bajo): el repo se clona también en Windows, que no admite nombres que terminan en espacio. Renombrar con `git mv` y actualizar las referencias (`git grep`). Desde el 15/10 no hay ninguna ruta con espacios.
+- Sincronización con la Pi: el `rsync` de `CLAUDE.md` no borra. Si se renombra o borra algo, la copia vieja queda en `~/keepon` y hay que borrarla a mano.
 
 ## Hardware
 | Eje | Servo | GPIO (ESP32-C3) | Sin pulso |

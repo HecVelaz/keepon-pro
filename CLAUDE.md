@@ -120,6 +120,7 @@ Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_
 - Alimentación: fuente de laboratorio para los servos y powerbank para la Pi (ver Hardware). La Pi por USB-C desde el powerbank: 5,08 V, `throttled=0x0`.
 - Buzzer: simulador de sonidos en `pruebas_buzzer/` (publicado en https://claude.ai/artifact/7wyNPrzj6QqcPJQvrpaPwB), POLCA de Olimpia transcrita de la partitura (compases 1–8, 7,104 s), POLCA_CERRO es un marcador. Comprar el buzzer **pasivo** de electronica.com.py.
 - **La cámara no está conectada a la Pi** (14/10): no lanzar nada de percepción.
+- **Compatibilidad con Windows:** Git for Windows no restauraba `docs/micro servo mg90s ` ni `docs/micro servo sg90 ` (terminaban en espacio). Se arregló en el **PR #1** (rama `compatibilidad-windows`, integrado en `main`) y después se pasaron a guion bajo **todas** las carpetas y archivos con espacios (`docs/micro_servo_mg90s/`, `docs/servo_HS-7955TG_titanium_gear/`, `docs/Fotos/camera_Noir_module_3/`, `pruebas_buzzer/notas_polca_de_olimpia/`, `Captura_desde_...png`, etc.). Ya no hay rutas con espacios en el repo ni en la Pi. La carpeta del proyecto en la notebook (`Keepon pro `) sí termina en espacio, pero está fuera del repo.
 - Próximo: integrar `SerialLink` con el robot sobre la ESP32 real (`scripts/sim_scenario.py` usa SimLink), reconexión automática de `SerialLink`, y la prueba con los servos.
 
 ## Sesión anterior (14/10/2026, tarde)
@@ -168,3 +169,5 @@ Se usa `codex exec --skip-git-repo-check -s read-only -o <salida.md> "<prompt>"`
 - Git local: `user.email = hvelazquez@fiuna.edu.py` (el email global era un texto de relleno).
 - Cada cambio de rendimiento se **mide en la Pi** antes de darlo por bueno; los resultados van a `docs/ESTADO_PI.md`.
 - Los bugs encontrados se convierten en tests de regresión.
+- **Nombres de archivos y carpetas sin espacios** (guion bajo en su lugar): Windows no admite nombres que terminan en espacio o punto. Al renombrar, usar `git mv`, buscar las referencias con `git grep` y actualizarlas. El `rsync` a la Pi no borra: la copia vieja queda allá y hay que borrarla a mano, después de comparar con `cmp` que la nueva es idéntica.
+- Cambios que el grupo tiene que revisar: rama + pull request con `gh`. `gh pr edit` falla por un error de GitHub con "Projects (classic)" y no guarda nada: editar el PR con `gh api -X PATCH repos/HecVelaz/keepon-pro/pulls/<n>`.
