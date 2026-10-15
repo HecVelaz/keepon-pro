@@ -86,7 +86,8 @@ perception:
 # la PC la usa para planificar y como timeout.
 sounds:
   R2D2: 1.6
-  POLCA: 6.0
+  POLCA: 6.0                    # polca del Club Olimpia (Paraguay)
+  POLCA_CERRO: 6.0              # extra: polca del Club Cerro Porteño (la reacción a Cerro es el ABUCHEO)
   ABUCHEO: 2.5
   PIROPO: 1.2
   DESAPROBACION: 0.8

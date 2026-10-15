@@ -1,0 +1,603 @@
+<title>Simulador del buzzer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Banco de pruebas: barra de ajustes arriba, lista de sonidos a la izquierda, osciloscopio + tabla a la derecha, exportación abajo. */
+:root {
+  --bg: #f2f4f1; --panel: #ffffff; --ink: #1b211d; --muted: #5d6760; --line: #d6dbd5;
+  --brass: #9a6914; --brass-soft: #f3e6cc; --trace: #17708d; --ok: #1f7a46; --bad: #b3401f;
+  --f-disp: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111513; --panel: #191e1b; --ink: #e5eae5; --muted: #9aa49d; --line: #2b322e;
+    --brass: #e0ab4c; --brass-soft: #3a2f1a; --trace: #5cc3e0; --ok: #5fcf8d; --bad: #f08a66;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111513; --panel: #191e1b; --ink: #e5eae5; --muted: #9aa49d; --line: #2b322e;
+  --brass: #e0ab4c; --brass-soft: #3a2f1a; --trace: #5cc3e0; --ok: #5fcf8d; --bad: #f08a66;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 18px; }
+h1, h2 { font-family: var(--f-disp); text-wrap: balance; margin: 0; }
+h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -.01em; }
+h2 { font-size: 1.05rem; font-weight: 600; }
+.lead { color: var(--muted); max-width: 72ch; margin: 4px 0 0; }
+.mono { font-family: var(--f-mono); font-size: .9em; }
+.eyebrow { font-family: var(--f-disp); font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+
+.ajustes { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; padding: 12px 14px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+.ajustes label { display: inline-flex; align-items: center; gap: 8px; font-size: .88rem; }
+.ajustes output { font-family: var(--f-mono); font-size: .82rem; color: var(--muted); min-width: 6ch; }
+input[type=range] { accent-color: var(--brass); width: 130px; }
+input[type=checkbox] { accent-color: var(--brass); width: 16px; height: 16px; }
+
+.banco { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 18px; align-items: start; }
+@media (max-width: 820px) { .banco { grid-template-columns: 1fr; } }
+
+.lista { display: grid; gap: 6px; }
+.son { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 4px 10px; align-items: center;
+  padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); cursor: pointer; text-align: left;
+  color: inherit; font: inherit; width: 100%; }
+.son:hover { border-color: var(--muted); }
+.son[aria-pressed="true"] { border-color: var(--brass); background: var(--brass-soft); }
+.son .nom { font-family: var(--f-mono); font-weight: 500; font-size: .86rem; overflow-wrap: anywhere; }
+.son .que { grid-column: 2 / 4; font-size: .78rem; color: var(--muted); }
+.son .dur { font-family: var(--f-mono); font-size: .75rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chip { display: inline-block; padding: 0 6px; border-radius: 4px; font-size: .7rem; font-weight: 600; }
+.chip.ok { color: var(--ok); border: 1px solid var(--ok); }
+.chip.mal { color: var(--bad); border: 1px solid var(--bad); }
+.play { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--brass); background: transparent; color: var(--brass);
+  display: grid; place-items: center; cursor: pointer; padding: 0; }
+.play:hover { background: var(--brass); color: var(--panel); }
+.play svg { width: 12px; height: 12px; fill: currentColor; }
+
+.editor { display: grid; gap: 12px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
+.cab { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+.cab .info { color: var(--muted); font-size: .88rem; max-width: 60ch; }
+.osc { position: relative; width: 100%; height: 230px; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.osc canvas { width: 100%; height: 100%; display: block; }
+.botones { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button.b { font: 500 .88rem var(--f-body); padding: 7px 14px; border-radius: 6px; border: 1px solid var(--line);
+  background: var(--panel); color: var(--ink); cursor: pointer; }
+button.b:hover { border-color: var(--muted); }
+button.b.pri { background: var(--brass); border-color: var(--brass); color: var(--panel); }
+button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid var(--trace); outline-offset: 2px; }
+.estado { font-family: var(--f-mono); font-size: .8rem; color: var(--muted); }
+.tabla { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 12px; }
+@media (max-width: 640px) { .tabla { grid-template-columns: 1fr; } }
+textarea { width: 100%; min-height: 260px; resize: vertical; font: 13px/1.55 var(--f-mono); color: var(--ink);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px; tab-size: 4; }
+.ayuda { font-size: .8rem; color: var(--muted); display: grid; gap: 6px; align-content: start; }
+.ayuda code { font-family: var(--f-mono); color: var(--ink); }
+.errores { color: var(--bad); font-family: var(--f-mono); font-size: .8rem; white-space: pre-wrap; }
+
+.export { display: grid; gap: 10px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+.export pre { margin: 0; max-height: 320px; overflow: auto; padding: 12px; background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; font: 12px/1.5 var(--f-mono); }
+.export-cols { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 820px) { .export-cols { grid-template-columns: 1fr; } }
+.export-cols > div { display: grid; gap: 8px; align-content: start; min-width: 0; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Keepon pro · buzzer pasivo en GPIO10 · LEDC</div>
+    <h1>Simulador de sonidos del buzzer</h1>
+    <p class="lead">Cada sonido es una tabla de segmentos <span class="mono">{f_inicio, f_fin, ms}</span>, el mismo formato que va a usar el firmware de la ESP32. El navegador lo toca con onda cuadrada y actualiza la frecuencia de los barridos cada pocos milisegundos, igual que <span class="mono">ledcWriteTone()</span>. Editá la tabla, escuchala y copiá el código C de abajo.</p>
+  </header>
+
+  <section class="ajustes" aria-label="Ajustes de reproducción">
+    <label for="vol">Volumen <input id="vol" type="range" min="0" max="100" value="35"><output id="volOut">35 %</output></label>
+    <label for="sim"><input id="sim" type="checkbox" checked> Simular la respuesta del buzzer</label>
+    <label for="res">Resonancia <input id="res" type="range" min="1500" max="4500" step="100" value="2500"><output id="resOut">2500 Hz</output></label>
+    <label for="paso">Paso de barrido <input id="paso" type="range" min="1" max="20" value="5"><output id="pasoOut">5 ms</output></label>
+  </section>
+
+  <div class="banco">
+    <nav class="lista" id="lista" aria-label="Sonidos"></nav>
+
+    <section class="editor" aria-live="polite">
+      <div class="cab">
+        <div>
+          <div class="eyebrow" id="edComp"></div>
+          <h2 class="mono" id="edNom"></h2>
+        </div>
+        <div class="info" id="edInfo"></div>
+      </div>
+      <div class="osc"><canvas id="lienzo" aria-label="Frecuencia en función del tiempo"></canvas></div>
+      <div class="botones">
+        <button class="b pri" id="btnPlay" type="button">Reproducir</button>
+        <button class="b" id="btnStop" type="button">Detener</button>
+        <button class="b" id="btnReset" type="button">Restaurar el original</button>
+        <span class="estado" id="estado"></span>
+      </div>
+      <div class="tabla">
+        <div>
+          <label class="eyebrow" for="txt">Tabla de segmentos</label>
+          <textarea id="txt" spellcheck="false"></textarea>
+          <div class="errores" id="errores"></div>
+        </div>
+        <div class="ayuda">
+          <div class="eyebrow">Formato</div>
+          <div><code>1800 3200 90</code> barrido de 1800 a 3200 Hz en 90 ms</div>
+          <div><code>2600 45</code> nota fija de 2600 Hz, 45 ms</div>
+          <div><code>A5 230</code> nota por nombre (A4 = 440 Hz; también <code>C#6</code>, <code>Bb5</code>)</div>
+          <div><code>- 30</code> silencio de 30 ms</div>
+          <div><code>;</code> separa varios segmentos en una línea</div>
+          <div><code>#</code> comentario hasta el final de la línea</div>
+          <div>El buzzer suena más fuerte cerca de su resonancia (franja sombreada) y débil por debajo de ~500 Hz.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="export">
+    <h2>Para el firmware y <span class="mono">config.yaml</span></h2>
+    <div class="export-cols">
+      <div>
+        <div class="botones"><span class="eyebrow">Tablas en C (todos los sonidos)</span><button class="b" id="copiarC" type="button">Copiar</button><span class="estado" id="copiarCEst"></span></div>
+        <pre id="codigoC"></pre>
+      </div>
+      <div>
+        <div class="botones"><span class="eyebrow">Duraciones</span><button class="b" id="copiarY" type="button">Copiar</button><span class="estado" id="copiarYEst"></span></div>
+        <pre id="codigoY"></pre>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// ---------------------------------------------------------------------------------------------
+// Sonidos de config.yaml: nombre, duración objetivo [ms], qué comportamiento lo usa y la tabla original.
+// ---------------------------------------------------------------------------------------------
+const SONIDOS = [
+  { nombre: "R2D2", objetivo: 1600, comp: "Saludo · prioridad 1",
+    info: "Trinos y barridos de frecuencia, mientras asiente.",
+    tabla: `# Trinos y barridos tipo R2D2
+1800 3200 90
+- 30
+2600 45 ; 3400 45 ; 2600 45 ; 3400 45
+- 40
+3000 1400 140
+- 30
+1500 40 ; 2200 40 ; 2900 40 ; 3600 60
+- 50
+2000 3800 120
+3800 2400 80
+- 40
+2800 35 ; 2000 35 ; 2800 35 ; 2000 35 ; 2800 35
+- 40
+1600 3000 100
+3000 60
+- 30
+3500 1800 160
+- 55` },
+  { nombre: "POLCA", objetivo: 6000, comp: "Hincha de Olimpia · prioridad 2",
+    info: "Fragmento reconocible de la polca del Club Olimpia (Paraguay). La melodía de abajo es un marcador: hay que transcribir la real.",
+    tabla: `# MARCADOR: reemplazar por la polca del Club Olimpia (Paraguay) transcrita.
+# Cada línea: nota y duración en ms, más un silencio corto para separar las notas.
+G5 230 ; - 20
+E6 230 ; - 20
+E6 230 ; - 20
+D6 230 ; - 20
+C6 230 ; - 20
+D6 230 ; - 20
+E6 230 ; - 20
+G5 230 ; - 20
+F5 230 ; - 20
+D6 230 ; - 20
+D6 230 ; - 20
+C6 230 ; - 20
+B5 230 ; - 20
+C6 230 ; - 20
+D6 230 ; - 20
+G5 230 ; - 20
+G5 230 ; - 20
+E6 230 ; - 20
+G6 230 ; - 20
+F6 230 ; - 20
+E6 230 ; - 20
+D6 230 ; - 20
+C6 230 ; - 20
+C6 230 ; - 20` },
+  { nombre: "POLCA_CERRO", objetivo: 6000, comp: "Extra · hincha de Cerro (opcional)",
+    info: "Polca del Club Cerro Porteño (Paraguay). Es un extra: según la Tabla 1, ante la camiseta de Cerro el robot hace el ABUCHEO. La melodía de abajo es un marcador: hay que transcribir la real.",
+    tabla: `# MARCADOR: reemplazar por la polca del Club Cerro Porteño (Paraguay) transcrita.
+# Cada línea: nota y duración en ms, más un silencio corto para separar las notas.
+C6 230 ; - 20
+A5 230 ; - 20
+C6 230 ; - 20
+F6 230 ; - 20
+E6 230 ; - 20
+D6 230 ; - 20
+C6 230 ; - 20
+A5 230 ; - 20
+Bb5 230 ; - 20
+G5 230 ; - 20
+Bb5 230 ; - 20
+E6 230 ; - 20
+D6 230 ; - 20
+C6 230 ; - 20
+Bb5 230 ; - 20
+G5 230 ; - 20
+A5 230 ; - 20
+C6 230 ; - 20
+F6 230 ; - 20
+A6 230 ; - 20
+G6 230 ; - 20
+E6 230 ; - 20
+F6 230 ; - 20
+F6 230 ; - 20` },
+  { nombre: "ABUCHEO", objetivo: 2500, comp: "Hincha de Cerro · prioridad 2",
+    info: "Silbido de reprobación: glissando descendente largo.",
+    tabla: `# Glissando descendente de ~1500 a ~350 Hz con un temblor de ±5 % (cada 60 ms)
+1575 1374 60
+1374 1464 60
+1464 1278 60
+1278 1362 60
+1362 1188 60
+1188 1266 60
+1266 1105 60
+1105 1177 60
+1177 1027 60
+1027 1095 60
+1095 955 60
+955 1018 60
+1018 888 60
+888 946 60
+946 826 60
+826 880 60
+880 768 60
+768 818 60
+818 714 60
+714 761 60
+761 664 60
+664 707 60
+707 617 60
+617 658 60
+658 574 60
+574 612 60
+612 534 60
+534 569 60
+569 496 60
+496 529 60
+529 461 60
+461 492 60
+492 429 60
+429 457 60
+457 399 60
+399 425 60
+425 371 60
+371 395 60
+395 345 60
+345 368 60
+- 100` },
+  { nombre: "PIROPO", objetivo: 1200, comp: "Modo maleducado · SALIENDO",
+    info: "Silbido de piropo \"fiu-fiuuu\", una vez por salida.",
+    tabla: `# "fiu" corto, pausa, y "fiuuu" que sube, se sostiene y cae
+1400 2900 180
+- 90
+1500 3000 220
+3000 120
+3000 1900 450
+- 140` },
+  { nombre: "DESAPROBACION", objetivo: 800, comp: "Seguimiento · al liberar el objetivo",
+    info: "\"Uh-oh\": dos notas graves que caen.",
+    tabla: `700 250
+- 60
+520 120
+520 380 300
+- 70` },
+  { nombre: "BEEP_NEUTRO", objetivo: 250, comp: "Cambio de modo · prioridad 0",
+    info: "Confirmación del modo neutro: un beep.",
+    tabla: `2400 180
+- 70` },
+  { nombre: "BEEP_TIMIDO", objetivo: 350, comp: "Cambio de modo · prioridad 0",
+    info: "Confirmación del modo tímido: dos beeps que bajan.",
+    tabla: `2000 110
+- 50
+1600 150
+- 40` },
+  { nombre: "BEEP_ATREVIDO", objetivo: 350, comp: "Cambio de modo · prioridad 0",
+    info: "Confirmación del modo atrevido: dos beeps que suben.",
+    tabla: `2200 90
+- 40
+3300 180
+- 40` },
+  { nombre: "BEEP_MALEDUCADO", objetivo: 450, comp: "Cambio de modo · prioridad 0",
+    info: "Confirmación del modo maleducado: trino rápido y caída.",
+    tabla: `2600 30 ; 3400 30 ; 2600 30 ; 3400 30 ; 2600 30
+3400 30 ; 2600 30 ; 3400 30 ; 2600 30 ; 3400 30
+3400 1800 120
+- 30` },
+];
+
+// ---------------------------------------------------------------------------------------------
+// Lectura de la tabla de texto
+// ---------------------------------------------------------------------------------------------
+const NOTAS = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 };
+function frecuencia(tok) {
+  if (tok === "-" || tok === "0") return 0;
+  if (/^\d+(\.\d+)?$/.test(tok)) return Math.round(parseFloat(tok));
+  const m = /^([A-Ga-g])([#b]?)(-?\d)$/.exec(tok);
+  if (!m) return null;
+  const semis = NOTAS[m[1].toUpperCase()] + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0) + (parseInt(m[3]) - 4) * 12;
+  return Math.round(440 * Math.pow(2, semis / 12));
+}
+function leerTabla(texto) {
+  const segs = [], errores = [];
+  texto.split("\n").forEach((linea, i) => {
+    linea = linea.split("#")[0];
+    for (const parte of linea.split(";")) {
+      const t = parte.trim().split(/\s+/).filter(Boolean);
+      if (!t.length) continue;
+      const donde = `línea ${i + 1}`;
+      if (t.length < 2 || t.length > 3) { errores.push(`${donde}: "${parte.trim()}" tiene que ser "f ms", "f0 f1 ms" o "- ms"`); continue; }
+      const ms = Number(t[t.length - 1]);
+      const f0 = frecuencia(t[0]), f1 = t.length === 3 ? frecuencia(t[1]) : f0;
+      if (!Number.isInteger(ms) || ms < 1 || ms > 65535) { errores.push(`${donde}: la duración tiene que ser un entero de 1 a 65535 ms`); continue; }
+      if (f0 === null || f1 === null) { errores.push(`${donde}: frecuencia no reconocida en "${parte.trim()}"`); continue; }
+      if ((f0 === 0) !== (f1 === 0)) { errores.push(`${donde}: un barrido no puede empezar o terminar en 0 (silencio)`); continue; }
+      if ((f0 && f0 < 50) || f0 > 10000 || (f1 && f1 < 50) || f1 > 10000) { errores.push(`${donde}: las frecuencias van de 50 a 10000 Hz`); continue; }
+      segs.push([f0, f1, ms]);
+    }
+  });
+  return { segs, errores };
+}
+const duracion = segs => segs.reduce((s, x) => s + x[2], 0);
+
+// ---------------------------------------------------------------------------------------------
+// Estado (las tablas editadas se guardan en este navegador)
+// ---------------------------------------------------------------------------------------------
+const CLAVE = "keepon-buzzer-tablas-v1";
+let guardadas = {};
+try { guardadas = JSON.parse(localStorage.getItem(CLAVE) || "{}") || {}; } catch (e) { guardadas = {}; }
+const textos = Object.fromEntries(SONIDOS.map(s => [s.nombre, guardadas[s.nombre] ?? s.tabla]));
+function guardar() { try { localStorage.setItem(CLAVE, JSON.stringify(textos)); } catch (e) {} }
+let actual = SONIDOS[0].nombre;
+const $ = id => document.getElementById(id);
+
+// ---------------------------------------------------------------------------------------------
+// Audio: onda cuadrada → (filtros que imitan al buzzer) → volumen
+// ---------------------------------------------------------------------------------------------
+let ac = null, entrada, salida, filtros, sonando = null;
+function iniciarAudio() {
+  if (ac) return;
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  entrada = ac.createGain();
+  salida = ac.createGain();
+  const pasaAltos = ac.createBiquadFilter(); pasaAltos.type = "highpass"; pasaAltos.frequency.value = 400;
+  const pico = ac.createBiquadFilter(); pico.type = "peaking"; pico.Q.value = 1.3; pico.gain.value = 10;
+  const pasaBajos = ac.createBiquadFilter(); pasaBajos.type = "lowpass"; pasaBajos.frequency.value = 7000;
+  pasaAltos.connect(pico).connect(pasaBajos).connect(salida);
+  filtros = { pasaAltos, pico };
+  salida.connect(ac.destination);
+  aplicarAjustes();
+}
+function aplicarAjustes() {
+  $("volOut").textContent = $("vol").value + " %";
+  $("resOut").textContent = $("res").value + " Hz";
+  $("pasoOut").textContent = $("paso").value + " ms";
+  dibujar();
+  if (!ac) return;
+  // La onda cuadrada es muy fuerte: el 100 % del control equivale a una ganancia de 0,25
+  salida.gain.value = ($("vol").value / 100) * 0.25 * ($("sim").checked ? 0.5 : 1);
+  filtros.pico.frequency.value = +$("res").value;
+  entrada.disconnect();
+  entrada.connect($("sim").checked ? filtros.pasaAltos : salida);
+}
+function detener() {
+  if (sonando) { try { sonando.osc.stop(); } catch (e) {} sonando = null; }
+  $("estado").textContent = "";
+}
+function reproducir(nombre) {
+  const { segs, errores } = leerTabla(textos[nombre]);
+  if (errores.length || !segs.length) { seleccionar(nombre); return; }
+  iniciarAudio();
+  if (ac.state === "suspended") ac.resume();
+  detener();
+  const paso = +$("paso").value / 1000;
+  const osc = ac.createOscillator(); osc.type = "square";
+  const puerta = ac.createGain(); puerta.gain.value = 0;
+  osc.connect(puerta).connect(entrada);
+  const t0 = ac.currentTime + 0.05;
+  let t = t0;
+  // Igual que el firmware: nota fija = una sola escritura; barrido = una escritura por paso; 0 = sin tono
+  for (const [f0, f1, ms] of segs) {
+    const d = ms / 1000;
+    if (f0 === 0) { puerta.gain.setValueAtTime(0, t); }
+    else {
+      puerta.gain.setValueAtTime(1, t);
+      if (f0 === f1) osc.frequency.setValueAtTime(f0, t);
+      else for (let k = 0; k * paso < d - 1e-9; k++) osc.frequency.setValueAtTime(Math.round(f0 + (f1 - f0) * (k * paso) / d), t + k * paso);
+    }
+    t += d;
+  }
+  puerta.gain.setValueAtTime(0, t);
+  osc.start(t0); osc.stop(t + 0.02);
+  sonando = { osc, t0, fin: t, nombre };
+  osc.onended = () => { if (sonando && sonando.osc === osc) { sonando = null; $("estado").textContent = ""; dibujar(); } };
+  if (nombre !== actual) seleccionar(nombre);
+  requestAnimationFrame(animar);
+}
+function animar() {
+  if (!sonando) return;
+  const ms = Math.max(0, (ac.currentTime - sonando.t0) * 1000);
+  $("estado").textContent = `${Math.min(ms, (sonando.fin - sonando.t0) * 1000).toFixed(0)} ms`;
+  dibujar(sonando.nombre === actual ? ms : null);
+  requestAnimationFrame(animar);
+}
+
+// ---------------------------------------------------------------------------------------------
+// Osciloscopio: frecuencia [Hz] en función del tiempo [ms]
+// ---------------------------------------------------------------------------------------------
+const lienzo = $("lienzo");
+function color(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function pasoLindo(rango, marcas) {
+  const crudo = rango / marcas, p = Math.pow(10, Math.floor(Math.log10(crudo)));
+  return [1, 2, 5, 10].map(m => m * p).find(v => v >= crudo);
+}
+function dibujar(cabezal = null) {
+  const r = lienzo.getBoundingClientRect(); if (!r.width) return;
+  const dpr = window.devicePixelRatio || 1;
+  lienzo.width = Math.round(r.width * dpr); lienzo.height = Math.round(r.height * dpr);
+  const g = lienzo.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const W = r.width, H = r.height, izq = 52, der = 12, arr = 12, abj = 26;
+  g.fillStyle = color("--bg"); g.fillRect(0, 0, W, H);
+  const { segs } = leerTabla(textos[actual]);
+  const total = Math.max(duracion(segs), 1);
+  const fMax = Math.max(4500, ...segs.map(s => Math.max(s[0], s[1]))) * 1.05;
+  const X = ms => izq + (W - izq - der) * ms / total, Y = f => H - abj - (H - abj - arr) * f / fMax;
+  g.font = `11px ${color("--f-mono")}`; g.textBaseline = "middle";
+  // Franja de resonancia (±500 Hz)
+  const fr = +$("res").value;
+  g.fillStyle = color("--brass-soft");
+  g.fillRect(izq, Y(fr + 500), W - izq - der, Y(fr - 500) - Y(fr + 500));
+  // Grilla de frecuencia
+  g.strokeStyle = color("--line"); g.fillStyle = color("--muted"); g.lineWidth = 1; g.textAlign = "right";
+  for (let f = 0; f <= fMax; f += 1000) {
+    g.beginPath(); g.moveTo(izq, Math.round(Y(f)) + .5); g.lineTo(W - der, Math.round(Y(f)) + .5); g.stroke();
+    g.fillText(f === 0 ? "0" : `${f / 1000} kHz`, izq - 6, Y(f));
+  }
+  // Marcas de tiempo
+  const pt = pasoLindo(total, Math.max(3, Math.floor((W - izq) / 90)));
+  g.textAlign = "center"; g.textBaseline = "top";
+  for (let ms = 0; ms <= total + 1e-6; ms += pt) {
+    g.beginPath(); g.moveTo(Math.round(X(ms)) + .5, H - abj); g.lineTo(Math.round(X(ms)) + .5, H - abj + 4); g.stroke();
+    g.fillText(`${ms} ms`, Math.min(Math.max(X(ms), izq + 16), W - der - 22), H - abj + 7);
+  }
+  // Segmentos
+  g.strokeStyle = color("--trace"); g.lineWidth = 2.5; g.lineCap = "round";
+  let t = 0;
+  for (const [f0, f1, ms] of segs) {
+    if (f0) { g.beginPath(); g.moveTo(X(t), Y(f0)); g.lineTo(X(t + ms), Y(f1)); g.stroke(); }
+    t += ms;
+  }
+  // Cabezal de reproducción
+  if (cabezal !== null && cabezal <= total) {
+    g.strokeStyle = color("--brass"); g.lineWidth = 2;
+    g.beginPath(); g.moveTo(X(cabezal), arr); g.lineTo(X(cabezal), H - abj); g.stroke();
+  }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Interfaz
+// ---------------------------------------------------------------------------------------------
+const ICONO_PLAY = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1l9 5-9 5z"/></svg>';
+function chipDuracion(s) {
+  const { segs, errores } = leerTabla(textos[s.nombre]);
+  if (errores.length) return `<span class="chip mal">error</span>`;
+  const d = duracion(segs);
+  return d === s.objetivo ? `<span class="chip ok">${d} ms</span>` : `<span class="chip mal">${d} / ${s.objetivo} ms</span>`;
+}
+function pintarLista() {
+  $("lista").innerHTML = SONIDOS.map(s => `
+    <div class="son" role="button" tabindex="0" data-n="${s.nombre}" aria-pressed="${s.nombre === actual}">
+      <button class="play" type="button" data-play="${s.nombre}" aria-label="Reproducir ${s.nombre}">${ICONO_PLAY}</button>
+      <span class="nom">${s.nombre}</span>
+      <span class="dur">${chipDuracion(s)}</span>
+      <span class="que">${s.comp}</span>
+    </div>`).join("");
+}
+function seleccionar(nombre) {
+  actual = nombre;
+  const s = SONIDOS.find(x => x.nombre === nombre);
+  $("edNom").textContent = s.nombre;
+  $("edComp").textContent = s.comp;
+  $("edInfo").textContent = s.info;
+  if ($("txt").value !== textos[nombre]) $("txt").value = textos[nombre];
+  validar();
+  pintarLista();
+  dibujar();
+}
+function validar() {
+  const s = SONIDOS.find(x => x.nombre === actual);
+  const { segs, errores } = leerTabla(textos[actual]);
+  const d = duracion(segs);
+  let msg = errores.join("\n");
+  if (!errores.length && d !== s.objetivo)
+    msg = `Dura ${d} ms y config.yaml dice ${s.objetivo} ms: ajustá la tabla o copiá la duración nueva a config.yaml (abajo).`;
+  $("errores").textContent = msg;
+  $("errores").style.color = errores.length ? "" : "var(--muted)";
+}
+function exportar() {
+  const lineas = [
+    "// Generado por pruebas_buzzer/simulador_sonidos.html",
+    "// Cada segmento: {f_inicio_Hz, f_fin_Hz, duracion_ms}. f_inicio == f_fin: nota fija;",
+    "// distintas: barrido lineal (ledcWriteTone() cada " + $("paso").value + " ms); 0: silencio.",
+    "struct Segmento { uint16_t f0, f1, ms; };",
+    "struct Sonido { const char *nombre; const Segmento *seg; uint16_t n; };",
+    "",
+  ];
+  const filas = [];
+  for (const s of SONIDOS) {
+    const { segs, errores } = leerTabla(textos[s.nombre]);
+    if (errores.length) { lineas.push(`// ${s.nombre}: la tabla tiene errores, no se exporta`, ""); continue; }
+    lineas.push(`// ${s.nombre}: ${duracion(segs)} ms, ${segs.length} segmentos`);
+    lineas.push(`static const Segmento SND_${s.nombre}[] = {`);
+    for (let i = 0; i < segs.length; i += 6)
+      lineas.push("  " + segs.slice(i, i + 6).map(x => `{${x[0]}, ${x[1]}, ${x[2]}}`).join(", ") + ",");
+    lineas.push("};", "");
+    filas.push(`  {"${s.nombre}", SND_${s.nombre}, ${segs.length}},`);
+  }
+  lineas.push("static const Sonido SONIDOS[] = {", ...filas, "};");
+  $("codigoC").textContent = lineas.join("\n");
+  $("codigoY").textContent = "# Duración de cada sonido [s]\nsounds:\n" + SONIDOS.map(s => {
+    const { segs } = leerTabla(textos[s.nombre]);
+    return `  ${s.nombre}: ${+(duracion(segs) / 1000).toFixed(3)}`;
+  }).join("\n");
+}
+async function copiar(id, est) {
+  const texto = $(id).textContent;
+  try { await navigator.clipboard.writeText(texto); $(est).textContent = "Copiado"; }
+  catch (e) {
+    const rango = document.createRange(); rango.selectNodeContents($(id));
+    const sel = getSelection(); sel.removeAllRanges(); sel.addRange(rango);
+    $(est).textContent = "Seleccionado: Ctrl+C";
+  }
+  setTimeout(() => { $(est).textContent = ""; }, 2500);
+}
+
+$("lista").addEventListener("click", e => {
+  const p = e.target.closest("[data-play]");
+  if (p) { reproducir(p.dataset.play); return; }
+  const fila = e.target.closest("[data-n]");
+  if (fila) { detener(); seleccionar(fila.dataset.n); }
+});
+$("lista").addEventListener("keydown", e => {
+  const fila = e.target.closest("[data-n]");
+  if (fila && e.target === fila && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); detener(); seleccionar(fila.dataset.n); }
+});
+$("txt").addEventListener("input", () => { textos[actual] = $("txt").value; guardar(); validar(); pintarLista(); dibujar(); exportar(); });
+$("btnPlay").addEventListener("click", () => reproducir(actual));
+$("btnStop").addEventListener("click", () => { detener(); dibujar(); });
+$("btnReset").addEventListener("click", () => {
+  detener();
+  textos[actual] = SONIDOS.find(x => x.nombre === actual).tabla; guardar();
+  $("txt").value = textos[actual]; validar(); pintarLista(); dibujar(); exportar();
+});
+for (const id of ["vol", "res", "sim"]) $(id).addEventListener("input", aplicarAjustes);
+$("paso").addEventListener("input", () => { aplicarAjustes(); exportar(); });
+$("copiarC").addEventListener("click", () => copiar("codigoC", "copiarCEst"));
+$("copiarY").addEventListener("click", () => copiar("codigoY", "copiarYEst"));
+new ResizeObserver(() => dibujar()).observe(lienzo);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => dibujar());
+new MutationObserver(() => dibujar()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+seleccionar(actual);
+exportar();
+aplicarAjustes();
+</script>
