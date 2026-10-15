@@ -37,6 +37,6 @@ Cabeza robótica social de 3 GDL (yaw/pitch/roll) con visión artificial, µTP d
 ## Qué falta (ver "Próximos pasos" en CLAUDE.md)
 1. Unir la percepción con el robot (`DetResult` → `World`, ME_MIRA sostenido, SALUDO) y correr el robot sobre la ESP32 real (`SerialLink`, con reconexión).
 2. Modos de personalidad (Tímido, Atrevido, Maleducado, Neutro) con su comando y sonido, y el evento SALIENDO.
-3. Detección de camisetas con la NoIR.
+3. Detección de camisetas: **reglas de color y patrón** sobre el torso (Olimpia = franja horizontal negra sobre blanco; Cerro = rojo y azul marino en partes grandes separadas por bordes verticales, porque la titular 2026 es mitad y mitad). Imágenes para probar en `pruebas_camisetas/imagenes_referencia/` (ver su README). El detector todavía no existe.
 4. Overlay completo (T7), calibración de ME_MIRA y de la cámara, y la prueba con los servos montados.
 - **La cámara no está conectada a la Pi** desde el 14/10: no lanzar nada de percepción sin confirmarlo.
