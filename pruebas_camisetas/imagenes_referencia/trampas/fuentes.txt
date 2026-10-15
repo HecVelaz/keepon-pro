@@ -1,0 +1,33 @@
+Origen de cada imagen (Wikimedia Commons, bajadas el 15/10/2026; sin personas).
+
+roja_lisa.jpg
+    remera roja lisa: NO es de Cerro (lo dice la guía)
+    https://commons.wikimedia.org/wiki/File:Red-t-shirt-.jpg (CC BY-SA 4.0, autor: 66saeedz)
+
+roja_con_estampado.jpg
+    remera roja con estampado blanco y verde
+    https://commons.wikimedia.org/wiki/File:Red_T_shirt_%22Gaillard,_fabriqu%C3%A9_%C3%A0_Brive%22.JPG (CC BY-SA 3.0, autor: Le grand Cricri)
+
+azul_francia_con_logo.jpg
+    remera azul lisa (con un logo chico): NO es de Cerro
+    https://commons.wikimedia.org/wiki/File:GlobeTeeRoyal.jpg (CC BY-SA 3.0, autor: Daniel Furon under contract for the Wikimedia Foundation)
+
+azul_marino_con_logo.jpg
+    remera azul marino casi negra: NO es de Cerro (ni la franja de Olimpia)
+    https://commons.wikimedia.org/wiki/File:GlobeTeeNavy.jpg (CC BY-SA 3.0, autor: Daniel Furon under contract for the Wikimedia Foundation)
+
+azul_marino_colgada_luz_calida.jpg
+    remera azul marino colgada, con luz cálida de lámpara
+    https://commons.wikimedia.org/wiki/File:Ironed_blue_T-shirt_(001).JPG (CC BY-SA 3.0, autor: Juan de Vojníkov)
+
+barcelona_rayas_bordo_y_azul.jpg
+    camiseta del Barcelona: rayas verticales bordó y azul, casi igual a la de Cerro
+    https://commons.wikimedia.org/wiki/File:FC_Barcelona_shirt2.jpg (CC BY-SA 3.0, autor: Briho)
+
+barcelona_rayas_finas.jpg
+    camiseta del Barcelona con rayas más finas (réplica)
+    https://commons.wikimedia.org/wiki/File:Counterfeit_FC_Barcelona_T-Shirt_(13912219044).jpg (Public domain, autor: U.S. Customs and Border Protection)
+
+dibujo_rayas_rojas_y_azules.png
+    dibujo genérico de camiseta a rayas rojas y azules (CC0)
+    https://commons.wikimedia.org/wiki/File:Soccer_Jersey_Red-Blue_(stripes).png (CC0, autor: Murray)
