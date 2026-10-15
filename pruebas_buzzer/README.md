@@ -25,8 +25,29 @@ en total (`config.yaml` actualizado). Va **una octava más arriba** que la parti
 (330–698 Hz) cae donde el buzzer suena débil. Cada nota deja 15 ms de silencio para que las repetidas se separen;
 el acento del primer tiempo de los cuatrillos no se puede hacer con un buzzer.
 
-## Buzzer
+## Buzzer y su circuito
 
-Pasivo electromagnético de 12 mm, 5 V (~16–42 Ω, resonancia ~2–2,7 kHz). Con 5 V continuos tiene que hacer solo
-"clic": si pita solo, es activo y no sirve (el enunciado pide uno pasivo modulado en frecuencia). Conexión: 5 V de
-la ESP32 → buzzer → colector del 2N2222; GPIO10 → 1 kΩ → base; 10 kΩ base-emisor; 1N4148 en paralelo con el buzzer.
+| Componente | Cant. | Para qué |
+|---|---|---|
+| Buzzer **pasivo** 5 V (~16 Ω, ~30 mA) | 1 | El sonido. [electronica.com.py](https://www.electronica.com.py/producto/buzzer-zumbador-5v-pasivo/), ₲10.000. **No** el "activo" de al lado: trae oscilador y hace un solo tono |
+| Transistor 2N2222 (o PN2222A) | 1 | Le da al buzzer la corriente que el GPIO no puede dar |
+| Resistencia 1 kΩ | 1 | Entre el GPIO10 y la base |
+| Resistencia 10 kΩ | 1 | Entre base y emisor: el transistor queda apagado mientras la ESP32 arranca |
+| Diodo 1N4148 (o 1N400x) | 1 | En paralelo con el buzzer: absorbe el pico de la bobina al cortar |
+
+```
+5 V (ESP32) ──┬──────────── + buzzer
+              │                │
+   1N4148 cátodo (raya)        │
+   1N4148 ánodo ───────────────┴── − buzzer ── colector 2N2222
+                                               base ── 1 kΩ ── GPIO10
+                                               base ── 10 kΩ ── GND
+                                               emisor ── GND
+```
+
+- **Probar el buzzer antes de montarlo:** con 5 V continuos tiene que hacer solo "clic". Si pita solo, es activo y no
+  sirve (el enunciado pide uno pasivo modulado en frecuencia).
+- **Diodo:** la raya (cátodo) va hacia los 5 V. Al derecho hace cortocircuito a través del transistor.
+- **Patas del transistor:** el 2N2222A y el PN2222A en TO-92 vienen con las patas en orden distinto (E-B-C o C-B-E,
+  según el fabricante). Mirar la hoja del que compren o medirlo con el multímetro en modo diodo.
+- El esquema está también en `docs/diagrama_sistema/index.html` ("Circuito del buzzer").
