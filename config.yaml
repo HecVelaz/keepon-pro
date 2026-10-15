@@ -43,7 +43,7 @@ neck:
       # RDS3218 n.º 1 (descartado el 12/10: vibra quieto cerca de 1500 µs) y SG90 (repuesto).
 
 serial:
-  port: /dev/ttyACM0             # ESP32-S3 por USB nativo (CDC). Con conversor CH340/CP210x sería /dev/ttyUSB0
+  port: /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0   # ESP32-C3 clon con CH340 (= /dev/ttyUSB0, pero no cambia de nombre)
   baud: 115200
   watchdog_ms: 500               # ESP32: sin comandos → detiene secuencias y mantiene postura
   keepalive_ms: 200              # PC: envía PING si no mandó nada en este tiempo
