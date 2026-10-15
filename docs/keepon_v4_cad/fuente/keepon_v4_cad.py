@@ -35,7 +35,7 @@ DX = -k3.X_PITCH       # todo lo que va arriba del plato de la v3 se corre esto 
 X_PITCH = 0.0
 Z_PITCH = k3.Z_PITCH   # misma altura que en la v3 (la caja base mide lo mismo)
 
-# --- Powerbank (docs/Fotos/Bateria powerbank xiaomi) -------------------------------------------
+# --- Powerbank (docs/Fotos/Bateria_powerbank_xiaomi) -------------------------------------------
 XIAOMI = (128.0, 73.0, 32.0)    # powerbank Xiaomi PB2020MI 20000 mAh, 5 V 3 A, 342 g (medidas aproximadas: MEDIR)
 
 # --- Caja base ---------------------------------------------------------------------------------

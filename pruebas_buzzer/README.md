@@ -19,7 +19,7 @@ https://claude.ai/artifact/7wyNPrzj6QqcPJQvrpaPwB). Sirve para escuchar y ajusta
 
 ## POLCA (Club Olimpia, Paraguay)
 
-Transcrita de `notas polca de olimpia/` (14/10): la primera frase, compases 1 a 8 (el mismo motivo vuelve en los
+Transcrita de `notas_polca_de_olimpia/` (14/10): la primera frase, compases 1 a 8 (el mismo motivo vuelve en los
 compases 9–16 y 66–74). 6/8, negra con puntillo = 135, Fa mayor: corchea de 148 ms, compás de 888 ms, **7,104 s**
 en total (`config.yaml` actualizado). Va **una octava más arriba** que la partitura (659–1397 Hz), porque escrita
 (330–698 Hz) cae donde el buzzer suena débil. Cada nota deja 15 ms de silencio para que las repetidas se separen;
