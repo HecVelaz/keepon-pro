@@ -13,7 +13,7 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 ## Hardware real
 - **Raspberry Pi 5, 4 GB**, Ubuntu 24.04 + ROS 2 Jazzy. **No se puede cambiar el SO**: la Pi se usa en otros proyectos.
 - **Camera Module 3 NoIR estándar** (RSP-CAM-V3-NOIR, **no la Wide**: 66° H nominal, lente de 11,5 mm; la foto de `docs/Fotos/camera Noir module 3/` es de la Wide, solo ilustrativa) (IMX708) en `i2c@80000`. Cinta disponible: **~150 mm** (15→22 pines): por eso la Pi tiene que ir en la cabeza, sobre roll (`docs/REVISION_CODEX_ARQ.md`). Es NoIR, sin filtro IR, así que hay riesgo con los colores de las camisetas. La segunda NoIR (`i2c@88000`) aparece en libcamera pero no transmite ("Camera frontend has timed out": revisar el flex) y corre los índices: los scripts eligen la cámara **por nombre** (`CAMARA=/base/axi/pcie@120000/rp1/i2c@80000/imx708@1a`), no con `camera:=0`.
-- **ESP32-C3-DevKitM-1** (no S3) para los 3 servos y el buzzer, por el micro-USB con puente UART (`/dev/ttyUSB0`; preferir `/dev/serial/by-id/...`). Pines: yaw GPIO0, pitch GPIO1, roll **GPIO4** (antes GPIO3; se cambió el 12/10 buscando una vibración que al final era del servo, y quedó así: el GPIO3 está al lado del GPIO2, de strapping), buzzer GPIO10; evitar 2/8/9 (strapping), 18/19 (USB) y 20/21 (UART0). Análisis completo en `docs/REVISION_CODEX_HW.md` (escrito para microservos). Es un **clon con conversor CH340** (`1a86:7523`, `/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0`). Por ahora está conectada a la **notebook**, no a la Pi, y tiene cargado `pruebas_servos/prueba_servo.ino`. El firmware del robot no existe (`firmware/` está vacío).
+- **ESP32-C3-DevKitM-1** (no S3) para los 3 servos y el buzzer, por el micro-USB con puente UART (`/dev/ttyUSB0`; preferir `/dev/serial/by-id/...`). Pines: yaw GPIO0, pitch GPIO1, roll **GPIO4** (antes GPIO3; se cambió el 12/10 buscando una vibración que al final era del servo, y quedó así: el GPIO3 está al lado del GPIO2, de strapping), buzzer GPIO10; evitar 2/8/9 (strapping), 18/19 (USB) y 20/21 (UART0). Análisis completo en `docs/REVISION_CODEX_HW.md` (escrito para microservos). Es un **clon con conversor CH340** (`1a86:7523`, `/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0`). **Desde el 14/10 está conectada a la Pi y tiene cargado el firmware del robot** (`firmware/keepon_fw/`). Abrir el puerto no la reinicia; un pulso de RTS (con DTR bajo) sí. Para volver a las pruebas de banco, cargar `pruebas_servos/prueba_servo.ino`.
 - **Servos (asignación del 12/10, todos en `neck.servos` de `config.yaml`; planilla completa en `pruebas_servos/README.md`):**
   - **yaw = DSSERVO RDS3218 n.º 2** (GPIO0): 270°, asimétrico 0,13/0,136 °/µs (lista `[lado <1500, lado >1500]`), ±70° ≈ 960/2010 µs, límites 950/2020 (no tiene tope: los límites protegen el cableado), banda muerta ≤ 2 µs abajo y 4–6 µs arriba, picos de ~1 A a 260 °/s. **Sin pulso mantiene la posición.**
   - **pitch = Hitec HS-7955TG** (GPIO1, ~18 kgf·cm): 0,090 °/µs lineal, límites electrónicos 750/2250 µs (≈ ±68°; en el firmware 760/2240), banda muerta ≤ 2 µs, holgura ≤ 1°, 6 mA en reposo. **Sin pulso mantiene la posición con fuerza**: el STOP/watchdog la congela, no la afloja (para aflojarlo hay que cortar los 6 V). El primer pulso después de encender salta a velocidad máxima: el firmware tiene que arrancar en una postura conocida. Es el servo que más ruido mete en la alimentación.
@@ -49,6 +49,7 @@ camera_ros → keepon/perception.py (2 procesos) → World → Focus → behavio
 |---|---|
 | `protocol.py` | Protocolo serie v1 (`docs/PROTOCOLO.md`): sesión HELLO, `J S CANCEL PING STOP RESUME HOME`, ACK/DONE/ERR/STATE, validación estricta |
 | `sim_esp32.py` | ESP32 simulado = **especificación ejecutable del firmware** (STOP enclavado, watchdog de 500 ms, dedupe de sonidos por seq, `reboot()`) |
+| `firmware/keepon_fw/` | Firmware de la ESP32-C3: `nucleo.cpp` (C++ portable, copia de `sim_esp32`/`trajectory`/`protocol`, probado contra el simulador en `tests/test_firmware_nucleo.py`) + `keepon_fw.ino` (serie, LEDC, buzzer). `generado.h` sale de `config.yaml` y del simulador de sonidos (`scripts/generar_firmware.py`). Ver `firmware/README.md` |
 | `trajectory.py` | Planificación discreta exacta (fórmula cerrada `_v_max_to_stop`): amax se respeta en las posiciones emitidas. El firmware tiene que copiarla |
 | `link.py` | `SimLink` / `SerialLink`, misma interfaz. `SerialLink` todavía **no** reconecta solo |
 | `arbiter.py` | Recursos NECK/BUZZER, prioridades 0–5, adquisición atómica, cooldown al empezar, propuestas que vencen, retarget, STOP |
@@ -75,10 +76,15 @@ camera_ros → keepon/perception.py (2 procesos) → World → Focus → behavio
 ## Comandos
 ```bash
 # Notebook (venv en .venv). La variable evita que se carguen los plugins de pytest de ROS 2:
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q        # 87 tests
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q        # 121 tests (34 comparan el firmware con el simulador; necesitan g++)
 .venv/bin/python scripts/sim_scenario.py --plot                        # escenario simulado de 30 s
 
-# ESP32-C3 desde la notebook (arduino-cli 1.1.1 en ~/.local/bin, núcleo esp32:esp32 3.3.12 en ~/.arduino15)
+# Firmware del robot: generar generado.h, compilar en la notebook y cargar en la ESP32 de la Pi (esptool 4.8.1 en ~/keepon_env)
+.venv/bin/python scripts/generar_firmware.py      # después de cambiar config.yaml o los sonidos
+bash scripts/cargar_firmware.sh                   # --local si la ESP32 está en la notebook
+~/keepon_env/bin/python scripts/prueba_firmware_real.py   # en la Pi (cd ~/keepon): 30 pruebas sobre la ESP32 real
+
+# Pruebas de banco de los servos desde la notebook (arduino-cli 1.1.1 en ~/.local/bin, núcleo esp32:esp32 3.3.12 en ~/.arduino15)
 cd pruebas_servos && ~/.local/bin/arduino-cli compile --fqbn esp32:esp32:esp32c3 --output-dir /tmp/build_servo prueba_servo
 ~/.local/bin/arduino-cli upload -p /dev/ttyUSB0 --fqbn esp32:esp32:esp32c3 --input-dir /tmp/build_servo
 ~/.local/bin/arduino-cli monitor -p /dev/ttyUSB0 -c baudrate=115200   # uno solo a la vez en el puerto
@@ -107,7 +113,16 @@ Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_
 - Pose: **10,0 Hz**, edad 149 ms. CPU total: 239 % de 400 %.
 - Rostro encontrado en el 80 % de las detecciones; ID estable. Detalle completo en `docs/ESTADO_PI.md`.
 
-## Dónde quedó la sesión (14/10/2026)
+## Dónde quedó la sesión (14/10/2026, noche)
+- **Firmware del robot hecho y cargado** en la ESP32-C3, conectada a la Pi (`firmware/`, ver su README). El núcleo da exactamente las mismas respuestas y posiciones que `SimESP32` (34 tests, con fuzzing). En la ESP32 real, `prueba_firmware_real.py`: **30 de 30 OK**, latencia PING→ACK de 4,4 ms y el movimiento llega en el mismo tiempo que en el simulador. Sin servos ni buzzer conectados: falta probarlo con la fuente de 6 V (y definir `signo` al montar) y con el buzzer.
+- `sim_esp32.py`: el watchdog y el fin del sonido comparan con un margen de 1e-9 (el tiempo acumulado en float saltaba un paso según el redondeo; el firmware cuenta ms enteros).
+- `docs/PROTOCOLO.md` pasado a la ESP32-C3 con CH340; `config.yaml` → `serial.port` es el by-id del CH340.
+- Alimentación: fuente de laboratorio para los servos y powerbank para la Pi (ver Hardware). La Pi por USB-C desde el powerbank: 5,08 V, `throttled=0x0`.
+- Buzzer: simulador de sonidos en `pruebas_buzzer/` (publicado en https://claude.ai/artifact/7wyNPrzj6QqcPJQvrpaPwB), POLCA de Olimpia transcrita de la partitura (compases 1–8, 7,104 s), POLCA_CERRO es un marcador. Comprar el buzzer **pasivo** de electronica.com.py.
+- **La cámara no está conectada a la Pi** (14/10): no lanzar nada de percepción.
+- Próximo: integrar `SerialLink` con el robot sobre la ESP32 real (`scripts/sim_scenario.py` usa SimLink), reconexión automática de `SerialLink`, y la prueba con los servos.
+
+## Sesión anterior (14/10/2026, tarde)
 - **Revisión de arquitectura de Codex** en `docs/REVISION_CODEX_ARQ.md`: mantener la ESP32 (el enunciado pide microcontrolador + protocolo; watchdog independiente de Linux), Pi en la cabeza por la cinta de 150 mm, cara plana. **Sus 4 fallos de código se corrigieron el 14/10** (tests 7–10 de `tests/test_regresiones_codex.py`): el control de mirada y el foco usan cx/cy (`World.from_cfg`, `World.K`); una cola por proceso de tamaño 2 con `_put_latest` (descarta lo viejo, nunca bloquea); `nod_period_s` 1,0 s (≈ 237 °/s²); `Robot.stop()` enclava primero y reintenta el STOP si el enlace falla. **Falta medir en la Pi la cola nueva** (`perception_bench.py`): la Pi no respondía por SSH. Quedan sin hacer los puntos 3 (asociar pose y persona por timestamp) y 6 (watchdog/reanudación) de la misma lista. `docs/diagrama_sistema/index.html` ya está en la v3.
 - **Modelo mecánico v4** en `docs/keepon_v4_cad/` (14/10, el vigente): cabeza, servos, soportes y horquilla de la v3 sin cambios, con la disposición de la v1 (eje de pitch sobre el de yaw, base en U de 64 × 116 en lugar del plato Ø146: el vuelco sobre el yaw baja a 0,81 kgf·cm). Caja base de 182 × 133 × 74 con el **powerbank Xiaomi PB2020MI** (128 × 73 × 32, 5 V/3 A a la Pi por el GPIO), los **bornes de la fuente de laboratorio** y el interruptor en la pared de atrás, y la bornera de 6 V con el capacitor, la ESP32 y el buzzer en una bahía adelante. El lugar de la LiPo quedó libre (se podría achicar la caja ~50 mm en Y; ver el README). Script `fuente/keepon_v4_cad.py` (importa la v3), macro de relaciones y `componentes_v4.txt`. `docs/diagrama_sistema/index.html` ya está en la v4 con la alimentación nueva.
 - **Modelo mecánico v3** en `docs/keepon_v3_cad/` (reemplaza al v2 para imprimir; el cuello se importa del v2): cabeza de 75 × 104 × 40 mm con la **Pi parada adentro** sobre la placa de roll y **la cámara como nariz**, en el centro de la cara (a 38 mm sobre el eje de roll), con los ojos decorativos arriba. En la Pi 5, los conectores CAM/DISP son perpendiculares al borde de los HDMI: la cinta sale a lo largo del lado largo, corrida 19 mm del centro. Cinta fija con una U de radio 6,5 mm y un doblez en Z (dos pliegues a 45°) que la lleva al centro (147 de 150 mm). Sin interferencias en 15 poses.
@@ -140,7 +155,7 @@ Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_
 ## Próximos pasos (hacia M1, el 8/10: el robot sigue a una persona con detecciones reales)
 1. Con lo que reporten del visor: validar ME_MIRA y ajustar `looking_deg`; medir con 2–3 personas.
 2. **Integrar la percepción al robot:** de `DetResult` a `World` (timestamps por evidencia, filtros N-de-M), ME_MIRA sostenido ≥ 0,5 s, SALUDO (muñeca sobre el hombro + ≥ 2 oscilaciones), y el control de mirada con el centro óptico cx/cy en lugar del centro de la imagen.
-3. **Firmware de la ESP32-C3:** los servos ya están elegidos y caracterizados (falta el sentido de giro del MG996R). Portar `sim_esp32.py` + `trajectory.py`; timers LEDC separados para servos y buzzer; pruebas de conformidad contra el simulador. Necesita el ESP32 conectado a la Pi.
+3. **Firmware de la ESP32-C3: hecho (14/10).** Falta probarlo con los servos (fuente de 6 V, `signo` por eje, sentido de giro del MG996R) y con el buzzer.
 4. Camisetas: grabar con la NoIR las prendas reales (Olimpia, Cerro, lisas) a 0,8/1,5/2,5 m; **decisión el 4/10** (luz LED controlada, filtro IR-cut o cámara normal).
 5. Pendientes técnicos: reconexión automática de `SerialLink`; autofoco (hoy `AfMode=0`, manual); secuencia de encendido de los servos; overlay completo (modo, dueño de recursos, ángulos) para T7; modos de personalidad y SALIENDO (M3).
 6. `docs/hoja_de_ruta.html` sigue en la v2 (los .md están en la v3).

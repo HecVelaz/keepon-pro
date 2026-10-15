@@ -1,10 +1,10 @@
-# Protocolo serie PC/Pi ⇄ ESP32-S3 (v1)
+# Protocolo serie PC/Pi ⇄ ESP32-C3 (v1)
 
-Contrato entre `keepon/` (Python) y `firmware/` (ESP32-S3). La especificación **ejecutable** es `keepon/sim_esp32.py`: el firmware debe comportarse igual, y `tests/test_protocol_sim.py` lista los casos.
+Contrato entre `keepon/` (Python) y `firmware/keepon_fw/` (ESP32-C3). La especificación **ejecutable** es `keepon/sim_esp32.py`: el firmware se comporta igual. `tests/test_protocol_sim.py` lista los casos, `tests/test_firmware_nucleo.py` compara el núcleo del firmware contra el simulador paso a paso y `scripts/prueba_firmware_real.py` prueba la ESP32 real.
 
 ## Formato
 
-- USB CDC nativo del ESP32-S3 (`/dev/ttyACM0`), 115200 baud.
+- UART0 de la ESP32-C3 por el conversor CH340 de la placa (`/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0`), 115200 baud. Abrir el puerto **no** reinicia la ESP32; un pulso de RTS sí.
 - Líneas ASCII terminadas en `\n`, máximo 64 caracteres, campos separados por un espacio.
 - Ángulos en grados con un decimal. Convención: **yaw + = derecha**, **pitch + = arriba**, **roll + = horario visto desde atrás** (verificar al montar).
 - Todo comando lleva `seq` (entero creciente) para asociar respuestas.
@@ -22,7 +22,7 @@ Contrato entre `keepon/` (Python) y `firmware/` (ESP32-S3). La especificación *
 | `RESUME seq` | Libera el STOP | `ACK seq` |
 | `HOME seq` | Va a la postura HOME con rampa | `ACK seq` |
 
-Sonidos: `R2D2 POLCA ABUCHEO PIROPO DESAPROBACION BEEP_NEUTRO BEEP_TIMIDO BEEP_ATREVIDO BEEP_MALEDUCADO`.
+Sonidos: los de `sounds:` en `config.yaml` (`R2D2 POLCA POLCA_CERRO ABUCHEO PIROPO DESAPROBACION BEEP_NEUTRO BEEP_TIMIDO BEEP_ATREVIDO BEEP_MALEDUCADO`). Las tablas salen de `pruebas_buzzer/simulador_sonidos.html`.
 
 ## Respuestas (ESP32 → Pi)
 
@@ -51,5 +51,6 @@ Sonidos: `R2D2 POLCA ABUCHEO PIROPO DESAPROBACION BEEP_NEUTRO BEEP_TIMIDO BEEP_A
 3. **Límites:** yaw ±70°, pitch −20°/+30°, roll ±20°.
 4. **Watchdog 500 ms:** sin comandos válidos → corta el sonido, frena y **mantiene la postura**; manda `ERR 0 WATCHDOG`. El próximo comando lo rearma. La Pi manda `PING` cada 200 ms si no mandó otra cosa.
 5. **STOP enclavado:** mientras está activo, `J S HOME CANCEL` responden `ERR seq STOP_ACTIVE`.
-6. **ESP32-S3:** usar el conector marcado USB (nativo, GPIO19/20), no el de UART. Confirmar en el esquema de la placa. En Arduino: `USB CDC On Boot: Enabled`.
-7. **Timers LEDC separados** para servos (50 Hz) y buzzer (frecuencia variable): cambiar la nota no debe alterar el PWM de los servos.
+6. **ESP32-C3-DevKitM-1 (clon con CH340):** el puerto serie es el UART0 (GPIO20/21) por el micro-USB. En Arduino, `USB CDC On Boot` queda deshabilitado (lo que trae por defecto `esp32:esp32:esp32c3`).
+7. **Timers LEDC separados** para servos (50 Hz) y buzzer (frecuencia variable): cambiar la nota no debe alterar el PWM de los servos. Los tres servos (50 Hz, 14 bits) comparten un timer; el buzzer se configura con otra frecuencia y resolución, así que toma otro.
+8. **En STOP y watchdog se sigue mandando el último pulso** a los tres servos: el MG996R sin pulso queda flojo.

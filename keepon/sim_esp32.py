@@ -17,6 +17,7 @@ from .trajectory import Neck
 
 FW_VERSION = 1
 RUN, STOPPED, WATCHDOG = "RUN", "STOPPED", "WATCHDOG"
+EPS = 1e-9  # margen para comparar tiempos acumulados en float (ver tick)
 
 
 class SimESP32:
@@ -107,12 +108,14 @@ class SimESP32:
     # ------------------------------------------------------------ tiempo
     def tick(self, dt: float) -> None:
         self.t += dt
-        if self.state == RUN and self.t - self.last_rx > self.watchdog_s:
+        # EPS: self.t es una suma de floats (0,01 + 0,01 + ...); sin el margen, "pasaron más de 500 ms" saltaba
+        # un paso antes o después según el redondeo. El firmware cuenta ms enteros: así significan lo mismo.
+        if self.state == RUN and self.t - self.last_rx > self.watchdog_s + EPS:
             self.state = WATCHDOG
             self._stop_sound()
             self.neck.brake()
             self.out.append(Reply("ERR", 0, ("WATCHDOG",)))
-        if self.sound and self.t >= self.sound_end:
+        if self.sound and self.t >= self.sound_end - EPS:
             self.out.append(Reply("DONE", self.sound_seq))
             self._stop_sound()
         self.neck.step(dt)
