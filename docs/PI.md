@@ -6,7 +6,7 @@ Movido desde `CLAUDE.md` el 22/10/2026. Estado del sistema de la Pi y benchmarks
 - `ssh r2d2@100.116.96.71` por Tailscale. Hostname `r2d2-desktop`. La clave SSH ya está autorizada (`-o BatchMode=yes` funciona).
 - Proyecto en la Pi: `~/keepon/`. Se sincroniza desde la notebook con:
   `rsync -a --exclude .venv --exclude .git --exclude logs --exclude __pycache__ --exclude models/ --exclude config.local.yaml ./ r2d2@100.116.96.71:keepon/`
-  En Claude Code, `/pi-sync-robot` hace ese rsync y anota el commit sincronizado en `~/keepon/.commit`; `/verificar` lo compara con `HEAD`.
+  En Claude Code, `/pi-sync-keepon` hace ese rsync y anota el commit sincronizado en `~/keepon/.commit`; `/verificar` lo compara con `HEAD`.
 - Entorno: `~/keepon_env` (venv `--system-site-packages`, para ver `rclpy`). Tiene MediaPipe, OpenCV 4.11, pyyaml, pyserial, pytest y lap. **ultralytics/torch/ncnn se toman de `~/yolo_env`** mediante `zz_yolo_env.pth` (solo lectura, para no duplicar sus 5,5 GB).
 - `~/keepon/config.local.yaml` (fuera de git) contiene `camera: {backend: ros2}`.
 - **NO modificar** `~/vision_estereo`, `~/yolo_env`, `~/camera_ws` ni `~/yolo_ws`: son de otros proyectos. Todo lo de Keepon va en `~/keepon` / `~/keepon_env`.

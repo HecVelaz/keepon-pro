@@ -25,6 +25,7 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 - Cambios que el grupo tiene que revisar: rama + pull request con `gh`. `gh pr edit` falla por un error de GitHub con "Projects (classic)" y no guarda nada: editar el PR con `gh api -X PATCH repos/HecVelaz/keepon-pro/pulls/<n>`.
 - Codex: Se usa `codex exec --skip-git-repo-check -s read-only -o <salida.md> "<prompt>"` para revisiones. Revisiones guardadas: `docs/REVISION_CODEX.md` (plan), `docs/REVISION_CODEX_M0.md` (código; sus 8 fallos están corregidos y tienen tests en `tests/test_regresiones_codex.py`), `docs/REVISION_CODEX_PI.md` (hardware real).
 - **En la Pi** (`ssh r2d2@100.116.96.71`): todo lo de Keepon va en `~/keepon` / `~/keepon_env`. **NO modificar** `~/vision_estereo`, `~/yolo_env`, `~/camera_ws` ni `~/yolo_ws`. Un solo dueño de la cámara a la vez (`pgrep -x camera_node`). Trampas de `pkill -f` y `set -u`: ver `docs/PI.md`.
+- Antes de un sync: `/verificar`; sincronizar la Pi con `/pi-sync-keepon`.
 - **Encender:** primero el powerbank y después los 6 V, con la cabeza cerca de home. **Apagar:** al revés. Al cambiar servos, apagar antes la fuente.
 - Puerto serie ocupado: casi siempre es un `serial-monitor` del usuario (`fuser -v /dev/ttyUSB0`): pedir que lo cierre, no matarlo.
 
