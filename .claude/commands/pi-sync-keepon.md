@@ -19,7 +19,7 @@ falla.
    h=$(git rev-parse HEAD); [ -n "$(git status --porcelain)" ] && h="$h-sucio"
    echo "$h" | ssh -o BatchMode=yes r2d2@100.116.96.71 'cat > ~/keepon/.commit'
    ```
-6. **Comprobar.** `ssh r2d2@100.116.96.71 cat ~/keepon/.commit` debe coincidir con el hash del paso 5.
+6. **Comprobar.** `ssh -o BatchMode=yes r2d2@100.116.96.71 'cat ~/keepon/.commit'` (con comillas: si no, la notebook expande el `~`) debe coincidir con el hash del paso 5.
 
 Al final, respondé en 2-3 líneas: hash anotado, si hubo cambios sin commitear y un recordatorio de que el rsync no
 borra: los archivos que se borraron o renombraron en el repo siguen en la Pi y hay que borrarlos a mano, después de
