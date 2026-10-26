@@ -26,6 +26,9 @@ const uint8_t CANAL_SERVO[3] = {0, 1, 2};
 const uint8_t CANAL_BUZZER = 4;
 const uint32_t BUZZER_HZ_INICIAL = 2000;
 const uint8_t BUZZER_BITS = 10;
+// Ciclo de trabajo del buzzer: ledcWriteTone() trabaja con 10 bits y 512 es el 50 % (el máximo volumen).
+// Con la salida invertida, el ciclo de trabajo es el tiempo en BAJO, que es cuando suena el módulo.
+const uint32_t DUTY_BUZZER = (uint32_t)(gen::BUZZER_VOLUMEN * 512 + 0.5);
 
 const size_t BUF_RX = 128;                // más largo que MAX_LINEA: lo que no entra es TOO_LONG
 
@@ -109,7 +112,8 @@ void loop() {
   // Buzzer: solo se toca el timer cuando cambia la nota.
   uint16_t f = nucleo.frecuencia(millis());
   if (f != f_buzzer) {
-    ledcWriteTone(PIN_BUZZER, f);         // 0 = callado
+    ledcWriteTone(PIN_BUZZER, f);         // 0 = callado; si no, deja el ciclo de trabajo en 50 % (10 bits)
+    if (f) ledcWrite(PIN_BUZZER, DUTY_BUZZER);   // volumen de config.yaml (buzzer.volumen)
     f_buzzer = f;
   }
 }

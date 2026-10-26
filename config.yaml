@@ -82,6 +82,11 @@ perception:
   pose_max_hz: 30                # limitar la pose libera memoria/CPU para YOLO (SALUDO dura >1 s)
   looking_deg: 15.0              # ME_MIRA: desvío cara->cámara menor a esto
 
+# Buzzer (módulo pasivo MH-FMD en el GPIO10). El volumen se baja achicando el ciclo de trabajo del PWM:
+# 1.0 = 50 % (el máximo); 0.25 = 12,5 %. La sensación de volumen no es lineal con el ciclo: ajustar de oído.
+buzzer:
+  volumen: 0.25                 # 26/10: a pedido, 75 % menos que el máximo
+
 # Duración de cada sonido [s]. El firmware es la fuente de verdad (manda DONE),
 # la PC la usa para planificar y como timeout.
 sounds:

@@ -5,15 +5,15 @@ Movido desde `CLAUDE.md` el 22/10/2026.
 ## Próximos pasos (hacia M1, el 8/10: el robot sigue a una persona con detecciones reales)
 1. Con lo que reporten del visor: validar ME_MIRA y ajustar `looking_deg`; medir con 2–3 personas.
 2. **Integrar la percepción al robot:** de `DetResult` a `World` (timestamps por evidencia, filtros N-de-M), ME_MIRA sostenido ≥ 0,5 s, SALUDO (muñeca sobre el hombro + ≥ 2 oscilaciones), y el control de mirada con el centro óptico cx/cy en lugar del centro de la imagen.
-3. **Firmware de la ESP32-C3: hecho (14/10).** Falta probarlo con los servos (fuente de 6 V, `signo` por eje, sentido de giro del MG996R) y con el buzzer.
+3. **Firmware de la ESP32-C3: hecho (14/10).** Falta probarlo con los servos (fuente de 6 V, `signo` por eje, sentido de giro del MG996R); el buzzer ya está probado (26/10).
 4. Camisetas: método decidido el 15/10 (reglas de color y patrón, ver "Dónde quedó la sesión"). Falta escribir el detector y grabar con la NoIR las prendas reales (Olimpia, Cerro, lisas blanca/roja/azul) a 0,8/1,5/2,5 m con la luz de la demo; si los colores no alcanzan con luz LED y balance fijo, pasar a la cámara estándar.
 5. Pendientes técnicos: reconexión automática de `SerialLink`; autofoco (hoy `AfMode=0`, manual); secuencia de encendido de los servos; overlay completo (modo, dueño de recursos, ángulos) para T7; modos de personalidad y SALIENDO (M3).
 6. `docs/hoja_de_ruta.html` sigue en la v2 (los .md están en la v3).
 
 ## Pendientes sueltos (estaban repartidos en las secciones de hardware y de sesiones)
-- Probar el firmware con los servos (fuente de 6 V), definir `signo` por eje al montar y probar el buzzer.
+- Probar el firmware con los servos (fuente de 6 V), definir `signo` por eje al montar.
 - Anotar el sentido de giro del MG996R (pulso mayor = ¿horario o antihorario?, de frente al eje).
-- Buzzer: ya está el módulo pasivo MH-FMD (26/10). Cargar el firmware con la salida invertida y probarlo (VCC a 3V3).
+- Buzzer: **probado el 26/10** con el módulo MH-FMD (VCC a 3V3, salida invertida, volumen 0.25): la POLCA suena bien. Asegurar el cable del pin 10, que tenía falso contacto.
 - Detector de camisetas: escribirlo y probarlo con `pruebas_camisetas/imagenes_referencia/`; falta una remera blanca lisa entre las imágenes de referencia. Para probar con la cámara: remera negra del usuario (negativa; con tiras rojas y azules = "Cerro" casero; con franja blanca = "Olimpia al revés", que no tiene que detectar).
 - Sincronizar a la Pi las imágenes de las camisetas (la Pi no respondió por SSH el 15/10).
 - Integrar `SerialLink` con el robot sobre la ESP32 real (`scripts/sim_scenario.py` usa SimLink) y agregarle reconexión automática.

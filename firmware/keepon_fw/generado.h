@@ -7,6 +7,9 @@ namespace gen {
 
 const uint32_t WATCHDOG_MS = 500;
 
+// Volumen del buzzer: fracción del ciclo de trabajo máximo (1.0 = 50 %).
+const double BUZZER_VOLUMEN = 0.25;
+
 // Cuello, en orden yaw, pitch, roll [grados, °/s, °/s²]
 const double LIM_MIN[3] = {-70.0, -20.0, -20.0};
 const double LIM_MAX[3] = {70.0, 30.0, 20.0};

@@ -44,4 +44,10 @@ hace falta.
   igual.
 - **Probarlo antes de montarlo:** con el I/O a GND fijo tiene que hacer solo "clic". Si pita solo, es activo y no
   sirve (el enunciado pide uno pasivo modulado en frecuencia).
+- **Volumen:** `buzzer.volumen` en `config.yaml` (1.0 = ciclo de trabajo del 50 %, el máximo). El 26/10 se bajó a
+  0.25 (12,5 %). La sensación de volumen no es lineal con el ciclo de trabajo: ajustar de oído y volver a generar el
+  firmware (`scripts/generar_firmware.py`).
+- **Prueba de banco:** `prueba_buzzer/prueba_buzzer.ino` alterna un tono hecho con `digitalWrite` (prueba solo el
+  hardware) y el mismo tono por LEDC invertido (el camino del firmware). El 26/10 no sonaba ninguno de los dos: era
+  un **falso contacto en el pin 10**.
 - El conexionado está también en `docs/diagrama_sistema/index.html` ("Módulo del buzzer").
