@@ -350,7 +350,7 @@ OTROS = [
     ("Cable USB-A acodado → micro-USB, flexible", 1, "≈ 50 cm", "Pi (en la cabeza) → ESP32 (en la base)."),
     ("Capacitor 2200 µF / 16 V + 100 nF", 1, "Ø13 × 25", "Bus de 6 V, en la bornera (modelado el electrolítico)."),
     ("Tornillo M3 × 8 autorroscante", 2, "M3", "Bornera de 6 V al piso de la caja (o cinta doble faz)."),
-    ("2N2222 + 1 kΩ + 10 kΩ (+ 1N4148)", 1, "TO-92", "Buzzer desde el GPIO10."),
+    ("Módulo buzzer pasivo MH-FMD", 1, "≈ 32 × 13", "GPIO10, VCC a 3V3 (trae el transistor)."),
 ]
 
 

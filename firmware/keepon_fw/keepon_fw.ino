@@ -56,6 +56,10 @@ void setup() {
   Serial.begin(115200);
   for (int i = 0; i < 3; i++) ledcAttachChannel(PIN_SERVO[i], SERVO_HZ, SERVO_BITS, CANAL_SERVO[i]);
   ledcAttachChannel(PIN_BUZZER, BUZZER_HZ_INICIAL, BUZZER_BITS, CANAL_BUZZER);
+  // El módulo del buzzer (MH-FMD) se activa por nivel bajo: su transistor PNP conduce con el I/O en 0 V.
+  // Con la salida invertida, duty 0 (callado) deja el pin en ALTO y el buzzer sin corriente; si no,
+  // callado sería 0 V fijo y la bobina quedaría con corriente continua. Las notas (50 %) no cambian.
+  ledcOutputInvert(PIN_BUZZER, true);
   ledcWrite(PIN_BUZZER, 0);
 
   // Arranca en HOME. Los servos no tienen realimentación: el primer pulso los lleva a HOME a toda

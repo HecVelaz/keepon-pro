@@ -87,7 +87,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <h2>Conexionado con fotos</h2>
 <p class="sub">Los tres servos numerados en el orden del protocolo (<span class="mono">yaw pitch roll</span>): <strong>1 = yaw</strong> (RDS3218, GPIO0), <strong>2 = pitch</strong> (HS-7955TG, GPIO1) y <strong>3 = roll</strong> (MG996R, GPIO4). La foto de la ESP32 es de la <strong>cara de abajo</strong>, donde están impresos los nombres de los pines; los círculos marcan los que se usan. Las fotos de los servos son las de los que se montan (<span class="mono">docs/Fotos/servo_*</span>); las de la Pi, la cámara (es de la Wide, solo ilustrativa) y el powerbank son de catálogo.</p>
 <div class="card scroll">
-<svg class="diag" viewBox="0 0 1240 980" role="img" aria-label="Conexionado con fotos: powerbank a la Pi 5 por el GPIO, cámara por CSI, Pi a la ESP32-C3 por USB, ESP32 a los tres servos por GPIO0, GPIO1 y GPIO4, buzzer en GPIO10, fuente de laboratorio de 6 V a los servos y GND común">
+<svg class="diag" viewBox="0 0 1240 980" role="img" aria-label="Conexionado con fotos: powerbank a la Pi 5 por el GPIO, cámara por CSI, Pi a la ESP32-C3 por USB, ESP32 a los tres servos por GPIO0, GPIO1 y GPIO4, módulo del buzzer en GPIO10 y 3V3, fuente de laboratorio de 6 V a los servos y GND común">
   <!-- ESP32-C3-DevKitM-1 (cara de abajo, escala 1,3) -->
   <rect class="marco" x="170" y="360" width="511" height="420" rx="8"/>
   <image href="fotos/esp32_c3.jpg" x="170" y="360" width="511" height="420"/>
@@ -108,10 +108,13 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <path class="w wu" d="M210 282 V338 H140 V567 H172"/>
   <text class="wl" x="220" y="320">USB-A de la Pi → micro-USB de la ESP32 (5 V + serie, /dev/ttyUSB0)</text>
 
-  <!-- Buzzer: 5V, GND y GPIO10 de la fila de abajo -->
-  <path class="w w5" d="M218 676 V745 H200"/>
-  <path class="w wg" d="M274 676 V765 H200"/>
-  <path class="w ws" d="M303 676 V785 H200"/>
+  <!-- Módulo del buzzer: GND, GPIO10 y 3V3 de la fila de abajo (el 3V3 salta el cable de GND) -->
+  <path class="w wg" d="M274 676 V745 H200"/>
+  <path class="w ws" d="M303 676 V765 H200"/>
+  <path class="w w5" d="M525 676 V805 H393 a6 6 0 0 0 -12 0 H200"/>
+  <text class="wl" x="206" y="739">GND → GND</text>
+  <text class="wl" x="206" y="759">GPIO10 → I/O</text>
+  <text class="wl" x="206" y="799">3V3 → VCC</text>
 
   <!-- Señales PWM a los servos (50 Hz, 3,3 V) -->
   <path class="w ws" d="M303 422 V375 H830"/>
@@ -156,12 +159,13 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <text class="t1" x="560" y="48">Camera Module 3 NoIR</text>
   <text class="t2" x="560" y="254">IMX708 · CAM/DISP 0 · es la nariz</text>
 
-  <!-- Buzzer -->
-  <rect class="blk" x="20" y="725" width="180" height="85" rx="8"/>
-  <text class="t1" x="32" y="746">Buzzer pasivo</text>
-  <text class="t2" x="32" y="764">2N2222 + 1 kΩ + 10 kΩ</text>
-  <text class="t2" x="32" y="780">+ 1N4148 (ver circuito)</text>
-  <text class="t2" x="32" y="798">5V · GND · GPIO10</text>
+  <!-- Módulo del buzzer pasivo -->
+  <rect class="blk" x="20" y="700" width="180" height="150" rx="8"/>
+  <rect class="marco" x="28" y="708" width="100" height="92" rx="4"/>
+  <image href="fotos/buzzer.jpg" x="28" y="708" width="100" height="92"/>
+  <text class="t1" x="20" y="690">Módulo buzzer pasivo</text>
+  <text class="t2" x="32" y="818">MH-FMD · activo en bajo</text>
+  <text class="t2" x="32" y="834">VCC · I/O · GND</text>
 
   <!-- Servo 3: roll -->
   <rect class="blk" x="830" y="300" width="330" height="150" rx="8"/>
@@ -201,7 +205,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 
   <!-- Pines usados: fila de arriba GPIO4; fila de abajo 5V, GND, 10, 1, 0, GND -->
   <circle class="pin" cx="303" cy="422" r="10" style="stroke:var(--sig)"/>
-  <circle class="pin" cx="218" cy="676" r="10" style="stroke:var(--v5)"/>
+  <circle class="pin" cx="525" cy="676" r="10" style="stroke:var(--v5)"/>
   <circle class="pin" cx="274" cy="676" r="10" style="stroke:#ffffff"/>
   <circle class="pin" cx="303" cy="676" r="10" style="stroke:var(--sig)"/>
   <circle class="pin" cx="330" cy="676" r="10" style="stroke:var(--sig)"/>
@@ -226,7 +230,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 </svg>
 <div class="legend">
   <span><i style="background:var(--v6)"></i>6 V servos (fuente de laboratorio)</span>
-  <span><i style="background:var(--v5)"></i>5 V (powerbank / USB)</span>
+  <span><i style="background:var(--v5)"></i>5 V (powerbank / USB) · 3,3 V del buzzer</span>
   <span><i style="background:var(--gnd)"></i>GND</span>
   <span><i style="background:var(--sig)"></i>señal 3,3 V (PWM)</span>
   <span><i style="background:var(--usb)"></i>USB serie</span>
@@ -394,12 +398,12 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <text class="t2" x="732" y="604">5 V por el USB de la Pi</text>
   <use href="#bt" x="830" y="614"/>
 
-  <rect class="blk falta" x="920" y="525" width="100" height="90" rx="8"/>
+  <rect class="blk" x="920" y="525" width="100" height="90" rx="8"/>
   <text class="t1" x="930" y="547">Buzzer</text>
-  <text class="t2" x="930" y="565">pasivo, 2N2222</text>
-  <text class="t2" x="930" y="581">1 kΩ base</text>
-  <text class="t2" x="930" y="597">10 kΩ B-E</text>
-  <use href="#bf" x="962" y="604"/>
+  <text class="t2" x="930" y="565">módulo pasivo</text>
+  <text class="t2" x="930" y="581">activo en bajo</text>
+  <text class="t2" x="930" y="597">VCC a 3V3</text>
+  <use href="#bt" x="962" y="604"/>
 
   <rect class="blk" x="700" y="650" width="170" height="80" rx="8"/>
   <text class="t1" x="712" y="671">YAW</text>
@@ -426,81 +430,26 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 
 <div class="nota"><strong>La Pi se alimenta por el GPIO, no por el USB-C</strong>: en la cabeza, el USB-C queda tapado por la curva de la cinta. Los 5 V entran por los pines 2 y 4 y el GND por el 6. El GPIO no tiene la protección del USB-C: revisar la polaridad antes de conectar y medir la tensión <em>en los pines</em> (≥ 4,9 V) con la percepción corriendo, porque el cable recorre los tres ejes y cae tensión. El powerbank da 5 V / 3 A sin negociar los 5 A de PD: la Pi avisa y limita los USB a 600 mA, que a la ESP32 le alcanzan. No forzar <span class="mono">usb_max_current_enable</span>.</div>
 
-<h2>Circuito del buzzer</h2>
-<div class="card scroll">
-<svg class="diag" style="min-width:640px" viewBox="0 0 760 310" role="img" aria-label="Esquema del buzzer pasivo con el transistor 2N2222, el diodo 1N4148 y las resistencias de 1 kΩ y 10 kΩ, conectado al GPIO10 de la ESP32">
-  <!-- Cables -->
-  <path class="w w5" d="M170 70 H440 V95 M440 80 H660 V108"/>
-  <circle class="dot" cx="440" cy="80" r="4" style="fill:var(--v5)"/>
-  <path class="w" style="stroke:var(--ink);stroke-width:2.2" d="M440 145 V180 M660 132 V165 H440"/>
-  <circle class="dot" cx="440" cy="165" r="4" style="fill:var(--ink)"/>
-  <path class="w ws" d="M170 205 H250 M310 205 H404"/>
-  <circle class="dot" cx="360" cy="205" r="4" style="fill:var(--sig)"/>
-  <path class="w ws" d="M360 205 V222"/>
-  <path class="w wg" d="M360 262 V275 M170 275 H440 V228"/>
-  <circle class="dot" cx="360" cy="275" r="4" style="fill:var(--gnd)"/>
-
-  <!-- ESP32 -->
-  <rect class="blk" x="20" y="40" width="150" height="250" rx="8"/>
-  <text class="t1" x="34" y="30">ESP32-C3</text>
-  <text class="t2" x="34" y="74">5V (del USB)</text>
-  <text class="t2" x="34" y="209">GPIO10 · LEDC</text>
-  <text class="t2" x="34" y="279">GND</text>
-
-  <!-- Buzzer -->
-  <rect class="blk" x="415" y="95" width="50" height="50" rx="25"/>
-  <text class="t1" x="440" y="125" text-anchor="middle">BZ</text>
-  <text class="t2" x="424" y="92">+</text>
-  <text class="t1" x="476" y="114">Buzzer pasivo</text>
-  <text class="t2" x="476" y="130">5 V · 16 Ω</text>
-
-  <!-- Diodo: cátodo (raya) arriba, hacia +5 V -->
-  <path d="M648 132 H672 L660 112 Z" style="fill:var(--box);stroke:var(--ink);stroke-width:2"/>
-  <line x1="648" y1="110" x2="672" y2="110" style="stroke:var(--ink);stroke-width:3"/>
-  <text class="t1" x="684" y="118">1N4148</text>
-  <text class="t2" x="684" y="134">raya</text>
-  <text class="t2" x="684" y="150">hacia +5 V</text>
-
-  <!-- Transistor NPN -->
-  <circle cx="430" cy="205" r="26" style="fill:var(--box);stroke:var(--ink);stroke-width:1.6"/>
-  <line x1="418" y1="190" x2="418" y2="220" style="stroke:var(--ink);stroke-width:3"/>
-  <path d="M404 205 H418 M418 198 L440 180 M418 212 L440 228" style="fill:none;stroke:var(--ink);stroke-width:2.2"/>
-  <path d="M440 228 L429 226 L435 218 Z" style="fill:var(--ink)"/>
-  <text class="t1" x="470" y="200">2N2222</text>
-  <text class="t2" x="470" y="216">C arriba · B izquierda · E abajo</text>
-  <text class="t2" x="470" y="232">ver el orden de patas en su hoja</text>
-
-  <!-- Resistencias -->
-  <rect x="250" y="197" width="60" height="16" rx="3" style="fill:var(--box);stroke:var(--ink);stroke-width:1.6"/>
-  <text class="t2" x="280" y="190" text-anchor="middle">1 kΩ</text>
-  <rect x="352" y="222" width="16" height="40" rx="3" style="fill:var(--box);stroke:var(--ink);stroke-width:1.6"/>
-  <text class="t2" x="300" y="246">10 kΩ</text>
-
-  <text class="wl" x="180" y="62">+5 V</text>
-  <text class="wl" x="180" y="197">PWM 3,3 V</text>
-  <text class="wl" x="180" y="268">GND común</text>
-</svg>
-</div>
-
+<h2>Módulo del buzzer</h2>
 <div class="grid2">
 <div class="card">
+<img src="fotos/buzzer.jpg" alt="Módulo de buzzer pasivo MH-FMD con tres pines: VCC, I/O y GND" style="float:left;width:150px;margin:0 14px 6px 0;border-radius:6px;background:#fff">
+<p style="margin:0 0 8px">Módulo de buzzer <strong>pasivo</strong> MH-FMD. Ya trae el transistor (un PNP) y la resistencia de base, así que el circuito con el 2N2222, las dos resistencias y el diodo ya no hace falta.</p>
 <table>
-<thead><tr><th>Componente</th><th>Para qué</th></tr></thead>
+<thead><tr><th>Pin del módulo</th><th>ESP32-C3</th></tr></thead>
 <tbody>
-<tr><td>Buzzer <strong>pasivo</strong> 5 V</td><td>El sonido. <a href="https://www.electronica.com.py/producto/buzzer-zumbador-5v-pasivo/">electronica.com.py</a>, ₲10.000 (no el "activo" de al lado).</td></tr>
-<tr><td>2N2222 o PN2222A</td><td>Le da al buzzer los ~30 mA que el GPIO no puede dar.</td></tr>
-<tr><td>Resistencia 1 kΩ</td><td>Limita la corriente de base desde el GPIO10.</td></tr>
-<tr><td>Resistencia 10 kΩ</td><td>Base a GND: el transistor queda apagado mientras la ESP32 arranca.</td></tr>
-<tr><td>Diodo 1N4148 (o 1N400x)</td><td>Absorbe el pico de la bobina al cortar. Al revés: raya hacia +5 V.</td></tr>
+<tr><td>VCC</td><td><strong>3V3</strong> (no 5V)</td></tr>
+<tr><td>I/O</td><td>GPIO10</td></tr>
+<tr><td>GND</td><td>GND</td></tr>
 </tbody>
 </table>
 </div>
 <div class="card">
 <ul>
-<li><strong>Probar el buzzer antes de montarlo:</strong> con 5 V continuos tiene que hacer solo "clic". Si pita solo, es activo y no sirve.</li>
-<li><strong>Patas del transistor:</strong> el 2N2222A y el PN2222A en TO-92 vienen con las patas en orden distinto (E-B-C o C-B-E según el fabricante). Mirar la hoja del que compren o medirlo con el multímetro en modo diodo.</li>
-<li><strong>Diodo invertido:</strong> si la raya queda del lado del colector, hace cortocircuito a través del transistor cuando conduce.</li>
-<li>El 5 V sale de la ESP32, que lo toma del USB de la Pi (limitado a 600 mA en total, sobra para ~30 mA).</li>
+<li><strong>VCC a 3V3, no a 5V.</strong> El transistor es PNP: se apaga solo cuando el I/O llega a la tensión de VCC. Con VCC a 5 V, el ALTO de 3,3 V del GPIO no alcanza para apagarlo y el buzzer queda con corriente todo el tiempo. A 3,3 V suena algo más bajo.</li>
+<li><strong>Se activa por nivel bajo</strong> (低电平触发, lo que está impreso en la placa). Por eso el firmware invierte la salida del GPIO10 (<span class="mono">ledcOutputInvert</span>): callado = pin en ALTO, sin corriente en la bobina. Las notas son una onda cuadrada al 50 % y suenan igual.</li>
+<li>Durante el arranque, hasta que corre el <span class="mono">setup()</span>, el GPIO10 queda sin configurar y el buzzer puede hacer un clic: es normal.</li>
+<li><strong>Probarlo antes de montarlo:</strong> con el I/O a GND fijo tiene que hacer solo "clic". Si pita solo, es activo y no sirve.</li>
 </ul>
 </div>
 </div>
@@ -516,7 +465,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <tr><td>Bornera de distribución de 6 V</td><td><span class="tag t-falta">FALTA</span></td><td>Un único punto donde se juntan +6 V y GND de los tres servos, el capacitor y el GND de la ESP32 (estrella). Va en la bahía de adelante de la caja.</td></tr>
 <tr><td>Capacitor 2200 µF / 16 V + 100 nF</td><td><span class="tag t-falta">FALTA</span></td><td>En la bornera de 6 V. Con la fuente lejos, el cable largo tiene inductancia y el capacitor da los picos de los servos.</td></tr>
 <tr><td>Cable USB-A macho → 2 hilos + bornera de 2 polos</td><td><span class="tag t-falta">FALTA</span></td><td>Saca 5 V y GND de la salida USB-A del powerbank hacia los pines de la Pi. El USB-A entrega 5 V sin negociar: no hace falta placa USB-C con resistencias. Hilos de ≥ 22 AWG (muchos cables USB traen 28 AWG y caen tensión a 3 A). <strong>Si en la cabeza el USB-C de la Pi queda libre</strong> (sin verificar: <span class="mono">PI_CSI_SALIDA</span>), usar en su lugar un cable USB-C acodado directo, como en el banco.</td></tr>
-<tr><td>Buzzer pasivo 5 V + 2N2222 + 1 kΩ + 10 kΩ + 1N4148</td><td><span class="tag t-falta">FALTA</span></td><td>El buzzer que pide el enunciado (GPIO10), con su transistor y el diodo: ver "Circuito del buzzer" arriba. El buzzer, en <a href="https://www.electronica.com.py/producto/buzzer-zumbador-5v-pasivo/">electronica.com.py</a> (el <strong>pasivo</strong>, no el activo).</td></tr>
+<tr><td>Módulo de buzzer pasivo (MH-FMD)</td><td><span class="tag t-tenes">TENÉS</span></td><td>El buzzer que pide el enunciado, en el GPIO10, con VCC a 3V3: ver "Módulo del buzzer" arriba. Trae el transistor: no hacen falta el 2N2222, las resistencias ni el diodo.</td></tr>
 <tr><td>Active Cooler de la Pi 5</td><td><span class="tag t-recom">RECOM.</span></td><td>La percepción usa ~240 % de CPU de forma sostenida; sin ventilador la Pi baja la frecuencia y cae la tasa de percepción. Va dentro de la cabeza cerrada: medir su altura (<span class="mono">COOLER_H</span>, se supusieron 11 mm) y la temperatura con la cabeza armada (<span class="mono">/sys/class/thermal/thermal_zone0/temp</span>).</td></tr>
 <tr><td>Cinta CSI ~150 mm (22→15)</td><td><span class="tag t-tenes">TENÉS</span></td><td>Alcanza justo porque la Pi está en la cabeza: el recorrido con la U usa 147 de 150 mm. <strong>Antes de imprimir:</strong> medirla de punta a punta (<span class="mono">FFC_LARGO</span>) y mirar hacia qué extremo de la Pi sale del conector (<span class="mono">PI_CSI_SALIDA</span>). Nunca torcerla ni marcarle pliegues.</td></tr>
 <tr><td>Cable USB-A acodado a micro-USB</td><td><span class="tag t-recom">RECOM.</span></td><td>Los USB-A de la Pi quedan arriba en la cabeza. El cable baja por roll, pitch y yaw hasta la ESP32, en la base: tiene que ser flexible y con bucle de servicio.</td></tr>
@@ -541,8 +490,8 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <tr><td>ESP32 GPIO0</td><td>señal yaw (RDS3218)</td><td>3,3 V, 50 Hz</td></tr>
 <tr><td>ESP32 GPIO1</td><td>señal pitch (HS-7955TG)</td><td>3,3 V, 50 Hz</td></tr>
 <tr><td>ESP32 GPIO4</td><td>señal roll (MG996R)</td><td>3,3 V, 50 Hz</td></tr>
-<tr><td>ESP32 GPIO10</td><td>1 kΩ → base del 2N2222</td><td>buzzer</td></tr>
-<tr><td>ESP32 5V</td><td>+ del buzzer y cátodo del 1N4148</td><td>− buzzer y ánodo del diodo → colector</td></tr>
+<tr><td>ESP32 GPIO10</td><td>I/O del módulo del buzzer</td><td>activo en bajo</td></tr>
+<tr><td>ESP32 3V3 y GND</td><td>VCC y GND del módulo del buzzer</td><td>3V3, no 5V</td></tr>
 <tr><td>ESP32 GND</td><td>GND de la bornera de 6 V</td><td><strong>obligatorio</strong></td></tr>
 </tbody>
 </table>

@@ -59,7 +59,7 @@ Vista de arriba (+X es la cara del robot):
  Powerbank Xiaomi ─ USB-A ─ bornera 5 V ─ 5 V / GND (20 AWG) ─▶ GPIO 2/4 y 6 de la Pi 5 │ GND común
                                                                                        │ (por la ESP32)
  Pi 5 (cabeza) ─ USB-A ─▶ micro-USB de la ESP32 (base) ─ GPIO0/1/4 ─ señales ──────────┘
-                                                        └ GPIO10 ─ 2N2222 ─ buzzer
+                                                        └ GPIO10 ─ módulo buzzer (VCC 3V3)
 ```
 
 Son **dos fuentes separadas**: los picos de los servos (sobre todo el HS-7955TG) quedan en el bus de 6 V y no reinician la Pi. Lo único que se une es el GND.

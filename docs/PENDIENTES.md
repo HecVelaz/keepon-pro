@@ -13,7 +13,7 @@ Movido desde `CLAUDE.md` el 22/10/2026.
 ## Pendientes sueltos (estaban repartidos en las secciones de hardware y de sesiones)
 - Probar el firmware con los servos (fuente de 6 V), definir `signo` por eje al montar y probar el buzzer.
 - Anotar el sentido de giro del MG996R (pulso mayor = ¿horario o antihorario?, de frente al eje).
-- Comprar el buzzer **pasivo** de electronica.com.py.
+- Buzzer: ya está el módulo pasivo MH-FMD (26/10). Cargar el firmware con la salida invertida y probarlo (VCC a 3V3).
 - Detector de camisetas: escribirlo y probarlo con `pruebas_camisetas/imagenes_referencia/`; falta una remera blanca lisa entre las imágenes de referencia. Para probar con la cámara: remera negra del usuario (negativa; con tiras rojas y azules = "Cerro" casero; con franja blanca = "Olimpia al revés", que no tiene que detectar).
 - Sincronizar a la Pi las imágenes de las camisetas (la Pi no respondió por SSH el 15/10).
 - Integrar `SerialLink` con el robot sobre la ESP32 real (`scripts/sim_scenario.py` usa SimLink) y agregarle reconexión automática.

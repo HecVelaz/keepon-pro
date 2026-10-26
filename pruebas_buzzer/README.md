@@ -25,29 +25,23 @@ en total (`config.yaml` actualizado). Va **una octava más arriba** que la parti
 (330–698 Hz) cae donde el buzzer suena débil. Cada nota deja 15 ms de silencio para que las repetidas se separen;
 el acento del primer tiempo de los cuatrillos no se puede hacer con un buzzer.
 
-## Buzzer y su circuito
+## Módulo del buzzer
 
-| Componente | Cant. | Para qué |
-|---|---|---|
-| Buzzer **pasivo** 5 V (~16 Ω, ~30 mA) | 1 | El sonido. [electronica.com.py](https://www.electronica.com.py/producto/buzzer-zumbador-5v-pasivo/), ₲10.000. **No** el "activo" de al lado: trae oscilador y hace un solo tono |
-| Transistor 2N2222 (o PN2222A) | 1 | Le da al buzzer la corriente que el GPIO no puede dar |
-| Resistencia 1 kΩ | 1 | Entre el GPIO10 y la base |
-| Resistencia 10 kΩ | 1 | Entre base y emisor: el transistor queda apagado mientras la ESP32 arranca |
-| Diodo 1N4148 (o 1N400x) | 1 | En paralelo con el buzzer: absorbe el pico de la bobina al cortar |
+Desde el 26/10 se usa un **módulo de buzzer pasivo MH-FMD** (foto en `docs/Fotos/modulo_buzzer_pasivo/`). Trae el
+transistor (PNP) y la resistencia de base: el circuito anterior con el 2N2222, el 1 kΩ, el 10 kΩ y el 1N4148 ya no
+hace falta.
 
-```
-5 V (ESP32) ──┬──────────── + buzzer
-              │                │
-   1N4148 cátodo (raya)        │
-   1N4148 ánodo ───────────────┴── − buzzer ── colector 2N2222
-                                               base ── 1 kΩ ── GPIO10
-                                               base ── 10 kΩ ── GND
-                                               emisor ── GND
-```
+| Pin del módulo | ESP32-C3 |
+|---|---|
+| VCC | **3V3** (no 5V) |
+| I/O | GPIO10 |
+| GND | GND |
 
-- **Probar el buzzer antes de montarlo:** con 5 V continuos tiene que hacer solo "clic". Si pita solo, es activo y no
+- **VCC a 3V3, no a 5V:** el PNP se apaga solo cuando el I/O llega a la tensión de VCC. Con VCC a 5 V, el ALTO de
+  3,3 V del GPIO no lo apaga y el buzzer queda con corriente todo el tiempo. A 3,3 V suena algo más bajo.
+- **Se activa por nivel bajo** (低电平触发, impreso en la placa). El firmware invierte la salida del GPIO10
+  (`ledcOutputInvert`): callado = pin en ALTO, sin corriente en la bobina. Las notas (onda cuadrada al 50 %) suenan
+  igual.
+- **Probarlo antes de montarlo:** con el I/O a GND fijo tiene que hacer solo "clic". Si pita solo, es activo y no
   sirve (el enunciado pide uno pasivo modulado en frecuencia).
-- **Diodo:** la raya (cátodo) va hacia los 5 V. Al derecho hace cortocircuito a través del transistor.
-- **Patas del transistor:** el 2N2222A y el PN2222A en TO-92 vienen con las patas en orden distinto (E-B-C o C-B-E,
-  según el fabricante). Mirar la hoja del que compren o medirlo con el multímetro en modo diodo.
-- El esquema está también en `docs/diagrama_sistema/index.html` ("Circuito del buzzer").
+- El conexionado está también en `docs/diagrama_sistema/index.html` ("Módulo del buzzer").
