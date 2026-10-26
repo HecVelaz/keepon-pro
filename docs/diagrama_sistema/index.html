@@ -73,6 +73,10 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 .et { font-size: 11px; fill: var(--muted) !important; font-style: italic; paint-order: stroke; stroke: var(--bg); stroke-width: 5px; }
 .badge rect { rx: 3; }
 .badge text { fill: #fff !important; font-size: 9.5px; font-weight: 700; letter-spacing: .04em; }
+/* Diagrama con fotos: las fotos van sobre un marco blanco para que se vean igual en modo oscuro */
+.marco { fill: #ffffff; stroke: var(--line); stroke-width: 1.2; }
+.pin { fill: none; stroke-width: 3; }
+.num { font-size: 22px; font-weight: 800; }
 </style>
 </head>
 <body>
@@ -80,6 +84,157 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <h1>Keepon pro: diagrama del sistema</h1>
 <p class="sub">Alimentación, datos y señales del robot con la disposición del modelo mecánico v4 (<span class="mono">docs/keepon_v4_cad/</span>: la Pi va dentro de la cabeza y la ESP32 en la caja base). Desde el 14/10, <strong>una fuente de laboratorio alimenta los tres servos a 6 V</strong> y <strong>el powerbank Xiaomi alimenta la Pi 5</strong>; la LiPo y los reguladores salieron. Los bloques en línea continua ya los tienen; los de <span style="color:var(--falta)">trazo naranja</span> faltan comprar o armar.</p>
 
+<h2>Conexionado con fotos</h2>
+<p class="sub">Los tres servos numerados en el orden del protocolo (<span class="mono">yaw pitch roll</span>): <strong>1 = yaw</strong> (RDS3218, GPIO0), <strong>2 = pitch</strong> (HS-7955TG, GPIO1) y <strong>3 = roll</strong> (MG996R, GPIO4). La foto de la ESP32 es de la <strong>cara de abajo</strong>, donde están impresos los nombres de los pines; los círculos marcan los que se usan. Las fotos de los servos son las de los que se montan (<span class="mono">docs/Fotos/servo_*</span>); las de la Pi, la cámara (es de la Wide, solo ilustrativa) y el powerbank son de catálogo.</p>
+<div class="card scroll">
+<svg class="diag" viewBox="0 0 1240 980" role="img" aria-label="Conexionado con fotos: powerbank a la Pi 5 por el GPIO, cámara por CSI, Pi a la ESP32-C3 por USB, ESP32 a los tres servos por GPIO0, GPIO1 y GPIO4, buzzer en GPIO10, fuente de laboratorio de 6 V a los servos y GND común">
+  <!-- ESP32-C3-DevKitM-1 (cara de abajo, escala 1,3) -->
+  <rect class="marco" x="170" y="360" width="511" height="420" rx="8"/>
+  <image href="fotos/esp32_c3.jpg" x="170" y="360" width="511" height="420"/>
+  <text class="t1" x="440" y="348">ESP32-C3-DevKitM-1 (en la caja base)</text>
+  <!-- ============ CABLES ============ -->
+  <!-- 5 V: powerbank (USB-A cortado a 2 hilos) → pines 2/4 y 6 del GPIO de la Pi -->
+  <path class="w w5" d="M125 140 H160"/>
+  <path class="w wg" d="M125 175 H160"/>
+  <text class="wl" x="20" y="306">USB-A → 2 hilos · 20 AWG</text>
+  <text class="wl" x="20" y="322">5 V → pines 2/4 · GND → pin 6</text>
+
+  <!-- CSI: Pi → cámara -->
+  <path class="w wc" d="M500 160 H560"/>
+  <text class="wl" x="505" y="190">cinta CSI</text>
+  <text class="wl" x="505" y="205">~150 mm</text>
+
+  <!-- USB: Pi (USB-A) → micro-USB de la ESP32 -->
+  <path class="w wu" d="M210 282 V338 H140 V567 H172"/>
+  <text class="wl" x="220" y="320">USB-A de la Pi → micro-USB de la ESP32 (5 V + serie, /dev/ttyUSB0)</text>
+
+  <!-- Buzzer: 5V, GND y GPIO10 de la fila de abajo -->
+  <path class="w w5" d="M218 676 V745 H200"/>
+  <path class="w wg" d="M274 676 V765 H200"/>
+  <path class="w ws" d="M303 676 V785 H200"/>
+
+  <!-- Señales PWM a los servos (50 Hz, 3,3 V) -->
+  <path class="w ws" d="M303 422 V375 H830"/>
+  <text class="wl" x="690" y="367">GPIO4 → servo 3 (roll)</text>
+  <path class="w ws" d="M330 676 V720 H760 V706 a6 6 0 0 0 0 -12 V555 H830"/>
+  <text class="wl" x="690" y="547">GPIO1 → servo 2 (pitch)</text>
+  <path class="w ws" d="M358 676 V700 H780 V735 H830"/>
+  <text class="wl" x="640" y="692">GPIO0 → servo 1 (yaw)</text>
+
+  <!-- GND de la ESP32 → GND de la bornera de 6 V (obligatorio) -->
+  <path class="w wg" d="M387 676 V850 H1205"/>
+  <circle class="dot" cx="1205" cy="850" r="5" style="fill:var(--gnd)"/>
+  <text class="wl" x="440" y="842">GND ESP32 ↔ GND servos: obligatorio (sin esto ningún servo se mueve)</text>
+
+  <!-- Bus de 6 V: bornera → los tres servos -->
+  <path class="w w6" d="M1180 870 V355"/>
+  <path class="w wg" d="M1205 870 V375"/>
+  <path class="w w6" d="M1160 355 H1180 M1160 525 H1180 M1160 700 H1180"/>
+  <path class="w wg" d="M1160 375 H1205 M1160 545 H1205 M1160 720 H1205"/>
+  <g class="dot" style="fill:var(--v6)"><circle cx="1180" cy="525" r="4"/><circle cx="1180" cy="700" r="4"/></g>
+  <g class="dot" style="fill:var(--gnd)"><circle cx="1205" cy="545" r="4"/><circle cx="1205" cy="720" r="4"/></g>
+
+  <!-- Fuente de laboratorio → interruptor → bornera -->
+  <path class="w w6" d="M1060 900 H1110"/>
+  <path class="w wg" d="M1060 935 H1110"/>
+
+  <!-- ============ FOTOS Y BLOQUES ============ -->
+  <!-- Powerbank -->
+  <rect class="marco" x="20" y="40" width="105" height="232" rx="8"/>
+  <image href="fotos/powerbank.jpg" x="25" y="50" width="95" height="192"/>
+  <text class="t1" x="20" y="28">Powerbank Xiaomi</text>
+  <text class="t2" x="20" y="288">PB2020MI · 5 V / 3 A</text>
+
+  <!-- Raspberry Pi 5 -->
+  <rect class="marco" x="160" y="40" width="340" height="242" rx="8"/>
+  <image href="fotos/pi5.jpg" x="160" y="40" width="340" height="242"/>
+  <text class="t1" x="160" y="28">Raspberry Pi 5 · 4 GB (en la cabeza)</text>
+
+  <!-- Cámara -->
+  <rect class="marco" x="560" y="60" width="130" height="177" rx="8"/>
+  <image href="fotos/camara.jpg" x="565" y="65" width="120" height="163"/>
+  <text class="t1" x="560" y="48">Camera Module 3 NoIR</text>
+  <text class="t2" x="560" y="254">IMX708 · CAM/DISP 0 · es la nariz</text>
+
+  <!-- Buzzer -->
+  <rect class="blk" x="20" y="725" width="180" height="85" rx="8"/>
+  <text class="t1" x="32" y="746">Buzzer pasivo</text>
+  <text class="t2" x="32" y="764">2N2222 + 1 kΩ + 10 kΩ</text>
+  <text class="t2" x="32" y="780">+ 1N4148 (ver circuito)</text>
+  <text class="t2" x="32" y="798">5V · GND · GPIO10</text>
+
+  <!-- Servo 3: roll -->
+  <rect class="blk" x="830" y="300" width="330" height="150" rx="8"/>
+  <rect class="marco" x="840" y="310" width="92" height="130" rx="4"/>
+  <image href="fotos/mg996r.jpg" x="840" y="310" width="92" height="130"/>
+  <text class="num" x="946" y="332" style="fill:var(--sig)">3</text>
+  <text class="t1" x="966" y="330">ROLL</text>
+  <text class="t2" x="946" y="352">TowerPro MG996R · GPIO4</text>
+  <text class="t2" x="946" y="368">1000–2000 µs · ±20°</text>
+  <text class="t2" x="946" y="384">sin pulso queda flojo</text>
+  <text class="t2" x="946" y="408">marrón GND · rojo +6 V</text>
+  <text class="t2" x="946" y="424">naranja = señal</text>
+
+  <!-- Servo 2: pitch -->
+  <rect class="blk" x="830" y="470" width="330" height="170" rx="8"/>
+  <rect class="marco" x="840" y="480" width="87" height="150" rx="4"/>
+  <image href="fotos/hs7955tg.jpg" x="840" y="480" width="87" height="150"/>
+  <text class="num" x="946" y="502" style="fill:var(--sig)">2</text>
+  <text class="t1" x="966" y="500">PITCH</text>
+  <text class="t2" x="946" y="522">Hitec HS-7955TG · GPIO1</text>
+  <text class="t2" x="946" y="538">760–2240 µs · +30° / −20°</text>
+  <text class="t2" x="946" y="554">sin pulso mantiene la fuerza</text>
+  <text class="t2" x="946" y="578">negro GND · rojo +6 V</text>
+  <text class="t2" x="946" y="594">amarillo = señal</text>
+
+  <!-- Servo 1: yaw -->
+  <rect class="blk" x="830" y="660" width="330" height="160" rx="8"/>
+  <rect class="marco" x="840" y="670" width="130" height="141" rx="4"/>
+  <image href="fotos/rds3218.jpg" x="840" y="670" width="130" height="141"/>
+  <text class="num" x="984" y="692" style="fill:var(--sig)">1</text>
+  <text class="t1" x="1004" y="690">YAW</text>
+  <text class="t2" x="984" y="712">DSSERVO RDS3218 n.º 2</text>
+  <text class="t2" x="984" y="728">GPIO0 · 950–2020 µs</text>
+  <text class="t2" x="984" y="744">±70° · 4,8–6,8 V</text>
+  <text class="t2" x="984" y="768">negro GND · rojo +6 V</text>
+  <text class="t2" x="984" y="784">blanco = señal</text>
+
+  <!-- Pines usados: fila de arriba GPIO4; fila de abajo 5V, GND, 10, 1, 0, GND -->
+  <circle class="pin" cx="303" cy="422" r="10" style="stroke:var(--sig)"/>
+  <circle class="pin" cx="218" cy="676" r="10" style="stroke:var(--v5)"/>
+  <circle class="pin" cx="274" cy="676" r="10" style="stroke:#ffffff"/>
+  <circle class="pin" cx="303" cy="676" r="10" style="stroke:var(--sig)"/>
+  <circle class="pin" cx="330" cy="676" r="10" style="stroke:var(--sig)"/>
+  <circle class="pin" cx="358" cy="676" r="10" style="stroke:var(--sig)"/>
+  <circle class="pin" cx="387" cy="676" r="10" style="stroke:#ffffff"/>
+
+
+  <!-- Fuente de laboratorio -->
+  <rect class="blk" x="860" y="875" width="200" height="90" rx="8"/>
+  <text class="t1" x="872" y="898">Fuente de laboratorio</text>
+  <text class="t2" x="872" y="916">regulada a 6,0 V (no a 12 V)</text>
+  <text class="t2" x="872" y="932">límite de corriente 4–5 A</text>
+  <text class="t2" x="872" y="948">sobre la mesa · cables banana</text>
+
+  <!-- Bornera de 6 V con interruptor y capacitor -->
+  <rect class="blk falta" x="1110" y="870" width="120" height="95" rx="6"/>
+  <text class="t1" x="1120" y="890">Bornera 6 V</text>
+  <text class="t2" x="1120" y="908">interruptor en +6 V</text>
+  <text class="t2" x="1120" y="924">2200 µF + 100 nF</text>
+  <text class="t2" x="1120" y="940">GND en estrella</text>
+  <text class="t2" x="1120" y="956" style="fill:var(--falta) !important">falta armar</text>
+</svg>
+<div class="legend">
+  <span><i style="background:var(--v6)"></i>6 V servos (fuente de laboratorio)</span>
+  <span><i style="background:var(--v5)"></i>5 V (powerbank / USB)</span>
+  <span><i style="background:var(--gnd)"></i>GND</span>
+  <span><i style="background:var(--sig)"></i>señal 3,3 V (PWM)</span>
+  <span><i style="background:var(--usb)"></i>USB serie</span>
+  <span><i style="background:var(--csi)"></i>CSI cámara</span>
+</div>
+</div>
+
+<h2>Diagrama de bloques</h2>
 <div class="card scroll">
 <svg class="diag" viewBox="0 0 1240 830" role="img" aria-label="Diagrama de bloques del sistema Keepon pro, por zonas: cabeza, plataforma giratoria, caja base y la fuente de laboratorio sobre la mesa">
   <defs>
