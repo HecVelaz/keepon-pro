@@ -85,13 +85,67 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <p class="sub">Alimentación, datos y señales del robot con la disposición del modelo mecánico v4 (<span class="mono">docs/keepon_v4_cad/</span>: la Pi va dentro de la cabeza y la ESP32 en la caja base). Desde el 14/10, <strong>una fuente de laboratorio alimenta los tres servos a 6 V</strong> y <strong>el powerbank Xiaomi alimenta la Pi 5</strong>; la LiPo y los reguladores salieron. Los bloques en línea continua ya los tienen; los de <span style="color:var(--falta)">trazo naranja</span> faltan comprar o armar.</p>
 
 <h2>Conexionado con fotos</h2>
-<p class="sub">Los tres servos numerados en el orden del protocolo (<span class="mono">yaw pitch roll</span>): <strong>1 = yaw</strong> (RDS3218, GPIO0), <strong>2 = pitch</strong> (HS-7955TG, GPIO1) y <strong>3 = roll</strong> (MG996R, GPIO4). La foto de la ESP32 es de la <strong>cara de abajo</strong>, donde están impresos los nombres de los pines; los círculos marcan los que se usan. Las fotos de los servos son las de los que se montan (<span class="mono">docs/Fotos/servo_*</span>); las de la Pi, la cámara (es de la Wide, solo ilustrativa) y el powerbank son de catálogo.</p>
+<p class="sub">Los tres servos numerados en el orden del protocolo (<span class="mono">yaw pitch roll</span>): <strong>1 = yaw</strong> (RDS3218, GPIO0), <strong>2 = pitch</strong> (HS-7955TG, GPIO1) y <strong>3 = roll</strong> (MG996R, GPIO4). La ESP32 está dibujada <strong>vista desde arriba</strong>, del lado del chip (módulo ESP32-C3-MINI-1) y del micro-USB, con el nombre de cada pin al lado (en la placa están impresos en la cara de abajo); los círculos marcan los que se usan. Las fotos de los servos son las de los que se montan (<span class="mono">docs/Fotos/servo_*</span>); las de la Pi, la cámara (es de la Wide, solo ilustrativa) y el powerbank son de catálogo.</p>
 <div class="card scroll">
 <svg class="diag" viewBox="0 0 1240 980" role="img" aria-label="Conexionado con fotos: powerbank a la Pi 5 por el GPIO, cámara por CSI, Pi a la ESP32-C3 por USB, ESP32 a los tres servos por GPIO0, GPIO1 y GPIO4, módulo del buzzer en GPIO10 y 3V3, fuente de laboratorio de 6 V a los servos y GND común">
-  <!-- ESP32-C3-DevKitM-1 (cara de abajo, escala 1,3) -->
-  <rect class="marco" x="170" y="360" width="511" height="420" rx="8"/>
-  <image href="fotos/esp32_c3.jpg" x="170" y="360" width="511" height="420"/>
-  <text class="t1" x="440" y="348">ESP32-C3-DevKitM-1 (en la caja base)</text>
+  <!-- ESP32-C3-DevKitM-1 vista de ARRIBA (lado del módulo y del micro-USB), dibujada a mano: los nombres
+       de los pines están impresos en la cara de abajo, así que acá se escriben al lado de cada pin.
+       Orden de los pines tomado de la hoja de Espressif (docs/Fotos/esp32_c3_mini_1/). -->
+  <g>
+    <rect x="225" y="412" width="450" height="298" rx="6" style="fill:#1d1f22;stroke:#55585d;stroke-width:1.5"/>
+    <!-- Módulo ESP32-C3-MINI-1: la antena sobresale a la izquierda -->
+    <rect x="190" y="488" width="150" height="146" rx="3" style="fill:#2b2e33;stroke:#666a70"/>
+    <path d="M200 500 V620 M200 500 H222 V620 M210 510 V610" style="fill:none;stroke:#b08d2a;stroke-width:2"/>
+    <rect x="236" y="494" width="98" height="134" rx="3" style="fill:#c9ccd1;stroke:#9a9da2"/>
+    <text x="285" y="550" text-anchor="middle" style="fill:#2b2e33;font-size:12px;font-weight:700">ESP32-C3</text>
+    <text x="285" y="566" text-anchor="middle" style="fill:#2b2e33;font-size:12px;font-weight:700">MINI-1</text>
+    <text x="285" y="588" text-anchor="middle" style="fill:#4a4d52;font-size:10px">el chip</text>
+    <!-- Regulador de 3,3 V, conversor USB-serie y botones -->
+    <rect x="375" y="535" width="40" height="34" rx="2" style="fill:#3a3d42;stroke:#666a70"/>
+    <text x="395" y="556" text-anchor="middle" style="fill:#d8d8d8;font-size:9px">LDO</text>
+    <rect x="470" y="525" width="56" height="56" rx="2" style="fill:#0f1012;stroke:#666a70"/>
+    <text x="498" y="557" text-anchor="middle" style="fill:#d8d8d8;font-size:10px">CH340</text>
+    <rect x="602" y="470" width="28" height="28" rx="3" style="fill:#d9d9d9"/><circle cx="616" cy="484" r="8" style="fill:#c0392b"/>
+    <text x="616" y="512" text-anchor="middle" style="fill:#d8d8d8;font-size:9px">RST</text>
+    <rect x="602" y="616" width="28" height="28" rx="3" style="fill:#d9d9d9"/><circle cx="616" cy="630" r="8" style="fill:#c0392b"/>
+    <text x="616" y="610" text-anchor="middle" style="fill:#d8d8d8;font-size:9px">BOOT</text>
+    <!-- Micro-USB: sobresale a la derecha -->
+    <rect x="650" y="548" width="50" height="44" rx="4" style="fill:#b9bdc2;stroke:#85898e;stroke-width:1.5"/>
+    <rect x="662" y="563" width="38" height="14" rx="3" style="fill:#5a5e63"/>
+    <text x="645" y="540" text-anchor="end" style="fill:#d8d8d8;font-size:9px">micro-USB</text>
+    <!-- Pines: fila de arriba (lado de TX/RX) y fila de abajo (lado de 3V3/5V) -->
+    <circle cx="255" cy="432" r="7" style="fill:#c9a227"/><circle cx="255" cy="432" r="3" style="fill:#1d1f22"/><text x="255" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+    <circle cx="255" cy="690" r="7" style="fill:#c9a227"/><circle cx="255" cy="690" r="3" style="fill:#1d1f22"/><text x="255" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+    <circle cx="284" cy="432" r="7" style="fill:#c9a227"/><circle cx="284" cy="432" r="3" style="fill:#1d1f22"/><text x="284" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">TX</text>
+    <circle cx="284" cy="690" r="7" style="fill:#c9a227"/><circle cx="284" cy="690" r="3" style="fill:#1d1f22"/><text x="284" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">3V3</text>
+    <circle cx="313" cy="432" r="7" style="fill:#c9a227"/><circle cx="313" cy="432" r="3" style="fill:#1d1f22"/><text x="313" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">RX</text>
+    <circle cx="313" cy="690" r="7" style="fill:#c9a227"/><circle cx="313" cy="690" r="3" style="fill:#1d1f22"/><text x="313" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">3V3</text>
+    <circle cx="342" cy="432" r="7" style="fill:#c9a227"/><circle cx="342" cy="432" r="3" style="fill:#1d1f22"/><text x="342" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+    <circle cx="342" cy="690" r="7" style="fill:#c9a227"/><circle cx="342" cy="690" r="3" style="fill:#1d1f22"/><text x="342" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">2</text>
+    <circle cx="371" cy="432" r="7" style="fill:#c9a227"/><circle cx="371" cy="432" r="3" style="fill:#1d1f22"/><text x="371" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">9</text>
+    <circle cx="371" cy="690" r="7" style="fill:#c9a227"/><circle cx="371" cy="690" r="3" style="fill:#1d1f22"/><text x="371" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">3</text>
+    <circle cx="400" cy="432" r="7" style="fill:#c9a227"/><circle cx="400" cy="432" r="3" style="fill:#1d1f22"/><text x="400" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">8</text>
+    <circle cx="400" cy="690" r="7" style="fill:#c9a227"/><circle cx="400" cy="690" r="3" style="fill:#1d1f22"/><text x="400" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+    <circle cx="429" cy="432" r="7" style="fill:#c9a227"/><circle cx="429" cy="432" r="3" style="fill:#1d1f22"/><text x="429" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+    <circle cx="429" cy="690" r="7" style="fill:#c9a227"/><circle cx="429" cy="690" r="3" style="fill:#1d1f22"/><text x="429" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">RST</text>
+    <circle cx="458" cy="432" r="7" style="fill:#c9a227"/><circle cx="458" cy="432" r="3" style="fill:#1d1f22"/><text x="458" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">7</text>
+    <circle cx="458" cy="690" r="7" style="fill:#c9a227"/><circle cx="458" cy="690" r="3" style="fill:#1d1f22"/><text x="458" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+    <circle cx="487" cy="432" r="7" style="fill:#c9a227"/><circle cx="487" cy="432" r="3" style="fill:#1d1f22"/><text x="487" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">6</text>
+    <circle cx="487" cy="690" r="7" style="fill:#c9a227"/><circle cx="487" cy="690" r="3" style="fill:#1d1f22"/><text x="487" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">0</text>
+    <circle cx="516" cy="432" r="7" style="fill:#c9a227"/><circle cx="516" cy="432" r="3" style="fill:#1d1f22"/><text x="516" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">5</text>
+    <circle cx="516" cy="690" r="7" style="fill:#c9a227"/><circle cx="516" cy="690" r="3" style="fill:#1d1f22"/><text x="516" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">1</text>
+    <circle cx="545" cy="432" r="7" style="fill:#c9a227"/><circle cx="545" cy="432" r="3" style="fill:#1d1f22"/><text x="545" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">4</text>
+    <circle cx="545" cy="690" r="7" style="fill:#c9a227"/><circle cx="545" cy="690" r="3" style="fill:#1d1f22"/><text x="545" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">10</text>
+    <circle cx="574" cy="432" r="7" style="fill:#c9a227"/><circle cx="574" cy="432" r="3" style="fill:#1d1f22"/><text x="574" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+    <circle cx="574" cy="690" r="7" style="fill:#c9a227"/><circle cx="574" cy="690" r="3" style="fill:#1d1f22"/><text x="574" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+    <circle cx="603" cy="432" r="7" style="fill:#c9a227"/><circle cx="603" cy="432" r="3" style="fill:#1d1f22"/><text x="603" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">18</text>
+    <circle cx="603" cy="690" r="7" style="fill:#c9a227"/><circle cx="603" cy="690" r="3" style="fill:#1d1f22"/><text x="603" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">5V</text>
+    <circle cx="632" cy="432" r="7" style="fill:#c9a227"/><circle cx="632" cy="432" r="3" style="fill:#1d1f22"/><text x="632" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">19</text>
+    <circle cx="632" cy="690" r="7" style="fill:#c9a227"/><circle cx="632" cy="690" r="3" style="fill:#1d1f22"/><text x="632" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">5V</text>
+    <circle cx="661" cy="432" r="7" style="fill:#c9a227"/><circle cx="661" cy="432" r="3" style="fill:#1d1f22"/><text x="661" y="455" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+    <circle cx="661" cy="690" r="7" style="fill:#c9a227"/><circle cx="661" cy="690" r="3" style="fill:#1d1f22"/><text x="661" y="674" text-anchor="middle" style="fill:#e6e6e6;font-size:10px;font-weight:600">GND</text>
+  </g>
+  <text class="t1" x="225" y="402">ESP32-C3-DevKitM-1 · vista de arriba</text>
   <!-- ============ CABLES ============ -->
   <!-- 5 V: powerbank (USB-A cortado a 2 hilos) → pines 2/4 y 6 del GPIO de la Pi -->
   <path class="w w5" d="M125 140 H160"/>
@@ -105,29 +159,29 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <text class="wl" x="505" y="205">~150 mm</text>
 
   <!-- USB: Pi (USB-A) → micro-USB de la ESP32 -->
-  <path class="w wu" d="M210 282 V338 H140 V567 H172"/>
-  <text class="wl" x="220" y="320">USB-A de la Pi → micro-USB de la ESP32 (5 V + serie, /dev/ttyUSB0)</text>
+  <path class="w wu" d="M470 282 V340 H720 V369 a6 6 0 0 1 0 12 V570 H700"/>
+  <text class="wl" x="478" y="332">USB: Pi → micro-USB de la ESP32 (5 V + serie)</text>
 
-  <!-- Módulo del buzzer: GND, GPIO10 y 3V3 de la fila de abajo (el 3V3 salta el cable de GND) -->
-  <path class="w wg" d="M274 676 V745 H200"/>
-  <path class="w ws" d="M303 676 V765 H200"/>
-  <path class="w w5" d="M525 676 V805 H393 a6 6 0 0 0 -12 0 H200"/>
-  <text class="wl" x="206" y="739">GND → GND</text>
-  <text class="wl" x="206" y="759">GPIO10 → I/O</text>
-  <text class="wl" x="206" y="799">3V3 → VCC</text>
+  <!-- Módulo del buzzer: 3V3, GND y GPIO10 de la fila de abajo (el GPIO10 salta las señales de los servos) -->
+  <path class="w w5" d="M284 690 V745 H200"/>
+  <path class="w wg" d="M400 690 V765 H200"/>
+  <path class="w ws" d="M545 690 V716 a6 6 0 0 1 0 12 V734 a6 6 0 0 1 0 12 V785 H200"/>
+  <text class="wl" x="206" y="739">3V3 → VCC</text>
+  <text class="wl" x="206" y="759">GND → GND</text>
+  <text class="wl" x="206" y="779">GPIO10 → I/O</text>
 
   <!-- Señales PWM a los servos (50 Hz, 3,3 V) -->
-  <path class="w ws" d="M303 422 V375 H830"/>
-  <text class="wl" x="690" y="367">GPIO4 → servo 3 (roll)</text>
-  <path class="w ws" d="M330 676 V720 H760 V706 a6 6 0 0 0 0 -12 V555 H830"/>
-  <text class="wl" x="690" y="547">GPIO1 → servo 2 (pitch)</text>
-  <path class="w ws" d="M358 676 V700 H780 V735 H830"/>
-  <text class="wl" x="640" y="692">GPIO0 → servo 1 (yaw)</text>
+  <path class="w ws" d="M545 432 V375 H830"/>
+  <text class="wl" x="560" y="367">GPIO4 → servo 3 (roll)</text>
+  <path class="w ws" d="M516 690 V722 H760 V555 H830"/>
+  <text class="wl" x="766" y="650">GPIO1 → 2</text>
+  <path class="w ws" d="M487 690 V740 H830"/>
+  <text class="wl" x="600" y="756">GPIO0 → servo 1 (yaw)</text>
 
   <!-- GND de la ESP32 → GND de la bornera de 6 V (obligatorio) -->
-  <path class="w wg" d="M387 676 V850 H1205"/>
+  <path class="w wg" d="M458 690 V779 a6 6 0 0 1 0 12 V850 H1205"/>
   <circle class="dot" cx="1205" cy="850" r="5" style="fill:var(--gnd)"/>
-  <text class="wl" x="440" y="842">GND ESP32 ↔ GND servos: obligatorio (sin esto ningún servo se mueve)</text>
+  <text class="wl" x="470" y="842">GND ESP32 ↔ GND servos: obligatorio (sin esto ningún servo se mueve)</text>
 
   <!-- Bus de 6 V: bornera → los tres servos -->
   <path class="w w6" d="M1180 870 V355"/>
@@ -203,14 +257,14 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <text class="t2" x="984" y="768">negro GND · rojo +6 V</text>
   <text class="t2" x="984" y="784">blanco = señal</text>
 
-  <!-- Pines usados: fila de arriba GPIO4; fila de abajo 5V, GND, 10, 1, 0, GND -->
-  <circle class="pin" cx="303" cy="422" r="10" style="stroke:var(--sig)"/>
-  <circle class="pin" cx="525" cy="676" r="10" style="stroke:var(--v5)"/>
-  <circle class="pin" cx="274" cy="676" r="10" style="stroke:#ffffff"/>
-  <circle class="pin" cx="303" cy="676" r="10" style="stroke:var(--sig)"/>
-  <circle class="pin" cx="330" cy="676" r="10" style="stroke:var(--sig)"/>
-  <circle class="pin" cx="358" cy="676" r="10" style="stroke:var(--sig)"/>
-  <circle class="pin" cx="387" cy="676" r="10" style="stroke:#ffffff"/>
+  <!-- Pines usados: fila de arriba GPIO4; fila de abajo 3V3, GND, GND, 0, 1, 10 -->
+  <circle class="pin" cx="545" cy="432" r="11" style="stroke:var(--sig)"/>
+  <circle class="pin" cx="284" cy="690" r="11" style="stroke:var(--v5)"/>
+  <circle class="pin" cx="400" cy="690" r="11" style="stroke:#ffffff"/>
+  <circle class="pin" cx="458" cy="690" r="11" style="stroke:#ffffff"/>
+  <circle class="pin" cx="487" cy="690" r="11" style="stroke:var(--sig)"/>
+  <circle class="pin" cx="516" cy="690" r="11" style="stroke:var(--sig)"/>
+  <circle class="pin" cx="545" cy="690" r="11" style="stroke:var(--sig)"/>
 
 
   <!-- Fuente de laboratorio -->
