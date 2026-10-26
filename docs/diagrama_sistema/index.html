@@ -220,13 +220,12 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <text class="t2" x="872" y="932">límite de corriente 4–5 A</text>
   <text class="t2" x="872" y="948">sobre la mesa · cables banana</text>
 
-  <!-- Bornera de 6 V con interruptor y capacitor -->
+  <!-- Bornera de 6 V con interruptor -->
   <rect class="blk falta" x="1110" y="870" width="120" height="95" rx="6"/>
   <text class="t1" x="1120" y="890">Bornera 6 V</text>
   <text class="t2" x="1120" y="908">interruptor en +6 V</text>
-  <text class="t2" x="1120" y="924">2200 µF + 100 nF</text>
-  <text class="t2" x="1120" y="940">GND en estrella</text>
-  <text class="t2" x="1120" y="956" style="fill:var(--falta) !important">falta armar</text>
+  <text class="t2" x="1120" y="924">GND en estrella</text>
+  <text class="t2" x="1120" y="940" style="fill:var(--falta) !important">falta armar</text>
 </svg>
 <div class="legend">
   <span><i style="background:var(--v6)"></i>6 V servos (fuente de laboratorio)</span>
@@ -283,14 +282,6 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <path class="w w6" d="M740 750 V730"/>
   <path class="w wg" d="M830 790 V730"/>
 
-  <!-- Capacitor sobre el bus, en la bornera de 6 V -->
-  <g>
-    <path class="w w6" d="M480 750 V763"/><path class="w wg" d="M480 790 V775"/>
-    <line x1="469" y1="764" x2="491" y2="764" stroke-width="3" style="stroke:var(--ink)"/>
-    <path d="M469 773 Q480 769 491 773" fill="none" stroke-width="3" style="stroke:var(--ink)"/>
-    <circle class="dot" cx="480" cy="750" r="4" style="fill:var(--v6)"/><circle class="dot" cx="480" cy="790" r="4" style="fill:var(--gnd)"/>
-  </g>
-  <text class="wl" x="452" y="812" style="fill:var(--falta) !important">C 2200 µF/16 V + 100 nF</text>
 
   <!-- 5 V: powerbank (USB-A) → bornera de 5 V → pines del GPIO de la Pi (cabeza), cruza yaw, pitch y roll -->
   <path class="w w5" d="M400 522 H430"/>
@@ -462,8 +453,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <tr><td>Fuente de laboratorio 6 V, ≥ 5 A</td><td><span class="tag t-tenes">TENÉS</span></td><td>La de las pruebas de banco. Ajustarla a <strong>6,0 V</strong> y poner el límite de corriente en 4–5 A (≥ 6 A si se puede) <em>antes</em> de conectar los servos. Con 3 A o menos, en los giros rápidos entra en limitación y los servos tiemblan. <strong>La ALP002 no sirve</strong> (1,5 A, entrada de 110 V).</td></tr>
 <tr><td>Bornes de panel banana 4 mm (rojo y negro) + 2 cables 18 AWG</td><td><span class="tag t-falta">FALTA</span></td><td>Entrada de la fuente en la pared de atrás de la caja (agujeros de Ø8, 19 mm entre centros: medir los que compren). Cables banana–banana o banana–cocodrilo de ~1 m, de 18 AWG o más gruesos.</td></tr>
 <tr><td>Interruptor de los servos, ≥ 10 A</td><td><span class="tag t-falta">FALTA</span></td><td>De balancín (corte 19,2 × 12,8), sobre el +6 V. Es la parada de emergencia física en la demo y la única forma de aflojar el HS-7955TG, que sin pulso sigue haciendo fuerza.</td></tr>
-<tr><td>Bornera de distribución de 6 V</td><td><span class="tag t-falta">FALTA</span></td><td>Un único punto donde se juntan +6 V y GND de los tres servos, el capacitor y el GND de la ESP32 (estrella). Va en la bahía de adelante de la caja.</td></tr>
-<tr><td>Capacitor 2200 µF / 16 V + 100 nF</td><td><span class="tag t-falta">FALTA</span></td><td>En la bornera de 6 V. Con la fuente lejos, el cable largo tiene inductancia y el capacitor da los picos de los servos.</td></tr>
+<tr><td>Bornera de distribución de 6 V</td><td><span class="tag t-falta">FALTA</span></td><td>Un único punto donde se juntan +6 V y GND de los tres servos y el GND de la ESP32 (estrella). Va en la bahía de adelante de la caja.</td></tr>
 <tr><td>Cable USB-A macho → 2 hilos + bornera de 2 polos</td><td><span class="tag t-falta">FALTA</span></td><td>Saca 5 V y GND de la salida USB-A del powerbank hacia los pines de la Pi. El USB-A entrega 5 V sin negociar: no hace falta placa USB-C con resistencias. Hilos de ≥ 22 AWG (muchos cables USB traen 28 AWG y caen tensión a 3 A). <strong>Si en la cabeza el USB-C de la Pi queda libre</strong> (sin verificar: <span class="mono">PI_CSI_SALIDA</span>), usar en su lugar un cable USB-C acodado directo, como en el banco.</td></tr>
 <tr><td>Módulo de buzzer pasivo (MH-FMD)</td><td><span class="tag t-tenes">TENÉS</span></td><td>El buzzer que pide el enunciado, en el GPIO10, con VCC a 3V3: ver "Módulo del buzzer" arriba. Trae el transistor: no hacen falta el 2N2222, las resistencias ni el diodo.</td></tr>
 <tr><td>Active Cooler de la Pi 5</td><td><span class="tag t-recom">RECOM.</span></td><td>La percepción usa ~240 % de CPU de forma sostenida; sin ventilador la Pi baja la frecuencia y cae la tasa de percepción. Va dentro de la cabeza cerrada: medir su altura (<span class="mono">COOLER_H</span>, se supusieron 11 mm) y la temperatura con la cabeza armada (<span class="mono">/sys/class/thermal/thermal_zone0/temp</span>).</td></tr>

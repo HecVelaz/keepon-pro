@@ -2,7 +2,7 @@
 
 - **De la v3** (`../keepon_v3_cad/`): la cabeza completa (Pi 5 parada adentro, cámara-nariz, ojos, cinta con la U y el doblez en Z), los tres servos, los soportes de pitch, la horquilla y los brazos dobles. Son las mismas piezas, sin cambios.
 - **De la v1** (`../keepon_mg996r_step/`, `cuerpo.png`): la disposición de los motores. Es una columna compacta: el yaw vertical en la base, una **base en U** sobre su brazo, y **el eje de pitch justo encima del eje de yaw**. En la v3 el pitch estaba 20 mm adelante, sobre un plato de Ø146.
-- **Nuevo:** la caja base lleva el **powerbank Xiaomi** para la Pi y, en la pared de atrás, **dos bornes para la fuente de laboratorio** que alimenta los servos (decisión del 14/10). Adelante, en una bahía, van la bornera de 6 V con el capacitor, la ESP32 y el buzzer.
+- **Nuevo:** la caja base lleva el **powerbank Xiaomi** para la Pi y, en la pared de atrás, **dos bornes para la fuente de laboratorio** que alimenta los servos (decisión del 14/10). Adelante, en una bahía, van la bornera de 6 V, la ESP32 y el buzzer.
 - **Salieron la LiPo Zeee y el regulador de 6 V.** Su lugar queda libre; la caja conserva la medida (ver "Achicar la caja" más abajo).
 
 ![frente](vistas/01_frente_iso.png)
@@ -42,7 +42,7 @@ Vista de arriba (+X es la cara del robot):
 - **Bornes de 6 V** (banana de 4 mm, rojo y negro, 19 mm entre centros) en la pared de atrás, del lado derecho, por debajo del interruptor. Agujeros de Ø8: medir el borne que compren. Por adentro dan al **lugar libre de la LiPo**, que queda para el cableado y el bucle del yaw.
 - **El servo de yaw cuelga de la tapa** (con la brida por debajo, como en la v3).
 - **Bahía de adelante:**
-  - la **bornera de 6 V** (20 × 40 mm), donde estaba el regulador: reparte +6 V y GND a los tres servos y lleva el **capacitor de 2200 µF + 100 nF**. Va con 2 tornillos M3 al piso o con cinta doble faz;
+  - la **bornera de 6 V** (20 × 40 mm), donde estaba el regulador: reparte +6 V y GND a los tres servos (el capacitor de 2200 µF se sacó el 26/10; el modelo todavía lo dibuja). Va con 2 tornillos M3 al piso o con cinta doble faz;
   - la **ESP32** va parada en `porta_esp32`, tomada de los extremos cortos para que los pines queden libres, con un paso para el micro-USB;
   - la **bornera de 5 V** (2 polos): llega el cable USB-A del powerbank y sale el de 20 AWG a la Pi;
   - el **buzzer**, en un aro de la pared de adelante con 5 agujeros para el sonido.
@@ -54,7 +54,7 @@ Vista de arriba (+X es la cara del robot):
 ```
  Fuente de laboratorio ─ bananas 18 AWG ─ bornes ─ interruptor ─ bornera 6 V ─┬─ RDS3218 (yaw)
  (6,0 V, límite 4–5 A,    (~1 m)          (pared   (solo +6 V)                ├─ HS-7955TG (pitch)
-  sobre la mesa)                           de atrás)   2200 µF + 100 nF ──────┼─ MG996R (roll)
+  sobre la mesa)                           de atrás)                          ├─ MG996R (roll)
                                                                               └─ GND ─┐
  Powerbank Xiaomi ─ USB-A ─ bornera 5 V ─ 5 V / GND (20 AWG) ─▶ GPIO 2/4 y 6 de la Pi 5 │ GND común
                                                                                        │ (por la ESP32)
@@ -73,7 +73,7 @@ Son **dos fuentes separadas**: los picos de los servos (sobre todo el HS-7955TG)
 - **Servos con la fuente de laboratorio:** **6,0 V** (máximo absoluto 7,4 V: el MG996R y el RDS3218 no aguantan más). En uso normal los tres piden 2–3 A, con picos de ~1 A por servo en los giros rápidos; trabados, 2,5–4,2 A cada uno.
   - **Límite de corriente en 4–5 A** (≥ 6 A si la fuente lo permite). Con 3 A o menos, en los movimientos bruscos la fuente entra en limitación, baja la tensión y los servos tiemblan o pierden fuerza.
   - **No usar la ALP002** (1,5 A, entrada de 110 V).
-  - Cable de 18 AWG o más grueso hasta los bornes, y el capacitor en la bornera de 6 V: el cable largo tiene inductancia.
+  - Cable de 18 AWG o más grueso hasta los bornes: el cable largo cae tensión y tiene inductancia (sin el capacitor, mejor que sea corto).
 - **Interruptor de los servos:** corta solo el +6 V. Es la parada de emergencia física y la **única forma de aflojar el HS-7955TG** (sin pulso mantiene la posición con fuerza; el STOP del firmware lo congela, no lo afloja). Que sea de ≥ 10 A.
 - **GND común:** el negativo de los bornes (bus de 6 V) se une al GND de la ESP32. Sin GND común, los servos no se mueven. La Pi y el powerbank quedan unidos a esa masa por el USB.
 - **Secuencia:**
@@ -111,7 +111,7 @@ Son **dos fuentes separadas**: los picos de los servos (sobre todo el HS-7955TG)
 
 ## Orden de montaje
 
-1. Caja: velcro y powerbank, bornes e interruptor en la pared de atrás, bornera de 6 V con el capacitor, `porta_esp32` con la ESP32, buzzer en su aro. Cablear la potencia (ver arriba).
+1. Caja: velcro y powerbank, bornes e interruptor en la pared de atrás, bornera de 6 V, `porta_esp32` con la ESP32, buzzer en su aro. Cablear la potencia (ver arriba).
 2. Tapa: atornillar el RDS3218 por debajo y llevar su cable a la ESP32. Pasar los cables que suben por el paso de la tapa y cerrar la caja.
 3. Base en U al brazo del yaw (con el servo centrado en 1500 µs y la U mirando al frente), y los soportes de pitch a la U.
 4. HS-7955TG al soporte izquierdo; horquilla con el MG996R al brazo del HS y al pivote M4.
