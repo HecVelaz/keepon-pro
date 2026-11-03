@@ -1,0 +1,29 @@
+﻿pieza,uso,eje,diametro_mm,centro_x_mm,centro_y_mm,centro_z_mm,inicio_eje_mm,fin_eje_mm,nota
+10_soporte_centrado_servo_base,Paso M3 a pilar,Z,3.4,-18,-6,0,38,44,
+01_base_con_pilares,Inserto M3 L5 centrado,Z,4.0,-18,-6,0,31.4,38,Taladro de inserto provisional; comprobar fabricante
+10_soporte_centrado_servo_base,Paso M3 a pilar,Z,3.4,-18,6,0,38,44,
+01_base_con_pilares,Inserto M3 L5 centrado,Z,4.0,-18,6,0,31.4,38,Taladro de inserto provisional; comprobar fabricante
+10_soporte_centrado_servo_base,Paso M3 a pilar,Z,3.4,38,-6,0,38,44,
+01_base_con_pilares,Inserto M3 L5 centrado,Z,4.0,38,-6,0,31.4,38,Taladro de inserto provisional; comprobar fabricante
+10_soporte_centrado_servo_base,Paso M3 a pilar,Z,3.4,38,6,0,38,44,
+01_base_con_pilares,Inserto M3 L5 centrado,Z,4.0,38,6,0,31.4,38,Taladro de inserto provisional; comprobar fabricante
+04_carcasa_inferior_cabeza,Piloto Raspberry Pi,Z,2.2,-3.5,-44,0,111.4,122,"Poste ?9, altura10.6"
+04_carcasa_inferior_cabeza,Piloto Raspberry Pi,Z,2.2,-3.5,5,0,111.4,122,"Poste ?9, altura10.6"
+04_carcasa_inferior_cabeza,Piloto Raspberry Pi,Z,2.2,54.5,-44,0,111.4,122,"Poste ?9, altura10.6"
+04_carcasa_inferior_cabeza,Piloto Raspberry Pi,Z,2.2,54.5,5,0,111.4,122,"Poste ?9, altura10.6"
+03_cuna_de_inclinacion,Acceso tornillo central,Y,8.4,0,0,163.0,-99.5,90.1,Pasante en toda pieza; extraer casquillo22 y pivote para herramienta
+04_carcasa_inferior_cabeza,Paso M3 disco roll,X,3.4,0,5,163.0,-47.6,-31.6,"Herramienta de corte pasante; R5, 90 grados"
+04_carcasa_inferior_cabeza,Paso M3 disco roll,X,3.4,0,0,168.0,-47.6,-31.6,"Herramienta de corte pasante; R5, 90 grados"
+04_carcasa_inferior_cabeza,Paso M3 disco roll,X,3.4,0,-5,163.0,-47.6,-31.6,"Herramienta de corte pasante; R5, 90 grados"
+04_carcasa_inferior_cabeza,Paso M3 disco roll,X,3.4,0,0,158.0,-47.6,-31.6,"Herramienta de corte pasante; R5, 90 grados"
+06_cara_con_ojos_integrados,Inserto M3 L4 soporte buzzer,X,4.0,0,-35.0,135,63,67.6,Ciego; entra desde atr?s
+06_cara_con_ojos_integrados,Inserto M3 L4 soporte buzzer,X,4.0,0,35.0,135,63,67.6,Ciego; entra desde atr?s
+06_cara_con_ojos_integrados,Inserto M3 L3 PCB buzzer,X,4.0,0,9.9,134.8,60,64.6,Ciego; entra desde atr?s
+06_cara_con_ojos_integrados,Fijaci?n ciega de cara,X,2.2,0,-56,129,70,72.2,Piel frontal0.8
+06_cara_con_ojos_integrados,Fijaci?n ciega de cara,X,2.2,0,-56,197,70,72.2,Piel frontal0.8
+06_cara_con_ojos_integrados,Fijaci?n ciega de cara,X,2.2,0,56,129,70,72.2,Piel frontal0.8
+06_cara_con_ojos_integrados,Fijaci?n ciega de cara,X,2.2,0,56,197,70,72.2,Piel frontal0.8
+06_cara_con_ojos_integrados,Fijaci?n ciega c?mara,X,2.2,0,-10.5,150.6,66.56,71.8,Piel frontal1.2
+06_cara_con_ojos_integrados,Fijaci?n ciega c?mara,X,2.2,0,-10.5,163.1,66.56,71.8,Piel frontal1.2
+06_cara_con_ojos_integrados,Fijaci?n ciega c?mara,X,2.2,0,10.5,150.6,66.56,71.8,Piel frontal1.2
+06_cara_con_ojos_integrados,Fijaci?n ciega c?mara,X,2.2,0,10.5,163.1,66.56,71.8,Piel frontal1.2

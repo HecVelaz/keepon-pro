@@ -52,7 +52,7 @@ Firmware: `firmware/CLAUDE.md`. Banco de servos: `pruebas_servos/CLAUDE.md`. Pi 
 | Pruebas de banco de los servos | `pruebas_servos/CLAUDE.md`, `pruebas_servos/README.md` |
 | Buzzer y sonidos | `pruebas_buzzer/README.md` |
 | Detector de camisetas | `pruebas_camisetas/README.md` |
-| Modelo mecánico (vigente: v4) | `docs/keepon_v4_cad/README.md` |
+| Modelo mecánico (vigente: v6 R4) | `docs/diseno_v6/LEEME_GIT.md`, `docs/diseno_v6/README.md` |
 | Diagrama eléctrico / del sistema | `docs/diagrama_sistema/index.html` |
 | Revisiones de Codex | `docs/REVISION_CODEX.md`, `docs/REVISION_CODEX_M0.md`, `docs/REVISION_CODEX_PI.md`, `docs/REVISION_CODEX_ARQ.md`, `docs/REVISION_CODEX_HW.md` |
 

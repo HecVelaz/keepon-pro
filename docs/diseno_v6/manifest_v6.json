@@ -1,0 +1,872 @@
+[
+  {
+    "archivo": "auditar_v6.py",
+    "bytes": 4408,
+    "sha256": "db977298cbd986de516d4adbf70aea1bc1d8a264734d6d9685202567beda67aa"
+  },
+  {
+    "archivo": "cache_nativos_v6.py",
+    "bytes": 196,
+    "sha256": "b037f445efc7d436b19af118ec4319bf5973e595a5d8fb6d5643887ba590b118"
+  },
+  {
+    "archivo": "calcular_acoples_nominales.py",
+    "bytes": 932,
+    "sha256": "cf67a71c884c749bb9aab236c9e86457b2cbe2f57a070dfe0f461b2cd852bf65"
+  },
+  {
+    "archivo": "clasificar_interferencias_v6.py",
+    "bytes": 1520,
+    "sha256": "c618e545dc276387b0abfa0d07881f62b882827edbc793f33010a42c2f388175"
+  },
+  {
+    "archivo": "comparar_grupo_reexportado.py",
+    "bytes": 1276,
+    "sha256": "dbb250492a44885d4c0627ac032d52922d10b12b5502eb8f14d8320834a707ab"
+  },
+  {
+    "archivo": "config.yaml",
+    "bytes": 6046,
+    "sha256": "9ffdbbf81b3a13a59ea27519ace89d16937e650903350e2a23b3d3373ba0a4bf"
+  },
+  {
+    "archivo": "config_prototipo.yaml",
+    "bytes": 732,
+    "sha256": "eccba68c60f11ce0c4ddf35baafe65b387514bd7b9d58332991e94db6586473b"
+  },
+  {
+    "archivo": "crear_nativos_por_lotes.py",
+    "bytes": 2111,
+    "sha256": "7281390e9c56df1705537fddb625cee6d1209c5455cdd6ba3d57c9b2e4a6f599"
+  },
+  {
+    "archivo": "crear_ojo_solidworks.py",
+    "bytes": 2930,
+    "sha256": "177398d4cfb03b7d341ecb689517efc36684dbd1f3e0bc0c7d72195649a25966"
+  },
+  {
+    "archivo": "crear_solidworks_v6.py",
+    "bytes": 14681,
+    "sha256": "6ee051e48a7a6d5c2e0527f60319ef15e612df20e72a1937fc0e8dee0f3a221e"
+  },
+  {
+    "archivo": "design_plan_v6.json",
+    "bytes": 19551,
+    "sha256": "8cdb4f4171c0add3b0850ab66c407b4feb4eb42224de68583fa89bdb505213ad"
+  },
+  {
+    "archivo": "diagnosticar_grupo_roll.py",
+    "bytes": 2313,
+    "sha256": "2ec32faafaf8b898163acd6990961018cc1c6af6b108cfcb38c02846b4df1dfb"
+  },
+  {
+    "archivo": "diagnostico_holgura_v5.py",
+    "bytes": 1395,
+    "sha256": "0eda3ed533ddd77e590236e933673b2c2b37d05974ea80658ec4df7fa579a0df"
+  },
+  {
+    "archivo": "documentacion/agujeros_v6.csv",
+    "bytes": 2674,
+    "sha256": "0ccbdf7b53d38fc26bb0109a2eccb68b49296b1ee1fd518eec4c237e51fadc9d"
+  },
+  {
+    "archivo": "documentacion/INTERFACES.md",
+    "bytes": 2559,
+    "sha256": "67f7cbaa3e26d75b5782874c91a206bc959f4cf539dba52e7a4ed01d7f3dac25"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/02_horquilla_yaw.svg",
+    "bytes": 435352,
+    "sha256": "9f12ec6b7197306f7b20356a51350ef0323907ecd2483ea230490d9b1d11563d"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/03_cuna_pitch.svg",
+    "bytes": 427959,
+    "sha256": "3e35559b56f142934ba1939e92d22684eb6066f65ef97db31259c1a47f20d4ce"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/04_cuba_cabeza.svg",
+    "bytes": 586280,
+    "sha256": "0e154c2ee570b32cc60dc6b4a5b025849acb7ce6da3934039c8e3953a3615d56"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/05_tapa_ventilada.svg",
+    "bytes": 167363,
+    "sha256": "cc634b79e9ecfa192f633863707039340eb930ab57423d8cd8cc3fd650609f0a"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/06_cara_binocular.svg",
+    "bytes": 285103,
+    "sha256": "68810a6cfcf2acd617a90744c8e2e8b59527cf756f28c6ac42cbbf028c6f2340"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/08_bandeja_electronica.svg",
+    "bytes": 233266,
+    "sha256": "731d4fe0da25ddd49f1181141ce0c2d58c04111ff10264d85cd8a04988bfce55"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/09_retencion_esp32.svg",
+    "bytes": 23294,
+    "sha256": "a81f9dbe53c4b831a9059542e02d36eef8b71be4b361f62e464748da330cfdb2"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/10_adaptador_yaw.svg",
+    "bytes": 140167,
+    "sha256": "e9f59e4a831aaacf71959cfd0e2834abb50aac655d99ef479dbf41d38bdde639"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/11_retencion_horn_yaw.svg",
+    "bytes": 146691,
+    "sha256": "ac818ef4f63c5de7ddf34bdc603ba58360afb49d73de682eac59b13a751989d4"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/12_retencion_horn_pitch_simple.svg",
+    "bytes": 162745,
+    "sha256": "b118c5c86f69284da057302fc49dbc4b5715c3546ae7c503bfdf3e862379a674"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/13_retencion_horn_roll.svg",
+    "bytes": 153856,
+    "sha256": "9f56c4be3cdab80269db441bf541188e7198bfa715d8eb5c9b0962f5565ee373"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/15_soporte_RLBZ23.svg",
+    "bytes": 75574,
+    "sha256": "c71476eea75672481b34a09f429099b4f8d3b089d2c89df8b5e3c7e5ac59fef6"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/16_ojo_izq.svg",
+    "bytes": 94345,
+    "sha256": "ddc885b80295b91ce77961ae7e4253f29e90743139394267cca2425754b6819d"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/17_ojo_der.svg",
+    "bytes": 93912,
+    "sha256": "b21647762bb6661a5d17e13832173a44c9a0d6a43008690280970808872fc77e"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/19_lente_ojo_izq.svg",
+    "bytes": 71900,
+    "sha256": "70997d2846ad6d4092ea1bf351c2e3cc0e0066b9c4235967c1b5c3d6100a5d10"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/20_lente_ojo_der.svg",
+    "bytes": 70775,
+    "sha256": "25849dc7fbf566bd04f1eb6c62e010fe4c10eb3c8e46958840a328bd7d680b75"
+  },
+  {
+    "archivo": "documentacion/planos_svg_revision/21_arandela_buzzer.svg",
+    "bytes": 27322,
+    "sha256": "4436c9672368c36f632f17dc3c7b29bdc1f1d1d71106d16b651ffc3330380fd0"
+  },
+  {
+    "archivo": "documentacion/ranuras_USB_R1.csv",
+    "bytes": 438,
+    "sha256": "a8cc1dcbf82d1b85524183b44568525eaf1c449495c8973f32099316334c8cc6"
+  },
+  {
+    "archivo": "documentacion/ranuras_USB_R2.csv",
+    "bytes": 549,
+    "sha256": "934d4d8f9faa46cb6ccc6be3f0d2fd7f5e68e257dd02031ca56fe9328903e2d4"
+  },
+  {
+    "archivo": "documentacion/REVISION_R2.md",
+    "bytes": 3720,
+    "sha256": "dbedd69b76a9ba47344944cd92dcf77e9ef50d47ac350280fe940dca948134ca"
+  },
+  {
+    "archivo": "documentacion/REVISION_USB_R1.md",
+    "bytes": 2956,
+    "sha256": "b6a716c80cfb2d894af433ef650b8522c49ad2d67138ddc006a3a15ed71b8513"
+  },
+  {
+    "archivo": "documentacion/uniones_v6.csv",
+    "bytes": 817,
+    "sha256": "3b8ae41147fbd0705ac238c9f00669f1feddc09ecdf1feafde7d6bd85c3ce3e1"
+  },
+  {
+    "archivo": "documentacion/VERIFICACION_ENTREGA.md",
+    "bytes": 4081,
+    "sha256": "e55448562e8c1569c9320ce3b17869ca791cacd6ee9c3fd71def513584d01d67"
+  },
+  {
+    "archivo": "documentar_interfaces_v6.py",
+    "bytes": 8222,
+    "sha256": "6020e243c9b51f067b7c596a295de2a675054cd02976c2d8d1362951093d9fed"
+  },
+  {
+    "archivo": "ejecutar_regresiones_v6.py",
+    "bytes": 1032,
+    "sha256": "58060c995ba5abe3ab1af18389913f7dfa6a99a2c3fd636a9e7e8768fe58a21f"
+  },
+  {
+    "archivo": "empaquetar_v6.py",
+    "bytes": 7513,
+    "sha256": "9682dd1b8fb81472c4b93cc564a0e3339fde92d2a55e6b96f677badd0dff7518"
+  },
+  {
+    "archivo": "estabilizar_step_R1.py",
+    "bytes": 1169,
+    "sha256": "5e2c8fb77686d05441cce68702c4b38e4471a421d690c200d48c5d066bbc5e9f"
+  },
+  {
+    "archivo": "estabilizar_step_R2.py",
+    "bytes": 1115,
+    "sha256": "38494dd74abe6057a8b00a193c2aebf4063016955e5a6e7aadba91932a9063ef"
+  },
+  {
+    "archivo": "evidencias/acoples_nominales.json",
+    "bytes": 374,
+    "sha256": "f638104f7435f1518a77727413f2c383bd4540da2b4433f6225053b962148d49"
+  },
+  {
+    "archivo": "evidencias/archivos_v6.json",
+    "bytes": 8430,
+    "sha256": "d59a608416caa9016a5c5c9eb1f465146989365e09c02c9b31f7e9ca7b262639"
+  },
+  {
+    "archivo": "evidencias/auditoria_v6.json",
+    "bytes": 25819,
+    "sha256": "a7676a406a28edf703bc4f1c5b566de61bd6f883b7b505c2e4f16434f12ff0e5"
+  },
+  {
+    "archivo": "evidencias/cableado_v6.json",
+    "bytes": 1156,
+    "sha256": "fc4e074401fd2b63d5e052aa5eaab1926584b9ba5ef0f0a1d9e618eb3e9b1a43"
+  },
+  {
+    "archivo": "evidencias/cambios_STEP_R2.json",
+    "bytes": 969,
+    "sha256": "c4b8e7ae687ebc1a2cbefbc2978f2c5ae1c0372b2cdfba38a7ff4fb6269af084"
+  },
+  {
+    "archivo": "evidencias/cambios_STEP_USB_R1.json",
+    "bytes": 829,
+    "sha256": "a7fbb565bb47fc4b9c19a1d52eb4b41afbec99bd2850281fe47962014b81cd58"
+  },
+  {
+    "archivo": "evidencias/cuerpos_v6.json",
+    "bytes": 9288,
+    "sha256": "f13ab8574668396bdb1c96e398c3ed0e63f11da9afa6d7c650b234be417fb647"
+  },
+  {
+    "archivo": "evidencias/dag_v6.json",
+    "bytes": 10577,
+    "sha256": "68e6478d21a8e157dcd0e8fcd6187f7996a7544e19363a51bb70cfcd090434b1"
+  },
+  {
+    "archivo": "evidencias/holgura_cuna_cuba_v5.json",
+    "bytes": 907,
+    "sha256": "8370a9adf779fdda7b47901eab71a79bc7be0ec00ceaa01df61997206e0d6726"
+  },
+  {
+    "archivo": "evidencias/ojos.json",
+    "bytes": 317,
+    "sha256": "7ad7d20e33b44828e5e1ed7f4737294285c48b5e7f3ab039c836ca100f30bf73"
+  },
+  {
+    "archivo": "evidencias/R2_buzzer_ojos.json",
+    "bytes": 966,
+    "sha256": "08300d635119f49af1b5119d58db2b03eed2756d543f800f714ee3ca2a2e75c5"
+  },
+  {
+    "archivo": "evidencias/referencias_step.json",
+    "bytes": 12284,
+    "sha256": "a8876ce7adde9392c4f7ffef44b2d7daa74f97c1dc0408c066734e47dce9a8dd"
+  },
+  {
+    "archivo": "evidencias/regresiones_v6.json",
+    "bytes": 317,
+    "sha256": "8123084fd3e3f4b92de8c4b9de319958712c8743346c1fb74e07d946821b073e"
+  },
+  {
+    "archivo": "evidencias/RESERVA_USB_R1_NO_MEDIDA.step",
+    "bytes": 15545,
+    "sha256": "0dca20080bbad9aef31a7e50ede86fdc1fd96be286f4044ad2e78173faf024f1"
+  },
+  {
+    "archivo": "evidencias/resumen_entrega_v6.json",
+    "bytes": 1390,
+    "sha256": "b173fdef3eeab08b27179ff76ecc8444f204a3c8a43c2eb1110a18e2e6f9cc1a"
+  },
+  {
+    "archivo": "evidencias/RLBZ23_PCB_MEDIDO.step",
+    "bytes": 19170,
+    "sha256": "cf7eb1dad817bb7bc0d54174e5476c7c1aa523b5acd98c27a35372f81d7b9f1f"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/dependencias_nativas.json",
+    "bytes": 985,
+    "sha256": "8dbb9d3e31151dc5f8af090f58f1aa21900a47675a49d1ae10da84466222fd12"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/interferencias_clasificadas.json",
+    "bytes": 620,
+    "sha256": "299680506c2077b6dbacc343d723ee0b37e5f3862f2f7db92e6d4f587d2678bb"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/keepon_v6_front.png",
+    "bytes": 125198,
+    "sha256": "05023d4c0e3467808e66be80b067c40c1a0103861a2d27e7c93a9df5795240e3"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/keepon_v6_isometric.png",
+    "bytes": 200549,
+    "sha256": "b45d634bca161fbbd2c2cf427c42c2bc243120851d72e4e2cec06b0cadb56e58"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/keepon_v6_review_report.json",
+    "bytes": 10500,
+    "sha256": "cc943fd36129949a2f08cb09aeedd38a208f30e3c2ade2b378d3c12037164c47"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/keepon_v6_review_summary.md",
+    "bytes": 1132,
+    "sha256": "2eb1646eba3b90a4cbe16e39f3875732e70203d960cdfd53d1748d3f6ce86417"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/keepon_v6_right.png",
+    "bytes": 97915,
+    "sha256": "cd62250286646e18dce077506c8dcc2ce4011a1fc9c0b692315e09ac0f7dafd0"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/keepon_v6_top.png",
+    "bytes": 97438,
+    "sha256": "56cd58c43c291b092c930ee0d5eb511664e0e248edac93b8a332d63717cacaff"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/progreso_grupos.json",
+    "bytes": 1158,
+    "sha256": "750f29a6c6038176ac2d7513204e2ec580a2c6801814b288acedb1fd70072133"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/progreso_individuales.json",
+    "bytes": 3904,
+    "sha256": "64a67684cb988b4478a1b3d15d95ee1d7a556a7bb3bdabaca3cb0d674861dbd2"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/verificacion_nativa.json",
+    "bytes": 20460,
+    "sha256": "05b923b3f365037759e3e4c46f3693d691252915dd3ff8e60bfff0a80c86fbd6"
+  },
+  {
+    "archivo": "evidencias/solidworks_v6/volumen_roll_maxima_precision.json",
+    "bytes": 469,
+    "sha256": "4738652b8ae80d92647449c26ac2fae5f39e1f4ef4531b79929e58319294cc5d"
+  },
+  {
+    "archivo": "evidencias/trazabilidad_v6.json",
+    "bytes": 963,
+    "sha256": "28da3a04f366b428a5f401ad113e4e422fa7c4a4f8c4758e2dc962f0f1e287a5"
+  },
+  {
+    "archivo": "evidencias/USB_R1.json",
+    "bytes": 9134,
+    "sha256": "eb80f6c07b1081cf49acc462793505f28f7cf63f155b5091b5338041d28a61bc"
+  },
+  {
+    "archivo": "evidencias/volumenes_grupos_v6.json",
+    "bytes": 315,
+    "sha256": "00df94060d0bcd253798b36df33a2e5717330e7d3bdc242be3402473d1d5a5f5"
+  },
+  {
+    "archivo": "generar_ojos.py",
+    "bytes": 3337,
+    "sha256": "7aa974e8bc3c52d22c0ff99582c50d1d104937b0e93bde59d833d072b8037b38"
+  },
+  {
+    "archivo": "generar_roll_exterior.py",
+    "bytes": 5467,
+    "sha256": "c946b46ebf843c365ccad825fdca9672cd957ada825a0801d71f7e9754aa5290"
+  },
+  {
+    "archivo": "generar_v6.py",
+    "bytes": 24982,
+    "sha256": "4cfbabdc6973052fdd3a3f789470e25288bd443c9b23c49006c7da4e83adc1a3"
+  },
+  {
+    "archivo": "HISTORIAL_PRELIMINAR.md",
+    "bytes": 11242,
+    "sha256": "cfedc47ecbfd61fd9ceb9edfa0ae24ec76598af8f98e22689c277eb96132cca1"
+  },
+  {
+    "archivo": "IMPRESION_STL/16_ojo_izq.stl",
+    "bytes": 109284,
+    "sha256": "0f5112e097fa5a376a18b6a73a72fcda8f8a161c340fb9b82a70c43e3ab686df"
+  },
+  {
+    "archivo": "IMPRESION_STL/17_ojo_der.stl",
+    "bytes": 109284,
+    "sha256": "63c0b10821356b79c00d876ce325655c33dc09a602b754ddbbe7e1383b9fa016"
+  },
+  {
+    "archivo": "IMPRESION_STL/18_cupon_insertos.stl",
+    "bytes": 278284,
+    "sha256": "c33edcd32cc8f7bbd1354c26a026e0ff2e3b5701a181f047e20d39d9e242a9ff"
+  },
+  {
+    "archivo": "IMPRESION_STL/19_lente_ojo_izq.stl",
+    "bytes": 62884,
+    "sha256": "c94ca3e4f4a66177120c6714c1d79f36f3b088c6cb532ccd1903ad3bda980cb2"
+  },
+  {
+    "archivo": "IMPRESION_STL/20_lente_ojo_der.stl",
+    "bytes": 62884,
+    "sha256": "c94ca3e4f4a66177120c6714c1d79f36f3b088c6cb532ccd1903ad3bda980cb2"
+  },
+  {
+    "archivo": "INFORME_ENTREGA_V6.md",
+    "bytes": 1796,
+    "sha256": "48fa3241baa18c762bcff7f9f43d3d4cb36d701b90c079e7d2b03a754579f250"
+  },
+  {
+    "archivo": "inspeccionar_referencias.py",
+    "bytes": 1691,
+    "sha256": "3e630b883f2b2ab79993e4669e7db6cc23149d6addd2abefe214de1c585e9cfc"
+  },
+  {
+    "archivo": "inventario_v6.json",
+    "bytes": 4840,
+    "sha256": "cd54edb46f9f028dec68f77fe148b37333909527c83a6c02e5694e9e6ad317a3"
+  },
+  {
+    "archivo": "mallas_v6.json",
+    "bytes": 7263662,
+    "sha256": "3c2fda1b9b3a0c31683a38ea086fca126a90438067fef28bba481edb963407cf"
+  },
+  {
+    "archivo": "MEDICIONES_PENDIENTES.md",
+    "bytes": 4741,
+    "sha256": "2ff5d2abd1a9562f290d20d0cf05089d34f279db6a4c2b66bf4af6a6a68dc451"
+  },
+  {
+    "archivo": "medir_volumen_maximo_roll.py",
+    "bytes": 1074,
+    "sha256": "89a04f31099dfc6e8f6b845212f0d7711ba176c42f0050bc2fc80e8b7289e92d"
+  },
+  {
+    "archivo": "planos_revision_v6.py",
+    "bytes": 2118,
+    "sha256": "f9fffa2e6dc6912186522cc7ae3197b4ae851c367d782ab26e943fa7888bf14a"
+  },
+  {
+    "archivo": "preparar_plan_v6.py",
+    "bytes": 2547,
+    "sha256": "38308ced50d7d0258b4197b438fa0c7fb020f7789e1f907b08557e9a16960394"
+  },
+  {
+    "archivo": "README.md",
+    "bytes": 7574,
+    "sha256": "adb35a36afb94dafba089daf59b9b0de81e83dea59aa29e4dfe9a127f3d1bd5e"
+  },
+  {
+    "archivo": "renderizar_R2.py",
+    "bytes": 1868,
+    "sha256": "c302485610cb38d81eb05358116175cba6b2a65a084ff4bf8d4fbba7e750acb3"
+  },
+  {
+    "archivo": "renderizar_USB_R1.py",
+    "bytes": 1835,
+    "sha256": "d43abaf89b72d202e0e4cb755882d5e323499485012789f7a4d859fffdb6edda"
+  },
+  {
+    "archivo": "renderizar_v6.py",
+    "bytes": 1848,
+    "sha256": "8e9497dfc218891975bf7d897d1a5ab09c4b258f4a5e47082283970423f722f5"
+  },
+  {
+    "archivo": "revisar_cableado_v6.py",
+    "bytes": 2229,
+    "sha256": "a47b908d0b66b56b2406e8842e91becc7fc88a4074221e1dd2b9d26c2c999def"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/02_horquilla_yaw.SLDPRT",
+    "bytes": 150762,
+    "sha256": "7337453c0da0358fb303830b8be295dc35037f45981ed075717f07be7e7e54e2"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/03_cuna_pitch.SLDPRT",
+    "bytes": 119098,
+    "sha256": "8779a188a746a9cc8dfd385313cba4ab22a93f83e310bdbaf073760279c3a9e2"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/04_cuba_cabeza.SLDPRT",
+    "bytes": 241751,
+    "sha256": "55763c9527a617a209f8acb8d1b5c76b24aac091a84c2bcf6485db751bf138c1"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/05_tapa_ventilada.SLDPRT",
+    "bytes": 134641,
+    "sha256": "daaff7ed7f9f42990fff498078a2fe99448b4e02e7229f9c27e95e61206db661"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/06_cara_binocular.SLDPRT",
+    "bytes": 87973,
+    "sha256": "d98b5e9b0cab020412b22d47eedbdb847435787e69718c6a4a16f54af7fa264e"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/08_bandeja_electronica.SLDPRT",
+    "bytes": 118629,
+    "sha256": "8787bad8eead246ba0c28006760f19851d6ef24684f5036ad95fd1cffb9d22e6"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/09_retencion_esp32.SLDPRT",
+    "bytes": 45949,
+    "sha256": "997facf825288133bec198d241ad0180305ac91980497dd43c6176e38242792e"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/10_adaptador_yaw.SLDPRT",
+    "bytes": 75811,
+    "sha256": "bb1310de935869425c98d0b2b2fa52a3bce282dc1997faeb96225cbff223c746"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/11_retencion_horn_yaw.SLDPRT",
+    "bytes": 78328,
+    "sha256": "ecf50330ea015ed6c959a452f5848214f6ef328f34c933f296294bbfcbcd79e6"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/12_retencion_horn_pitch_simple.SLDPRT",
+    "bytes": 68222,
+    "sha256": "c3f62179b4b2edfed4abed54b8ebb471e85765c5ec1b76e0bc16ba9bbadabee2"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/13_retencion_horn_roll.SLDPRT",
+    "bytes": 73319,
+    "sha256": "344033088503dbe117f646a7f7b84c5bf07a0edd9755aeeabef8803f2c905e0e"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/15_soporte_RLBZ23.SLDPRT",
+    "bytes": 83442,
+    "sha256": "c6778e51bc43610c59db05da567ad67c10c6323cb1717c92a4515af9a2467a4d"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/16_ojo_izq.SLDPRT",
+    "bytes": 84222,
+    "sha256": "f3c8452e910feb95af1d5abba7b95cfa16b82c3706b830e547251b15cb6ce97d"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/17_ojo_der.SLDPRT",
+    "bytes": 81736,
+    "sha256": "74e87cd697093e8bb75c122f96387f28888914266bb766c5174502d9f745a887"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/18_cupon_insertos.SLDPRT",
+    "bytes": 74758,
+    "sha256": "ca1a482ff961dd75dffc795e799b48b64576e3f37fce12c094d28d1cfb72030b"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/19_lente_ojo_izq.SLDPRT",
+    "bytes": 66196,
+    "sha256": "9fe8ff4ebb6821c957a007041ae204f922f03a2ab578f2cd9a5f79ba38e60c17"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/20_lente_ojo_der.SLDPRT",
+    "bytes": 66964,
+    "sha256": "fc5df781aa8f1f3ec75f87091b29da2e02773a132a3f779b9cffdd2304144504"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/21_arandela_buzzer.SLDPRT",
+    "bytes": 59137,
+    "sha256": "ba5a38b55159c4cf6148cc872e01dbbeca1c75d324f81d33672f380a27e38fef"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/Keepon_V6_nominal.SLDASM",
+    "bytes": 631825,
+    "sha256": "9ae58dcd879d0080745e30c7341f9d37d221c943e1464ae5dd9b313e019007a1"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/v6_grupo_fixed.SLDPRT",
+    "bytes": 377424,
+    "sha256": "77246af98414ca2d8317183d3367f03336a2dad20bf5c1ffe0b5cfbb0f59d9ae"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/v6_grupo_pitch.SLDPRT",
+    "bytes": 272947,
+    "sha256": "68fa9604f49333872788fb7b37b20dfd4ab1d5e8bb9f8580ea0ad0eb824ccee2"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/v6_grupo_roll.SLDPRT",
+    "bytes": 827377,
+    "sha256": "42de6851b6a8b1b66f5e49ee89add5de53d41bd8b43250f1fffa6847dc62181d"
+  },
+  {
+    "archivo": "SOLIDWORKS_V6/v6_grupo_yaw.SLDPRT",
+    "bytes": 326271,
+    "sha256": "9fa7fcd5de980c2ad3837fd1586c7682172128ab757811323cfbf5300a01f50a"
+  },
+  {
+    "archivo": "STEP_V6/00_ensamble_V6_nominal.step",
+    "bytes": 4996528,
+    "sha256": "12ec9e648e2d1c6f895171202e097c7bdc8b20945e8e4e81d2d7f000a0a8dfbb"
+  },
+  {
+    "archivo": "STEP_V6/02_horquilla_yaw.step",
+    "bytes": 434093,
+    "sha256": "8cbdedfa66308446511750c70006744e05b0500475cb38bb2c73841bd2682047"
+  },
+  {
+    "archivo": "STEP_V6/03_cuna_pitch.step",
+    "bytes": 299031,
+    "sha256": "19dc2aac612264327b8cb7867841d30c8b6d70b21551f29c376538609e0df889"
+  },
+  {
+    "archivo": "STEP_V6/04_cuba_cabeza.step",
+    "bytes": 894843,
+    "sha256": "4d4d8fc4266105102b518c3c22e2547016773875ccf0b2debd2acbacdfff570c"
+  },
+  {
+    "archivo": "STEP_V6/05_tapa_ventilada.step",
+    "bytes": 464947,
+    "sha256": "ccfb521900df9ade2509d70052519e3028b03b7360342c89fa3bc4d89c158e95"
+  },
+  {
+    "archivo": "STEP_V6/06_cara_binocular.step",
+    "bytes": 176894,
+    "sha256": "d0bdfbdd87c906e018dc8e72c0e029ce8fb2aeabd65332b3a0e63048c6f5a816"
+  },
+  {
+    "archivo": "STEP_V6/08_bandeja_electronica.step",
+    "bytes": 285375,
+    "sha256": "0442560904da389e128cd2f9f453184a5107fe26eaff0a2faa64320fde5add00"
+  },
+  {
+    "archivo": "STEP_V6/09_retencion_esp32.step",
+    "bytes": 22827,
+    "sha256": "613829cef1de3a563bdcdd0e5edd03ca85fa65b0e2151aa00adbff790ec469a4"
+  },
+  {
+    "archivo": "STEP_V6/10_adaptador_yaw.step",
+    "bytes": 125908,
+    "sha256": "2d9319a856b46ac2102dbf463bbcc67af8d031a94fb89eb972f3ebb861afd14a"
+  },
+  {
+    "archivo": "STEP_V6/11_retencion_horn_yaw.step",
+    "bytes": 90594,
+    "sha256": "899ea9634d26a6c336d278c92a59dbee0b8b5ec22866a58b767270f13dc82ba5"
+  },
+  {
+    "archivo": "STEP_V6/12_retencion_horn_pitch_simple.step",
+    "bytes": 45233,
+    "sha256": "57879612ea8b6475339635d9629b84900d6ca1db3e400b4090867b2dcf4b8abb"
+  },
+  {
+    "archivo": "STEP_V6/13_retencion_horn_roll.step",
+    "bytes": 115829,
+    "sha256": "26821624f72d2220cc008239a878720547be1e4e8232d01f24c2500c74b6d375"
+  },
+  {
+    "archivo": "STEP_V6/15_soporte_RLBZ23.step",
+    "bytes": 215690,
+    "sha256": "0a4adc2c1ce95ac725cbe4a2883597aaf33983466290c2360262fffb0f4d21be"
+  },
+  {
+    "archivo": "STEP_V6/16_ojo_izq.step",
+    "bytes": 125732,
+    "sha256": "641d5d673e44f815bb4188fd775bc1d17cb364440207009e0658b31c12bdb4d6"
+  },
+  {
+    "archivo": "STEP_V6/17_ojo_der.step",
+    "bytes": 121861,
+    "sha256": "2f17071afb5318300dbd0e8e6606d71acecc1afcf7eb90f36a67f7dd92ecae02"
+  },
+  {
+    "archivo": "STEP_V6/18_cupon_insertos.step",
+    "bytes": 64327,
+    "sha256": "02a06ffcacaa0e3c26c3fe548f1c6f8793d6ba4174b97811deed499e17482310"
+  },
+  {
+    "archivo": "STEP_V6/19_lente_ojo_izq.step",
+    "bytes": 13373,
+    "sha256": "c571fdc3611eda97f1babe2d2282b0896f04ae1ac8e45d3012471f4a716714fe"
+  },
+  {
+    "archivo": "STEP_V6/20_lente_ojo_der.step",
+    "bytes": 13395,
+    "sha256": "9c3944d263506a01de787325689e3aa3aab007fbaa4d1348c37929ec05b75d3e"
+  },
+  {
+    "archivo": "STEP_V6/21_arandela_buzzer.step",
+    "bytes": 9296,
+    "sha256": "5a2e6ece83447b8b3d27e496bac015f30126afa6418212d9bd43786f4b71c5f7"
+  },
+  {
+    "archivo": "STEP_V6/v6_grupo_fixed.step",
+    "bytes": 967682,
+    "sha256": "57103e8a312dc577d7cd7ca18f986069bdc62f3376af18924c54b878bbe9c281"
+  },
+  {
+    "archivo": "STEP_V6/v6_grupo_pitch.step",
+    "bytes": 561415,
+    "sha256": "b86419fd487541f845974f7d7f66bb92e6b32caec29610d35ca4b83552a49d56"
+  },
+  {
+    "archivo": "STEP_V6/v6_grupo_roll.step",
+    "bytes": 2619794,
+    "sha256": "f4f4bab5a43f29e44f5833f96bfc1ba06b5fe6a56a911f08398e63f4fed25414"
+  },
+  {
+    "archivo": "STEP_V6/v6_grupo_yaw.step",
+    "bytes": 763797,
+    "sha256": "3057ccbf5d8bf242eb3ccd01022f2ac43b3bb80efc88d90b40e3d9802916fcba"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/02_horquilla_yaw.stl",
+    "bytes": 605084,
+    "sha256": "af806671aa1b2c5d99bffdd3f8387c45f86d8c926a785e8edc904c704ca8a5c9"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/03_cuna_pitch.stl",
+    "bytes": 544384,
+    "sha256": "80155211780fd5e80ce4338a4174dea512aa5942d12fae799ba3ffaec1779156"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/04_cuba_cabeza.stl",
+    "bytes": 793684,
+    "sha256": "e45db00e21ded3aaebbf515fd28e733b502abe5bd15a57b3b1b52e6976e15754"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/05_tapa_ventilada.stl",
+    "bytes": 203684,
+    "sha256": "cbe7845b6ac647925c6a01208aecde27ebab8f10d8213bae4e1c5a040c9fc535"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/06_cara_binocular.stl",
+    "bytes": 441084,
+    "sha256": "c96f524ac85a50438bb397d6d6e587fdb929acf9f9743a04dfa27506a2786bdc"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/08_bandeja_electronica.stl",
+    "bytes": 366884,
+    "sha256": "c275f51b56c9abf76c766f96ecc082f985fdc62de180b0de370d4ad18e259043"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/09_retencion_esp32.stl",
+    "bytes": 43084,
+    "sha256": "768e612d309e60e5d7a0a9aaf0cd641e508497b8bf0cc36c7a33bebda2755f83"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/10_adaptador_yaw.stl",
+    "bytes": 257684,
+    "sha256": "329293c2638e8107c0099a6eacaf3de073c3a15ece8800f16aace1bb91c08943"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/11_retencion_horn_yaw.stl",
+    "bytes": 254684,
+    "sha256": "d6ba278c75ac05e4492b1701be47b27c484093b997bafa7c76bda7bdaa4d1e05"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/12_retencion_horn_pitch_simple.stl",
+    "bytes": 252884,
+    "sha256": "0fad536abb61564e0d552aaf0c7714bdb84e14e1fd1c711a5923f1b95e83adda"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/13_retencion_horn_roll.stl",
+    "bytes": 255484,
+    "sha256": "c2f43a66d900ddbaab80c624a974a8ac5b1e37cf3ee94814b83ed9a586113231"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/15_soporte_RLBZ23.stl",
+    "bytes": 110984,
+    "sha256": "3d064126a2652b12368ed45f4ae817d0bf59ef2c3a62ce7c587f8cfcbdeb8fca"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/16_ojo_izq.stl",
+    "bytes": 109284,
+    "sha256": "0f5112e097fa5a376a18b6a73a72fcda8f8a161c340fb9b82a70c43e3ab686df"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/17_ojo_der.stl",
+    "bytes": 109284,
+    "sha256": "63c0b10821356b79c00d876ce325655c33dc09a602b754ddbbe7e1383b9fa016"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/19_lente_ojo_izq.stl",
+    "bytes": 62884,
+    "sha256": "c94ca3e4f4a66177120c6714c1d79f36f3b088c6cb532ccd1903ad3bda980cb2"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/20_lente_ojo_der.stl",
+    "bytes": 62884,
+    "sha256": "c94ca3e4f4a66177120c6714c1d79f36f3b088c6cb532ccd1903ad3bda980cb2"
+  },
+  {
+    "archivo": "STL_REVISION_NO_IMPRIMIR/21_arandela_buzzer.stl",
+    "bytes": 42084,
+    "sha256": "4ee188d9db58b4f850eab7663fca2516ee2a875cad49cf258567b020d1ecc762"
+  },
+  {
+    "archivo": "test_regresiones_v6.py",
+    "bytes": 6064,
+    "sha256": "7e26f51514ce456ee8b4366a9f71509f7e99dc875769a70b2105f84f0bdd8117"
+  },
+  {
+    "archivo": "test_roll_exterior.py",
+    "bytes": 658,
+    "sha256": "876251ca06ec9fc3a1dc9b512d61eb71ce93e38cbed69e6e4bfd3c0a88a257f2"
+  },
+  {
+    "archivo": "verificar_archivos_v6.py",
+    "bytes": 2487,
+    "sha256": "ff169ccf609fabb56bbe5896adf4fde4dd19faafa534e33400a451b8da51d448"
+  },
+  {
+    "archivo": "verificar_dependencias_nativas_v6.py",
+    "bytes": 2377,
+    "sha256": "8af6edf3b5535c9c3364a54ec8f83f8866c270a0f98c02f6460bba5955f490f1"
+  },
+  {
+    "archivo": "verificar_R2.py",
+    "bytes": 2040,
+    "sha256": "8940d7bfa5426f0cd39ddbfc91b73a416898fb7a164e354451df64c0c32440ea"
+  },
+  {
+    "archivo": "verificar_reduccion_tornillos.py",
+    "bytes": 1921,
+    "sha256": "977e45af6f7e73b85e634910dd7a528a23f52a2ae77a322f3d0acb816362e869"
+  },
+  {
+    "archivo": "verificar_roll_exterior.py",
+    "bytes": 3346,
+    "sha256": "9f5aa066e60059ab0a1f683a4a44d538070e604c9b344b70586d722f51e4c880"
+  },
+  {
+    "archivo": "verificar_usb_R1.py",
+    "bytes": 2829,
+    "sha256": "efb3251112e03281e40a3a3ce01e21f5fd4fa70248df30943a20a9f3ba2fb40d"
+  },
+  {
+    "archivo": "vistas/01_V6_isometrica.png",
+    "bytes": 261929,
+    "sha256": "53fe35e418c9d1eb98f4a3ccb577f8915614014ea8427726fd600cbe47eb1528"
+  },
+  {
+    "archivo": "vistas/02_roll_exterior.png",
+    "bytes": 250527,
+    "sha256": "2a0d5b4a70cfcbdcc3fa055ad4ae21bce033580af699df1d10a0c344b226603b"
+  },
+  {
+    "archivo": "vistas/03_adaptador_base.png",
+    "bytes": 161921,
+    "sha256": "bb7f2a179f8b6350a77beea5c023fa3a7f3fcf0753f593a17139a99ddc79f13e"
+  },
+  {
+    "archivo": "vistas/04_USB_y_portamodulo.png",
+    "bytes": 253219,
+    "sha256": "921b589a69c9f81b3f033bfba209da0b2e02dae462727831ffeb2f13209d9297"
+  },
+  {
+    "archivo": "vistas/05_USB_R1_comparacion.png",
+    "bytes": 174284,
+    "sha256": "fa4796599b13fe800c1be4fb4f963ac5d2cbef918be0678006348bdd61767699"
+  },
+  {
+    "archivo": "vistas/06_R2_ojos_USB_buzzer.png",
+    "bytes": 240060,
+    "sha256": "36cc6fe89c6f593f1057e93b9b5e950ea8ffedd635d61454bab8ab85961c3ae0"
+  },
+  {
+    "archivo": "vistas/ojo.png",
+    "bytes": 139826,
+    "sha256": "e83229175ead0a3193a409da0c0700f5354b4337a8af3cd77b68d811031e761c"
+  }
+]

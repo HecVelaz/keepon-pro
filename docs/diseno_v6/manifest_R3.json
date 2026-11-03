@@ -1,0 +1,483 @@
+{
+  "revision": "R3",
+  "fabricacion_liberada": false,
+  "incluye_fuentes_heredadas": false,
+  "nota_fuentes": "Regenerar requiere conservar fuentes V2–V5 y banco SolidWorks del proyecto; el CAD entregado abre sin Python.",
+  "archivos": [
+    {
+      "ruta": "SOLIDWORKS_V6_R3/01_base_con_pilares.SLDPRT",
+      "bytes": 90836,
+      "sha256": "dc1fcb0b153486d57e2fc5df8b2c84052544451652ce96756834175463afd8ad"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/02_horquilla_de_giro.SLDPRT",
+      "bytes": 149418,
+      "sha256": "5c70e5a7ae45b634db1c2ed4aa52396f8f41bf6789793b2d399708dd731c5dae"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/03_cuna_de_inclinacion.SLDPRT",
+      "bytes": 120848,
+      "sha256": "e6da7fb092b0f6cbb7a97868ef5c2a88acdc47f0d4ad5062d6d94807f377e299"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/04_carcasa_inferior_cabeza.SLDPRT",
+      "bytes": 256599,
+      "sha256": "80ed0294b860c8e4d81d2c8bd8eb298a352b6463053d47e4b2718dce28baedc3"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/05_tapa_superior_ventilada.SLDPRT",
+      "bytes": 135697,
+      "sha256": "03094ec6e3f2c0f195b9ee3a9fac2dd5bd63a7299ec0106e7f420db809f56a6c"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/06_cara_con_ojos_integrados.SLDPRT",
+      "bytes": 167661,
+      "sha256": "aad967edc4e41f7918256fe82f5a20eae850887b07ceb47ceb1b29e4bb703383"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/08_bandeja_de_electronica.SLDPRT",
+      "bytes": 119950,
+      "sha256": "28ffa618ea18a2ae62efba9cf8cc79cae7fbc8fe6c1c9c773a4c81e748689025"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/09_abrazadera_ESP32.SLDPRT",
+      "bytes": 47195,
+      "sha256": "0ef01159a33d3da058dcb51063f9ffa2862c1c8167e87a793ea36e699a182d48"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/10_soporte_centrado_servo_base.SLDPRT",
+      "bytes": 84880,
+      "sha256": "373c28ed507c05355b22409e2f40b736697b5e07c0e4da3aa7fdd5a7ba319b67"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/11_retencion_brazo_doble_base.SLDPRT",
+      "bytes": 78546,
+      "sha256": "5fa4281c8de81f6bfc0db255ec6d314a8b9ddd7e820e1397107a6e6a0cc34e43"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/12_retencion_brazo_simple_inclinacion.SLDPRT",
+      "bytes": 69500,
+      "sha256": "ab9fe2873aa53ee32b496429ce018a7af7166bb03e7bae58e84ebbfec7fa28d7"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/13_retencion_disco_balanceo.SLDPRT",
+      "bytes": 77432,
+      "sha256": "750727193ef7a6858e1f75799cb3355b583057df0983599f9490d2c62c986530"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/15_soporte_trasero_modulo_buzzer.SLDPRT",
+      "bytes": 62307,
+      "sha256": "2c8bd011f4ec56b47e1c46969a95a22d7250733096da98d51f43c3e8949a3bb2"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/18_cupon_insertos.SLDPRT",
+      "bytes": 74613,
+      "sha256": "c99cc24380c1caffaf40ae019dc7908574133bee02811d16c9d748535da60b5c"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/21_arandela_aislante_buzzer.SLDPRT",
+      "bytes": 59545,
+      "sha256": "053b6c57755b87160a0b56428c762cecb38a5f7f119a3c1824b94d68df8d3d3c"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/22_casquillo_extraible_pivote_inclinacion.SLDPRT",
+      "bytes": 56037,
+      "sha256": "303926982adbb576aa3e2b7d68fb2f7b21929b40136e5d15fda609bd3122e068"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/Keepon_V6_R3.SLDASM",
+      "bytes": 627740,
+      "sha256": "cc17305b6906cff36fdc4a048ebf238b96ce58443dbe0675f79a5ed1eb7ce1c0"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/R3_grupo_fixed.SLDPRT",
+      "bytes": 370609,
+      "sha256": "adbc42a6b69d444a31b9d60e46f563ea29f4ad6e8091f26313fab57509763e92"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/R3_grupo_pitch.SLDPRT",
+      "bytes": 269649,
+      "sha256": "39f01252475833fe5e3045406a4bbd6cf72120050d009c879693c69ccd98cf98"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/R3_grupo_roll.SLDPRT",
+      "bytes": 792632,
+      "sha256": "75e3ce7df408e3f8c3316208ff18375c7be8589e3ee12745d57e1e5d8d8d2ed2"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/R3_grupo_yaw.SLDPRT",
+      "bytes": 310348,
+      "sha256": "821ee9d2d32dc72e1ea0c539f30f3de43168d1c0cae146bd532eb6b5b7306179"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/~$Keepon_V6_R3.SLDASM",
+      "bytes": 6,
+      "sha256": "192657d6f4a5fa4d74862340001ed51f516a85c34803f685fc9a87110db2b8b2"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/~$R3_grupo_fixed.SLDPRT",
+      "bytes": 6,
+      "sha256": "192657d6f4a5fa4d74862340001ed51f516a85c34803f685fc9a87110db2b8b2"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/~$R3_grupo_pitch.SLDPRT",
+      "bytes": 6,
+      "sha256": "192657d6f4a5fa4d74862340001ed51f516a85c34803f685fc9a87110db2b8b2"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/~$R3_grupo_roll.SLDPRT",
+      "bytes": 6,
+      "sha256": "192657d6f4a5fa4d74862340001ed51f516a85c34803f685fc9a87110db2b8b2"
+    },
+    {
+      "ruta": "SOLIDWORKS_V6_R3/~$R3_grupo_yaw.SLDPRT",
+      "bytes": 6,
+      "sha256": "192657d6f4a5fa4d74862340001ed51f516a85c34803f685fc9a87110db2b8b2"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/01_base_con_pilares.stl",
+      "bytes": 366284,
+      "sha256": "383aa231f1e9745585b3426d72bc197a77a3ea3b7f4cff36fc6edc8059d306fa"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/02_horquilla_de_giro.stl",
+      "bytes": 605084,
+      "sha256": "7cf2b1af548e3808fc1b2d4f880d3f332c115e7ff8226d0d16d6fc3871fa4ade"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/03_cuna_de_inclinacion.stl",
+      "bytes": 539184,
+      "sha256": "0683faa7665ed037c1015d09008ea1a7dde6151993ff029916148137f9d5e05d"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/04_carcasa_inferior_cabeza.stl",
+      "bytes": 901684,
+      "sha256": "ea005b5a4b1380e5c174dc8e2b5d9e68ad4886240f435ce6206262ba8532fa21"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/05_tapa_superior_ventilada.stl",
+      "bytes": 203684,
+      "sha256": "cbe7845b6ac647925c6a01208aecde27ebab8f10d8213bae4e1c5a040c9fc535"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/06_cara_con_ojos_integrados.stl",
+      "bytes": 825884,
+      "sha256": "82455fdae8c439b36ac34a0c4054122d6669ed5ccf27cca9ecb370093838b9a3"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/08_bandeja_de_electronica.stl",
+      "bytes": 366884,
+      "sha256": "c275f51b56c9abf76c766f96ecc082f985fdc62de180b0de370d4ad18e259043"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/09_abrazadera_ESP32.stl",
+      "bytes": 43084,
+      "sha256": "768e612d309e60e5d7a0a9aaf0cd641e508497b8bf0cc36c7a33bebda2755f83"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/10_soporte_centrado_servo_base.stl",
+      "bytes": 198484,
+      "sha256": "33ec84ffc290ad4dbead558a3a0d634dc6d525d11370d8cad6e7a455b74f168a"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/11_retencion_brazo_doble_base.stl",
+      "bytes": 254684,
+      "sha256": "d6ba278c75ac05e4492b1701be47b27c484093b997bafa7c76bda7bdaa4d1e05"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/12_retencion_brazo_simple_inclinacion.stl",
+      "bytes": 252884,
+      "sha256": "9297efe2a7f0f2fdae2849903eaad009cb21ba41bacda784e5500b77c401f2c1"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/13_retencion_disco_balanceo.stl",
+      "bytes": 212884,
+      "sha256": "ad08fde02144cd56de10ad8a287fec0e7142070af2088fe8c8fe8a62c78d6e37"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/15_soporte_trasero_modulo_buzzer.stl",
+      "bytes": 85884,
+      "sha256": "cf03e89ff5ef688c8582bcb2cf9836da137a5f0f151041281d9989c541dddbbb"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/21_arandela_aislante_buzzer.stl",
+      "bytes": 42084,
+      "sha256": "4ee188d9db58b4f850eab7663fca2516ee2a875cad49cf258567b020d1ecc762"
+    },
+    {
+      "ruta": "STL_REVISION_NO_IMPRIMIR/22_casquillo_extraible_pivote_inclinacion.stl",
+      "bytes": 63084,
+      "sha256": "8e11a022ec744b790e0243249533b5c73b4ca0fbbf0b641adb9ffc746d98970e"
+    },
+    {
+      "ruta": "IMPRESION_STL/18_cupon_insertos.stl",
+      "bytes": 278284,
+      "sha256": "c33edcd32cc8f7bbd1354c26a026e0ff2e3b5701a181f047e20d39d9e242a9ff"
+    },
+    {
+      "ruta": "STEP_V6/00_ensamble_V6_nominal.step",
+      "bytes": 4885109,
+      "sha256": "cb9714bc0a21fc530baca4a18a61b12bc1a6edb646450696a4265fc950a97728"
+    },
+    {
+      "ruta": "STEP_V6/01_base_con_pilares.step",
+      "bytes": 211905,
+      "sha256": "12c2b25700d53da72083ac761e5ed5870b8e264b04f824234fa17ffa74693af8"
+    },
+    {
+      "ruta": "STEP_V6/02_horquilla_de_giro.step",
+      "bytes": 434257,
+      "sha256": "0ac0b6d71ffcdaadc38eff456c1f954d663777dd6758131564c629885048f947"
+    },
+    {
+      "ruta": "STEP_V6/03_cuna_de_inclinacion.step",
+      "bytes": 299662,
+      "sha256": "a7ef0c835484305453458a41016883904102c6ee34d37d247d53609eb3f6be65"
+    },
+    {
+      "ruta": "STEP_V6/04_carcasa_inferior_cabeza.step",
+      "bytes": 946864,
+      "sha256": "3f2e6cb88d292e7306f73ba5ec1720f4c4fe7dd78ace9ecc96a765ca4fc5eea8"
+    },
+    {
+      "ruta": "STEP_V6/05_tapa_superior_ventilada.step",
+      "bytes": 464947,
+      "sha256": "9eb47b4728ac60ac268dcc48bc7e583cf871ec4ce62976432a1dc2b54e51e856"
+    },
+    {
+      "ruta": "STEP_V6/06_cara_con_ojos_integrados.step",
+      "bytes": 467545,
+      "sha256": "bb2a3dded36f9f8de99160a7a6e5e407568211af16c54581bfbb7b959bf714a4"
+    },
+    {
+      "ruta": "STEP_V6/08_bandeja_de_electronica.step",
+      "bytes": 285375,
+      "sha256": "b8d617e04a634db66f91000633cbbcbfdb276a196da7cce5db9a4a8bb5f013c1"
+    },
+    {
+      "ruta": "STEP_V6/09_abrazadera_ESP32.step",
+      "bytes": 22827,
+      "sha256": "1bcabfdf8aaed2fda1b89d85ece500a2ec946ae08863cf0a81a23cebec0eb913"
+    },
+    {
+      "ruta": "STEP_V6/10_soporte_centrado_servo_base.step",
+      "bytes": 182618,
+      "sha256": "e12330ff4831e74032827f8497d2bce82a74208d2e963bf29216abf70000469f"
+    },
+    {
+      "ruta": "STEP_V6/11_retencion_brazo_doble_base.step",
+      "bytes": 90596,
+      "sha256": "0afe049a5170cde5532805ef477a995ac0036f21b591563a309ab042a4c548d0"
+    },
+    {
+      "ruta": "STEP_V6/12_retencion_brazo_simple_inclinacion.step",
+      "bytes": 45178,
+      "sha256": "f13a7a7cf30fc4ec8c0ad61dbd0e6adc549798c506c2f065b1142163322e32e7"
+    },
+    {
+      "ruta": "STEP_V6/13_retencion_disco_balanceo.step",
+      "bytes": 81621,
+      "sha256": "1eadd43a6f4edfb6551199321561ab82296f0e6215c0e8eb68c453fb06685af8"
+    },
+    {
+      "ruta": "STEP_V6/15_soporte_trasero_modulo_buzzer.step",
+      "bytes": 99773,
+      "sha256": "5d8a7f34bc76a45a8c80abb2e6ae4a2b8cb72e0035b6ce7e508ca5909e16e355"
+    },
+    {
+      "ruta": "STEP_V6/18_cupon_insertos.step",
+      "bytes": 64327,
+      "sha256": "313ac5eda67765b20437ad57393971107c87ed5e51f23f36a304384fa5869348"
+    },
+    {
+      "ruta": "STEP_V6/21_arandela_aislante_buzzer.step",
+      "bytes": 9291,
+      "sha256": "bc58b37f3aee9ad8698ca417848b7b223605ad6dc7e8b292e270afe674d41262"
+    },
+    {
+      "ruta": "STEP_V6/22_casquillo_extraible_pivote_inclinacion.step",
+      "bytes": 13279,
+      "sha256": "4935746a6d79be65a7984df37b76f7b26605f6e921525adef7834afa0104d7e9"
+    },
+    {
+      "ruta": "STEP_V6/R3_grupo_fixed.step",
+      "bytes": 1002628,
+      "sha256": "df072650287e5fb0c7a94b6254e1c2e86866a1e2de5fd04ef90b4776f1a2fe40"
+    },
+    {
+      "ruta": "STEP_V6/R3_grupo_pitch.step",
+      "bytes": 550750,
+      "sha256": "be86605dc9cff6674496b00aca19a566279b1e48199585b4201e7c0259a0467a"
+    },
+    {
+      "ruta": "STEP_V6/R3_grupo_roll.step",
+      "bytes": 2477489,
+      "sha256": "bf76b2a9db426a6098eaf1b9650fe1f60a940a4f3ffc44b607a56c2e24319a6c"
+    },
+    {
+      "ruta": "STEP_V6/R3_grupo_yaw.step",
+      "bytes": 764043,
+      "sha256": "42c03986a7a68bdbf1eb187f57bca24b64f950ee8cabb6681361ba869bbdd7df"
+    },
+    {
+      "ruta": "README.md",
+      "bytes": 2097,
+      "sha256": "dcd540d194c8338536eaf2a7d3d2bc730025d9762627bd5919aa40f02ce4b0db"
+    },
+    {
+      "ruta": "config.yaml",
+      "bytes": 8568,
+      "sha256": "ed33789271814a986660dfec9408afe6bdce7026035ea598747a2401314cba93"
+    },
+    {
+      "ruta": "generar_v6.py",
+      "bytes": 25836,
+      "sha256": "e293122eb881777a8196ef60ecd03f41bbc86983abfe4b90f181991a977f5a25"
+    },
+    {
+      "ruta": "revision_R3.py",
+      "bytes": 13809,
+      "sha256": "230b624502fef608bcbc01843c7b39d87c7e47f47a2ded07b12398bc2e4c72ee"
+    },
+    {
+      "ruta": "verificar_R3.py",
+      "bytes": 4691,
+      "sha256": "0cde09e0366f49c806ae58e1df5e1c897d0c34cf876f62805956d1357aa02cc8"
+    },
+    {
+      "ruta": "test_revision_R3.py",
+      "bytes": 1995,
+      "sha256": "fe10147c75a6975c858d2bed6f293c359a7357852c9b541cb49a81d409925a01"
+    },
+    {
+      "ruta": "barrer_R3.py",
+      "bytes": 976,
+      "sha256": "911685b144f832f74e7f5ca195e2234ccc9e33acd989f0534f4a6324ef214e9e"
+    },
+    {
+      "ruta": "auditar_v6.py",
+      "bytes": 4533,
+      "sha256": "0ffc5ac73d3539068d3c5e5d4a62f413e6c946f2645f9c09907c62b8a452e1b0"
+    },
+    {
+      "ruta": "verificar_mallas_R3.py",
+      "bytes": 1213,
+      "sha256": "af8bef6cec3ecf2f285f262fa3e9c1c9d8e60f25a714630851bb58450586ffa9"
+    },
+    {
+      "ruta": "renderizar_R3.py",
+      "bytes": 1521,
+      "sha256": "5df8a2f47fd889ad8d357781b4475b73d59eeeebb9b40dd050e1240e2e730056"
+    },
+    {
+      "ruta": "crear_solidworks_v6.py",
+      "bytes": 15059,
+      "sha256": "35f33459e49feb3e68637d87129a9c8679e78f859e874345450f6c8149ed909e"
+    },
+    {
+      "ruta": "cache_nativos_v6.py",
+      "bytes": 196,
+      "sha256": "b037f445efc7d436b19af118ec4319bf5973e595a5d8fb6d5643887ba590b118"
+    },
+    {
+      "ruta": "verificar_dependencias_nativas_v6.py",
+      "bytes": 2377,
+      "sha256": "8af6edf3b5535c9c3364a54ec8f83f8866c270a0f98c02f6460bba5955f490f1"
+    },
+    {
+      "ruta": "empaquetar_R3.py",
+      "bytes": 2646,
+      "sha256": "ffb8321f125b45d6c4b6b3db1599d5d30f7d71903cd5128bf67645d3dd7a72d4"
+    },
+    {
+      "ruta": "inventario_v6.json",
+      "bytes": 4529,
+      "sha256": "969d39cf97b6a56f06c9e66ec7142d506668f5c837a25851d9ea69816015f373"
+    },
+    {
+      "ruta": "documentacion/REVISION_R3.md",
+      "bytes": 6555,
+      "sha256": "aabac46fd2192d5aef79cde9494bfa9e183d531f971be649773b250e2c813991"
+    },
+    {
+      "ruta": "documentacion/agujeros_R3.csv",
+      "bytes": 2943,
+      "sha256": "2f490b781a33d6237a404645291183066a8acbb18c8559a46258d60b1f3fe34c"
+    },
+    {
+      "ruta": "vistas/07_R3_montaje_integrado.png",
+      "bytes": 322702,
+      "sha256": "a3b70572ea6778ad21ace5c21cb358087a1c23ea7a49985f5fa9e4cb66a53487"
+    },
+    {
+      "ruta": "evidencias/regresiones_R3.json",
+      "bytes": 2146,
+      "sha256": "e8977043ac255bb4ce31cd7e5d3fa978530f46935595fc7a8f6605c01691301f"
+    },
+    {
+      "ruta": "evidencias/mallas_R3.json",
+      "bytes": 2879,
+      "sha256": "eb571b2c576f49c5ced81340108fe2760268bfc0a606c17cf0984402317bb18d"
+    },
+    {
+      "ruta": "evidencias/barrido_R3.json",
+      "bytes": 18475,
+      "sha256": "5d0ca351a75335c256d8639edc9a0dd516bdfaf2568f8f0b5dcefc883cbae5fa"
+    },
+    {
+      "ruta": "evidencias/trazabilidad_v6.json",
+      "bytes": 1166,
+      "sha256": "485d1f9fa2d9be6f7695dff0addf20dc838ff44912f2a8fc7ab8f19f8e538e9d"
+    },
+    {
+      "ruta": "evidencias/cuerpos_v6.json",
+      "bytes": 9072,
+      "sha256": "c5d2f7b1784276ce7fca656ac4eca413fd54cba79a0e07e6c1b92219654b366d"
+    },
+    {
+      "ruta": "evidencias/volumenes_grupos_v6.json",
+      "bytes": 313,
+      "sha256": "7eacf3992c8d2865bdd28c8f73fbf3c20b3c7b4832c2a1631d061901b55bf61c"
+    },
+    {
+      "ruta": "evidencias/solidworks_R3/verificacion_nativa.json",
+      "bytes": 20088,
+      "sha256": "3330336358f37edb6e6a55150aa2f5aa4b2da4ebdc592ba9a67abc1c88413498"
+    },
+    {
+      "ruta": "evidencias/solidworks_R3/dependencias_nativas.json",
+      "bytes": 997,
+      "sha256": "e2169ccde56fcd125564e7acb84138d4847f31ab8e748708e00c1ae076275ad2"
+    },
+    {
+      "ruta": "evidencias/solidworks_R3/interferencias_clasificadas.json",
+      "bytes": 938,
+      "sha256": "6215f5685975a87fdc297e550004e0c61872994cb8b955fd98ce8aa030e8e84e"
+    },
+    {
+      "ruta": "evidencias/solidworks_R3/keepon_v6_review_report.json",
+      "bytes": 10519,
+      "sha256": "5a95cd59c289062ce2a396e14b878c9a9deecaacbf19442cc0a46052f1b0003b"
+    },
+    {
+      "ruta": "evidencias/solidworks_R3/keepon_v6_front.png",
+      "bytes": 126613,
+      "sha256": "d0852d7ec2210ac9ee121fd456abc8f099c7690a52e719f3905c3d59ce110c6f"
+    },
+    {
+      "ruta": "evidencias/solidworks_R3/keepon_v6_isometric.png",
+      "bytes": 203210,
+      "sha256": "ec92ca661bbbf89c1da96366a607a2ad21ca539e807535051fd38bec918d9862"
+    },
+    {
+      "ruta": "evidencias/solidworks_R3/keepon_v6_right.png",
+      "bytes": 98158,
+      "sha256": "2b15011b907bde417e0dde5792eaf13e19709a2afab5c0a86d0b6a98e853545a"
+    },
+    {
+      "ruta": "evidencias/solidworks_R3/keepon_v6_top.png",
+      "bytes": 99685,
+      "sha256": "c225c36cc3b6ae1520bf174d05e5ebcda90827875cfb1292474d50a1f8f921b9"
+    }
+  ]
+}

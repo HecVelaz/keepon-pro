@@ -1,0 +1,23 @@
+# Cotas nominales del modelo V5, mm. No equivalen a mediciones del montaje.
+# Cambiar únicamente después de medir el hardware y repetir las verificaciones.
+roll:
+  radio_paso_eje: 4.5
+  diametro_tornillo_paso: 3.4
+  y_agujeros: [-14.0, 34.0]
+  z_agujeros_relativos: [-5.0, 5.0]
+  fondo_soporte: 4.0
+  holgura_ventana_servo_provisional: 0.5
+  z_centro: 150.0
+  centro_reflexion_x: -46.0
+  ancho_placa_horn: 42.0
+  alto_placa_horn: 18.0
+  profundidad_placa_horn: 3.0
+  ranura_ancho: 3.4
+  ranura_r_min: 8.0
+  ranura_r_max: 16.0
+  aviso: 'Ranuras heredadas de V5; patrón y encastre del brazo real no verificados.'
+impresion:
+  tolerancia_malla: 0.08
+  tolerancia_ensamble: null
+  material: null
+  inserto_diametro_instalacion: null

@@ -23,5 +23,7 @@ Movido desde `CLAUDE.md` el 22/10/2026.
 - Calibrar la cámara con un tablero: los intrínsecos de `config.yaml` (fx = 948 → 37°) probablemente no son de esta cámara a 640 × 480. Validar `looking_deg` (15°, sin validar).
 - Revisar el flex de la segunda NoIR (`i2c@88000`) o desconectarla.
 - `ver_personas.sh` quedó corriendo en la Pi el 07/10 (ocupa la cámara): detenerlo con `~/keepon/ver_personas.sh stop` si sigue.
-- Opcional: achicar la caja base de la v4 ~50 mm en Y (el lugar de la LiPo quedó libre; ver `docs/keepon_v4_cad/README.md`).
+- **Diseño v6 R4:** tomar las medidas de `docs/diseno_v6/MEDICIONES_PENDIENTES.md` (brazos y estriados reales, MG996R, cámara, buzzer, insertos, material) antes de imprimir las piezas estructurales. Con la cabeza armada, definir `signo` de los tres ejes en `neck.servos`.
+- Subir `docs/diseno_v5/` al repo (`docs/diseno_v6/generar_v6.py` lo importa: sin él no se puede regenerar el CAD) y compartir `Keepon_V6_R4.zip` por Drive.
+- `docs/diagrama_sistema/index.html` y el comentario de encendido de `firmware/keepon_fw/keepon_fw.ino` siguen apuntando a la v4.
 - Medir ≥ 4,9 V en los pines de alimentación de la Pi una vez armada.

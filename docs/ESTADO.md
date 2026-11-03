@@ -2,6 +2,10 @@
 
 Movido desde `CLAUDE.md` el 22/10/2026. Lo más reciente va arriba. Al cerrar una sesión (`/cerrar`) se actualiza este archivo, no `CLAUDE.md`.
 
+## Sesión del 03/11/2026
+- **El modelo mecánico vigente pasó a ser el v6 R4** (`docs/diseno_v6/`, diseño del 30/10). Asignación de servos sin cambios: yaw = RDS3218 en la base, pitch = HS-7955TG, roll = MG996R. Los recorridos del CAD coinciden con `neck.limits` (yaw ±70°, pitch −20/+30°, roll ±20°), así que el código no cambió. Explicación de cada eje y de qué está en git en `docs/diseno_v6/LEEME_GIT.md`.
+- De `docs/diseno_v6/` (228 MB) se versionan solo las fuentes, la documentación y la R4 (≈ 20 MB). Los ZIP, el historial, las evidencias y las revisiones anteriores quedan en el `.gitignore`. Rama `diseno-v6-vigente`, con PR.
+
 ## Estado del hardware (al 15/10/2026)
 - La ESP32-C3 **desde el 14/10 está conectada a la Pi y tiene cargado el firmware del robot** (`firmware/keepon_fw/`).
 - **La cámara no está conectada a la Pi** (14/10): no lanzar nada de percepción sin confirmarlo.
