@@ -93,21 +93,45 @@ class SimLink(Link):
 
 
 class SerialLink(Link):
-    """ESP32 real por USB-serie. No bloqueante: lee sólo lo que ya llegó."""
+    """ESP32 real por USB-serie. No bloqueante: lee sólo lo que ya llegó.
 
-    def __init__(self, port: str, baud: int = 115200, keepalive_s: float = 0.2):
+    Con `espejo_cfg`, lleva además un SimESP32 que recibe los mismos comandos y avanza en tiempo real.
+    El firmware da las mismas posiciones que el simulador (tests/test_firmware_nucleo.py), así que el
+    espejo dice dónde está el cuello a 100 Hz sin esperar los STATE (que llegan con cada PING, ~5 Hz).
+    Cada STATE real se compara con el espejo: `max_desvio` guarda la mayor diferencia [°]."""
+
+    DESVIO_RESYNC = 1.0  # [°] si el STATE real se separa más que esto, el espejo adopta la posición real
+
+    def __init__(self, port: str, baud: int = 115200, keepalive_s: float = 0.2, espejo_cfg: dict | None = None):
         import serial  # pyserial
 
         super().__init__(keepalive_s)
         self.ser = serial.Serial(port, baud, timeout=0, write_timeout=0.05)
         self._buf = b""
         self._t0 = time.monotonic()
+        self.esp = SimESP32(espejo_cfg) if espejo_cfg is not None else None
+        self._t_espejo = 0.0
+        self.max_desvio = 0.0
+        self.resyncs = 0
 
     def now(self) -> float:
         return time.monotonic() - self._t0
 
+    def _avanzar_espejo(self) -> None:
+        """Lleva el espejo hasta ahora, en pasos de ~10 ms como el lazo del firmware."""
+        t = self.now()
+        if self.esp is not None and t > self._t_espejo:
+            n = max(1, round((t - self._t_espejo) / 0.01))
+            for _ in range(n):
+                self.esp.tick((t - self._t_espejo) / n)
+            self._t_espejo = t
+
     def _write(self, line: str) -> None:
         self.ser.write(line.encode("ascii"))
+        if self.esp is not None:
+            self._avanzar_espejo()
+            self.esp.feed(line)
+            self.esp.read()  # las respuestas del espejo no se usan: valen las del ESP32 real
 
     def _read(self) -> list[Reply]:
         self._buf += self.ser.read(self.ser.in_waiting or 0)
@@ -118,4 +142,29 @@ class SerialLink(Link):
                 out.append(parse_reply(raw.decode("ascii", "replace")))
             except ProtocolError:
                 pass  # ruido de arranque del ESP32, se ignora
+        if self.esp is not None:
+            self._avanzar_espejo()
+            for r in out:
+                self._comparar_espejo(r)
         return out
+
+    def _comparar_espejo(self, r: Reply) -> None:
+        if r.name == "HELLO" and r.seq == 0:  # el ESP32 real se reinició: el espejo también
+            self.esp.reboot()
+            self.esp.read()
+        elif r.name == "STATE":
+            real = [float(x) for x in r.args[1:4]]
+            desvio = max(abs(a - b) for a, b in zip(real, self.esp.neck.pos))
+            self.max_desvio = max(self.max_desvio, desvio)
+            if desvio > self.DESVIO_RESYNC:  # p. ej. al arrancar con el cuello fuera de HOME
+                # Posición y objetivo: queda quieto ahí hasta el próximo J, igual que el ESP32 real.
+                for eje, v in zip(self.esp.neck.axes.values(), real):
+                    eje.pos, eje.target, eje.vel = v, v, 0.0
+                self.resyncs += 1
+
+    @property
+    def neck_pos(self) -> tuple[float, float, float]:
+        if self.esp is None:
+            raise AttributeError("SerialLink sin espejo: crearlo con espejo_cfg")
+        self._avanzar_espejo()
+        return self.esp.neck.pos

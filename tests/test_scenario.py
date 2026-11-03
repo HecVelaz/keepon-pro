@@ -11,7 +11,7 @@ from sim_scenario import run  # noqa: E402
 
 @pytest.fixture(scope="module")
 def result():
-    robot, trace = run(echo=False)
+    robot, trace, _ = run(echo=False)
     return robot, trace, [m for _, m in robot.log.rows]
 
 
