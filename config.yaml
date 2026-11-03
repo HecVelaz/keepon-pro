@@ -5,37 +5,50 @@ neck:
   limits:
     yaw:   [-70.0, 70.0]
     pitch: [-20.0, 30.0]
-    roll:  [-20.0, 20.0]
+    roll:  [-20.0, 20.0]         # Montado (03/11): a +25 queda al límite de la pared y a +30 toca. Hacia la izquierda,
+                                 # −30 "al límite" fue SIN compensación de zona muerta (llegaba ~10° antes): con la
+                                 # compensación, −20 es −20 de verdad. Probar de a poco antes de ampliar.
   home: [0.0, 0.0, 0.0]          # postura calibrada, mirada al frente
   vmax: [180.0, 120.0, 90.0]     # velocidad máxima por eje [°/s] (yaw, pitch, roll)
   amax: [600.0, 400.0, 300.0]    # aceleración máxima por eje [°/s²]
   # Calibración de los servos (planilla de pruebas_servos/README.md). La usa el firmware para pasar de grados a µs:
   # pulso = centro_us + signo · grados / grados_por_us, recortado a [min_us, max_us].
+  # compensacion_us (opcional): [al bajar el pulso, al subir el pulso], se suma según el sentido del último
+  # movimiento del eje (zona muerta del servo; ver roll). Sin la clave: [0, 0].
   servos:
     pitch:                       # Hitec HS-7955TG, medido el 09/10 (6 V, sin carga)
-      centro_us: 1500
+      centro_us: 1400            # montado en el v6 (03/11): con 1400 la cara queda vertical (primero se probó 1450)
       grados_por_us: 0.090       # lineal y simétrico: ±45° en 1000/2000 µs
       min_us: 760                # límites electrónicos 750/2250 µs (≈ ±68°): ahí deja de moverse, sin forzar
       max_us: 2240
       signo: 1                   # pulso mayor = HORARIO visto de frente al eje: al revés que los RDS3218 (12/10,
                                  # comparado con el yaw, los dos ejes hacia el mismo lado y 1500 → 1700 µs).
-                                 # FALTA: con el servo montado, qué sentido es "arriba"
+                                 # Montado en el v6 (03/11): pulso mayor = la cara SUBE → signo 1 (pitch + = arriba).
+                                 # Montado vibra al moverse y tiene micromovimientos quieto en 1600 (+13°): sin resolver.
     yaw:                         # DSSERVO RDS3218 n.º 2 (versión de 270°), medido el 12/10 sin carga
       centro_us: 1500
       grados_por_us: [0.13, 0.136]   # [lado de pulsos < 1500, lado de pulsos > 1500]. Medido: −39° en 1200,
                                      # −65° en 1000, −70° en 960; +39° en 1800, ≈ +67° en 2000, +75° en 2040
       min_us: 950                # ≈ −71°. No tiene tope (llega a −130° / +140° con 500/2500 µs):
       max_us: 2020               # ≈ +71°  estos límites son lo único que protege el cableado
-      signo: 1                   # pulso mayor = antihorario visto de frente al eje (confirmado el 12/10 con 1700 µs).
-                                 # FALTA: con el servo montado, qué sentido es "izquierda"
+      signo: -1                  # montado en el v6 (03/11): pulso mayor = el robot gira a SU IZQUIERDA (visto desde
+                                 # atrás). Como yaw + = derecha (PROTOCOLO.md), signo −1. Cero: 1500 µs con la cara al
+                                 # frente (horn reubicado en el estriado el 03/11). Extremos 960/2020 probados: ni roces
+                                 # ni cable tirante. Montado VIBRA al moverse lento (≤ ~40 °/s con la rampa de 100 Hz);
+                                 # a ~100 °/s (750 µs/s) va suave. Quieto no vibra.
       # El n.º 1 (11-12/10) era simétrico: 0.13, 950/2050 µs. No son intercambiables sin recalibrar.
       # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
     roll:                        # TowerPro MG996R, medido el 13/10 a 6 V, sin carga
-      centro_us: 1500
+      centro_us: 1450            # montado en el v6 (03/11): con 1450 la cabeza queda derecha (disco reubicado en el estriado)
       grados_por_us: 0.092       # lineal y simétrico: ±55° en 900/2100 µs, ±64° en 800/2200 µs
       min_us: 1000               # ≈ ±46°: de sobra para los ±20° de roll (sin tope hasta 800/2300 µs)
       max_us: 2000
-      signo: 1                   # FALTA: sentido de giro (no se anotó el 13/10) y, montado, qué sentido es "derecha"
+      signo: -1                  # montado en el v6 (03/11): pulso mayor = ANTIHORARIO visto desde atrás. Como
+                                 # roll + = horario visto desde atrás (PROTOCOLO.md), signo −1.
+      compensacion_us: [0, 151]  # Zona muerta montado (03/11): con el pulso BAJANDO (hacia roll +, o volviendo a 0
+                                 # desde la izquierda) llega bien; con el pulso SUBIENDO se frena antes: de +25 a 0
+                                 # quedaba en +10. Con 110 µs faltaban ~5°; 165 y 159 se pasaban → 151 (≈ +3,8°). Cero 1450
+                                 # calibrado llegando desde abajo.
       # Banda muerta GRANDE, ~100-110 µs (≈ 10°) e intermitente: de +10° a 0° no volvió en 3 de 10 intentos.
       # Pasos de 20° andan siempre. Conviene mandarle el objetivo de un solo movimiento, no acercarse de a poco.
       # Sin pulso queda flojo: en el STOP hay que seguir mandando el último pulso. Pesa 55 g.

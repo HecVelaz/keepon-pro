@@ -56,6 +56,15 @@ uint16_t grados_a_us(int eje, double grados) {
   return (uint16_t)recortar(us, gen::MIN_US[eje], gen::MAX_US[eje]);
 }
 
+// Zona muerta: el servo se frena apenas el error entra en su banda, así que llega corto del lado desde donde
+// viene. Se le suma COMP_US según el sentido del último movimiento para que se frene sobre el objetivo.
+uint16_t grados_a_us(int eje, double grados, int sentido) {
+  double us = grados_a_us(eje, grados);
+  if (sentido < 0) us += gen::COMP_US[eje][0];
+  if (sentido > 0) us += gen::COMP_US[eje][1];
+  return (uint16_t)recortar(us, gen::MIN_US[eje], gen::MAX_US[eje]);
+}
+
 // ------------------------------------------------------------------------------------------------
 // Máquina de estados: copia de keepon/sim_esp32.py (SimESP32).
 // ------------------------------------------------------------------------------------------------
@@ -64,6 +73,7 @@ Nucleo::Nucleo() { reiniciar(0); }
 void Nucleo::reiniciar(uint32_t ahora_ms) {
   for (int i = 0; i < 3; i++) {
     ejes_[i] = Eje{gen::LIM_MIN[i], gen::LIM_MAX[i], gen::VMAX[i], gen::AMAX[i], gen::HOME[i], 0.0, gen::HOME[i]};
+    sentido_[i] = 0;
   }
   estado_ = RUN;
   ultimo_rx_ms_ = ahora_ms;
@@ -250,7 +260,13 @@ void Nucleo::paso(uint32_t ahora_ms) {
     responder("DONE %lld", sonido_seq_);
     cortar_sonido();
   }
-  for (int i = 0; i < 3; i++) ejes_[i].step();
+  for (int i = 0; i < 3; i++) {
+    double antes = ejes_[i].pos;
+    ejes_[i].step();
+    double d = gen::SIGNO[i] * (ejes_[i].pos - antes);  // en el sentido de los pulsos
+    if (d > 0) sentido_[i] = 1;
+    else if (d < 0) sentido_[i] = -1;               // quieto: conserva el último sentido
+  }
 }
 
 // Frecuencia del buzzer: igual que el simulador (pruebas_buzzer/simulador_sonidos.html).
@@ -272,7 +288,7 @@ uint16_t Nucleo::frecuencia(uint32_t ahora_ms) const {
 }
 
 void Nucleo::pulsos(uint16_t us[3]) const {
-  for (int i = 0; i < 3; i++) us[i] = grados_a_us(i, ejes_[i].pos);
+  for (int i = 0; i < 3; i++) us[i] = grados_a_us(i, ejes_[i].pos, sentido_[i]);
 }
 
 }  // namespace keepon

@@ -11,8 +11,10 @@ Movido desde `CLAUDE.md` el 22/10/2026.
 6. `docs/hoja_de_ruta.html` sigue en la v2 (los .md están en la v3).
 
 ## Pendientes sueltos (estaban repartidos en las secciones de hardware y de sesiones)
-- Probar el firmware con los servos (fuente de 6 V), definir `signo` por eje al montar.
-- Anotar el sentido de giro del MG996R (pulso mayor = ¿horario o antihorario?, de frente al eje).
+- **Pitch (HS-7955TG) montado:** vibra al moverse lento, zumba quieto y **oscila al empujarlo**: juego entre el brazo simple y su bolsillo (la R4 sacó la retención) o el tornillo del horn. Calzar el brazo, volver a poner una retención o pasar a un horn redondo.
+- **Yaw montado:** vibra al moverse lento (≤ ~40 °/s); a ~100 °/s va suave. Revisar en el seguimiento de personas, que tiene movimientos lentos.
+- **Roll:** con la compensación, −20 manda 1818 µs (antes −30 "al límite" era 1776 sin compensación): confirmar que a −20 no toca. Si la vuelta a 0 varía, ajustar `compensacion_us`.
+- Cortes del USB de la ESP32 con servos trabados o vibrando: si siguen, volver a poner el capacitor de 2200 µF en la bornera de 6 V y revisar el cable USB y el GND común.
 - Buzzer: **probado el 26/10** con el módulo MH-FMD (VCC a 3V3, salida invertida, volumen 0.25): la POLCA suena bien. Asegurar el cable del pin 10, que tenía falso contacto.
 - Detector de camisetas: escribirlo y probarlo con `pruebas_camisetas/imagenes_referencia/`; falta una remera blanca lisa entre las imágenes de referencia. Para probar con la cámara: remera negra del usuario (negativa; con tiras rojas y azules = "Cerro" casero; con franja blanca = "Olimpia al revés", que no tiene que detectar).
 - Sincronizar a la Pi las imágenes de las camisetas (la Pi no respondió por SSH el 15/10).

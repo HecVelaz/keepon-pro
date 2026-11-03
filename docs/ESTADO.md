@@ -5,6 +5,14 @@ Movido desde `CLAUDE.md` el 22/10/2026. Lo más reciente va arriba. Al cerrar un
 ## Sesión del 03/11/2026
 - **El modelo mecánico vigente pasó a ser el v6 R4** (`docs/diseno_v6/`, diseño del 30/10). Asignación de servos sin cambios: yaw = RDS3218 en la base, pitch = HS-7955TG, roll = MG996R. Los recorridos del CAD coinciden con `neck.limits` (yaw ±70°, pitch −20/+30°, roll ±20°), así que el código no cambió. Explicación de cada eje y de qué está en git en `docs/diseno_v6/LEEME_GIT.md`.
 - De `docs/diseno_v6/` (228 MB) se versionan solo las fuentes, la documentación y la R4 (≈ 20 MB). Los ZIP, el historial, las evidencias y las revisiones anteriores quedan en el `.gitignore`. Rama `diseno-v6-vigente`, con PR.
+- **Calibración con la cabeza v6 montada** (en `neck.servos` de `config.yaml`):
+  - yaw: cero 1500, `signo −1` (pulso mayor = gira a su izquierda). El horn estaba corrido ~130° en el estriado: se reubicó. Extremos ±70° (962/2015) sin roces.
+  - pitch: cero 1400, `signo +1` (pulso mayor = la cara sube). Extremos −20/+30° bien.
+  - roll: cero 1450, `signo −1` (pulso mayor = antihorario visto desde atrás). Disco de 25T reubicado (en 1500 la cabeza topaba). Límites **±20°**: a +25 queda al límite de la pared y a +30 toca.
+  - **Compensación de zona muerta del roll** (nueva en el firmware, `compensacion_us: [0, 151]`): con el pulso subiendo, el MG996R se frenaba ~10° antes (de +25 a 0 quedaba en +10). Con 151 µs vuelve bien a 0. Test de regresión `test_regresion_zona_muerta_roll`.
+- **La ESP32 tiene cargado el firmware del robot** con esta calibración. Prueba en grados: `scripts/prueba_movimientos.py` (pide Enter antes de cada postura; `--posturas "0 0 15; 0 0 0"`).
+- **Herramientas de calibración en la Pi** (fuera del repo): `~/keepon/calibracion/` con `puente_serie.py` (deja el puerto abierto y se reconecta solo), `consola` (+N/−N/pulso, para el programa de banco) y `m`. Solo sirven con `prueba_servo.ino` cargado.
+- **La ESP32 se desconectó del USB 2 veces** durante la calibración (con el roll trabado contra el tope y el pitch vibrando).
 
 ## Estado del hardware (al 15/10/2026)
 - La ESP32-C3 **desde el 14/10 está conectada a la Pi y tiene cargado el firmware del robot** (`firmware/keepon_fw/`).

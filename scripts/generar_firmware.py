@@ -113,6 +113,10 @@ def generar(cfg: dict | None = None) -> str:
         "const uint16_t MIN_US[3] = {" + ", ".join(str(s[e]["min_us"]) for e in EJES) + "};",
         "const uint16_t MAX_US[3] = {" + ", ".join(str(s[e]["max_us"]) for e in EJES) + "};",
         "const int8_t SIGNO[3] = {" + ", ".join(str(s[e]["signo"]) for e in EJES) + "};",
+        "// Compensación de zona muerta [µs]: {al bajar el pulso, al subir el pulso}, según el sentido del",
+        "// último movimiento del eje.",
+        "const int16_t COMP_US[3][2] = {" + ", ".join(
+            "{" + ", ".join(str(int(x)) for x in s[e].get("compensacion_us", [0, 0])) + "}" for e in EJES) + "};",
         "",
         "// Sonidos: {f_inicio_Hz, f_fin_Hz, duracion_ms}. Iguales: nota fija; distintas: barrido; 0: silencio.",
         "struct Segmento { uint16_t f0, f1, ms; };",
