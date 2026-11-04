@@ -39,15 +39,16 @@ def _dueño(g) -> str:
 
 
 def dibujar(img: np.ndarray, *, mundo, det, pose, objetivo: int | None, dueños: dict, ref, modo: str,
-            stop: bool, saludo_reciente, salud: Salud) -> np.ndarray:
+            stop: bool, saludo_reciente, salud: Salud, abajo_deg: float = 0.0) -> np.ndarray:
     """Dibuja sobre img (BGR, se modifica y se devuelve).
 
     mundo: World filtrado (looking y wave_count ya pasaron por Eventos). det/pose: últimos DetResult (o None).
     dueños: {"CUELLO": Grant|None, "BUZZER": Grant|None}. ref: ángulos comandados (yaw, pitch, roll).
-    saludo_reciente(pid) -> bool: si esa persona saludó hace poco."""
+    saludo_reciente(pid) -> bool: si esa persona saludó hace poco.
+    abajo_deg: gaze.mirar_abajo_deg (el control deja la cara ese ángulo por encima del centro óptico)."""
     h, w = img.shape[:2]
-    # Centro óptico: adonde el control lleva el rostro del objetivo.
-    cx, cy = int(mundo.cx), int(mundo.cy)
+    # Adonde el control lleva el rostro del objetivo: el centro óptico, corrido hacia arriba `abajo_deg`.
+    cx, cy = int(mundo.cx), int(mundo.cy - mundo.fy * np.tan(np.radians(abajo_deg)))
     cv2.drawMarker(img, (cx, cy), GRIS, cv2.MARKER_CROSS, 18, 1)
 
     if pose is not None:

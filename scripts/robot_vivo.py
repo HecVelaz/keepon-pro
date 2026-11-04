@@ -167,6 +167,7 @@ class Monitor:
         self.cam = Camera(cfg)
         self.pub = self.cam._node.create_publisher(Image, self.TOPICO, 2)
         self.periodo, self.t_ultimo = 1.0 / hz, 0.0
+        self.abajo_deg = cfg["gaze"].get("mirar_abajo_deg", 0.0)
 
     def publicar(self, **estado) -> None:
         """Como mucho a `hz`; si todavía no hay cuadro (o la cámara se cortó), no hace nada."""
@@ -179,7 +180,7 @@ class Monitor:
             frame, _, _ = self.cam.latest(timeout=0)
         except Exception:  # noqa: BLE001 - sin cuadro: el robot sigue igual
             return
-        img = overlay.dibujar(frame.copy(), **estado)
+        img = overlay.dibujar(frame.copy(), abajo_deg=self.abajo_deg, **estado)
         msg = self.Image()
         msg.header.stamp = self.cam._node.get_clock().now().to_msg()
         msg.height, msg.width = img.shape[:2]

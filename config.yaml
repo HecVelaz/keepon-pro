@@ -188,6 +188,8 @@ gaze:
   deadzone: 0.03                 # zona muerta suave, fracción del ancho/alto de imagen
   ema: 0.5                       # suavizado del error (1 = sin filtro)
   lost_hold_s: 1.0               # pérdida < 1 s: mantener; luego se libera el objetivo
+  mirar_abajo_deg: 8.0           # la cámara apunta esto por debajo de la cara (la cara queda arriba del centro)
+                                 # para que entre la camiseta: el campo vertical es de ±14° (04/11, con Olimpia)
 
 focus:
   switch_after_s: 1.5            # el candidato debe ser mejor durante este tiempo para cambiar

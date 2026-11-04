@@ -3,8 +3,11 @@
 Control visual proporcional en velocidad (sin integral):
 
     e_yaw   =  atan((u - cx) / fx)        [grados]
-    e_pitch = -atan((v - cy) / fy)        (v crece hacia abajo)
+    e_pitch = -atan((v - cy) / fy) - abajo (v crece hacia abajo)
     ref    += sat(kp * e) * dt
+
+`abajo` (gaze.mirar_abajo_deg) deja la cara un poco por encima del centro: la cámara apunta más abajo
+para que entre el torso y se vea la camiseta (el campo vertical de la cámara es angosto, ±14°).
 
 Convención de signos: yaw positivo gira hacia la DERECHA de la imagen, pitch
 positivo mira hacia ARRIBA. Verificarlo físicamente al montar la cabeza.
@@ -32,6 +35,7 @@ class GazeController:
         self.vmax = g["vmax"]
         self.dz = g["deadzone"]
         self.alpha = g["ema"]
+        self.abajo = g.get("mirar_abajo_deg", 0.0)
         self.reset()
 
     def reset(self) -> None:
@@ -45,7 +49,7 @@ class GazeController:
         # Se centra al rostro en el CENTRO ÓPTICO (cx, cy), no en el centro de la imagen:
         # con la calibración actual están 108 px corridos en u (≈ 6,5° de error en yaw).
         ex = math.degrees(math.atan((p.u - w.cx) / w.fx))
-        ey = -math.degrees(math.atan((p.v - w.cy) / w.fy))
+        ey = -math.degrees(math.atan((p.v - w.cy) / w.fy)) - self.abajo
         self.ex += self.alpha * (ex - self.ex)
         self.ey += self.alpha * (ey - self.ey)
         dzx = math.degrees(math.atan(self.dz * w.img_w / w.fx))
