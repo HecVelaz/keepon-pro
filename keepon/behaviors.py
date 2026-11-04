@@ -228,7 +228,11 @@ MODOS = ("NEUTRO", "TIMIDO", "ATREVIDO", "MALEDUCADO")
 class ConfirmaModo(Behavior):
     """Comando del operador: confirma el cambio de modo con un sonido breve distintivo (BEEP_<MODO>), o
     reproduce un sonido a pedido (prueba del buzzer). Prioridad 0, sólo el buzzer: no le quita el cuello
-    a nadie."""
+    a nadie.
+
+    El último pedido gana: si llega otro mientras suena uno del operador, se corta el que suena y en el
+    ciclo siguiente arranca el nuevo. (Antes el árbitro tomaba el pedido nuevo como una "renovación" del
+    mismo comportamiento y, al vencer su segundo de espera, se descartaba sin aviso.)"""
     name = "OPERADOR"
 
     def __init__(self, cfg):
@@ -245,7 +249,8 @@ class ConfirmaModo(Behavior):
         if self.pedido is None:
             return []
         sonido, t = self.pedido
-        if ctx.now > t + 1.0:  # no se pudo (p. ej. con STOP): se descarta
+        if ctx.now > t + 1.0:  # no se pudo (p. ej. con STOP): se descarta, y queda en el log
+            ctx.act.log(ctx.now, f"OPERADOR sonido {sonido} descartado (no se pudo tomar el buzzer en 1 s)")
             self.pedido = None
             return []
         return [Proposal(self.name, self.priority, frozenset({BUZZER}), interruptible_by=0,
@@ -256,7 +261,11 @@ class ConfirmaModo(Behavior):
         ctx.act.play(g, g.params["sound"])
 
     def act(self, g, ctx):
-        if ctx.act.sound_finished(g):
+        if self.pedido is not None:  # el último gana: llegó otro pedido mientras sonaba éste
+            ctx.act.log(ctx.now, f"OPERADOR corta {g.params['sound']}: pidieron {self.pedido[0]}")
+            ctx.act.cancel_sound()
+            ctx.arb.finish(g.id, ctx.now)
+        elif ctx.act.sound_finished(g):
             ctx.arb.finish(g.id, ctx.now)
         elif ctx.now - self.t0 > self.cfg["sounds"][g.params["sound"]] + 0.5:
             ctx.act.cancel_sound()
