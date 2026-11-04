@@ -65,16 +65,22 @@ camera:
   # Raspberry Pi 5 + Camera Module 3 NoIR (IMX708) en la cabeza.
   backend: auto                  # auto | ros2 | picamera2 | gstreamer | opencv  (en la Pi: ros2, ver config.local.yaml)
   ros_topic: /keepon_cam/image_raw   # tópico de camera_ros (backend ros2)
+  # Cámara por nombre (no por índice) para camera_ros. Desde el 03/11, con la cabeza v6, está en el conector
+  # i2c@88000 (antes i2c@80000). La leen scripts/ver_percepcion.sh y ver_personas.sh (CAMARA=... la cambia).
+  ros_camera: /base/axi/pcie@120000/rp1/i2c@88000/imx708@1a
+  orientation_deg: 180           # montada invertida en la cabeza v6 (03/11): camera_ros rota al leer el sensor
   index: 0                       # para opencv (webcam USB en la notebook de desarrollo)
   size: [640, 480]
   hfov_deg: 37.3                 # = 2·atan(320/fx). camera_ros a 640x480 RECORTA el sensor (no son los 66° nominales)
   # Intrínsecos de ~/vision_estereo/config/calibracion/right_corregida.yaml (cámara 0).
   # VERIFICAR que corresponden a la NoIR montada en la cabeza; recalibrar si se cambia de módulo o modo.
+  # Con orientation_deg: 180, la imagen rota: cx → 639 − cx, cy → 479 − cy y las tangenciales (p1, p2) cambian
+  # de signo. Originales sin rotar: cx 428.50, cy 225.42, p1 −0.005078, p2 −0.000387.
   fx: 948.16
   fy: 947.12
-  cx: 428.50
-  cy: 225.42
-  dist: [-0.023288, 0.243119, -0.005078, -0.000387, 0.0]
+  cx: 210.50
+  cy: 253.58
+  dist: [-0.023288, 0.243119, 0.005078, 0.000387, 0.0]
   fps: 30
 
 control:

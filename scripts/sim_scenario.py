@@ -49,8 +49,14 @@ def scenario() -> list[SynthPerson]:
     return [A, B]
 
 
+# Geometría de la cámara sintética con la que se diseñaron los tiempos del escenario (intrínsecos de antes de
+# rotar la cámara 180°). Es fija: el escenario no tiene que cambiar cuando se recalibra la cámara real.
+GEOMETRIA_ESCENARIO = {"size": [640, 480], "fx": 948.16, "fy": 947.12, "cx": 428.50, "cy": 225.42}
+
+
 def run(duration: float = 30.0, rate: float = 40.0, echo: bool = True, puerto: str | None = None):
     cfg = load_config()
+    cfg["camera"] = {**cfg["camera"], **GEOMETRIA_ESCENARIO}
     real = puerto is not None
     link = SerialLink(puerto, espejo_cfg=cfg) if real else SimLink(cfg, realtime=False)
     log = EventLog(to_file=echo, echo=echo)

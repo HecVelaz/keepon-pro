@@ -3,9 +3,12 @@
 # Uso (en la Pi):  bash ~/keepon/scripts/ver_percepcion.sh        (Ctrl+C corta todo)
 #                  bash ~/keepon/scripts/ver_percepcion.sh stop   (si quedó en segundo plano)
 PUERTO=8080
-# Cámara por nombre (no por índice): si se conecta la segunda NoIR, los índices cambian.
-CAMARA="${CAMARA:-/base/axi/pcie@120000/rp1/i2c@80000/imx708@1a}"
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
+# Cámara por nombre (no por índice): si se conecta la segunda NoIR, los índices cambian.
+# Cámara y orientación desde config.yaml (+ config.local.yaml); CAMARA=... en el entorno la cambia.
+read -r CAM_CFG ORIENTACION < <(cd "$DIR" && ~/keepon_env/bin/python -c \
+    'from keepon import load_config; c = load_config()["camera"]; print(c["ros_camera"], c.get("orientation_deg", 0))')
+CAMARA="${CAMARA:-$CAM_CFG}"
 
 if [ "$1" = "stop" ]; then
     pkill -INT -f "[v]er_percepcion.py"; pkill -INT -f "[_]_node:=keepon_cam"; pkill -INT -f "[w]eb_video_server.*port:=$PUERTO"
@@ -32,7 +35,7 @@ trap limpiar EXIT
 trap 'exit 130' INT TERM
 
 setsid ros2 run camera_ros camera_node --ros-args -r __node:=keepon_cam \
-    -p camera:="$CAMARA" -p width:=640 -p height:=480 > /tmp/keepon_cam.log 2>&1 &
+    -p camera:="$CAMARA" -p orientation:="$ORIENTACION" -p width:=640 -p height:=480 > /tmp/keepon_cam.log 2>&1 &
 GRUPOS+=($!)
 setsid ros2 run web_video_server web_video_server --ros-args -p port:=$PUERTO > /tmp/keepon_web.log 2>&1 &
 GRUPOS+=($!)
