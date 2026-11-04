@@ -7,8 +7,11 @@ namespace gen {
 
 const uint32_t WATCHDOG_MS = 500;
 
+// Pin del I/O del módulo del buzzer (config.yaml: buzzer.pin).
+const uint8_t PIN_BUZZER = 5;
+
 // Volumen del buzzer: fracción del ciclo de trabajo máximo (1.0 = 50 %).
-const double BUZZER_VOLUMEN = 0.25;
+const double BUZZER_VOLUMEN = 0.12;
 
 // Cuello, en orden yaw, pitch, roll [grados, °/s, °/s²]
 const double LIM_MIN[3] = {-70.0, -20.0, -20.0};
@@ -19,11 +22,14 @@ const double AMAX[3] = {600.0, 400.0, 300.0};
 
 // Servos: pulso = centro + signo · grados / grados_por_us, recortado a [min, max] µs.
 // grados_por_us: [lado de pulsos < 1500, lado de pulsos > 1500].
-const double CENTRO_US[3] = {1500.0, 1500.0, 1500.0};
+const double CENTRO_US[3] = {1500.0, 1400.0, 1450.0};
 const double GPU[3][2] = {{0.13, 0.136}, {0.09, 0.09}, {0.092, 0.092}};
 const uint16_t MIN_US[3] = {950, 760, 1000};
 const uint16_t MAX_US[3] = {2020, 2240, 2000};
-const int8_t SIGNO[3] = {1, 1, 1};
+const int8_t SIGNO[3] = {-1, 1, -1};
+// Compensación de zona muerta [µs]: {al bajar el pulso, al subir el pulso}, según el sentido del
+// último movimiento del eje.
+const int16_t COMP_US[3][2] = {{0, 0}, {0, 0}, {0, 151}};
 
 // Sonidos: {f_inicio_Hz, f_fin_Hz, duracion_ms}. Iguales: nota fija; distintas: barrido; 0: silencio.
 struct Segmento { uint16_t f0, f1, ms; };

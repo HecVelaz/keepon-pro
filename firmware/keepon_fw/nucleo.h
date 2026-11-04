@@ -71,6 +71,9 @@ class Nucleo {
   void err(long long seq, const char *motivo) { responder("ERR %lld %s", seq, motivo); }
 
   Eje ejes_[3];
+  // Sentido del último movimiento de cada eje, en pulsos: −1 bajando, +1 subiendo, 0 todavía no se movió.
+  // Elige la compensación de zona muerta (gen::COMP_US); quieto conserva la del último movimiento.
+  int8_t sentido_[3];
   Estado estado_;
   uint32_t ultimo_rx_ms_;
   int sonido_;                 // índice en gen::SONIDOS, -1 = ninguno
@@ -83,5 +86,7 @@ class Nucleo {
 
 // Grados → µs con la calibración de config.yaml (neck.servos). Público para poder probarlo.
 uint16_t grados_a_us(int eje, double grados);
+// Lo mismo más la compensación de zona muerta según el sentido del último movimiento (−1, 0, +1).
+uint16_t grados_a_us(int eje, double grados, int sentido);
 
 }  // namespace keepon

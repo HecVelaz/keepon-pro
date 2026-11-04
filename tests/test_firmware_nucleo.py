@@ -149,20 +149,51 @@ def test_al_azar(arnes):
     comparar(arnes, guion)
 
 
+def pulso_esperado(eje, g, sentido=0):
+    """Grados → µs como el firmware: calibración de neck.servos más la compensación de zona muerta
+    según el sentido del último movimiento en pulsos (−1 bajando, +1 subiendo, 0 sin moverse)."""
+    c = load_config()["neck"]["servos"][eje]
+    gpu = c["grados_por_us"] if isinstance(c["grados_por_us"], list) else [c["grados_por_us"]] * 2
+    d = c["signo"] * g
+    us = max(c["min_us"], min(c["max_us"], math.floor(c["centro_us"] + d / gpu[0 if d < 0 else 1] + 0.5)))
+    comp = c.get("compensacion_us", [0, 0])
+    us += comp[0] if sentido < 0 else comp[1] if sentido > 0 else 0
+    return max(c["min_us"], min(c["max_us"], us))
+
+
 def test_pulsos(arnes):
-    """Grados → µs con la calibración de config.yaml (neck.servos)."""
-    s = load_config()["neck"]["servos"]
+    """Grados → µs con la calibración de config.yaml (neck.servos), partiendo de HOME."""
+    cfg = load_config()["neck"]
+    home = dict(zip(("yaw", "pitch", "roll"), cfg["home"]))
 
     def esperado(eje, g):
-        c = s[eje]
-        gpu = c["grados_por_us"] if isinstance(c["grados_por_us"], list) else [c["grados_por_us"]] * 2
-        d = c["signo"] * g
-        us = math.floor(c["centro_us"] + d / gpu[0 if d < 0 else 1] + 0.5)
-        return max(c["min_us"], min(c["max_us"], us))
+        lo, hi = cfg["limits"][eje]
+        g = max(lo, min(hi, g))
+        movimiento = cfg["servos"][eje]["signo"] * (g - home[eje])
+        return pulso_esperado(eje, g, (movimiento > 0) - (movimiento < 0))
 
     for y, p, r in [(70, 30, 20), (-70, -20, -20), (12.3, -7.5, 4.4), (0, 0, 0)]:
         _, _, extra = correr_firmware(arnes, [f"L J 1 {y} {p} {r}", "T 400", "U"])
         assert extra[-1] == f"U {esperado('yaw', y)} {esperado('pitch', p)} {esperado('roll', r)}"
+
+
+def test_regresion_zona_muerta_roll(arnes):
+    """03/11, montado: de roll +25 a 0 el MG996R quedaba en +10 (con el pulso subiendo se frena ~110 µs antes).
+    Volviendo a 0 desde el lado positivo se suma la compensación de subida, y se conserva quieto;
+    volviendo desde el lado negativo (pulso bajando) se suma la de bajada."""
+    s = load_config()["neck"]["servos"]["roll"]
+    sube = 1 if s["signo"] < 0 else -1   # ir de roll + a 0 mueve el pulso en este sentido
+    hi = load_config()["neck"]["limits"]["roll"][1]
+    lo = load_config()["neck"]["limits"]["roll"][0]
+    _, _, extra = correr_firmware(arnes, [f"L J 1 0 0 {hi}", "T 300", "L J 2 0 0 0", "T 300", "U",
+                                          "L PING 3", "T 30", "U"])
+    assert extra[-2] == extra[-1] == f"U {pulso_esperado('yaw', 0)} {pulso_esperado('pitch', 0)} " \
+        f"{pulso_esperado('roll', 0, sube)}"
+    _, _, extra = correr_firmware(arnes, [f"L J 1 0 0 {lo}", "T 300", "L J 2 0 0 0", "T 300", "U"])
+    assert extra[-1].endswith(f" {pulso_esperado('roll', 0, -sube)}")
+    # Sin moverse (arranque en HOME) no hay compensación
+    _, _, extra = correr_firmware(arnes, ["T 10", "U"])
+    assert extra[-1].endswith(f" {pulso_esperado('roll', 0, 0)}")
 
 
 def test_frecuencias(arnes):

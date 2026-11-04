@@ -1,0 +1,26 @@
+﻿pieza,uso,eje,diametro_mm,centro_x_mm,centro_y_mm,centro_z_mm,inicio_eje_mm,fin_eje_mm,nota
+Soporte_servo_base,Paso M3 centrado en pilar,Z,3.4,-18,-6,0,38,44,
+Base_con_pilares,Alojamiento inserto M3 L5,Z,4,-18,-6,0,31.4,38,Diámetro de inserto provisional
+Soporte_servo_base,Paso M3 centrado en pilar,Z,3.4,-18,6,0,38,44,
+Base_con_pilares,Alojamiento inserto M3 L5,Z,4,-18,6,0,31.4,38,Diámetro de inserto provisional
+Soporte_servo_base,Paso M3 centrado en pilar,Z,3.4,38,-6,0,38,44,
+Base_con_pilares,Alojamiento inserto M3 L5,Z,4,38,-6,0,31.4,38,Diámetro de inserto provisional
+Soporte_servo_base,Paso M3 centrado en pilar,Z,3.4,38,6,0,38,44,
+Base_con_pilares,Alojamiento inserto M3 L5,Z,4,38,6,0,31.4,38,Diámetro de inserto provisional
+Carcasa_cabeza,Piloto Pi,Z,2.2,-3.5,-44,0,111.4,119.4,Poste Ø9×8
+Carcasa_cabeza,Piloto Pi,Z,2.2,-3.5,5,0,111.4,119.4,Poste Ø9×8
+Carcasa_cabeza,Piloto Pi,Z,2.2,54.5,-44,0,111.4,119.4,Poste Ø9×8
+Carcasa_cabeza,Piloto Pi,Z,2.2,54.5,5,0,111.4,119.4,Poste Ø9×8
+Disco_comercial_25T,Cuatro agujeros Ø3 a R7,X,3,0,7,163.0,-45.55,-43.1,Centros opuestos14; espesor de disco2.45
+Carcasa_cabeza,Paso M3 coincidente con disco,X,3.4,0,7,163.0,-46.55,-30.55,Pasante; límites de herramienta de corte
+Disco_comercial_25T,Cuatro agujeros Ø3 a R7,X,3,0,0,170.0,-45.55,-43.1,Centros opuestos14; espesor de disco2.45
+Carcasa_cabeza,Paso M3 coincidente con disco,X,3.4,0,0,170.0,-46.55,-30.55,Pasante; límites de herramienta de corte
+Disco_comercial_25T,Cuatro agujeros Ø3 a R7,X,3,0,-7,163.0,-45.55,-43.1,Centros opuestos14; espesor de disco2.45
+Carcasa_cabeza,Paso M3 coincidente con disco,X,3.4,0,-7,163.0,-46.55,-30.55,Pasante; límites de herramienta de corte
+Disco_comercial_25T,Cuatro agujeros Ø3 a R7,X,3,0,0,156.0,-45.55,-43.1,Centros opuestos14; espesor de disco2.45
+Carcasa_cabeza,Paso M3 coincidente con disco,X,3.4,0,0,156.0,-46.55,-30.55,Pasante; límites de herramienta de corte
+Disco_comercial_25T,Paso central de tornillo,X,3,0,0,163.0,-47.6,-43.1,CuboØ9; altura total4.5. Cavidad25T nominal aparte.
+Carcasa_cabeza,Acceso central herramienta roll,X,8.4,0,0,163.0,-46.55,-28.55,
+Cuna_inclinacion,Acceso pasante tornillo pitch,Y,8.4,0,0,163.0,-99.5,90.1,Retirar casquillo22 y pivoteM4 para acceder de extremo a extremo
+PCB_buzzer,Agujero de fijación M3,X,3,0,8.3,134.9,58.5,60.0,Centro14.8 desde extremo buzzer; transversal6.3 conservada de medición anterior
+Cara_integrada,Piloto ciego fijación buzzer,X,2.5,0,8.3,134.9,60.0,64.6,Un M3×5 desde atrás; puntaX63.5; frenteX73

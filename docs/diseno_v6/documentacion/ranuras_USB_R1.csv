@@ -1,0 +1,4 @@
+﻿pieza,geometria,centro_y_mm,centro_z_mm,ancho_y_mm,alto_z_mm,radio_mm,direccion,estado
+04_cuba_cabeza,Rectángulo redondeado pasante,-35.0,127.0,36.0,26.0,3.0,X,Capacidad de diseño; medir conector
+03_cuna_pitch,Alivio semicircular abierto inferior,-49.0,147.0,52.0,26.0,26.0,X,Sin cambio de eje ni agujeros MG996R
+03_cuna_pitch,Alivio semicircular abierto inferior,57.0,147.0,40.0,20.0,20.0,X,Sin cambio de eje ni agujeros MG996R

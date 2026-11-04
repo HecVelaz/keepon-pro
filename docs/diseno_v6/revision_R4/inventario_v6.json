@@ -1,0 +1,50 @@
+[
+  {
+    "nombre": "01_base_con_pilares",
+    "nota": "Pilares con alojamientos ciegos M3 centrados; insertos L5 nominales."
+  },
+  {
+    "nombre": "02_horquilla_de_giro",
+    "nota": "Horn yaw y soporte Hitec integrados; sin adaptador aparte; pasacables oblongo 22x14 sin resalte"
+  },
+  {
+    "nombre": "03_cuna_de_inclinacion",
+    "nota": "Acceso pasante coaxial Ø8.4 de extremo a extremo para tornillo central del brazo simple."
+  },
+  {
+    "nombre": "04_carcasa_inferior_cabeza",
+    "nota": "Postes Pi8 mm; bolsillo de discoØ19.8×2.45, asiento desplazado0.9 mm y cuatro pasosM3 a R7, acceso centralØ8.4."
+  },
+  {
+    "nombre": "05_tapa_superior_ventilada",
+    "nota": "Tornillos laterales cortos; ventilacion sobre Active Cooler"
+  },
+  {
+    "nombre": "06_cara_con_ojos_integrados",
+    "nota": "Buzzer directo a poste integrado con M3x5 posterior ciego; extremo de cables libre."
+  },
+  {
+    "nombre": "08_bandeja_de_electronica",
+    "nota": "ESP32 vertical; acceso lateral a pines; ranuras ajustables; cuatro M3."
+  },
+  {
+    "nombre": "09_abrazadera_ESP32",
+    "nota": "Retención desmontable superior mediante dos M2 autorroscantes."
+  },
+  {
+    "nombre": "10_soporte_centrado_servo_base",
+    "nota": "Cuerpo centrado y orejas con asiento; interferencia nominal de presión 0.05 mm/lado, calibrar impresión."
+  },
+  {
+    "nombre": "11_retencion_brazo_doble_base",
+    "nota": ""
+  },
+  {
+    "nombre": "13_retencion_disco_balanceo",
+    "nota": "Retención periférica con aberturaØ18.2: solape radial0.8 sobre discoØ19.8. Asiento y postes acompañan el horn de4.5 mm total."
+  },
+  {
+    "nombre": "22_casquillo_extraible_pivote_inclinacion",
+    "nota": "Restituye apoyo M4 tras abrir acceso Ø8.4; retirar pivote y casquillo para acceso axial completo."
+  }
+]

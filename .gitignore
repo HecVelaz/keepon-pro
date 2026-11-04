@@ -16,3 +16,24 @@ pruebas_buzzer/**/build/
 
 # Comprimidos para compartir (se regeneran desde la carpeta)
 docs/*.zip
+
+# Diseño v6: se versiona solo lo vigente (R4) y las fuentes. Los ZIP, el historial,
+# las evidencias, las mallas y las revisiones anteriores quedan fuera (ver docs/diseno_v6/LEEME_GIT.md).
+docs/diseno_v6/*.zip
+docs/diseno_v6/HISTORIAL/
+docs/diseno_v6/evidencias/
+docs/diseno_v6/PRELIMINAR/
+docs/diseno_v6/SOLIDWORKS/
+docs/diseno_v6/SOLIDWORKS_V6/
+docs/diseno_v6/SOLIDWORKS_V6_R3/
+docs/diseno_v6/STEP/
+docs/diseno_v6/STEP_V6/
+docs/diseno_v6/STL_REVISION_NO_IMPRIMIR/
+docs/diseno_v6/vistas/
+docs/diseno_v6/mallas_v6.json
+docs/diseno_v6/revision_R4/HISTORIAL/
+docs/diseno_v6/revision_R4/evidencias/
+docs/diseno_v6/revision_R4/STL_REVISION_NO_IMPRIMIR/
+docs/diseno_v6/revision_R4/mallas_v6.json
+# Archivos de bloqueo de SolidWorks/Office (el archivo está abierto)
+~$*

@@ -5,37 +5,50 @@ neck:
   limits:
     yaw:   [-70.0, 70.0]
     pitch: [-20.0, 30.0]
-    roll:  [-20.0, 20.0]
+    roll:  [-20.0, 20.0]         # Montado (03/11): a +25 queda al límite de la pared y a +30 toca. Hacia la izquierda,
+                                 # −30 "al límite" fue SIN compensación de zona muerta (llegaba ~10° antes): con la
+                                 # compensación, −20 es −20 de verdad. Probar de a poco antes de ampliar.
   home: [0.0, 0.0, 0.0]          # postura calibrada, mirada al frente
   vmax: [180.0, 120.0, 90.0]     # velocidad máxima por eje [°/s] (yaw, pitch, roll)
   amax: [600.0, 400.0, 300.0]    # aceleración máxima por eje [°/s²]
   # Calibración de los servos (planilla de pruebas_servos/README.md). La usa el firmware para pasar de grados a µs:
   # pulso = centro_us + signo · grados / grados_por_us, recortado a [min_us, max_us].
+  # compensacion_us (opcional): [al bajar el pulso, al subir el pulso], se suma según el sentido del último
+  # movimiento del eje (zona muerta del servo; ver roll). Sin la clave: [0, 0].
   servos:
     pitch:                       # Hitec HS-7955TG, medido el 09/10 (6 V, sin carga)
-      centro_us: 1500
+      centro_us: 1400            # montado en el v6 (03/11): con 1400 la cara queda vertical (primero se probó 1450)
       grados_por_us: 0.090       # lineal y simétrico: ±45° en 1000/2000 µs
       min_us: 760                # límites electrónicos 750/2250 µs (≈ ±68°): ahí deja de moverse, sin forzar
       max_us: 2240
       signo: 1                   # pulso mayor = HORARIO visto de frente al eje: al revés que los RDS3218 (12/10,
                                  # comparado con el yaw, los dos ejes hacia el mismo lado y 1500 → 1700 µs).
-                                 # FALTA: con el servo montado, qué sentido es "arriba"
+                                 # Montado en el v6 (03/11): pulso mayor = la cara SUBE → signo 1 (pitch + = arriba).
+                                 # Montado vibra al moverse y tiene micromovimientos quieto en 1600 (+13°): sin resolver.
     yaw:                         # DSSERVO RDS3218 n.º 2 (versión de 270°), medido el 12/10 sin carga
       centro_us: 1500
       grados_por_us: [0.13, 0.136]   # [lado de pulsos < 1500, lado de pulsos > 1500]. Medido: −39° en 1200,
                                      # −65° en 1000, −70° en 960; +39° en 1800, ≈ +67° en 2000, +75° en 2040
       min_us: 950                # ≈ −71°. No tiene tope (llega a −130° / +140° con 500/2500 µs):
       max_us: 2020               # ≈ +71°  estos límites son lo único que protege el cableado
-      signo: 1                   # pulso mayor = antihorario visto de frente al eje (confirmado el 12/10 con 1700 µs).
-                                 # FALTA: con el servo montado, qué sentido es "izquierda"
+      signo: -1                  # montado en el v6 (03/11): pulso mayor = el robot gira a SU IZQUIERDA (visto desde
+                                 # atrás). Como yaw + = derecha (PROTOCOLO.md), signo −1. Cero: 1500 µs con la cara al
+                                 # frente (horn reubicado en el estriado el 03/11). Extremos 960/2020 probados: ni roces
+                                 # ni cable tirante. Montado VIBRA al moverse lento (≤ ~40 °/s con la rampa de 100 Hz);
+                                 # a ~100 °/s (750 µs/s) va suave. Quieto no vibra.
       # El n.º 1 (11-12/10) era simétrico: 0.13, 950/2050 µs. No son intercambiables sin recalibrar.
       # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
     roll:                        # TowerPro MG996R, medido el 13/10 a 6 V, sin carga
-      centro_us: 1500
+      centro_us: 1450            # montado en el v6 (03/11): con 1450 la cabeza queda derecha (disco reubicado en el estriado)
       grados_por_us: 0.092       # lineal y simétrico: ±55° en 900/2100 µs, ±64° en 800/2200 µs
       min_us: 1000               # ≈ ±46°: de sobra para los ±20° de roll (sin tope hasta 800/2300 µs)
       max_us: 2000
-      signo: 1                   # FALTA: sentido de giro (no se anotó el 13/10) y, montado, qué sentido es "derecha"
+      signo: -1                  # montado en el v6 (03/11): pulso mayor = ANTIHORARIO visto desde atrás. Como
+                                 # roll + = horario visto desde atrás (PROTOCOLO.md), signo −1.
+      compensacion_us: [0, 151]  # Zona muerta montado (03/11): con el pulso BAJANDO (hacia roll +, o volviendo a 0
+                                 # desde la izquierda) llega bien; con el pulso SUBIENDO se frena antes: de +25 a 0
+                                 # quedaba en +10. Con 110 µs faltaban ~5°; 165 y 159 se pasaban → 151 (≈ +3,8°). Cero 1450
+                                 # calibrado llegando desde abajo.
       # Banda muerta GRANDE, ~100-110 µs (≈ 10°) e intermitente: de +10° a 0° no volvió en 3 de 10 intentos.
       # Pasos de 20° andan siempre. Conviene mandarle el objetivo de un solo movimiento, no acercarse de a poco.
       # Sin pulso queda flojo: en el STOP hay que seguir mandando el último pulso. Pesa 55 g.
@@ -52,16 +65,22 @@ camera:
   # Raspberry Pi 5 + Camera Module 3 NoIR (IMX708) en la cabeza.
   backend: auto                  # auto | ros2 | picamera2 | gstreamer | opencv  (en la Pi: ros2, ver config.local.yaml)
   ros_topic: /keepon_cam/image_raw   # tópico de camera_ros (backend ros2)
+  # Cámara por nombre (no por índice) para camera_ros. Desde el 03/11, con la cabeza v6, está en el conector
+  # i2c@88000 (antes i2c@80000). La leen scripts/ver_percepcion.sh y ver_personas.sh (CAMARA=... la cambia).
+  ros_camera: /base/axi/pcie@120000/rp1/i2c@88000/imx708@1a
+  orientation_deg: 180           # montada invertida en la cabeza v6 (03/11): camera_ros rota al leer el sensor
   index: 0                       # para opencv (webcam USB en la notebook de desarrollo)
   size: [640, 480]
   hfov_deg: 37.3                 # = 2·atan(320/fx). camera_ros a 640x480 RECORTA el sensor (no son los 66° nominales)
   # Intrínsecos de ~/vision_estereo/config/calibracion/right_corregida.yaml (cámara 0).
   # VERIFICAR que corresponden a la NoIR montada en la cabeza; recalibrar si se cambia de módulo o modo.
+  # Con orientation_deg: 180, la imagen rota: cx → 639 − cx, cy → 479 − cy y las tangenciales (p1, p2) cambian
+  # de signo. Originales sin rotar: cx 428.50, cy 225.42, p1 −0.005078, p2 −0.000387.
   fx: 948.16
   fy: 947.12
-  cx: 428.50
-  cy: 225.42
-  dist: [-0.023288, 0.243119, -0.005078, -0.000387, 0.0]
+  cx: 210.50
+  cy: 253.58
+  dist: [-0.023288, 0.243119, 0.005078, 0.000387, 0.0]
   fps: 30
 
 control:
@@ -82,10 +101,30 @@ perception:
   pose_max_hz: 30                # limitar la pose libera memoria/CPU para YOLO (SALUDO dura >1 s)
   looking_deg: 15.0              # ME_MIRA: desvío cara->cámara menor a esto
 
-# Buzzer (módulo pasivo MH-FMD en el GPIO10). El volumen se baja achicando el ciclo de trabajo del PWM:
+# Eventos de T2 con filtro temporal (keepon/eventos.py). Todo por tiempo: la percepción no va a ritmo fijo.
+eventos:
+  mira_sostenida_s: 0.5          # ME_MIRA se activa tras mirar esto seguido (la guía: sostenida ≥ 0,5 s)
+  mira_suelta_s: 0.3             # y se suelta tras no mirar esto seguido (histéresis)
+  saludo_ciclos: 2               # SALUDO: ciclos de oscilación lateral de la muñeca (2 vaivenes por ciclo;
+                                 # el primer recorrido solo marca el sentido → 3 cambios de sentido)
+  saludo_ventana_s: 2.5          # los cambios de sentido tienen que caer dentro de esta ventana
+  saludo_amp_hombros: 0.25       # amplitud mínima de cada vaivén, en anchos de hombros (independiente de la distancia)
+  saludo_margen_hombros: 0.1     # la muñeca tiene que estar por encima del hombro al menos esto
+  saludo_mano_abajo_s: 0.4       # tras un saludo, la mano debe bajar esto para contar otro (un gesto = un evento)
+  pose_vis_min: 0.5              # visibilidad mínima de un punto de MediaPipe para usarlo
+  # SALIENDO: cerca del borde y alejándose, o el cuello en su límite de yaw y la persona más allá del centro
+  saliendo_borde_frac: 0.15      # "cerca del borde": a menos de esta fracción del ancho
+  saliendo_vel_px_s: 80.0        # "alejándose": velocidad hacia el borde (ventana de 0,4 s)
+  saliendo_limite_deg: 4.0       # "en el límite": yaw comandado a menos de esto del límite
+  saliendo_on_s: 0.2             # la condición tiene que durar esto para activar SALIENDO
+  saliendo_off_s: 0.6            # y faltar esto para soltarlo
+
+# Buzzer (módulo pasivo MH-FMD; I/O en el pin de abajo, VCC a 3V3). El volumen se baja achicando el ciclo de trabajo del PWM:
 # 1.0 = 50 % (el máximo); 0.25 = 12,5 %. La sensación de volumen no es lineal con el ciclo: ajustar de oído.
 buzzer:
-  volumen: 0.25                 # 26/10: a pedido, 75 % menos que el máximo
+  pin: 5                        # GPIO del I/O del módulo. 03/11: del GPIO10 al GPIO5 (con la cabeza v6 armada,
+                                # en el 10 no sonaba). Libres y seguros: 5, 6, 7 (no 2/8/9, 18/19, 20/21)
+  volumen: 0.12                 # 03/11: a pedido, la mitad que antes (26/10: 0.25)
 
 # Duración de cada sonido [s]. El firmware es la fuente de verdad (manda DONE),
 # la PC la usa para planificar y como timeout.
@@ -129,6 +168,37 @@ focus:
   w_looking: 1.0                 # ME_MIRA tiene prioridad estricta; este peso queda sin uso
   w_size: 0.6                    # pesos para desempatar dentro de cada grupo (T4)
   w_center: 0.4
+
+# T3 d: si el objetivo se queda quieto (cara a cara), inclinar la cabeza (roll) como gesto de curiosidad.
+# Va dentro del SEGUIMIENTO (mismo dueño del cuello): yaw y pitch siguen a la persona mientras tanto.
+curiosidad:
+  activa: true
+  quieto_s: 3.0                  # tiempo con el objetivo quieto para inclinarse
+  movimiento_max_deg: 5.0        # "quieto": la dirección de la persona (ángulo del cuello + error en la imagen)
+                                 # no se aparta más que esto en yaw ni en pitch. No usa solo el error del control:
+                                 # si la cabeza oscila un poco alrededor de la persona, el error varía (03/11, real)
+  amp_deg: 15.0                  # inclinación; alterna el lado. Un movimiento grande y único: la zona muerta
+                                 # del MG996R (~10°) se come los chicos
+  sostener_s: 2.0                # cuánto la sostiene antes de volver a 0
+  espera_s: 8.0                  # después de una inclinación (o si se cortó), no repetir antes de esto
+
+# Modos de personalidad (T5). Se cambian en tiempo de ejecución (scripts/robot_vivo.py: t/a/m/n o
+# "MODE TIMIDO") y se confirman con BEEP_<MODO>. Reacciones sobre la persona que se sigue (prioridad MODO).
+modos:
+  inicial: NEUTRO                # NEUTRO | TIMIDO | ATREVIDO | MALEDUCADO
+  timido:                        # lo mira (ME_MIRA) → desvía la mirada, la sostiene y vuelve a espiar de a poco
+    desvio_yaw_deg: 25.0         # hacia el costado con más lugar dentro de los límites de yaw
+    desvio_pitch_deg: 12.0       # hacia abajo
+    desvio_roll_deg: 10.0        # cabeza un poco ladeada (vergüenza)
+    sostener_s: 2.5
+    regreso_s: 3.0               # vuelve gradualmente (curva suave)
+    espera_s: 3.0                # después, no repetir con la misma persona antes de esto
+  atrevido:                      # lo mira → levanta el mentón varias veces sin dejar de seguirla en yaw
+    menton_deg: 10.0             # amp·sin²(π t/T): pide (amp/2)(2π/T)² ≈ 137 °/s² con T = 1,2 s (pitch: 400)
+    periodo_s: 1.2
+    veces: 3
+    espera_s: 3.0
+  # maleducado: piropo al empezar cada salida (SALIENDO) de la persona seguida; cooldown PIROPO_global.
 
 observer:
   yaw_amp: 45.0                  # barrido lento

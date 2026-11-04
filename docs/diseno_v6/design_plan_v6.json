@@ -1,0 +1,768 @@
+{
+  "plan_version": 1,
+  "source_brief": "V6 Keepon derivada de V5 con referencias de servos V3/V4, base reutilizada, adaptador, roll exterior, cámara, USB, ojos y soporte de placa buzzer.",
+  "part_family": "assembly",
+  "parameters": {
+    "version": "V6_integrada_nominal",
+    "revision": "R2_buzzer_ojos",
+    "solidworks": 2021,
+    "skill": "C:/Users/mathi/.codex/skills/solidworks-automation",
+    "estado": "Diseño nominal integrado; fabricación condicionada a mediciones",
+    "recorridos_grados": {
+      "yaw": [
+        -70,
+        70
+      ],
+      "pitch": [
+        -20,
+        30
+      ],
+      "roll": [
+        -20,
+        20
+      ]
+    },
+    "impresion": {
+      "material": null,
+      "boquilla_mm": 0.4,
+      "cama_util_mm": 215.0,
+      "holgura_encastre_por_lado_mm": 0.25,
+      "holgura_servo_por_lado_mm": 0.4,
+      "pared_refuerzo_mm": 3.0,
+      "radio_transicion_mm": 2.0,
+      "tolerancia_malla_mm": 0.08,
+      "nota": "Valores de diseño provisionales; calibrar con cupón en el material elegido."
+    },
+    "insertos": {
+      "exterior_nominal_mm": 4.2,
+      "diametro_instalacion_mm": 4.0,
+      "diametro_instalacion_confirmado": false,
+      "diametros_cupon_mm": [
+        3.7,
+        3.8,
+        3.9,
+        4.0,
+        4.1
+      ],
+      "entrada_mm": 4.4,
+      "chaflan_entrada_mm": 0.4,
+      "holgura_fondo_mm": 0.6,
+      "diametro_poste_mm": 9.0,
+      "nota": "4.0 es una variante del cupón, no una recomendación de fabricante."
+    },
+    "tornillos": {
+      "paso_m3_mm": 3.4,
+      "largo_fijacion_servo_mm": 6,
+      "largos_disponibles_mm": [
+        5,
+        6,
+        8,
+        10,
+        12
+      ],
+      "cabeza_envolvente_d_mm": 6.0,
+      "cabeza_envolvente_h_mm": 3.0,
+      "nota": "Envolvente de diseño de cabeza; medir la tornillería comprada."
+    },
+    "yaw": {
+      "giro_cuerpo_grados": 90.0,
+      "z_pedestales_mm": 38.0,
+      "espesor_adaptador_mm": 6.0,
+      "fijaciones_base_xy_mm": [
+        [
+          -14,
+          -6
+        ],
+        [
+          -14,
+          6
+        ],
+        [
+          34,
+          -6
+        ],
+        [
+          34,
+          6
+        ]
+      ],
+      "referencia_base": "V5: mismos pedestales que V3/V4; piso 210x210.",
+      "rosca_base_verificada": false,
+      "envolvente_cable_mm": [
+        8.0,
+        20.0,
+        8.0
+      ],
+      "envolvente_cable_confirmada": false
+    },
+    "pitch": {
+      "z_original_mm": 150.0,
+      "y_brida_mm": -111.0,
+      "brazo_simple_verificado": false,
+      "perfil_brazo_simple_local_xy_mm": null,
+      "nota_perfil": "Contorno cerrado completo, incluido cubo, centro del eje en (0,0). X local hacia punta y Y local lateral; no inventar puntos.",
+      "nota_brazo": "Cartridge de estudio de una sola rama derivada del CAD doble; sustituir por perfil medido antes de imprimir."
+    },
+    "roll": {
+      "x_brida_mm": -61.0,
+      "y_extremos_cuna_mm": [
+        -82.0,
+        82.0
+      ],
+      "apertura_traviesa_y_mm": [
+        -32.0,
+        46.0
+      ],
+      "espesor_placa_retencion_mm": 1.2,
+      "fijaciones_retencion_yz_mm": [
+        [
+          -23,
+          -14
+        ],
+        [
+          -23,
+          14
+        ],
+        [
+          23,
+          -14
+        ],
+        [
+          23,
+          14
+        ]
+      ],
+      "fijaciones_pitch_xz_mm": [
+        [
+          -16,
+          -14
+        ],
+        [
+          -16,
+          14
+        ],
+        [
+          16,
+          -14
+        ],
+        [
+          16,
+          14
+        ]
+      ],
+      "alivios_usb": [
+        {
+          "centro_y_mm": -49.0,
+          "radio_mm": 26.0
+        },
+        {
+          "centro_y_mm": 57.0,
+          "radio_mm": 20.0
+        }
+      ],
+      "alivios_usb_centro_z_relativo_mm": -16.0,
+      "suplemento_traviesa_superior_mm": 26.0,
+      "nota": "Las posiciones del servo salen de la clase Servo heredada; medir unidad real y accesos."
+    },
+    "usb": {
+      "centros_aberturas_y_mm": [
+        -35.0,
+        35.0
+      ],
+      "paso_trasero_centro_yz_relativo_mm": [
+        -35.0,
+        -36.0
+      ],
+      "paso_trasero_ancho_alto_mm": [
+        36.0,
+        26.0
+      ],
+      "paso_trasero_radio_esquina_mm": 3.0,
+      "paso_trasero_refuerzo_perimetral_mm": 4.0,
+      "paso_trasero_refuerzo_interior_mm": 1.6,
+      "reserva_conector_x_mm": [
+        -82.0,
+        -27.0
+      ],
+      "reserva_conector_y_mm": [
+        -51.0,
+        -19.0
+      ],
+      "reserva_conector_z_relativa_mm": [
+        -47.0,
+        -25.0
+      ],
+      "y_apertura_mm": [
+        35.0,
+        55.0
+      ],
+      "z_apertura_relativa_mm": [
+        -48.0,
+        18.0
+      ],
+      "tapa_y_mm": [
+        27.5,
+        61.5
+      ],
+      "tapa_z_relativa_mm": [
+        -47.0,
+        17.0
+      ],
+      "espesor_tapa_mm": 2.0,
+      "diametro_salida_cable_mm": 8.0,
+      "fijaciones_yz_relativas_mm": [
+        [
+          30,
+          -39
+        ],
+        [
+          58,
+          -39
+        ],
+        [
+          30,
+          8
+        ],
+        [
+          58,
+          8
+        ]
+      ],
+      "medidas_conector_mm": null,
+      "radio_minimo_cable_mm": null,
+      "nota": "R2: dos pasos traseros simétricos, sin tapa14 ni sus fijaciones. Reserva USB real pendiente; las cotas de las aberturas son de diseño."
+    },
+    "camara": {
+      "modelo": "Camera Module 3 NoIR estándar (IMX708), no Wide",
+      "patron_mm": [
+        21.0,
+        12.5
+      ],
+      "diametro_paso_mm": 2.2,
+      "diametro_optico_existente_mm": 17.0,
+      "diametro_refuerzo_poste_mm": 6.0,
+      "tornillo_propuesto": "M2x10 + tuerca M2; conservar originales si tienen longitud adecuada.",
+      "fuente": "https://datasheets.raspberrypi.com/camera/camera-module-3-standard-mechanical-drawing.pdf"
+    },
+    "buzzer": {
+      "modelo": "RLBZ23_5V",
+      "pcb_ancho_mm": 13.0,
+      "pcb_largo_mm": 31.8,
+      "pcb_espesor_mm": 1.5,
+      "agujero_diametro_mm": 3.0,
+      "borde_agujero_a_bordes_pcb_mm": [
+        4.8,
+        14.9
+      ],
+      "referencia_largo": "Extremo de placa donde se encuentra el buzzer; distancias al borde del agujero, confirmadas por el usuario.",
+      "componentes_y_conectores_mm": null,
+      "tipo_activo_pasivo": null,
+      "pcb_asiento_x_mm": 48.5,
+      "pcb_borde_y_mm": 35.0,
+      "pcb_extremo_buzzer_z_relativo_mm": -39.0,
+      "bastidor_espesor_mm": 2.0,
+      "separacion_inferior_componentes_mm": 3.0,
+      "guia_holgura_por_lado_mm": 0.25,
+      "arandela_impresa_espesor_mm": 0.8,
+      "altura_componentes_verificada": false,
+      "z_centro_relativo_mm": -28.0,
+      "fijaciones_y_mm": [
+        -25.0,
+        25.0
+      ],
+      "nota": "PCB medido, disposición lateral vertical: buzzer hacia abajo y pines arriba. Componentes y conectores sin medir; bastidor abierto, fijación al agujero con M3x5 y arandela impresa."
+    },
+    "ojos": {
+      "estilo": "Carcasas espejadas inspiradas en WALL-E y lentes circulares decorativas separadas.",
+      "contorno_local_uv_mm": [
+        [
+          -18,
+          22
+        ],
+        [
+          12,
+          13
+        ],
+        [
+          23,
+          4
+        ],
+        [
+          24,
+          -11
+        ],
+        [
+          15,
+          -21
+        ],
+        [
+          -1,
+          -21
+        ],
+        [
+          -18,
+          -12
+        ],
+        [
+          -23,
+          0
+        ]
+      ],
+      "radio_contorno_mm": 4.0,
+      "espesor_base_mm": 2.0,
+      "ancho_marco_mm": 2.0,
+      "relieve_marco_mm": 0.8,
+      "lente_diametro_mm": 27.8,
+      "alojamiento_lente_diametro_mm": 28.4,
+      "profundidad_alojamiento_mm": 0.8,
+      "relieve_lente_mm": 2.2,
+      "marcas_decorativas_uv_mm": [
+        [
+          -14,
+          14
+        ],
+        [
+          17,
+          0
+        ],
+        [
+          5,
+          -17
+        ]
+      ],
+      "centros_y_mm": [
+        -30.0,
+        30.0
+      ],
+      "z_relativo_mm": 22.0
+    },
+    "cableado": {
+      "margen_longitud_mm": 20.0,
+      "tramos": [
+        {
+          "nombre": "yaw",
+          "grupo_a": "fixed",
+          "punto_a_mm": [
+            72.0,
+            30.0,
+            30.0
+          ],
+          "grupo_b": "yaw",
+          "punto_b_antes_elevacion_mm": [
+            36.0,
+            0.0,
+            60.0
+          ],
+          "longitud_libre_inicial_mm": 220.0
+        },
+        {
+          "nombre": "pitch",
+          "grupo_a": "yaw",
+          "punto_a_antes_elevacion_mm": [
+            -38.0,
+            71.0,
+            124.0
+          ],
+          "grupo_b": "pitch",
+          "punto_b_antes_elevacion_mm": [
+            -61.0,
+            68.0,
+            150.0
+          ],
+          "longitud_libre_inicial_mm": 160.0
+        },
+        {
+          "nombre": "roll",
+          "grupo_a": "pitch",
+          "punto_a_antes_elevacion_mm": [
+            -61.0,
+            68.0,
+            150.0
+          ],
+          "grupo_b": "roll",
+          "punto_b_antes_elevacion_mm": [
+            -43.5,
+            45.0,
+            111.0
+          ],
+          "longitud_libre_inicial_mm": 150.0
+        }
+      ],
+      "nota": "Puntos orientativos de brida y longitudes iniciales heredadas. No definen radio ni trayectoria real. MG996R pertenece ahora a pitch."
+    },
+    "validacion": {
+      "paso_pitch_grados": 5,
+      "paso_roll_grados": 5,
+      "yaw_muestras_grados": [
+        -70,
+        -35,
+        0,
+        35,
+        70
+      ],
+      "volumen_interferencia_mm3": 0.1,
+      "fuente": "B-Rep nominal; no ensayo físico ni FEA."
+    }
+  },
+  "features": [
+    {
+      "name": "yaw",
+      "type": "enclosure",
+      "params": {
+        "giro_cuerpo_grados": 90.0,
+        "z_pedestales_mm": 38.0,
+        "espesor_adaptador_mm": 6.0,
+        "fijaciones_base_xy_mm": [
+          [
+            -14,
+            -6
+          ],
+          [
+            -14,
+            6
+          ],
+          [
+            34,
+            -6
+          ],
+          [
+            34,
+            6
+          ]
+        ],
+        "referencia_base": "V5: mismos pedestales que V3/V4; piso 210x210.",
+        "rosca_base_verificada": false,
+        "envolvente_cable_mm": [
+          8.0,
+          20.0,
+          8.0
+        ],
+        "envolvente_cable_confirmada": false
+      },
+      "required": true
+    },
+    {
+      "name": "pitch",
+      "type": "enclosure",
+      "params": {
+        "z_original_mm": 150.0,
+        "y_brida_mm": -111.0,
+        "brazo_simple_verificado": false,
+        "perfil_brazo_simple_local_xy_mm": null,
+        "nota_perfil": "Contorno cerrado completo, incluido cubo, centro del eje en (0,0). X local hacia punta y Y local lateral; no inventar puntos.",
+        "nota_brazo": "Cartridge de estudio de una sola rama derivada del CAD doble; sustituir por perfil medido antes de imprimir."
+      },
+      "required": true
+    },
+    {
+      "name": "roll",
+      "type": "enclosure",
+      "params": {
+        "x_brida_mm": -61.0,
+        "y_extremos_cuna_mm": [
+          -82.0,
+          82.0
+        ],
+        "apertura_traviesa_y_mm": [
+          -32.0,
+          46.0
+        ],
+        "espesor_placa_retencion_mm": 1.2,
+        "fijaciones_retencion_yz_mm": [
+          [
+            -23,
+            -14
+          ],
+          [
+            -23,
+            14
+          ],
+          [
+            23,
+            -14
+          ],
+          [
+            23,
+            14
+          ]
+        ],
+        "fijaciones_pitch_xz_mm": [
+          [
+            -16,
+            -14
+          ],
+          [
+            -16,
+            14
+          ],
+          [
+            16,
+            -14
+          ],
+          [
+            16,
+            14
+          ]
+        ],
+        "alivios_usb": [
+          {
+            "centro_y_mm": -49.0,
+            "radio_mm": 26.0
+          },
+          {
+            "centro_y_mm": 57.0,
+            "radio_mm": 20.0
+          }
+        ],
+        "alivios_usb_centro_z_relativo_mm": -16.0,
+        "suplemento_traviesa_superior_mm": 26.0,
+        "nota": "Las posiciones del servo salen de la clase Servo heredada; medir unidad real y accesos."
+      },
+      "required": true
+    },
+    {
+      "name": "usb",
+      "type": "enclosure",
+      "params": {
+        "centros_aberturas_y_mm": [
+          -35.0,
+          35.0
+        ],
+        "paso_trasero_centro_yz_relativo_mm": [
+          -35.0,
+          -36.0
+        ],
+        "paso_trasero_ancho_alto_mm": [
+          36.0,
+          26.0
+        ],
+        "paso_trasero_radio_esquina_mm": 3.0,
+        "paso_trasero_refuerzo_perimetral_mm": 4.0,
+        "paso_trasero_refuerzo_interior_mm": 1.6,
+        "reserva_conector_x_mm": [
+          -82.0,
+          -27.0
+        ],
+        "reserva_conector_y_mm": [
+          -51.0,
+          -19.0
+        ],
+        "reserva_conector_z_relativa_mm": [
+          -47.0,
+          -25.0
+        ],
+        "y_apertura_mm": [
+          35.0,
+          55.0
+        ],
+        "z_apertura_relativa_mm": [
+          -48.0,
+          18.0
+        ],
+        "tapa_y_mm": [
+          27.5,
+          61.5
+        ],
+        "tapa_z_relativa_mm": [
+          -47.0,
+          17.0
+        ],
+        "espesor_tapa_mm": 2.0,
+        "diametro_salida_cable_mm": 8.0,
+        "fijaciones_yz_relativas_mm": [
+          [
+            30,
+            -39
+          ],
+          [
+            58,
+            -39
+          ],
+          [
+            30,
+            8
+          ],
+          [
+            58,
+            8
+          ]
+        ],
+        "medidas_conector_mm": null,
+        "radio_minimo_cable_mm": null,
+        "nota": "R2: dos pasos traseros simétricos, sin tapa14 ni sus fijaciones. Reserva USB real pendiente; las cotas de las aberturas son de diseño."
+      },
+      "required": true
+    },
+    {
+      "name": "camara",
+      "type": "enclosure",
+      "params": {
+        "modelo": "Camera Module 3 NoIR estándar (IMX708), no Wide",
+        "patron_mm": [
+          21.0,
+          12.5
+        ],
+        "diametro_paso_mm": 2.2,
+        "diametro_optico_existente_mm": 17.0,
+        "diametro_refuerzo_poste_mm": 6.0,
+        "tornillo_propuesto": "M2x10 + tuerca M2; conservar originales si tienen longitud adecuada.",
+        "fuente": "https://datasheets.raspberrypi.com/camera/camera-module-3-standard-mechanical-drawing.pdf"
+      },
+      "required": true
+    },
+    {
+      "name": "buzzer",
+      "type": "enclosure",
+      "params": {
+        "modelo": "RLBZ23_5V",
+        "pcb_ancho_mm": 13.0,
+        "pcb_largo_mm": 31.8,
+        "pcb_espesor_mm": 1.5,
+        "agujero_diametro_mm": 3.0,
+        "borde_agujero_a_bordes_pcb_mm": [
+          4.8,
+          14.9
+        ],
+        "referencia_largo": "Extremo de placa donde se encuentra el buzzer; distancias al borde del agujero, confirmadas por el usuario.",
+        "componentes_y_conectores_mm": null,
+        "tipo_activo_pasivo": null,
+        "pcb_asiento_x_mm": 48.5,
+        "pcb_borde_y_mm": 35.0,
+        "pcb_extremo_buzzer_z_relativo_mm": -39.0,
+        "bastidor_espesor_mm": 2.0,
+        "separacion_inferior_componentes_mm": 3.0,
+        "guia_holgura_por_lado_mm": 0.25,
+        "arandela_impresa_espesor_mm": 0.8,
+        "altura_componentes_verificada": false,
+        "z_centro_relativo_mm": -28.0,
+        "fijaciones_y_mm": [
+          -25.0,
+          25.0
+        ],
+        "nota": "PCB medido, disposición lateral vertical: buzzer hacia abajo y pines arriba. Componentes y conectores sin medir; bastidor abierto, fijación al agujero con M3x5 y arandela impresa."
+      },
+      "required": true
+    },
+    {
+      "name": "ojos",
+      "type": "enclosure",
+      "params": {
+        "estilo": "Carcasas espejadas inspiradas en WALL-E y lentes circulares decorativas separadas.",
+        "contorno_local_uv_mm": [
+          [
+            -18,
+            22
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            23,
+            4
+          ],
+          [
+            24,
+            -11
+          ],
+          [
+            15,
+            -21
+          ],
+          [
+            -1,
+            -21
+          ],
+          [
+            -18,
+            -12
+          ],
+          [
+            -23,
+            0
+          ]
+        ],
+        "radio_contorno_mm": 4.0,
+        "espesor_base_mm": 2.0,
+        "ancho_marco_mm": 2.0,
+        "relieve_marco_mm": 0.8,
+        "lente_diametro_mm": 27.8,
+        "alojamiento_lente_diametro_mm": 28.4,
+        "profundidad_alojamiento_mm": 0.8,
+        "relieve_lente_mm": 2.2,
+        "marcas_decorativas_uv_mm": [
+          [
+            -14,
+            14
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            5,
+            -17
+          ]
+        ],
+        "centros_y_mm": [
+          -30.0,
+          30.0
+        ],
+        "z_relativo_mm": 22.0
+      },
+      "required": true
+    }
+  ],
+  "operation_sequence": [
+    "Inspeccionar fuentes y nominales",
+    "Generar integración B-Rep",
+    "Barrido y reparación de interferencias",
+    "Exportar STEP/STL de revisión",
+    "Crear y reabrir SLDPRT/SLDASM 2021",
+    "Documentar montaje y condiciones para fabricar"
+  ],
+  "assumptions": [
+    "V5 es la familia de las piezas que se desean reutilizar.",
+    "RLBZ23: PCB13x31.8x1.5, agujero3 y distancias al borde4.8/14.9 confirmadas; alturas/pines y USB sin medir.",
+    "R2 elimina tapa14, duplica abertura y añade carcasas WALL-E espejadas con lentes decorativas.",
+    "Brazos dobles nominales de 38; pitch simple derivado sólo para estudio.",
+    "Material y diámetro de instalación de insertos pendientes."
+  ],
+  "risk_register": [
+    {
+      "risk": "Rosca de la base no apta para M3",
+      "mitigation": "Comprobar fijaciones existentes; no perforar ni insertar metal en base sin resolver interfaz."
+    },
+    {
+      "risk": "Encastre nominal no ajusta",
+      "mitigation": "Cupón de brazo/material e inserto; completar mediciones antes de liberar."
+    },
+    {
+      "risk": "Cable atrapado o conector bajo tensión",
+      "mitigation": "Ranura partida, bridas por grupo y prueba manual completa con cables reales."
+    }
+  ],
+  "review_plan": {
+    "expected_outputs": [
+      "STEP_V6/00_ensamble_V6_nominal.step",
+      "SOLIDWORKS_V6/Keepon_V6_nominal.SLDASM",
+      "README.md"
+    ],
+    "views": [
+      "isometric",
+      "front",
+      "top",
+      "right"
+    ],
+    "checks": [
+      "B-Rep válido",
+      "STEP reimportado",
+      "STL cerrado",
+      "Base idéntica",
+      "495 poses nominales",
+      "Tornillos y retenciones",
+      "Solver nativo y reapertura",
+      "Mediciones pendientes explícitas"
+    ]
+  }
+}
