@@ -113,9 +113,13 @@ def main() -> None:
     salud = Salud()
     cuenta = {"lazo": 0, "personas": 0, "pose": 0}
     t_hz, t_log = time.monotonic(), time.monotonic()
+    tick_max, hueco_max, inicio_ant = 0.0, 0.0, None  # trabas del lazo (ERR WATCHDOG de la ESP32)
     try:
         while not a.duracion or link.now() - t0 < a.duracion:
             inicio = link.now()
+            if inicio_ant is not None:  # entre inicios de ticks: si pasa de 500 ms, salta el watchdog
+                hueco_max = max(hueco_max, inicio - inicio_ant)
+            inicio_ant = inicio
             for r in per.poll():
                 cuenta[r.kind] += 1
                 if r.kind == "personas":
@@ -139,12 +143,14 @@ def main() -> None:
                                  dueños={"CUELLO": robot.arb.owner[NECK], "BUZZER": robot.arb.owner[BUZZER]},
                                  ref=robot.act.ref, modo=getattr(robot, "modo", "NEUTRO"), stop=robot.arb.stopped,
                                  saludo_reciente=lambda pid: eventos.saludo_reciente(pid, inicio), salud=salud)
+            tick_max = max(tick_max, link.now() - inicio)
             if time.monotonic() - t_log >= 10.0:  # cada 10 s al log: salud del lazo y de la percepción
                 n = len(det.persons) if det else 0
-                robot.log(link.now(), f"ESTADO lazo {salud.lazo_hz:.0f} Hz, personas {salud.personas_hz:.1f} Hz, "
+                robot.log(link.now(), f"ESTADO lazo {salud.lazo_hz:.0f} Hz (tick máx {tick_max * 1000:.0f} ms, "
+                                      f"hueco máx {hueco_max * 1000:.0f} ms), personas {salud.personas_hz:.1f} Hz, "
                                       f"pose {salud.pose_hz:.1f} Hz, edad {salud.edad_ms:.0f} ms, personas vistas {n}, "
-                                      f"desvío espejo {link.max_desvio:.2f}°")
-                t_log = time.monotonic()
+                                      f"espejo {link.max_desvio:.2f}° ({link.resyncs} resinc.)")
+                t_log, tick_max, hueco_max = time.monotonic(), 0.0, 0.0
             time.sleep(max(0.0, inicio + periodo - link.now()))
     except KeyboardInterrupt:
         robot.stop()

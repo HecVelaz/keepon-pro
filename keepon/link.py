@@ -155,8 +155,9 @@ class SerialLink(Link):
         elif r.name == "STATE":
             real = [float(x) for x in r.args[1:4]]
             desvio = max(abs(a - b) for a, b in zip(real, self.esp.neck.pos))
-            self.max_desvio = max(self.max_desvio, desvio)
-            if desvio > self.DESVIO_RESYNC:  # p. ej. al arrancar con el cuello fuera de HOME
+            if desvio <= self.DESVIO_RESYNC:  # los que fuerzan resincronización se cuentan aparte (resyncs)
+                self.max_desvio = max(self.max_desvio, desvio)
+            else:  # p. ej. al arrancar con el cuello fuera de HOME
                 # Posición y objetivo: queda quieto ahí hasta el próximo J, igual que el ESP32 real.
                 for eje, v in zip(self.esp.neck.axes.values(), real):
                     eje.pos, eje.target, eje.vel = v, v, 0.0

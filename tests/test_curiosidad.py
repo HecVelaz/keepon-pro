@@ -90,3 +90,21 @@ def test_interrumpida_queda_en_el_log_y_espera():
     tr.on_start(SimpleNamespace(person=1), SimpleNamespace(now=t))
     rolls = correr(tr, act, t, t + C["quieto_s"] + 0.5, centrado)  # quieto otra vez, pero dentro de la espera
     assert all(r == 0 for _, r in rolls)
+
+
+def test_regresion_cabeza_que_oscila_alrededor_de_una_persona_quieta():
+    """03/11, robot real: el seguimiento oscila un poco y el error del control salía de ±4° todo el tiempo,
+    así que nunca se inclinaba. Lo que tiene que estar quieto es la persona, no el error."""
+    import math
+    tr, act = Tracking(CFG), ActFalso()
+    w0 = World.from_cfg(CFG)
+    g, t, dt, rolls = SimpleNamespace(person=1), 0.0, 0.025, []
+    while t < C["quieto_s"] + 1.0:
+        act.ref[0] = 6.0 * math.sin(2 * math.pi * 1.5 * t)  # la cabeza oscila ±6° (yaw)
+        w = World.from_cfg(CFG, t=t)
+        u = w0.cx + w0.fx * math.tan(math.radians(0.0 - act.ref[0]))  # persona quieta en yaw 0
+        w.persons[1] = Person(1, u, w.cy, 300, last_seen=t)
+        tr.act(g, SimpleNamespace(now=t, dt=dt, world=w, act=act))
+        rolls.append(act.ref[2])
+        t += dt
+    assert any(abs(r) == C["amp_deg"] for r in rolls)

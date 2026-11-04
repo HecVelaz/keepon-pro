@@ -72,9 +72,11 @@ class Observer(Behavior):
 class Tracking(Behavior):
     """Eye contact con el objetivo del foco (T3 + T4), con inclinación de curiosidad (T3 d).
 
-    Inclinación: si el objetivo queda centrado (error del control dentro de error_max_deg) durante
-    quieto_s, el roll va a ±amp_deg (alternando el lado), lo sostiene sostener_s y vuelve a 0. Si la
-    persona se mueve antes, vuelve enseguida. Después espera espera_s. Yaw y pitch siguen igual."""
+    Inclinación: si el objetivo se queda quieto durante quieto_s, el roll va a ±amp_deg (alternando el
+    lado), lo sostiene sostener_s y vuelve a 0. Si la persona se mueve antes, vuelve enseguida. Después
+    espera espera_s. Yaw y pitch siguen igual. "Quieto": la dirección de la persona (ángulo comandado del
+    cuello + error en la imagen) no se aparta más de movimiento_max_deg de donde estaba al empezar a contar;
+    así una pequeña oscilación de la cabeza alrededor de la persona no reinicia la cuenta."""
     name = "SEGUIMIENTO"
 
     def __init__(self, cfg):
@@ -84,6 +86,7 @@ class Tracking(Behavior):
         self.lado = 1                    # próximo lado de la inclinación (+1 = horario visto desde atrás)
         self.espera_hasta = -1e9
         self.quieto_desde = self.incl_desde = None
+        self.ancla = (0.0, 0.0)          # dirección de la persona [°] cuando empezó a estar quieta
         self.incl_lado = 0
 
     def propose(self, ctx):
@@ -111,7 +114,10 @@ class Tracking(Behavior):
 
     def _roll(self, g, ctx) -> float:
         c, now = self.cur, ctx.now
-        centrado = abs(self.gaze.ex) <= c["error_max_deg"] and abs(self.gaze.ey) <= c["error_max_deg"]
+        direccion = (ctx.act.ref[0] + self.gaze.ex, ctx.act.ref[1] + self.gaze.ey)  # adónde está la persona
+        if self.quieto_desde is None:
+            self.ancla = direccion
+        centrado = all(abs(d - a) <= c["movimiento_max_deg"] for d, a in zip(direccion, self.ancla))
         if self.incl_desde is not None:  # inclinada
             if centrado and now - self.incl_desde < c["sostener_s"]:
                 return self.incl_lado * c["amp_deg"]
@@ -120,8 +126,8 @@ class Tracking(Behavior):
             self.incl_desde = self.quieto_desde = None
             self.espera_hasta = now + c["espera_s"]
             return 0.0
-        if not centrado:
-            self.quieto_desde = None
+        if not centrado:  # se movió: la cuenta empieza de nuevo desde la dirección actual
+            self.quieto_desde, self.ancla = now, direccion
             return 0.0
         if self.quieto_desde is None:
             self.quieto_desde = now

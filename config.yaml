@@ -165,8 +165,10 @@ focus:
 # Va dentro del SEGUIMIENTO (mismo dueño del cuello): yaw y pitch siguen a la persona mientras tanto.
 curiosidad:
   activa: true
-  quieto_s: 3.0                  # tiempo con el objetivo centrado para inclinarse
-  error_max_deg: 4.0             # "centrado": error del control (filtrado) dentro de esto en yaw y pitch
+  quieto_s: 3.0                  # tiempo con el objetivo quieto para inclinarse
+  movimiento_max_deg: 5.0        # "quieto": la dirección de la persona (ángulo del cuello + error en la imagen)
+                                 # no se aparta más que esto en yaw ni en pitch. No usa solo el error del control:
+                                 # si la cabeza oscila un poco alrededor de la persona, el error varía (03/11, real)
   amp_deg: 15.0                  # inclinación; alterna el lado. Un movimiento grande y único: la zona muerta
                                  # del MG996R (~10°) se come los chicos
   sostener_s: 2.0                # cuánto la sostiene antes de volver a 0
