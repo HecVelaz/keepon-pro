@@ -72,15 +72,16 @@ camera:
   index: 0                       # para opencv (webcam USB en la notebook de desarrollo)
   size: [640, 480]
   hfov_deg: 37.3                 # = 2·atan(320/fx). camera_ros a 640x480 RECORTA el sensor (no son los 66° nominales)
-  # Intrínsecos de ~/vision_estereo/config/calibracion/right_corregida.yaml (cámara 0).
-  # VERIFICAR que corresponden a la NoIR montada en la cabeza; recalibrar si se cambia de módulo o modo.
-  # Con orientation_deg: 180, la imagen rota: cx → 639 − cx, cy → 479 − cy y las tangenciales (p1, p2) cambian
-  # de signo. Originales sin rotar: cx 428.50, cy 225.42, p1 −0.005078, p2 −0.000387.
+  # Intrínsecos PROVISORIOS hasta calibrar ESTA cámara con un tablero (pendiente).
+  # fx, fy: de ~/vision_estereo/config/calibracion/right_corregida.yaml (otra cámara del mismo modelo y modo).
+  # cx, cy: el CENTRO DE LA IMAGEN (03/11). Antes se usaba el centro óptico de esa otra calibración (rotado 180°:
+  # 210.5, 253.6) y el robot centraba la nariz ~110 px a la izquierda (≈ 6,5°): parecía no mirar a los ojos.
+  # dist: en cero (los coeficientes eran de la otra cámara).
   fx: 948.16
   fy: 947.12
-  cx: 210.50
-  cy: 253.58
-  dist: [-0.023288, 0.243119, 0.005078, 0.000387, 0.0]
+  cx: 319.5
+  cy: 239.5
+  dist: [0.0, 0.0, 0.0, 0.0, 0.0]
   fps: 30
 
 control:
