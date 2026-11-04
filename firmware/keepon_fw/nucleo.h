@@ -14,11 +14,12 @@
 
 namespace keepon {
 
-const int FW_VERSION = 1;
+const int FW_VERSION = 2;         // 2: comando VOL (04/11)
 const int PROTO_VERSION = 1;
 const int MAX_LINEA = 64;          // como protocol.MAX_LINE: cuenta también el '\n'
 const uint32_t PASO_MS = 10;       // período del lazo de trayectoria
 const double DT = PASO_MS / 1000.0;
+const int VOL_MAX = 100;           // como protocol.VOL_MAX
 const uint32_t PASO_TONO_MS = 5;   // cada cuánto se actualiza la frecuencia en un barrido
 
 enum Estado { RUN, STOPPED, WATCHDOG };
@@ -50,6 +51,9 @@ class Nucleo {
 
   // Frecuencia que tiene que sonar ahora en el buzzer [Hz]; 0 = callado.
   uint16_t frecuencia(uint32_t ahora_ms) const;
+  // Volumen del buzzer [%], 0..100 (comando VOL; al reiniciar, buzzer.volumen de config.yaml).
+  // 100 = ciclo de trabajo del 50 %, el máximo.
+  uint8_t volumen() const { return volumen_; }
   // Pulsos de los servos [µs] para la postura actual (yaw, pitch, roll).
   void pulsos(uint16_t us[3]) const;
 
@@ -80,6 +84,7 @@ class Nucleo {
   long long sonido_seq_;
   uint32_t sonido_inicio_ms_;
   long long max_sonido_seq_;   // un S con seq <= a éste es un reenvío o un comando viejo
+  uint8_t volumen_;            // [%] 0..100
   char sal_[512];
   size_t n_sal_;
 };

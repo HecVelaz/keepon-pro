@@ -28,7 +28,8 @@ const uint32_t BUZZER_HZ_INICIAL = 2000;
 const uint8_t BUZZER_BITS = 10;
 // Ciclo de trabajo del buzzer: ledcWriteTone() trabaja con 10 bits y 512 es el 50 % (el máximo volumen).
 // Con la salida invertida, el ciclo de trabajo es el tiempo en BAJO, que es cuando suena el módulo.
-const uint32_t DUTY_BUZZER = (uint32_t)(gen::BUZZER_VOLUMEN * 512 + 0.5);
+// El volumen lo lleva el núcleo (comando VOL, 0..100 %; al arrancar, buzzer.volumen de config.yaml).
+uint32_t duty_buzzer(uint8_t volumen_pct) { return ((uint32_t)volumen_pct * 512 + 50) / 100; }
 
 const size_t BUF_RX = 128;                // más largo que MAX_LINEA: lo que no entra es TOO_LONG
 
@@ -38,6 +39,7 @@ size_t n_rx = 0;
 bool rx_desbordado = false;
 uint32_t t_paso = 0;                      // instante del último paso del lazo [ms]
 uint16_t f_buzzer = 0;                    // frecuencia que está sonando [Hz]
+uint8_t vol_buzzer = 0;                   // volumen con que está sonando [%]
 
 void escribir_servos() {
   uint16_t us[3];
@@ -109,11 +111,17 @@ void loop() {
     enviar_respuestas();
   }
 
-  // Buzzer: solo se toca el timer cuando cambia la nota.
+  // Buzzer: solo se toca el timer cuando cambia la nota; el ciclo de trabajo, también cuando cambia el
+  // volumen (así un VOL se oye en el sonido que ya está sonando).
   uint16_t f = nucleo.frecuencia(millis());
+  uint8_t vol = nucleo.volumen();
   if (f != f_buzzer) {
     ledcWriteTone(PIN_BUZZER, f);         // 0 = callado; si no, deja el ciclo de trabajo en 50 % (10 bits)
-    if (f) ledcWrite(PIN_BUZZER, DUTY_BUZZER);   // volumen de config.yaml (buzzer.volumen)
+    if (f) ledcWrite(PIN_BUZZER, duty_buzzer(vol));
     f_buzzer = f;
+    vol_buzzer = vol;
+  } else if (f && vol != vol_buzzer) {
+    ledcWrite(PIN_BUZZER, duty_buzzer(vol));
+    vol_buzzer = vol;
   }
 }

@@ -23,6 +23,11 @@ def test_solo_comandos_permitidos():
     assert validar("  STOP ", SONIDOS) == "stop"
     assert validar("sonido polca", SONIDOS) == "sonido POLCA"
     assert validar(" Arrancar ", SONIDOS) == "arrancar"
+    assert validar("volumen 60", SONIDOS) == "volumen 60"
+    assert validar("Volumen 005", SONIDOS) == "volumen 5"
+    assert validar("volumen 100", SONIDOS) == "volumen 100"
+    for malo in ("volumen 101", "volumen -5", "volumen 5.5", "volumen", "volumen ²", "volumen 1000", "volumen 5 6"):
+        assert validar(malo, SONIDOS) is None, malo
     assert validar("parar", SONIDOS) == "parar"
     for malo in ("rm -rf /", "sonido NOEXISTE", "t; reboot", "sonido", "", "home now",
                  "arrancar; reboot", "restart", "parar keepon"):

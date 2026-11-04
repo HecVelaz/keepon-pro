@@ -31,7 +31,8 @@ from keepon.world import Person, World  # noqa: E402
 
 ATAJOS = {"n": "NEUTRO", "t": "TIMIDO", "a": "ATREVIDO", "m": "MALEDUCADO"}
 AYUDA = ("Comandos (escribir y Enter): n/t/a/m = modo NEUTRO/TIMIDO/ATREVIDO/MALEDUCADO "
-         "(o MODE TIMIDO), sonido NOMBRE (R2D2, POLCA, ABUCHEO, PIROPO...), stop, resume, home, ? = esta ayuda")
+         "(o MODE TIMIDO), sonido NOMBRE (R2D2, POLCA, ABUCHEO, PIROPO...), volumen 0..100, stop, resume, home, "
+         "? = esta ayuda")
 
 
 def comando(linea: str, robot) -> str:
@@ -48,6 +49,11 @@ def comando(linea: str, robot) -> str:
     if palabras[0].lower() in ("sonido", "s") and len(palabras) == 2:
         return f"sonido {palabras[1].upper()}" if robot.sonar(palabras[1]) else \
             f"no existe el sonido {palabras[1]}: {', '.join(robot.cfg['sounds'])}"
+    if palabras[0].lower() in ("volumen", "vol", "v") and len(palabras) == 2:
+        try:
+            return f"volumen {robot.set_volumen(int(palabras[1]))} %"
+        except ValueError:
+            return "volumen: un entero de 0 a 100"
     if s.lower() == "stop":
         robot.stop()
         return "STOP (frena donde está; 'resume' para seguir)"
@@ -62,6 +68,15 @@ def comando(linea: str, robot) -> str:
 
 FIFO = Path.home() / "keepon" / "run" / "comandos"  # scripts/keepon escribe acá (corriendo como servicio)
 ESTADO = FIFO.parent / "estado.json"                # lo lee el panel del celular (scripts/panel_web.py)
+VOLUMEN = FIFO.parent / "volumen"                   # último volumen del operador: sobrevive a apagar y encender
+
+
+def leer_volumen(ruta: Path, defecto: int) -> int:
+    """El volumen que dejó el operador la última vez; si no hay (o está roto), el de config.yaml."""
+    try:
+        return int(ruta.read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        return defecto
 
 
 def escribir_estado(ruta: Path, **datos) -> None:
@@ -206,6 +221,7 @@ def main() -> None:
     link = SerialLink(a.puerto, espejo_cfg=cfg)
     robot = Robot(cfg, link)
     robot.resume()  # un Ctrl+C de una corrida anterior deja el STOP enclavado en la ESP32: liberarlo
+    robot.set_volumen(leer_volumen(VOLUMEN, robot.volumen))
     eventos = Eventos(cfg, log=robot.log)
     per = Perception(cfg, workers=("personas", "pose"))
     monitor = None if a.sin_overlay else Monitor(cfg)
@@ -244,10 +260,13 @@ def main() -> None:
             cajas = {p.id: p.box for p in det.persons} if det is not None else {}
             mundo = eventos.aplicar(mundo_desde(det, cfg, inicio), pose, cajas, ref=robot.act.ref)
             for linea in comandos.leer():
+                volumen_antes = robot.volumen
                 if (r := comando(linea, robot)):
                     print(f">> {r}")
                     robot.log(link.now(), f"COMANDO {linea.strip()} -> {r}")
                     ultimo_cmd = r
+                if robot.volumen != volumen_antes:
+                    VOLUMEN.write_text(f"{robot.volumen}\n", encoding="utf-8")
             robot.tick(mundo, world_age=edad)
             cuenta["lazo"] += 1
 
@@ -270,6 +289,7 @@ def main() -> None:
                                 cuello=g_cuello.behavior if g_cuello else "-",
                                 buzzer=g_buzzer.behavior if g_buzzer else "-",
                                 ref=[round(v, 1) for v in robot.act.ref], personas=len(mundo.persons),
+                                volumen=robot.volumen,
                                 lazo_hz=round(salud.lazo_hz), personas_hz=round(salud.personas_hz, 1),
                                 pose_hz=round(salud.pose_hz, 1), edad_ms=round(salud.edad_ms),
                                 ultimo_comando=ultimo_cmd, sonidos=list(cfg["sounds"]))

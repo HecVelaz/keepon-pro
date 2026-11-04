@@ -42,6 +42,10 @@
   #apagar { font-weight:600; }
   button:disabled { opacity:.35; }
   #controles.apagado { opacity:.4; pointer-events:none; }
+  .volumen { display:flex; align-items:center; gap:12px; background:var(--tarjeta); border:1px solid var(--borde);
+             border-radius:14px; padding:10px 14px; margin-top:10px; }
+  .volumen input { flex:1; accent-color:var(--acento); height:32px; }
+  .volumen span { min-width:3.2em; text-align:right; font-variant-numeric:tabular-nums; }
   #aviso { position:fixed; left:12px; right:12px; bottom:max(16px, env(safe-area-inset-bottom)); padding:12px 14px;
            border-radius:12px; background:#2b3038; border:1px solid var(--borde); opacity:0; transition:opacity .2s;
            pointer-events:none; text-align:center; }
@@ -81,6 +85,15 @@
 
 <h2>Sonidos</h2>
 <div id="sonidos" class="tres sonidos"></div>
+<!-- Volumen del buzzer: se manda al soltar el dedo y se oye también en el sonido que está sonando
+     (para ajustarlo, tocar POLCA y mover la barra). Queda guardado para la próxima vez que se encienda. -->
+<div class="volumen">
+  <span aria-hidden="true">🔈</span>
+  <input id="volumen" type="range" min="0" max="100" step="5" aria-label="Volumen del buzzer"
+         oninput="$('vol-valor').textContent = this.value + ' %'"
+         onchange="mandar('volumen ' + this.value)">
+  <span id="vol-valor">—</span>
+</div>
 
 <h2>Estado</h2>
 <div class="estado">
@@ -150,6 +163,11 @@ async function actualizar() {
     return;
   }
   armarSonidos(estado.sonidos);
+  // No pisar la barra mientras el dedo la está moviendo
+  if (estado.volumen != null && document.activeElement !== $("volumen")) {
+    $("volumen").value = estado.volumen;
+    $("vol-valor").textContent = estado.volumen + " %";
+  }
   document.querySelectorAll(".modo").forEach((b) => b.classList.toggle("actual", b.dataset.modo === estado.modo));
   $("stop").textContent = estado.stop ? "STOP activo · tocar para RESUME" : "STOP";
   $("stop").classList.toggle("activo", !!estado.stop);

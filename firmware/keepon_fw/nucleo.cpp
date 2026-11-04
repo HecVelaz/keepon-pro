@@ -79,6 +79,7 @@ void Nucleo::reiniciar(uint32_t ahora_ms) {
   ultimo_rx_ms_ = ahora_ms;
   cortar_sonido();
   max_sonido_seq_ = -1;
+  volumen_ = (uint8_t)recortar(floor(gen::BUZZER_VOLUMEN * 100 + 0.5), 0, VOL_MAX);  // volumen_inicial()
   vaciar_salida();
   responder("HELLO 0 %d %d", FW_VERSION, PROTO_VERSION);
 }
@@ -104,7 +105,7 @@ void Nucleo::frenar() {
 // Cantidad de argumentos después de seq (protocol.COMMANDS).
 static int argumentos(const char *nombre) {
   if (!strcmp(nombre, "J")) return 3;
-  if (!strcmp(nombre, "S") || !strcmp(nombre, "CANCEL")) return 1;
+  if (!strcmp(nombre, "S") || !strcmp(nombre, "CANCEL") || !strcmp(nombre, "VOL")) return 1;
   if (!strcmp(nombre, "PING") || !strcmp(nombre, "STOP") || !strcmp(nombre, "RESUME") || !strcmp(nombre, "HOME"))
     return 0;
   return -1;
@@ -184,6 +185,12 @@ void Nucleo::linea(const char *texto, uint32_t ahora_ms) {
         return;
       }
     }
+  } else if (!strcmp(tok[0], "VOL")) {
+    long long v;
+    if (!leer_entero(args[0], &v)) {
+      err(seq, "BAD_NUMBER");
+      return;
+    }
   } else {
     for (int i = 0; i < esperados; i++) mayusculas(args[i]);
     if (!strcmp(tok[0], "CANCEL") && strcmp(args[0], "SOUND")) {
@@ -219,6 +226,10 @@ void Nucleo::manejar(const char *c, long long seq, char **args, int, uint32_t ah
   } else if (!strcmp(c, "RESUME")) {
     estado_ = RUN;
     responder("ACK %lld", seq);
+  } else if (!strcmp(c, "VOL")) {  // no mueve nada: se acepta también con STOP
+    long long v = strtoll(args[0], NULL, 10);
+    volumen_ = (uint8_t)(v < 0 ? 0 : v > VOL_MAX ? VOL_MAX : v);
+    responder(volumen_ != v ? "ACK %lld CLIPPED" : "ACK %lld", seq);
   } else if (estado_ == STOPPED) {  // J, S, HOME y CANCEL rechazados mientras el STOP está enclavado
     err(seq, "STOP_ACTIVE");
   } else if (!strcmp(c, "J")) {

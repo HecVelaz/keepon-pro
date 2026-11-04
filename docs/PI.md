@@ -53,7 +53,7 @@ scripts/k panel-on | panel-off  # panel del celular siempre prendido: desde ahí
 - Con el servicio corriendo, la cámara y la ESP32 están ocupadas: `scripts/k parar` antes de usar los visores o cargar firmware.
 - **Panel del celular** (03/11; encender/apagar desde el 04/11): `scripts/panel_web.py` en el puerto **8081**. Corre
   como servicio propio, `keepon-panel` (`scripts/k panel-on`), independiente del robot: es liviano y no toma la cámara
-  ni la ESP32. Tiene los botones **Encender / Apagar** (`systemctl --user start/stop keepon`), modo, STOP/Resume/Home
-  y sonidos, más el estado en vivo (`~/keepon/run/estado.json`, que escribe `robot_vivo.py`, y el del servicio). Sólo
+  ni la ESP32. Tiene los botones **Encender / Apagar** (`systemctl --user start/stop keepon`), modo, STOP/Resume/Home,
+  sonidos y una barra de **volumen** del buzzer (`volumen N`, 0..100; queda guardado en `~/keepon/run/volumen`), más el estado en vivo (`~/keepon/run/estado.json`, que escribe `robot_vivo.py`, y el del servicio). Sólo
   acepta una lista cerrada de comandos. Sin `panel-on`, el panel lo lanza `robot_vivo.sh` y se apaga con el robot. En Android: abrir `http://100.116.96.71:8081` (con Tailscale en el celular) o la
   IP local de la Pi en la misma Wi-Fi, y Chrome → menú → "Agregar a pantalla de inicio".

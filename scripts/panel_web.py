@@ -7,8 +7,8 @@ Sirve scripts/panel/ (página, manifiesto e ícono) y dos rutas:
   POST /comando   {"comando": "t"} → lo escribe en el FIFO del robot (~/keepon/run/comandos)
                   {"comando": "arrancar"} / {"comando": "parar"} → systemctl --user start/stop keepon
 
-Sólo acepta una lista cerrada de comandos (encender/apagar el robot, modos, stop/resume/home y sonidos de
-config.yaml): desde la página no se puede ejecutar ninguna otra cosa en la Pi.
+Sólo acepta una lista cerrada de comandos (encender/apagar el robot, modos, stop/resume/home, sonidos de
+config.yaml y volumen 0..100): desde la página no se puede ejecutar ninguna otra cosa en la Pi.
 
 Corre como servicio propio (scripts/keepon-panel.service, 'keepon panel-on'), independiente del robot:
 así el celular puede encender a Keepon. Si ese servicio no está, lo arranca scripts/robot_vivo.sh.
@@ -51,6 +51,10 @@ def validar(cmd: str, sonidos) -> str | None:
     partes = s.split(" ")
     if len(partes) == 2 and partes[0] == "sonido" and partes[1].upper() in sonidos:
         return f"sonido {partes[1].upper()}"
+    # isascii(): isdigit() también acepta dígitos de otros alfabetos ("²", "٣")
+    if len(partes) == 2 and partes[0] == "volumen" and partes[1].isascii() and partes[1].isdigit() \
+            and len(partes[1]) <= 3 and int(partes[1]) <= 100:
+        return f"volumen {int(partes[1])}"
     return None
 
 

@@ -8,6 +8,7 @@ y no reproducir dos veces un sonido reenviado.
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 
 PROTOCOL_VERSION = 1
@@ -22,7 +23,12 @@ COMMANDS = {
     "STOP": 0,     # STOP seq               -> congela todo, enclavado hasta RESUME
     "RESUME": 0,   # RESUME seq             -> libera el STOP
     "HOME": 0,     # HOME seq               -> ir a la postura HOME (rampa suave)
+    "VOL": 1,      # VOL seq PCT            -> volumen del buzzer, entero 0..100 (se recorta: ACK CLIPPED)
 }
+VOL_MAX = 100
+# Entero como lo lee el firmware (leer_entero): signo opcional y hasta 18 dígitos ASCII. No se usa int()
+# directo porque acepta cosas que el firmware no ("1_0", dígitos no ASCII).
+_ENTERO = re.compile(r"[+-]?[0-9]{1,18}")
 
 # Respuestas ESP32 -> PC: cantidad mínima y máxima de argumentos después de seq.
 REPLIES = {"HELLO": (2, 2), "ACK": (0, 1), "DONE": (0, 0), "ERR": (1, 1), "STATE": (5, 5)}
@@ -102,6 +108,10 @@ def parse_command(line: str) -> Command:
         if not all(math.isfinite(v) for v in vals):
             raise ProtocolError("BAD_NUMBER", seq)
         return Command(name, seq, vals)
+    if name == "VOL":
+        if not _ENTERO.fullmatch(raw[0]):
+            raise ProtocolError("BAD_NUMBER", seq)
+        return Command(name, seq, (int(raw[0]),))
     if name == "CANCEL" and raw[0].upper() != "SOUND":
         raise ProtocolError("BAD_ARGS", seq)
     return Command(name, seq, tuple(x.upper() for x in raw))

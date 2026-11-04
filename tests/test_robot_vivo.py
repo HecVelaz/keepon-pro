@@ -80,3 +80,14 @@ def test_apagar_lleva_a_home_aunque_haya_stop():
     link = lejos_y_en_stop()
     assert ir_a_home_y_esperar(link, home, dormir=link.advance)
     assert max(abs(a - h) for a, h in zip(link.neck_pos, home)) < 1.0
+
+
+def test_volumen_guardado(tmp_path):
+    from robot_vivo import leer_volumen
+
+    ruta = tmp_path / "volumen"
+    assert leer_volumen(ruta, 12) == 12          # todavía no hay
+    ruta.write_text("65\n")
+    assert leer_volumen(ruta, 12) == 65
+    ruta.write_text("basura")
+    assert leer_volumen(ruta, 12) == 12

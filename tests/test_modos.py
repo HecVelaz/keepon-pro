@@ -100,6 +100,33 @@ def test_sonido_que_no_se_pudo_tocar_queda_en_el_log():
     assert any("OPERADOR sonido R2D2 descartado" in m for m in b.log())
 
 
+def test_volumen_del_operador_llega_a_la_esp32():
+    from keepon.sim_esp32 import volumen_inicial
+
+    b = Banco()
+    b.correr(1.0)
+    assert b.link.esp.volumen == volumen_inicial(CFG)
+    assert comando("volumen 80", b.robot) == "volumen 80 %"
+    b.correr(0.1)
+    assert b.link.esp.volumen == 80
+    assert comando("vol 250", b.robot) == "volumen 100 %"     # se recorta
+    assert comando("volumen x", b.robot).startswith("volumen: un entero")
+    b.correr(0.1)
+    assert b.link.esp.volumen == 100
+
+
+def test_volumen_sobrevive_a_un_reinicio_de_la_esp32():
+    """La ESP32 reiniciada vuelve al volumen de config.yaml: el robot se lo vuelve a mandar."""
+    b = Banco()
+    b.correr(1.0)
+    comando("volumen 70", b.robot)
+    b.correr(0.2)
+    b.link.esp.reboot()
+    assert b.link.esp.volumen != 70
+    b.correr(1.5)
+    assert b.robot.act.session and b.link.esp.volumen == 70
+
+
 def test_comando_desconocido_muestra_la_ayuda_y_no_cambia_nada():
     b = Banco()
     assert "Comandos" in comando("xyz", b.robot) and b.robot.modo == M["inicial"]
