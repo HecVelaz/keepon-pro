@@ -1,0 +1,17 @@
+# Panel del celular como servicio de usuario (lo instala 'scripts/keepon instalar' en ~/.config/systemd/user/).
+# Independiente del robot: con el panel corriendo, el celular puede encender y apagar a Keepon
+# (botones Encender / Apagar → systemctl --user start/stop keepon). Es liviano y no toma la cámara ni la ESP32.
+# 'keepon panel-on' lo activa al encender la Pi; 'keepon panel-off' lo desactiva.
+[Unit]
+Description=Keepon pro: panel del celular (puerto 8081)
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=@DIR@
+ExecStart=%h/keepon_env/bin/python -u @DIR@/scripts/panel_web.py --puerto 8081
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
