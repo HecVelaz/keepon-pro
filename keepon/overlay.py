@@ -74,6 +74,8 @@ def dibujar(img: np.ndarray, *, mundo, det, pose, objetivo: int | None, dueños:
             etiquetas = []
             if p is not None and p.looking:
                 etiquetas.append(("ME_MIRA", VERDE))
+            if po.face is not None:  # ángulo cara→cámara crudo: ME_MIRA si queda bajo perception.looking_deg
+                etiquetas.append((f"angulo {po.face.dev_deg:.0f}", VERDE if po.face.looking else BLANCO))
             if saludo_reciente(po.id):
                 etiquetas.append(("SALUDO!", MAGENTA))
             if p is not None and p.shirt:

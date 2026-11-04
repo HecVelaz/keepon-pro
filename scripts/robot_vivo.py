@@ -71,6 +71,15 @@ ESTADO = FIFO.parent / "estado.json"                # lo lee el panel del celula
 VOLUMEN = FIFO.parent / "volumen"                   # último volumen del operador: sobrevive a apagar y encender
 
 
+def resumen_mira(angulos: list[float], umbral: float) -> str:
+    """Para la línea ESTADO: cómo dio el ángulo cara→cámara de la persona seguida (validar looking_deg)."""
+    if not angulos:
+        return ""
+    a = sorted(angulos)
+    bajo = sum(x < umbral for x in a)
+    return f", mira mín {a[0]:.0f}° mediana {a[len(a) // 2]:.0f}° (<{umbral:.0f}°: {bajo}/{len(a)})"
+
+
 def leer_volumen(ruta: Path, defecto: int) -> int:
     """El volumen que dejó el operador la última vez; si no hay (o está roto), el de config.yaml."""
     try:
@@ -242,6 +251,7 @@ def main() -> None:
     t_hz, t_log = time.monotonic(), time.monotonic()
     tick_max, hueco_max, inicio_ant = 0.0, 0.0, None  # trabas del lazo (ERR WATCHDOG de la ESP32)
     t_estado = 0.0
+    angulos_mira: list[float] = []  # ángulo cara→cámara de la persona seguida en los últimos 10 s
     ultimo_cmd = ""
     try:
         while (not a.duracion or link.now() - t0 < a.duracion) and not terminar:
@@ -253,6 +263,10 @@ def main() -> None:
                 cuenta[r.kind] += 1
                 if r.kind == "personas":
                     det = r
+                    # Ángulo cara→cámara de la persona seguida, para validar perception.looking_deg
+                    cara = next((po.face for po in r.persons if po.id == robot.focus.target and po.face), None)
+                    if cara is not None:
+                        angulos_mira.append(cara.dev_deg)
                 else:
                     pose = r
             # Edad: desde que se capturó el cuadro (stamp, reloj de pared). Sin resultados todavía: viejo.
@@ -299,8 +313,10 @@ def main() -> None:
                 robot.log(link.now(), f"ESTADO lazo {salud.lazo_hz:.0f} Hz (tick máx {tick_max * 1000:.0f} ms, "
                                       f"hueco máx {hueco_max * 1000:.0f} ms), personas {salud.personas_hz:.1f} Hz, "
                                       f"pose {salud.pose_hz:.1f} Hz, edad {salud.edad_ms:.0f} ms, personas vistas {n}, "
-                                      f"espejo {link.max_desvio:.2f}° ({link.resyncs} resinc.)")
+                                      f"espejo {link.max_desvio:.2f}° ({link.resyncs} resinc.)"
+                                      + resumen_mira(angulos_mira, cfg["perception"]["looking_deg"]))
                 t_log, tick_max, hueco_max = time.monotonic(), 0.0, 0.0
+                angulos_mira.clear()
             time.sleep(max(0.0, inicio + periodo - link.now()))
     except KeyboardInterrupt:
         robot.stop()

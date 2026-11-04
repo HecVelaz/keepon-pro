@@ -91,3 +91,10 @@ def test_volumen_guardado(tmp_path):
     assert leer_volumen(ruta, 12) == 65
     ruta.write_text("basura")
     assert leer_volumen(ruta, 12) == 12
+
+
+def test_resumen_mira():
+    from robot_vivo import resumen_mira
+
+    assert resumen_mira([], 15) == ""
+    assert resumen_mira([30.0, 12.0, 18.0, 25.0], 15) == ", mira mín 12° mediana 25° (<15°: 1/4)"
