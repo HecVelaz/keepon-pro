@@ -28,3 +28,18 @@ def test_persona_sin_rostro_usa_la_altura_de_la_cabeza():
     det = DetResult("personas", 1, 0.0, 0.0, 10.0, persons=[PersonObs(3, (100, 50, 200, 450), 0.8)])
     p = mundo_desde(det, load_config(), t=1.0).persons[3]
     assert p.u == 150.0 and p.v == 50 + 0.12 * 400 and p.looking is False
+
+
+def test_comandos_por_fifo_sin_bloquear(tmp_path, monkeypatch):
+    import os
+    import robot_vivo
+    monkeypatch.setattr(robot_vivo.sys.stdin, "isatty", lambda: False, raising=False)
+    c = robot_vivo.Comandos(tmp_path / "run" / "comandos")
+    assert c.leer() == []  # nada escrito: no bloquea
+    fd = os.open(tmp_path / "run" / "comandos", os.O_WRONLY | os.O_NONBLOCK)
+    os.write(fd, b"t\nsonido PO")
+    assert c.leer() == ["t"]          # la línea incompleta espera
+    os.write(fd, b"LCA\n")
+    os.close(fd)
+    assert c.leer() == ["sonido POLCA"]
+    assert c.leer() == []             # el que escribe cerró: sigue sin fin de archivo ni bloqueo

@@ -15,7 +15,9 @@ Monitoreo (T7): el video con overlay (keepon/overlay.py) se publica en /keepon/o
 from __future__ import annotations
 
 import argparse
+import os
 import select
+import signal
 import sys
 import time
 from pathlib import Path
@@ -55,6 +57,35 @@ def comando(linea: str, robot) -> str:
         robot.link.send("HOME")
         return "HOME"
     return AYUDA
+
+
+FIFO = Path.home() / "keepon" / "run" / "comandos"  # scripts/keepon escribe acá (corriendo como servicio)
+
+
+class Comandos:
+    """Comandos del operador desde la terminal (si hay) y desde el FIFO, sin bloquear el lazo."""
+
+    def __init__(self, fifo: Path = FIFO):
+        self.teclado = sys.stdin.isatty()
+        fifo.parent.mkdir(parents=True, exist_ok=True)
+        if not fifo.exists():
+            os.mkfifo(fifo)
+        # O_RDWR: el FIFO no da fin de archivo cuando el que escribe lo cierra.
+        self.fd = os.open(fifo, os.O_RDWR | os.O_NONBLOCK)
+        self._buf = b""
+
+    def leer(self) -> list[str]:
+        lineas = leer_teclado() if self.teclado else []
+        try:
+            while True:
+                datos = os.read(self.fd, 4096)
+                if not datos:
+                    break
+                self._buf += datos
+        except BlockingIOError:
+            pass
+        *nuevas, self._buf = self._buf.split(b"\n")
+        return lineas + [x.decode(errors="replace") for x in nuevas]
 
 
 def leer_teclado() -> list[str]:
@@ -150,7 +181,11 @@ def main() -> None:
     periodo = 1.0 / cfg["control"]["rate_hz"]
     print("Cargando modelos (~15 s). Ctrl+C manda STOP y sale.")
     print(AYUDA)
-    teclado = sys.stdin.isatty()
+    comandos = Comandos()
+    print(f"También por FIFO: echo t > {FIFO}  (o scripts/keepon t)")
+    # systemctl stop (SIGTERM): terminar el lazo normalmente y volver a HOME, no quedar congelado.
+    terminar = []
+    signal.signal(signal.SIGTERM, lambda *_: terminar.append(True))
     if monitor:
         print(f"Overlay en el navegador: http://<IP de la Pi>:8080/stream_viewer?topic={Monitor.TOPICO}")
     t0 = link.now()
@@ -160,7 +195,7 @@ def main() -> None:
     t_hz, t_log = time.monotonic(), time.monotonic()
     tick_max, hueco_max, inicio_ant = 0.0, 0.0, None  # trabas del lazo (ERR WATCHDOG de la ESP32)
     try:
-        while not a.duracion or link.now() - t0 < a.duracion:
+        while (not a.duracion or link.now() - t0 < a.duracion) and not terminar:
             inicio = link.now()
             if inicio_ant is not None:  # entre inicios de ticks: si pasa de 500 ms, salta el watchdog
                 hueco_max = max(hueco_max, inicio - inicio_ant)
@@ -175,10 +210,10 @@ def main() -> None:
             edad = time.time() - det.stamp if det is not None else 1e9
             cajas = {p.id: p.box for p in det.persons} if det is not None else {}
             mundo = eventos.aplicar(mundo_desde(det, cfg, inicio), pose, cajas, ref=robot.act.ref)
-            if teclado:
-                for linea in leer_teclado():
-                    if (r := comando(linea, robot)):
-                        print(f">> {r}")
+            for linea in comandos.leer():
+                if (r := comando(linea, robot)):
+                    print(f">> {r}")
+                    robot.log(link.now(), f"COMANDO {linea.strip()} -> {r}")
             robot.tick(mundo, world_age=edad)
             cuenta["lazo"] += 1
 
@@ -206,7 +241,8 @@ def main() -> None:
         robot.tick(World.from_cfg(cfg, t=link.now()), world_age=1e9)  # asegura que el STOP salga
         print("\nSTOP enviado (frenó donde estaba). Para seguir: RESUME y HOME.")
     else:
-        link.send("HOME")
+        link.send("HOME")  # sin otro tick: el observador mandaría un J encima del HOME
+        robot.log(link.now(), "FIN: HOME")
     finally:
         per.close()
         if monitor:

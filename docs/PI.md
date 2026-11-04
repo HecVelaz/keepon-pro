@@ -33,3 +33,19 @@ bash scripts/pi_bench.sh 15 [rapido]             # matriz de benchmark → logs/
 | Uso | Calibrar ME_MIRA, ver brazos/SALUDO | Chequeo rápido de que cámara + YOLO andan |
 
 Para cambiar de visor, primero `stop` del que está corriendo (`pgrep -x camera_node` tiene que dar vacío). Logs en `/tmp/keepon_*.log`.
+
+## Robot completo y demo (03/11)
+El robot con cámara, percepción y servos es `scripts/robot_vivo.sh` (cámara + servidor web + `robot_vivo.py`).
+Para la demo corre como **servicio de systemd de usuario** y se maneja con `scripts/keepon` en la Pi, o con
+`scripts/k` desde la notebook (lo mismo, por SSH):
+```bash
+scripts/k arrancar            # ~15 s para cargar los modelos; overlay: http://100.116.96.71:8080/stream_viewer?topic=/keepon/overlay
+scripts/k t | a | m | n       # modo TIMIDO / ATREVIDO / MALEDUCADO / NEUTRO (confirma con su beep)
+scripts/k stop | resume | home | sonido POLCA
+scripts/k estado | log        # última línea ESTADO / seguir el log de la corrida
+scripts/k parar               # vuelve a HOME y corta la cámara
+scripts/k demo-on | demo-off  # arranque al encender la Pi (por defecto DESACTIVADO: la Pi se usa en otros proyectos)
+```
+- Los comandos llegan al robot por el FIFO `~/keepon/run/comandos`; corriendo en una terminal también se escriben ahí.
+- Para que arranque al encender **sin iniciar sesión** hace falta, una vez: `sudo loginctl enable-linger r2d2`.
+- Con el servicio corriendo, la cámara y la ESP32 están ocupadas: `scripts/k parar` antes de usar los visores o cargar firmware.

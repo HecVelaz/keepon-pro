@@ -1,0 +1,6 @@
+#!/bin/bash
+# Desde la notebook: manda un comando de 'keepon' a la Pi por SSH.
+#   scripts/k arrancar | parar | estado | log | t | a | m | n | stop | resume | home | sonido POLCA
+# Overlay: http://100.116.96.71:8080/stream_viewer?topic=/keepon/overlay
+PI="${KEEPON_PI:-r2d2@100.116.96.71}"
+exec ssh -t -o ConnectTimeout=8 "$PI" "bash ~/keepon/scripts/keepon $*"
