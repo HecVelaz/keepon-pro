@@ -70,12 +70,21 @@ class Observer(Behavior):
 
 
 class Tracking(Behavior):
-    """Eye contact con el objetivo del foco (T3 + T4)."""
+    """Eye contact con el objetivo del foco (T3 + T4), con inclinación de curiosidad (T3 d).
+
+    Inclinación: si el objetivo queda centrado (error del control dentro de error_max_deg) durante
+    quieto_s, el roll va a ±amp_deg (alternando el lado), lo sostiene sostener_s y vuelve a 0. Si la
+    persona se mueve antes, vuelve enseguida. Después espera espera_s. Yaw y pitch siguen igual."""
     name = "SEGUIMIENTO"
 
     def __init__(self, cfg):
         super().__init__(cfg)
         self.gaze = GazeController(cfg)
+        self.cur = cfg["curiosidad"]
+        self.lado = 1                    # próximo lado de la inclinación (+1 = horario visto desde atrás)
+        self.espera_hasta = -1e9
+        self.quieto_desde = self.incl_desde = None
+        self.incl_lado = 0
 
     def propose(self, ctx):
         if ctx.focus.target is not None:
@@ -84,13 +93,43 @@ class Tracking(Behavior):
 
     def on_start(self, g, ctx):
         self.gaze.reset()
+        self.quieto_desde = self.incl_desde = None
+
+    def on_cancel(self, g, ctx):
+        if self.incl_desde is not None:  # otro comportamiento (o el STOP) tomó el cuello estando inclinada
+            ctx.act.log(ctx.now, f"CURIOSIDAD persona={g.person} interrumpida por otro comportamiento")
+            self.espera_hasta = ctx.now + self.cur["espera_s"]
+        self.quieto_desde = self.incl_desde = None
 
     def act(self, g, ctx):
         p = ctx.world.visible(g.person)
         if p is None:
             return  # pérdida momentánea: mantener la mirada (el foco la libera a los lost_hold_s)
-        y, pi, r = self.gaze.update(ctx.act.ref, p, ctx.world, ctx.dt)
-        ctx.act.neck(g, y, pi, r * 0.9)  # roll vuelve suave a 0 mientras sigue
+        y, pi, _ = self.gaze.update(ctx.act.ref, p, ctx.world, ctx.dt)
+        # El roll va a la inclinación o a 0; la trayectoria del firmware lo hace suave (vmax/amax de roll).
+        ctx.act.neck(g, y, pi, self._roll(g, ctx))
+
+    def _roll(self, g, ctx) -> float:
+        c, now = self.cur, ctx.now
+        centrado = abs(self.gaze.ex) <= c["error_max_deg"] and abs(self.gaze.ey) <= c["error_max_deg"]
+        if self.incl_desde is not None:  # inclinada
+            if centrado and now - self.incl_desde < c["sostener_s"]:
+                return self.incl_lado * c["amp_deg"]
+            motivo = "fin" if centrado else "la persona se movió"
+            ctx.act.log(now, f"CURIOSIDAD persona={g.person} vuelve a 0 ({motivo})")
+            self.incl_desde = self.quieto_desde = None
+            self.espera_hasta = now + c["espera_s"]
+            return 0.0
+        if not centrado:
+            self.quieto_desde = None
+            return 0.0
+        if self.quieto_desde is None:
+            self.quieto_desde = now
+        if c["activa"] and now - self.quieto_desde >= c["quieto_s"] and now >= self.espera_hasta:
+            self.incl_desde, self.incl_lado, self.lado = now, self.lado, -self.lado
+            ctx.act.log(now, f"CURIOSIDAD persona={g.person} inclina roll {self.incl_lado * c['amp_deg']:+.0f}°")
+            return self.incl_lado * c["amp_deg"]
+        return 0.0
 
 
 class Greeting(Behavior):

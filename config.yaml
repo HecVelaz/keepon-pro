@@ -161,6 +161,17 @@ focus:
   w_size: 0.6                    # pesos para desempatar dentro de cada grupo (T4)
   w_center: 0.4
 
+# T3 d: si el objetivo se queda quieto (cara a cara), inclinar la cabeza (roll) como gesto de curiosidad.
+# Va dentro del SEGUIMIENTO (mismo dueño del cuello): yaw y pitch siguen a la persona mientras tanto.
+curiosidad:
+  activa: true
+  quieto_s: 3.0                  # tiempo con el objetivo centrado para inclinarse
+  error_max_deg: 4.0             # "centrado": error del control (filtrado) dentro de esto en yaw y pitch
+  amp_deg: 15.0                  # inclinación; alterna el lado. Un movimiento grande y único: la zona muerta
+                                 # del MG996R (~10°) se come los chicos
+  sostener_s: 2.0                # cuánto la sostiene antes de volver a 0
+  espera_s: 8.0                  # después de una inclinación (o si se cortó), no repetir antes de esto
+
 observer:
   yaw_amp: 45.0                  # barrido lento
   pitch_amp: 6.0
