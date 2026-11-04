@@ -15,7 +15,7 @@ Movido desde `CLAUDE.md` el 22/10/2026.
 - **Yaw montado:** vibra al moverse lento (≤ ~40 °/s); a ~100 °/s va suave. Revisar en el seguimiento de personas, que tiene movimientos lentos.
 - **Roll:** con la compensación, −20 manda 1818 µs (antes −30 "al límite" era 1776 sin compensación): confirmar que a −20 no toca. Si la vuelta a 0 varía, ajustar `compensacion_us`.
 - Cortes del USB de la ESP32 con servos trabados o vibrando: si siguen, volver a poner el capacitor de 2200 µF en la bornera de 6 V y revisar el cable USB y el GND común.
-- Buzzer: **probado el 26/10** con el módulo MH-FMD (VCC a 3V3, salida invertida, volumen 0.25): la POLCA suena bien. Asegurar el cable del pin 10, que tenía falso contacto.
+- Buzzer: **probado el 26/10** en el GPIO10 con el módulo MH-FMD (VCC a 3V3, salida invertida, volumen 0.25). El 03/11, con la cabeza v6 armada, no sonaba nada (el firmware confirmaba DONE): se pasó el I/O al **GPIO5**. Falta confirmar que suena; si tampoco, revisar VCC/GND del módulo y su cable por el cuello. `docs/diagrama_sistema/index.html` sigue diciendo GPIO10.
 - Detector de camisetas: escribirlo y probarlo con `pruebas_camisetas/imagenes_referencia/`; falta una remera blanca lisa entre las imágenes de referencia. Para probar con la cámara: remera negra del usuario (negativa; con tiras rojas y azules = "Cerro" casero; con franja blanca = "Olimpia al revés", que no tiene que detectar).
 - Sincronizar a la Pi las imágenes de las camisetas (la Pi no respondió por SSH el 15/10).
 - Integrar `SerialLink` con el robot sobre la ESP32 real (`scripts/sim_scenario.py` usa SimLink) y agregarle reconexión automática.
