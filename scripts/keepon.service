@@ -13,6 +13,8 @@ KillSignal=SIGTERM
 TimeoutStopSec=15
 # Si falla (p. ej. la ESP32 o la cámara todavía no están), reintentar.
 Restart=on-failure
+# Parado con systemctl stop, robot_vivo.sh sale con 130/143: es un fin normal, no una falla.
+SuccessExitStatus=130 143
 RestartSec=5
 
 [Install]

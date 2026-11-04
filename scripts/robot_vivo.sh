@@ -51,6 +51,6 @@ echo "Overlay (T7) en el navegador:  http://$IP:$PUERTO/stream_viewer?topic=/kee
 echo "Cámara cruda:                  http://$IP:$PUERTO/stream_viewer?topic=/keepon_cam/image_raw"
 cd "$DIR"
 # En primer plano: Ctrl+C le llega directo al robot, que manda STOP antes de salir. El filtro del ruido
-# de los modelos ignora Ctrl+C: si muriera primero, el robot no podría escribir y el STOP podría no salir.
+# de los modelos ignora Ctrl+C y SIGTERM: si muriera primero, el robot no podría escribir (STOP / FIN: HOME).
 ~/keepon_env/bin/python -u scripts/robot_vivo.py "$@" 2>&1 | \
-    ( trap '' INT; exec grep --line-buffered -vE "^(W0000|I0000|INFO:|WARNING: Logging)|inference_feedback|opt.num_threads" )
+    ( trap '' INT TERM; exec grep --line-buffered -vE "^(W0000|I0000|INFO:|WARNING: Logging)|inference_feedback|opt.num_threads" )
