@@ -12,9 +12,9 @@ read -r CAM_CFG ORIENTACION < <(cd "$DIR" && ~/keepon_env/bin/python -c \
 CAMARA="${CAMARA:-$CAM_CFG}"
 
 if [ "$1" = "stop" ]; then
-    pkill -INT -f "[r]obot_vivo.py"; pkill -INT -f "[_]_node:=keepon_cam"; pkill -INT -f "[w]eb_video_server.*port:=$PUERTO"
+    pkill -INT -f "[r]obot_vivo.py"; pkill -INT -f "[p]anel_web.py"; pkill -INT -f "[_]_node:=keepon_cam"; pkill -INT -f "[w]eb_video_server.*port:=$PUERTO"
     sleep 3
-    pkill -KILL -f "[r]obot_vivo.py"; pkill -KILL -f "[_]_node:=keepon_cam"; pkill -KILL -f "[w]eb_video_server.*port:=$PUERTO"
+    pkill -KILL -f "[r]obot_vivo.py"; pkill -KILL -f "[p]anel_web.py"; pkill -KILL -f "[_]_node:=keepon_cam"; pkill -KILL -f "[w]eb_video_server.*port:=$PUERTO"
     pkill -KILL -f "[m]ultiprocessing.spawn" 2>/dev/null
     echo "Robot detenido."; exit 0
 fi
@@ -44,11 +44,15 @@ setsid ros2 run camera_ros camera_node --ros-args -r __node:=keepon_cam \
 GRUPOS+=($!)
 setsid ros2 run web_video_server web_video_server --ros-args -p port:=$PUERTO > /tmp/keepon_web.log 2>&1 &
 GRUPOS+=($!)
+# Panel del celular (comandos de modo/STOP/sonidos): scripts/panel_web.py, puerto 8081
+setsid ~/keepon_env/bin/python "$DIR/scripts/panel_web.py" --puerto 8081 > /tmp/keepon_panel.log 2>&1 &
+GRUPOS+=($!)
 sleep 4
 
 IP=$(tailscale ip -4 2>/dev/null | head -1)
 echo "Overlay (T7) en el navegador:  http://$IP:$PUERTO/stream_viewer?topic=/keepon/overlay"
 echo "Cámara cruda:                  http://$IP:$PUERTO/stream_viewer?topic=/keepon_cam/image_raw"
+echo "Panel del celular:             http://$IP:8081"
 cd "$DIR"
 # En primer plano: Ctrl+C le llega directo al robot, que manda STOP antes de salir. El filtro del ruido
 # de los modelos ignora Ctrl+C y SIGTERM: si muriera primero, el robot no podría escribir (STOP / FIN: HOME).

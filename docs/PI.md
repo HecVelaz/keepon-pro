@@ -49,3 +49,7 @@ scripts/k demo-on | demo-off  # arranque al encender la Pi (por defecto DESACTIV
 - Los comandos llegan al robot por el FIFO `~/keepon/run/comandos`; corriendo en una terminal también se escriben ahí.
 - Para que arranque al encender **sin iniciar sesión** hace falta, una vez: `sudo loginctl enable-linger r2d2`.
 - Con el servicio corriendo, la cámara y la ESP32 están ocupadas: `scripts/k parar` antes de usar los visores o cargar firmware.
+- **Panel del celular** (03/11): `scripts/panel_web.py`, lo arranca `robot_vivo.sh` en el puerto **8081**. Botones de modo,
+  STOP/Resume/Home y sonidos, más el estado en vivo (`~/keepon/run/estado.json`, que escribe `robot_vivo.py`). Sólo
+  acepta una lista cerrada de comandos. En Android: abrir `http://100.116.96.71:8081` (con Tailscale en el celular) o la
+  IP local de la Pi en la misma Wi-Fi, y Chrome → menú → "Agregar a pantalla de inicio".

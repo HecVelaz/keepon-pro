@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14161a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Keepon</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icono.svg">
+<link rel="apple-touch-icon" href="icono.svg">
+<style>
+  :root { --fondo:#14161a; --tarjeta:#1f2228; --borde:#2e323a; --texto:#eceef1; --tenue:#9aa0aa;
+          --acento:#f0a030; --rojo:#e04848; --verde:#4cbf6b; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin:0; background:var(--fondo); color:var(--texto); font:16px/1.35 system-ui, sans-serif;
+         padding: max(12px, env(safe-area-inset-top)) 12px 24px; }
+  header { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  header h1 { font-size:20px; margin:0; flex:1; }
+  .punto { width:12px; height:12px; border-radius:50%; background:var(--rojo); }
+  .punto.vivo { background:var(--verde); }
+  button { font:inherit; color:var(--texto); background:var(--tarjeta); border:1px solid var(--borde);
+           border-radius:14px; padding:16px 10px; width:100%; cursor:pointer; touch-action:manipulation; }
+  button:active { transform:scale(.97); }
+  #stop { background:var(--rojo); border-color:var(--rojo); font-size:22px; font-weight:700; padding:20px;
+          position:sticky; top:8px; z-index:2; box-shadow:0 4px 16px #0008; }
+  #stop.activo { background:#7a1f1f; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--tenue); margin:20px 2px 8px; }
+  .grilla { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .modo { font-size:18px; font-weight:600; padding:22px 10px; }
+  .modo small { display:block; font-weight:400; font-size:12px; color:var(--tenue); margin-top:4px; }
+  .modo.actual { border:2px solid var(--acento); background:#3a2c14; }
+  .tres { display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+  .sonidos button { padding:12px 6px; font-size:14px; }
+  .estado { background:var(--tarjeta); border:1px solid var(--borde); border-radius:14px; padding:12px 14px; }
+  .fila { display:flex; justify-content:space-between; gap:8px; padding:3px 0; }
+  .fila span:first-child { color:var(--tenue); }
+  a { color:var(--acento); }
+  #aviso { position:fixed; left:12px; right:12px; bottom:max(16px, env(safe-area-inset-bottom)); padding:12px 14px;
+           border-radius:12px; background:#2b3038; border:1px solid var(--borde); opacity:0; transition:opacity .2s;
+           pointer-events:none; text-align:center; }
+  #aviso.ver { opacity:1; } #aviso.error { background:#4a1d1d; border-color:var(--rojo); }
+</style>
+</head>
+<body>
+<header>
+  <div id="punto" class="punto" title="conexión con el robot"></div>
+  <h1>Keepon</h1>
+  <span id="hz" style="color:var(--tenue);font-size:13px"></span>
+</header>
+
+<button id="stop" onclick="mandar(estado.stop ? 'resume' : 'stop')">STOP</button>
+
+<h2>Modo de personalidad</h2>
+<div class="grilla">
+  <button class="modo" data-modo="NEUTRO" onclick="mandar('n')">Neutro<small>sostiene la mirada</small></button>
+  <button class="modo" data-modo="TIMIDO" onclick="mandar('t')">Tímido<small>si lo miran, desvía</small></button>
+  <button class="modo" data-modo="ATREVIDO" onclick="mandar('a')">Atrevido<small>si lo miran, levanta el mentón</small></button>
+  <button class="modo" data-modo="MALEDUCADO" onclick="mandar('m')">Maleducado<small>piropo al que se va</small></button>
+</div>
+
+<h2>Movimiento</h2>
+<div class="grilla">
+  <button onclick="mandar('home')">Home</button>
+  <button onclick="mandar('resume')">Resume</button>
+</div>
+
+<h2>Sonidos</h2>
+<div id="sonidos" class="tres sonidos"></div>
+
+<h2>Estado</h2>
+<div class="estado">
+  <div class="fila"><span>Modo</span><span id="e-modo">—</span></div>
+  <div class="fila"><span>Siguiendo a</span><span id="e-foco">—</span></div>
+  <div class="fila"><span>Cuello</span><span id="e-cuello">—</span></div>
+  <div class="fila"><span>Buzzer</span><span id="e-buzzer">—</span></div>
+  <div class="fila"><span>Ángulos (yaw, pitch, roll)</span><span id="e-ref">—</span></div>
+  <div class="fila"><span>Percepción</span><span id="e-perc">—</span></div>
+  <div class="fila"><span>Último comando</span><span id="e-cmd">—</span></div>
+</div>
+<p style="margin:14px 2px"><a id="overlay" href="#" target="_blank">Ver la cámara con el overlay ↗</a></p>
+
+<div id="aviso"></div>
+
+<script>
+let estado = {};
+const $ = (id) => document.getElementById(id);
+$("overlay").href = `http://${location.hostname}:8080/stream_viewer?topic=/keepon/overlay`;
+
+function aviso(texto, error = false) {
+  const a = $("aviso");
+  a.textContent = texto; a.className = "ver" + (error ? " error" : "");
+  clearTimeout(a._t); a._t = setTimeout(() => a.className = "", 1800);
+}
+
+async function mandar(comando) {
+  if (navigator.vibrate) navigator.vibrate(30);
+  try {
+    const r = await fetch("/comando", { method: "POST", headers: { "Content-Type": "application/json" },
+                                         body: JSON.stringify({ comando }) });
+    const d = await r.json();
+    r.ok ? aviso("✓ " + d.enviado) : aviso(d.error || "error", true);
+    setTimeout(actualizar, 400);
+  } catch { aviso("Sin conexión con la Pi", true); }
+}
+
+const NOMBRES = { R2D2: "R2D2", POLCA: "Polca", ABUCHEO: "Abucheo", PIROPO: "Piropo",
+                  DESAPROBACION: "Desaprob.", POLCA_CERRO: "Polca Cerro" };
+function armarSonidos(lista) {
+  const cont = $("sonidos");
+  if (cont.dataset.listo || !lista) return;
+  for (const s of lista.filter((x) => !x.startsWith("BEEP_"))) {
+    const b = document.createElement("button");
+    b.textContent = NOMBRES[s] || s; b.onclick = () => mandar("sonido " + s);
+    cont.appendChild(b);
+  }
+  cont.dataset.listo = "1";
+}
+
+async function actualizar() {
+  try {
+    estado = await (await fetch("/estado", { cache: "no-store" })).json();
+  } catch { estado = { vivo: false }; }
+  $("punto").className = "punto" + (estado.vivo ? " vivo" : "");
+  if (!estado.vivo) { $("hz").textContent = "robot detenido"; return; }
+  armarSonidos(estado.sonidos);
+  document.querySelectorAll(".modo").forEach((b) => b.classList.toggle("actual", b.dataset.modo === estado.modo));
+  $("stop").textContent = estado.stop ? "STOP activo · tocar para RESUME" : "STOP";
+  $("stop").classList.toggle("activo", !!estado.stop);
+  $("hz").textContent = `${estado.lazo_hz} Hz`;
+  $("e-modo").textContent = estado.modo;
+  $("e-foco").textContent = estado.foco == null ? "nadie" : `persona ${estado.foco}${estado.me_mira ? " · ME_MIRA" : ""}`;
+  $("e-cuello").textContent = estado.cuello;
+  $("e-buzzer").textContent = estado.buzzer;
+  $("e-ref").textContent = (estado.ref || []).map((v) => v.toFixed(0) + "°").join("  ");
+  $("e-perc").textContent = `${estado.personas_hz} Hz · ${estado.edad_ms} ms · ${estado.personas} pers.`;
+  $("e-cmd").textContent = estado.ultimo_comando || "—";
+}
+actualizar(); setInterval(actualizar, 1000);
+</script>
+</body>
+</html>

@@ -15,6 +15,7 @@ Monitoreo (T7): el video con overlay (keepon/overlay.py) se publica en /keepon/o
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import select
 import signal
@@ -60,6 +61,14 @@ def comando(linea: str, robot) -> str:
 
 
 FIFO = Path.home() / "keepon" / "run" / "comandos"  # scripts/keepon escribe acá (corriendo como servicio)
+ESTADO = FIFO.parent / "estado.json"                # lo lee el panel del celular (scripts/panel_web.py)
+
+
+def escribir_estado(ruta: Path, **datos) -> None:
+    """Estado para el panel, escrito de forma atómica (el panel nunca lee un archivo a medias)."""
+    tmp = ruta.with_suffix(".tmp")
+    tmp.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+    os.replace(tmp, ruta)
 
 
 class Comandos:
@@ -194,6 +203,8 @@ def main() -> None:
     cuenta = {"lazo": 0, "personas": 0, "pose": 0}
     t_hz, t_log = time.monotonic(), time.monotonic()
     tick_max, hueco_max, inicio_ant = 0.0, 0.0, None  # trabas del lazo (ERR WATCHDOG de la ESP32)
+    t_estado = 0.0
+    ultimo_cmd = ""
     try:
         while (not a.duracion or link.now() - t0 < a.duracion) and not terminar:
             inicio = link.now()
@@ -214,6 +225,7 @@ def main() -> None:
                 if (r := comando(linea, robot)):
                     print(f">> {r}")
                     robot.log(link.now(), f"COMANDO {linea.strip()} -> {r}")
+                    ultimo_cmd = r
             robot.tick(mundo, world_age=edad)
             cuenta["lazo"] += 1
 
@@ -227,6 +239,18 @@ def main() -> None:
                                  dueños={"CUELLO": robot.arb.owner[NECK], "BUZZER": robot.arb.owner[BUZZER]},
                                  ref=robot.act.ref, modo=robot.modo, stop=robot.arb.stopped,
                                  saludo_reciente=lambda pid: eventos.saludo_reciente(pid, inicio), salud=salud)
+            if time.monotonic() - t_estado >= 0.5:  # para el panel del celular
+                t_estado = time.monotonic()
+                g_cuello, g_buzzer = robot.arb.owner[NECK], robot.arb.owner[BUZZER]
+                obj = mundo.persons.get(robot.focus.target) if robot.focus.target is not None else None
+                escribir_estado(ESTADO, t=time.time(), modo=robot.modo, stop=robot.arb.stopped,
+                                foco=robot.focus.target, me_mira=bool(obj and obj.looking),
+                                cuello=g_cuello.behavior if g_cuello else "-",
+                                buzzer=g_buzzer.behavior if g_buzzer else "-",
+                                ref=[round(v, 1) for v in robot.act.ref], personas=len(mundo.persons),
+                                lazo_hz=round(salud.lazo_hz), personas_hz=round(salud.personas_hz, 1),
+                                pose_hz=round(salud.pose_hz, 1), edad_ms=round(salud.edad_ms),
+                                ultimo_comando=ultimo_cmd, sonidos=list(cfg["sounds"]))
             tick_max = max(tick_max, link.now() - inicio)
             if time.monotonic() - t_log >= 10.0:  # cada 10 s al log: salud del lazo y de la percepción
                 n = len(det.persons) if det else 0
