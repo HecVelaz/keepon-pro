@@ -56,6 +56,7 @@ def main() -> None:
     cfg = load_config()
     link = SerialLink(a.puerto, espejo_cfg=cfg)
     robot = Robot(cfg, link)
+    robot.resume()  # un Ctrl+C de una corrida anterior deja el STOP enclavado en la ESP32: liberarlo
     per = Perception(cfg, workers=("personas",))
     periodo = 1.0 / cfg["control"]["rate_hz"]
     print("Cargando modelos (~15 s). Ctrl+C manda STOP y sale.")
