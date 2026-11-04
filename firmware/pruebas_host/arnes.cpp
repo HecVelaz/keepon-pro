@@ -8,7 +8,9 @@
 //   T <n>       avanza n pasos de 10 ms (imprime la posición después de cada uno)
 //   F <ms>      imprime la frecuencia del buzzer en el instante <ms> (relativo al arranque)
 //   U           imprime los pulsos de los servos [µs]
-// Salida: "R <paso> <respuesta>", "P <paso> <yaw> <pitch> <roll>", "F <ms> <Hz>", "U <yaw> <pitch> <roll>".
+//   V           imprime el volumen del buzzer [%]
+// Salida: "R <paso> <respuesta>", "P <paso> <yaw> <pitch> <roll>", "F <ms> <Hz>", "U <yaw> <pitch> <roll>",
+// "V <pct>".
 //
 //   g++ -std=c++17 -O2 -I ../keepon_fw arnes.cpp ../keepon_fw/nucleo.cpp -o arnes
 #include <stdio.h>
@@ -56,6 +58,8 @@ int main() {
       uint16_t us[3];
       n.pulsos(us);
       printf("U %u %u %u\n", us[0], us[1], us[2]);
+    } else if (linea[0] == 'V') {
+      printf("V %u\n", n.volumen());
     }
   }
   return 0;

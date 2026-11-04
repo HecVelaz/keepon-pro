@@ -13,6 +13,8 @@ from .arbiter import BUZZER, Arbiter
 from .behaviors import Behavior, Context, default_behaviors
 from .gaze import Focus
 from .link import Link
+from .protocol import VOL_MAX
+from .sim_esp32 import volumen_inicial
 from .world import World
 
 
@@ -53,6 +55,10 @@ class Robot:
         self._stop_unsent = False  # STOP del operador que todavía no se pudo transmitir
         self.max_world_age = cfg["perception"]["max_age_s"]
         self.modo = cfg["modos"]["inicial"]
+        # Volumen del buzzer [%] (comando del operador). La ESP32 lo pierde al reiniciarse y lo conserva
+        # entre sesiones: se le manda cada vez que se abre una, así los dos dicen lo mismo.
+        self.volumen = volumen_inicial(cfg)
+        self._volumen_enviado = False
 
     # ------------------------------------------------------------ modo de personalidad (T5)
     def set_modo(self, modo: str) -> bool:
@@ -69,6 +75,14 @@ class Robot:
         if "OPERADOR" in self.behaviors:
             self.behaviors["OPERADOR"].pedir(modo, now)
         return True
+
+    def set_volumen(self, pct) -> int:
+        """Comando del operador: volumen del buzzer en % (0..100, se recorta). Se oye también en el sonido
+        que está sonando. Devuelve el volumen que quedó."""
+        self.volumen = min(max(int(pct), 0), VOL_MAX)
+        self.log(self.link.now(), f"OPERADOR volumen {self.volumen} %")
+        self._volumen_enviado = False  # sale en el próximo tick, si hay sesión
+        return self.volumen
 
     def sonar(self, sonido: str) -> bool:
         """Comando del operador: reproduce un sonido de config.yaml (p. ej. para probar el buzzer)."""
@@ -116,6 +130,7 @@ class Robot:
         for g in self.arb.cancel_all(now, "ESP32 reinició"):
             self.behaviors[g.behavior].on_cancel(g, self._ctx(now, 0.0, None))
         self.act.reset_after_reboot(self.cfg["neck"]["home"])
+        self._volumen_enviado = False  # la ESP32 volvió al volumen de config.yaml
         if self.arb.stopped:
             self._send_stop(now)  # el STOP del operador sobrevive al reinicio
 
@@ -130,10 +145,14 @@ class Robot:
         if self._stop_unsent and self.arb.stopped:
             self._send_stop(now)
         if not self.act.session:  # sin sesión no se comanda nada; reintentar HELLO cada 0,5 s
+            self._volumen_enviado = False
             if now - self._hello_t > 0.5:
                 self.link.hello()
                 self._hello_t = now
             return
+        if not self._volumen_enviado:  # sesión nueva (o ESP32 reiniciada) o el operador lo cambió
+            self.link.send("VOL", self.volumen)
+            self._volumen_enviado = True
 
         ok = world_age <= self.max_world_age
         if ok != self._perception_ok:

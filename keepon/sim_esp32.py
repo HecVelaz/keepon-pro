@@ -6,18 +6,27 @@ Implementa exactamente el comportamiento que debe tener firmware/keepon_fw:
   - Watchdog: sin comandos durante watchdog_ms corta el sonido y frena,
     manteniendo la postura. El próximo comando válido lo rearma.
   - S con un seq ya recibido no se reproduce dos veces.
+  - VOL fija el volumen del buzzer (0..100 %, se recorta). Vale también con STOP; se pierde al reiniciar
+    (vuelve a buzzer.volumen de config.yaml), no al abrir sesión.
   - Todo es no bloqueante: tick(dt) avanza el tiempo.
 """
 
 from __future__ import annotations
 
+import math
+
 from . import load_config
-from .protocol import PROTOCOL_VERSION, Command, ProtocolError, Reply, parse_command
+from .protocol import PROTOCOL_VERSION, VOL_MAX, Command, ProtocolError, Reply, parse_command
 from .trajectory import Neck
 
-FW_VERSION = 1
+FW_VERSION = 2  # 2: comando VOL (04/11)
 RUN, STOPPED, WATCHDOG = "RUN", "STOPPED", "WATCHDOG"
 EPS = 1e-9  # margen para comparar tiempos acumulados en float (ver tick)
+
+
+def volumen_inicial(cfg: dict) -> int:
+    """buzzer.volumen de config.yaml (0..1) en % entero, redondeado como el firmware."""
+    return min(max(math.floor(float(cfg["buzzer"]["volumen"]) * 100 + 0.5), 0), VOL_MAX)
 
 
 class SimESP32:
@@ -43,6 +52,7 @@ class SimESP32:
         self.last_rx = self.t
         self._stop_sound()
         self.max_sound_seq = -1
+        self.volumen = volumen_inicial(self.cfg)
         self.out.append(Reply("HELLO", 0, (FW_VERSION, PROTOCOL_VERSION)))
 
     # ------------------------------------------------------------ entrada
@@ -75,6 +85,10 @@ class SimESP32:
         elif c.name == "RESUME":
             self.state = RUN
             self.out.append(ok)
+        elif c.name == "VOL":  # no mueve nada: se acepta también con STOP
+            v = c.args[0]
+            self.volumen = min(max(v, 0), VOL_MAX)
+            self.out.append(Reply("ACK", c.seq, ("CLIPPED",)) if self.volumen != v else ok)
         elif self.state == STOPPED:  # J, S, HOME, CANCEL rechazados mientras STOP está enclavado
             self.out.append(Reply("ERR", c.seq, ("STOP_ACTIVE",)))
         elif c.name == "J":

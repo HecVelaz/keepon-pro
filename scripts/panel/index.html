@@ -37,6 +37,15 @@
   .fila { display:flex; justify-content:space-between; gap:8px; padding:3px 0; }
   .fila span:first-child { color:var(--tenue); }
   a { color:var(--acento); }
+  .encendido { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  #encender { background:#1d3a26; border-color:var(--verde); font-weight:700; }
+  #apagar { font-weight:600; }
+  button:disabled { opacity:.35; }
+  #controles.apagado { opacity:.4; pointer-events:none; }
+  .volumen { display:flex; align-items:center; gap:12px; background:var(--tarjeta); border:1px solid var(--borde);
+             border-radius:14px; padding:10px 14px; margin-top:10px; }
+  .volumen input { flex:1; accent-color:var(--acento); height:32px; }
+  .volumen span { min-width:3.2em; text-align:right; font-variant-numeric:tabular-nums; }
   #aviso { position:fixed; left:12px; right:12px; bottom:max(16px, env(safe-area-inset-bottom)); padding:12px 14px;
            border-radius:12px; background:#2b3038; border:1px solid var(--borde); opacity:0; transition:opacity .2s;
            pointer-events:none; text-align:center; }
@@ -50,6 +59,14 @@
   <span id="hz" style="color:var(--tenue);font-size:13px"></span>
 </header>
 
+<!-- Encender / Apagar el robot entero (servicio keepon). "Apagar" lo lleva a HOME y suelta cámara y ESP32;
+     no es lo mismo que STOP, que lo deja quieto pero corriendo. -->
+<div class="encendido">
+  <button id="encender" onclick="mandar('arrancar')">Encender</button>
+  <button id="apagar" onclick="confirm('¿Apagar a Keepon? Vuelve a HOME y se apaga.') && mandar('parar')">Apagar</button>
+</div>
+
+<div id="controles" class="apagado">
 <button id="stop" onclick="mandar(estado.stop ? 'resume' : 'stop')">STOP</button>
 
 <h2>Modo de personalidad</h2>
@@ -68,6 +85,15 @@
 
 <h2>Sonidos</h2>
 <div id="sonidos" class="tres sonidos"></div>
+<!-- Volumen del buzzer: se manda al soltar el dedo y se oye también en el sonido que está sonando
+     (para ajustarlo, tocar POLCA y mover la barra). Queda guardado para la próxima vez que se encienda. -->
+<div class="volumen">
+  <span aria-hidden="true">🔈</span>
+  <input id="volumen" type="range" min="0" max="100" step="5" aria-label="Volumen del buzzer"
+         oninput="$('vol-valor').textContent = this.value + ' %'"
+         onchange="mandar('volumen ' + this.value)">
+  <span id="vol-valor">—</span>
+</div>
 
 <h2>Estado</h2>
 <div class="estado">
@@ -80,6 +106,7 @@
   <div class="fila"><span>Último comando</span><span id="e-cmd">—</span></div>
 </div>
 <p style="margin:14px 2px"><a id="overlay" href="#" target="_blank">Ver la cámara con el overlay ↗</a></p>
+</div>
 
 <div id="aviso"></div>
 
@@ -123,8 +150,24 @@ async function actualizar() {
     estado = await (await fetch("/estado", { cache: "no-store" })).json();
   } catch { estado = { vivo: false }; }
   $("punto").className = "punto" + (estado.vivo ? " vivo" : "");
-  if (!estado.vivo) { $("hz").textContent = "robot detenido"; return; }
+  // servicio: active / activating / deactivating / inactive / failed (systemctl is-active)
+  const sv = estado.servicio || "";
+  const corriendo = sv === "active" || sv === "activating" || sv === "reloading";
+  $("encender").disabled = corriendo || sv === "deactivating";
+  $("apagar").disabled = !corriendo;
+  $("controles").classList.toggle("apagado", !estado.vivo);
+  if (!estado.vivo) {
+    $("hz").textContent = sv === "deactivating" ? "apagando…"
+                        : corriendo ? "arrancando (~15 s)…"
+                        : sv === "failed" ? "falló al arrancar" : "robot apagado";
+    return;
+  }
   armarSonidos(estado.sonidos);
+  // No pisar la barra mientras el dedo la está moviendo
+  if (estado.volumen != null && document.activeElement !== $("volumen")) {
+    $("volumen").value = estado.volumen;
+    $("vol-valor").textContent = estado.volumen + " %";
+  }
   document.querySelectorAll(".modo").forEach((b) => b.classList.toggle("actual", b.dataset.modo === estado.modo));
   $("stop").textContent = estado.stop ? "STOP activo · tocar para RESUME" : "STOP";
   $("stop").classList.toggle("activo", !!estado.stop);

@@ -120,6 +120,8 @@ def test_sonidos(arnes):
     "J 1 1e1 2.5 -.5", "CANCEL 1 NECK", "J 1 " + "1" * 80 + " 0 0", "PING", "PING 1 2", "hello 1", "HELLO",
     "HELLO x", "HELLO 2", "HELLO 1 2", "s 5 beep_timido", "j 6 +3 -4 5", "STOP x", "RESUME 7 8", "J 8 1 2 3 4",
     "J +9 0 0 0", "PING 0012",
+    "VOL 1 50", "VOL 1 150", "VOL 1 -5", "VOL 1 +7", "VOL 1 0012", "VOL 1 5.5", "VOL 1 x", "VOL 1 1_0", "VOL 1",
+    "VOL 1 2 3", "vol 1 9", "VOL x 9", "VOL 1 " + "9" * 19, "VOL 1 " + "9" * 18,
 ])
 def test_lineas_raras(arnes, linea):
     comparar(arnes, [f"L {linea}", "T 3", "L PING 100", "T 3", "L RESUME 101"])
@@ -147,6 +149,26 @@ def test_al_azar(arnes):
             guion.append(f"L CANCEL {seq} SOUND")
         guion.append(f"T {rnd.choice([1, 2, 3, 5, 8, 13, 30, 60])}")
     comparar(arnes, guion)
+
+
+def test_volumen(arnes):
+    """VOL: el mismo volumen en el firmware que en el simulador, recortado a 0..100, aceptado con STOP,
+    y de vuelta al de config.yaml al reiniciar (no al abrir sesión)."""
+    from keepon.sim_esp32 import volumen_inicial
+
+    guion = ["L HELLO 1", "L VOL 1 80", "T 1", "L STOP 2", "L VOL 3 200", "L RESUME 4", "L VOL 5 -3",
+             "L S 6 R2D2", "T 5", "L VOL 7 45", "T 5", "L HELLO 1", "T 1"]
+    comparar(arnes, guion)
+    esp = SimESP32(load_config())
+    for orden in guion:
+        if orden.startswith("L"):
+            esp.feed(orden[2:])
+        else:
+            for _ in range(int(orden[1:])):
+                esp.tick(0.01)
+    _, _, extra = correr_firmware(arnes, guion + ["V"])
+    assert extra == [f"V {esp.volumen}"] and esp.volumen == 45
+    assert correr_firmware(arnes, ["V"])[2] == [f"V {volumen_inicial(load_config())}"]
 
 
 def pulso_esperado(eje, g, sentido=0):

@@ -21,6 +21,7 @@ Contrato entre `keepon/` (Python) y `firmware/keepon_fw/` (ESP32-C3). La especif
 | `STOP seq` | Frena suave y corta el sonido. **Enclavado** hasta `RESUME`. No va a HOME. | `ACK seq` |
 | `RESUME seq` | Libera el STOP | `ACK seq` |
 | `HOME seq` | Va a la postura HOME con rampa | `ACK seq` |
+| `VOL seq PCT` | Volumen del buzzer, entero 0..100 (100 = ciclo de trabajo del 50 %, el máximo). Fuera de rango se recorta. Vale también con STOP y en el sonido que está sonando. Al **reiniciarse** la ESP32 vuelve a `buzzer.volumen` de `config.yaml`; al abrir sesión no cambia (la Pi lo manda en cada sesión). Desde fw 2 (04/11). | `ACK seq` o `ACK seq CLIPPED`; `ERR seq BAD_NUMBER` si no es un entero |
 
 Sonidos: los de `sounds:` en `config.yaml` (`R2D2 POLCA POLCA_CERRO ABUCHEO PIROPO DESAPROBACION BEEP_NEUTRO BEEP_TIMIDO BEEP_ATREVIDO BEEP_MALEDUCADO`). Las tablas salen de `pruebas_buzzer/simulador_sonidos.html`.
 
@@ -50,7 +51,7 @@ Sonidos: los de `sounds:` en `config.yaml` (`R2D2 POLCA POLCA_CERRO ABUCHEO PIRO
 2. **Trayectoria:** por eje, planificación discreta exacta con `vmax`/`amax` de `config.yaml`. Copiar la fórmula cerrada de `keepon/trajectory.py` (`_v_max_to_stop`). Garantiza que las **posiciones emitidas** no superen amax y que el último paso caiga justo en el objetivo. STOP y watchdog frenan hacia `brake_target()`.
 3. **Límites:** yaw ±70°, pitch −20°/+30°, roll ±20°.
 4. **Watchdog 500 ms:** sin comandos válidos → corta el sonido, frena y **mantiene la postura**; manda `ERR 0 WATCHDOG`. El próximo comando lo rearma. La Pi manda `PING` cada 200 ms si no mandó otra cosa.
-5. **STOP enclavado:** mientras está activo, `J S HOME CANCEL` responden `ERR seq STOP_ACTIVE`.
+5. **STOP enclavado:** mientras está activo, `J S HOME CANCEL` responden `ERR seq STOP_ACTIVE` (`VOL` se acepta).
 6. **ESP32-C3-DevKitM-1 (clon con CH340):** el puerto serie es el UART0 (GPIO20/21) por el micro-USB. En Arduino, `USB CDC On Boot` queda deshabilitado (lo que trae por defecto `esp32:esp32:esp32c3`).
 7. **Timers LEDC separados** para servos (50 Hz) y buzzer (frecuencia variable): cambiar la nota no debe alterar el PWM de los servos. Los tres servos (50 Hz, 14 bits) comparten un timer; el buzzer se configura con otra frecuencia y resolución, así que toma otro.
 8. **En STOP y watchdog se sigue mandando el último pulso** a los tres servos: el MG996R sin pulso queda flojo.

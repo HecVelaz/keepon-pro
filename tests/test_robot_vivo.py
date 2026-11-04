@@ -43,3 +43,58 @@ def test_comandos_por_fifo_sin_bloquear(tmp_path, monkeypatch):
     os.close(fd)
     assert c.leer() == ["sonido POLCA"]
     assert c.leer() == []             # el que escribe cerró: sigue sin fin de archivo ni bloqueo
+
+
+def test_apagar_lleva_a_home_aunque_haya_stop():
+    """Regresión (04/11): con el STOP enclavado, "Apagar" mandaba HOME, la ESP32 lo rechazaba
+    (ERR STOP_ACTIVE) y la cabeza quedaba donde estaba. Además, sin esperar, el watchdog de 500 ms
+    puede cortar la vuelta a medio camino."""
+    from robot_vivo import ir_a_home_y_esperar
+    from keepon import load_config
+    from keepon.link import SimLink
+
+    cfg = load_config()
+    home = cfg["neck"]["home"]
+
+    def lejos_y_en_stop():
+        link = SimLink(cfg, realtime=False)
+        link.hello()
+        link.advance(0.1)
+        link.poll()
+        link.send("J", 60.0, 25.0, -15.0)
+        for _ in range(100):          # 2,5 s con keepalive: llega a la postura lejana
+            link.poll()
+            link.advance(0.025)
+        link.send("STOP")
+        link.advance(0.1)
+        return link
+
+    # Como antes: HOME solo, con el STOP enclavado → rechazado, la cabeza no se mueve.
+    link = lejos_y_en_stop()
+    link.send("HOME")
+    link.advance(2.0)
+    assert any(r.name == "ERR" and "STOP_ACTIVE" in r.args for r in link.poll())
+    assert max(abs(a - h) for a, h in zip(link.neck_pos, home)) > 5.0
+
+    # Ahora: llega a HOME.
+    link = lejos_y_en_stop()
+    assert ir_a_home_y_esperar(link, home, dormir=link.advance)
+    assert max(abs(a - h) for a, h in zip(link.neck_pos, home)) < 1.0
+
+
+def test_volumen_guardado(tmp_path):
+    from robot_vivo import leer_volumen
+
+    ruta = tmp_path / "volumen"
+    assert leer_volumen(ruta, 12) == 12          # todavía no hay
+    ruta.write_text("65\n")
+    assert leer_volumen(ruta, 12) == 65
+    ruta.write_text("basura")
+    assert leer_volumen(ruta, 12) == 12
+
+
+def test_resumen_mira():
+    from robot_vivo import resumen_mira
+
+    assert resumen_mira([], 15) == ""
+    assert resumen_mira([30.0, 12.0, 18.0, 25.0], 15) == ", mira mín 12° mediana 25° (<15°: 1/4)"

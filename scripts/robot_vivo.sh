@@ -12,9 +12,11 @@ read -r CAM_CFG ORIENTACION < <(cd "$DIR" && ~/keepon_env/bin/python -c \
 CAMARA="${CAMARA:-$CAM_CFG}"
 
 if [ "$1" = "stop" ]; then
-    pkill -INT -f "[r]obot_vivo.py"; pkill -INT -f "[p]anel_web.py"; pkill -INT -f "[_]_node:=keepon_cam"; pkill -INT -f "[w]eb_video_server.*port:=$PUERTO"
+    # El panel sólo si es el que lanzó este script: el del servicio keepon-panel queda prendido.
+    PANEL_SUELTO=0; systemctl --user is-active -q keepon-panel 2>/dev/null || PANEL_SUELTO=1
+    pkill -INT -f "[r]obot_vivo.py"; [ $PANEL_SUELTO = 1 ] && pkill -INT -f "[p]anel_web.py"; pkill -INT -f "[_]_node:=keepon_cam"; pkill -INT -f "[w]eb_video_server.*port:=$PUERTO"
     sleep 3
-    pkill -KILL -f "[r]obot_vivo.py"; pkill -KILL -f "[p]anel_web.py"; pkill -KILL -f "[_]_node:=keepon_cam"; pkill -KILL -f "[w]eb_video_server.*port:=$PUERTO"
+    pkill -KILL -f "[r]obot_vivo.py"; [ $PANEL_SUELTO = 1 ] && pkill -KILL -f "[p]anel_web.py"; pkill -KILL -f "[_]_node:=keepon_cam"; pkill -KILL -f "[w]eb_video_server.*port:=$PUERTO"
     pkill -KILL -f "[m]ultiprocessing.spawn" 2>/dev/null
     echo "Robot detenido."; exit 0
 fi
@@ -44,9 +46,12 @@ setsid ros2 run camera_ros camera_node --ros-args -r __node:=keepon_cam \
 GRUPOS+=($!)
 setsid ros2 run web_video_server web_video_server --ros-args -p port:=$PUERTO > /tmp/keepon_web.log 2>&1 &
 GRUPOS+=($!)
-# Panel del celular (comandos de modo/STOP/sonidos): scripts/panel_web.py, puerto 8081
-setsid ~/keepon_env/bin/python "$DIR/scripts/panel_web.py" --puerto 8081 > /tmp/keepon_panel.log 2>&1 &
-GRUPOS+=($!)
+# Panel del celular (scripts/panel_web.py, puerto 8081). Normalmente corre como servicio propio
+# (keepon-panel, 'keepon panel-on'); si no está, se lanza acá y se apaga junto con el robot.
+if ! systemctl --user is-active -q keepon-panel 2>/dev/null; then
+    setsid ~/keepon_env/bin/python "$DIR/scripts/panel_web.py" --puerto 8081 > /tmp/keepon_panel.log 2>&1 &
+    GRUPOS+=($!)
+fi
 sleep 4
 
 IP=$(tailscale ip -4 2>/dev/null | head -1)
