@@ -11,7 +11,7 @@ const uint32_t WATCHDOG_MS = 500;
 const uint8_t PIN_BUZZER = 5;
 
 // Volumen del buzzer: fracción del ciclo de trabajo máximo (1.0 = 50 %).
-const double BUZZER_VOLUMEN = 0.25;
+const double BUZZER_VOLUMEN = 0.12;
 
 // Cuello, en orden yaw, pitch, roll [grados, °/s, °/s²]
 const double LIM_MIN[3] = {-70.0, -20.0, -20.0};

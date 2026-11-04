@@ -124,7 +124,7 @@ eventos:
 buzzer:
   pin: 5                        # GPIO del I/O del módulo. 03/11: del GPIO10 al GPIO5 (con la cabeza v6 armada,
                                 # en el 10 no sonaba). Libres y seguros: 5, 6, 7 (no 2/8/9, 18/19, 20/21)
-  volumen: 0.25                 # 26/10: a pedido, 75 % menos que el máximo
+  volumen: 0.12                 # 03/11: a pedido, la mitad que antes (26/10: 0.25)
 
 # Duración de cada sonido [s]. El firmware es la fuente de verdad (manda DONE),
 # la PC la usa para planificar y como timeout.
