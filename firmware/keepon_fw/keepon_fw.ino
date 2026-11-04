@@ -14,7 +14,7 @@
 
 // --- Pines (docs/REVISION_CODEX_HW.md; evitar 2/8/9 de strapping, 18/19 del USB y 20/21 del UART0) ---
 const uint8_t PIN_SERVO[3] = {0, 1, 4};  // yaw, pitch, roll
-const uint8_t PIN_BUZZER = gen::PIN_BUZZER;  // config.yaml: buzzer.pin (GPIO5 desde el 03/11)
+const uint8_t PIN_BUZZER = gen::PIN_BUZZER;  // config.yaml: buzzer.pin (GPIO7 desde el 04/11)
 
 // --- PWM. Servos y buzzer en timers LEDC distintos: cambiar la nota no altera el pulso de los servos.
 // Los tres servos (50 Hz, 14 bits) comparten un timer; el buzzer se configura con otra frecuencia y

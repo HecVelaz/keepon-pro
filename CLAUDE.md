@@ -5,7 +5,7 @@ Cabeza robótica social de 3 GDL (yaw/pitch/roll) con visión artificial. µTP d
 **Demo física obligatoria el 30/10/2026** (Segundo Parcial). Sin demo física no hay puntaje.
 Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3).
 - **Pi 5 (4 GB)**, Ubuntu 24.04 + ROS 2 Jazzy (no se puede cambiar el SO: la Pi se usa en otros proyectos), con Camera Module 3 NoIR estándar (IMX708). Todo corre en la Pi, en **Python puro**; `rclpy` solo para leer la cámara.
-- **ESP32-C3-DevKitM-1** (clon CH340, `/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0`) para los 3 servos (yaw RDS3218 GPIO0, pitch HS-7955TG GPIO1, roll MG996R GPIO4) y el buzzer (GPIO5, `buzzer.pin`; antes GPIO10), con el protocolo serie v1 (`docs/PROTOCOLO.md`).
+- **ESP32-C3-DevKitM-1** (clon CH340, `/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0`) para los 3 servos (yaw RDS3218 GPIO0, pitch HS-7955TG GPIO1, roll MG996R GPIO4) y el buzzer (GPIO7, `buzzer.pin`; antes GPIO5 y GPIO10), con el protocolo serie v1 (`docs/PROTOCOLO.md`).
 - Servos con fuente de laboratorio a 6 V; la Pi con powerbank Xiaomi PB2020MI. GND común. La notebook (x86, sin CUDA) es solo para desarrollar.
 
 ## Reglas

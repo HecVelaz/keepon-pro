@@ -8,7 +8,7 @@ Se comporta igual que `keepon/sim_esp32.py`, que es la especificación ejecutabl
 
 | Archivo | Qué hace |
 |---|---|
-| `keepon_fw/keepon_fw.ino` | Capa de hardware: puerto serie, pulsos LEDC de los servos (GPIO0/1/4) y tono del buzzer (GPIO5, `buzzer.pin` de `config.yaml`) |
+| `keepon_fw/keepon_fw.ino` | Capa de hardware: puerto serie, pulsos LEDC de los servos (GPIO0/1/4) y tono del buzzer (GPIO7, `buzzer.pin` de `config.yaml`) |
 | `keepon_fw/nucleo.h`, `nucleo.cpp` | Toda la lógica, en C++ portable (sin Arduino): protocolo, trayectoria, estados, sonidos, grados → µs |
 | `keepon_fw/generado.h` | **Generado** por `scripts/generar_firmware.py` desde `config.yaml` y `pruebas_buzzer/simulador_sonidos.html`. No editar a mano |
 | `pruebas_host/arnes.cpp` | Corre el núcleo en la notebook para compararlo con el simulador (lo usa `tests/test_firmware_nucleo.py`) |

@@ -17,8 +17,8 @@ Al cerrar una sesión (`/cerrar`) se actualiza este archivo, no `CLAUDE.md`.
   El seguimiento oscila un poco. El grupo va a cambiar un servo.
 - Cámara NoIR en **`i2c@88000`**, montada invertida (`orientation_deg: 180`). Intrínsecos **provisorios**: fx/fy de otra
   cámara, cx/cy = centro de la imagen (sin calibrar con tablero).
-- ESP32-C3 en la Pi con el **firmware del robot** (watchdog corregido, compensación, buzzer en GPIO5, volumen 0,12).
-- **Buzzer** (MH-FMD, I/O en **GPIO5**, VCC 3V3): suena con los servos quietos y **se corta cuando se mueven**. Sin resolver.
+- ESP32-C3 en la Pi con el **firmware del robot** (watchdog corregido, compensación, buzzer en GPIO7 desde el 04/11, volumen 0,12).
+- **Buzzer** (MH-FMD, I/O en **GPIO7** desde el 04/11, VCC 3V3): en el GPIO5 sonaba con los servos quietos, **se cortaba cuando se movían** y el 04/11 dejó de sonar (el firmware lo tocaba: DONE a tiempo). Se pasó al GPIO7.
 
 ## Software del robot (en la Pi)
 - `scripts/robot_vivo.sh`: cámara + servidor web + panel + `robot_vivo.py` (percepción → eventos → robot → ESP32).
