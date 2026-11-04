@@ -63,6 +63,15 @@ def test_la_confirmacion_no_le_quita_el_cuello_al_seguimiento():
     assert b.robot.arb.owner["BUZZER"].behavior == "OPERADOR"
 
 
+def test_sonido_a_pedido():
+    b = Banco()
+    b.correr(1.0)
+    assert comando("sonido polca", b.robot) == "sonido POLCA"
+    b.correr(0.3)
+    assert "POLCA" in b.sonidos
+    assert "no existe" in comando("sonido xyz", b.robot)
+
+
 def test_comando_desconocido_muestra_la_ayuda_y_no_cambia_nada():
     b = Banco()
     assert "Comandos" in comando("xyz", b.robot) and b.robot.modo == M["inicial"]

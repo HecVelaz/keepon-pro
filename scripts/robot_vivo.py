@@ -28,7 +28,7 @@ from keepon.world import Person, World  # noqa: E402
 
 ATAJOS = {"n": "NEUTRO", "t": "TIMIDO", "a": "ATREVIDO", "m": "MALEDUCADO"}
 AYUDA = ("Comandos (escribir y Enter): n/t/a/m = modo NEUTRO/TIMIDO/ATREVIDO/MALEDUCADO "
-         "(o MODE TIMIDO), stop, resume, home, ? = esta ayuda")
+         "(o MODE TIMIDO), sonido NOMBRE (R2D2, POLCA, ABUCHEO, PIROPO...), stop, resume, home, ? = esta ayuda")
 
 
 def comando(linea: str, robot) -> str:
@@ -42,6 +42,9 @@ def comando(linea: str, robot) -> str:
     modo = ATAJOS.get(s.lower(), s)
     if robot.set_modo(modo):
         return f"modo {robot.modo}"
+    if palabras[0].lower() in ("sonido", "s") and len(palabras) == 2:
+        return f"sonido {palabras[1].upper()}" if robot.sonar(palabras[1]) else \
+            f"no existe el sonido {palabras[1]}: {', '.join(robot.cfg['sounds'])}"
     if s.lower() == "stop":
         robot.stop()
         return "STOP (frena donde está; 'resume' para seguir)"

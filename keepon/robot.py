@@ -70,6 +70,16 @@ class Robot:
             self.behaviors["OPERADOR"].pedir(modo, now)
         return True
 
+    def sonar(self, sonido: str) -> bool:
+        """Comando del operador: reproduce un sonido de config.yaml (p. ej. para probar el buzzer)."""
+        sonido = sonido.strip().upper()
+        if sonido not in self.cfg["sounds"] or "OPERADOR" not in self.behaviors:
+            return False
+        now = self.link.now()
+        self.log(now, f"OPERADOR sonido {sonido}")
+        self.behaviors["OPERADOR"].pedir_sonido(sonido, now)
+        return True
+
     # ------------------------------------------------------------ operador
     def stop(self) -> None:
         """Primero se enclava el STOP localmente y después se transmite: si la escritura

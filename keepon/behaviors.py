@@ -226,26 +226,30 @@ MODOS = ("NEUTRO", "TIMIDO", "ATREVIDO", "MALEDUCADO")
 
 
 class ConfirmaModo(Behavior):
-    """Comando del operador: confirma el cambio de modo con un sonido breve distintivo (BEEP_<MODO>).
-    Prioridad 0, sólo el buzzer: no interrumpe al que tiene el cuello."""
+    """Comando del operador: confirma el cambio de modo con un sonido breve distintivo (BEEP_<MODO>), o
+    reproduce un sonido a pedido (prueba del buzzer). Prioridad 0, sólo el buzzer: no le quita el cuello
+    a nadie."""
     name = "OPERADOR"
 
     def __init__(self, cfg):
         super().__init__(cfg)
-        self.pedido: tuple[str, float] | None = None  # (modo, instante del pedido)
+        self.pedido: tuple[str, float] | None = None  # (sonido, instante del pedido)
 
     def pedir(self, modo: str, now: float) -> None:
-        self.pedido = (modo, now)
+        self.pedir_sonido(f"BEEP_{modo}", now)
+
+    def pedir_sonido(self, sonido: str, now: float) -> None:
+        self.pedido = (sonido, now)
 
     def propose(self, ctx):
         if self.pedido is None:
             return []
-        modo, t = self.pedido
+        sonido, t = self.pedido
         if ctx.now > t + 1.0:  # no se pudo (p. ej. con STOP): se descarta
             self.pedido = None
             return []
         return [Proposal(self.name, self.priority, frozenset({BUZZER}), interruptible_by=0,
-                         expires=t + 1.0, params={"sound": f"BEEP_{modo}"})]
+                         expires=t + 1.0, params={"sound": sonido})]
 
     def on_start(self, g, ctx):
         self.pedido, self.t0 = None, ctx.now
