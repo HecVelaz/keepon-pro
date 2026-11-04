@@ -29,7 +29,6 @@ Movido desde `CLAUDE.md` el 22/10/2026. No volver a discutirlas sin datos nuevos
 - **03/11:** centro óptico provisorio = centro de la imagen hasta calibrar esta cámara (el de la calibración ajena
   corría la mirada ~6,5°). La cámara se rota en `camera_ros` (`orientation_deg`), no en Python.
 - **03/11:** buzzer en el **GPIO5** (`buzzer.pin`); en el GPIO10 dejó de sonar con la cabeza armada.
-- **04/11:** buzzer en el **GPIO7**: en el GPIO5 dejó de sonar con el robot andando, aunque el firmware lo tocaba (DONE a tiempo).
 - **03/11:** la polca se queda en el fragmento de 8 compases (la guía pide "un fragmento reconocible"; la completa
   dura más de un minuto y ocuparía el buzzer).
 - **03/11:** demo como servicio de usuario (`keepon.service`), **no activado al encender** salvo para la demo

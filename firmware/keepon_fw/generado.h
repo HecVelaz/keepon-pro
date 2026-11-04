@@ -8,7 +8,7 @@ namespace gen {
 const uint32_t WATCHDOG_MS = 500;
 
 // Pin del I/O del módulo del buzzer (config.yaml: buzzer.pin).
-const uint8_t PIN_BUZZER = 7;
+const uint8_t PIN_BUZZER = 5;
 
 // Volumen del buzzer: fracción del ciclo de trabajo máximo (1.0 = 50 %).
 const double BUZZER_VOLUMEN = 0.12;
