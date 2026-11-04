@@ -166,6 +166,28 @@ class Monitor:
         self.cam.close()
 
 
+def ir_a_home_y_esperar(link, home, tol_deg: float = 1.0, limite_s: float = 5.0, dormir=time.sleep) -> bool:
+    """Al apagar: lleva la cabeza a HOME y sigue hablando con la ESP32 hasta que llegue.
+
+    - RESUME antes del HOME: con el STOP enclavado la ESP32 rechaza el HOME (ERR STOP_ACTIVE) y la
+      cabeza quedaba donde estaba (04/11: STOP y después "Apagar"). Apagar ya es una decisión del operador.
+    - Esperar: si el programa sale apenas manda HOME, a los 500 ms el watchdog de la ESP32 frena la
+      trayectoria. link.poll() manda un PING cada 200 ms, que rearma el watchdog y trae un STATE con
+      las referencias actuales.
+    True si llegó a menos de tol_deg en los tres ejes antes de limite_s."""
+    link.send("RESUME")
+    link.send("HOME")
+    fin = link.now() + limite_s
+    while link.now() < fin:
+        for r in link.poll():
+            if r.name == "STATE" and len(r.args) >= 4:
+                angulos = [float(v) for v in r.args[1:4]]
+                if all(abs(a - h) <= tol_deg for a, h in zip(angulos, home)):
+                    return True
+        dormir(0.05)
+    return False
+
+
 def main() -> None:
     from keepon.arbiter import BUZZER, NECK
     from keepon.eventos import Eventos
@@ -265,8 +287,10 @@ def main() -> None:
         robot.tick(World.from_cfg(cfg, t=link.now()), world_age=1e9)  # asegura que el STOP salga
         print("\nSTOP enviado (frenó donde estaba). Para seguir: RESUME y HOME.")
     else:
-        link.send("HOME")  # sin otro tick: el observador mandaría un J encima del HOME
+        # Sin otro tick del robot: el observador mandaría un J encima del HOME.
         robot.log(link.now(), "FIN: HOME")
+        llego = ir_a_home_y_esperar(link, cfg["neck"]["home"])
+        robot.log(link.now(), "FIN: en HOME" if llego else "FIN: no llegó a HOME a tiempo")
     finally:
         per.close()
         if monitor:
