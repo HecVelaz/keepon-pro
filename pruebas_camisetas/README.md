@@ -31,3 +31,24 @@ el robot ve con la NoIR. Eso se ajusta grabando las camisetas reales con la luz 
 - **Las suplentes no tienen el patrón titular.** La de Olimpia es negra con rayas blancas: no es "blanca con franja
   negra". Hay que decidir si cuentan; la guía solo describe las titulares.
 - Falta una **remera blanca lisa**: no se encontró una foto con licencia clara. Se puede usar una real o una sintética.
+
+## Grabaciones reales y resultados (04/11)
+
+`grabar.sh` graba con la cámara del robot (robot apagado; pitido cada 20 s para cambiar de distancia) en
+`~/keepon/capturas/camisetas/` en la Pi, fuera de git. `evaluar.py videos` corre Pose + `keepon/camiseta.py` sobre
+esas tomas sin mostrar imágenes; `evaluar.py referencias`, sobre las fotos de esta carpeta.
+
+Tomas de 60 s, de frente, a 1,2 / 1,8 / 2,5 m, luz del laboratorio. Colores medidos en el torso con la NoIR
+(HSV de OpenCV): rojo H 0–2/178 S 190–210; **azul marino H 116–145 S 35–90 V 30–60 (se ve violeta, no negro)**;
+blanco de Olimpia S < 16 V 115–170; **franja de Olimpia V 38–54, marrón violácea**, con el logo blanco adentro.
+
+| Toma | Clase activa tras el filtro de 6 cuadros | Falsos positivos |
+|---|---|---|
+| Olimpia titular | 82 % (99 % desde los 10 s; antes venía caminando y muy cerca: no se ve el blanco de abajo) | 0 % |
+| Cerro 2026 mitad y mitad | 98 % | 0 % |
+| Roja lisa | — | 0 % |
+| Azul marino lisa | — | 0 % |
+
+Con las fotos de referencia: todas las titulares completas bien, ninguna trampa ni suplente da positivo (las del
+Barcelona tampoco, con esas fotos). Fallan dos primeros planos de Cerro que son casi solo azul (esperable).
+La remera blanca lisa está probada solo con una sintética (`tests/test_camiseta.py`): falta una real.

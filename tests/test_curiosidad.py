@@ -7,6 +7,7 @@ from keepon.behaviors import Tracking
 from keepon.world import Person, World
 
 CFG = load_config()
+CFG["gaze"]["mirar_abajo_deg"] = 0.0  # estos tests ponen la cara en el centro óptico
 C = CFG["curiosidad"]
 
 

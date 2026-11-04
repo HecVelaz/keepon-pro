@@ -13,9 +13,9 @@ Ordenados por prioridad (03/11/2026). Lo terminado se borra y queda en `docs/BIT
 5. Probar en real SALIENDO + piropo (Maleducado); confirmar que el roll a −20° (1818 µs con compensación) no toca.
 
 ## 2. Lo que falta de la guía
-6. **Camisetas** (método decidido el 15/10, `docs/DECISIONES.md`): escribir el detector, probarlo con
-   `pruebas_camisetas/imagenes_referencia/` y grabar con la NoIR las prendas reales (Olimpia, Cerro, lisas
-   blanca/roja/azul) a 0,8/1,5/2,5 m con la luz de la demo. Falta una remera blanca lisa entre las referencias.
+6. **Camisetas**: detector hecho (`keepon/camiseta.py`, resultados en `pruebas_camisetas/README.md`). Falta:
+   probarlo en vivo con el robot; grabar una **remera blanca lisa real** (solo hay sintética en los tests);
+   decidir si de cerca (< 1,5 m, la cara centrada tapa el torso) se apunta más abajo o se pide distancia.
 7. Observador: **sacadas** a puntos de interés y pequeñas variaciones de roll (el roll, mejor con el servo nuevo).
 8. **Medir la latencia evento → inicio de la respuesta** (≤ 300 ms, T6 e), p. ej. SALUDO → R2D2, para el informe.
 9. Opcionales: desaprobación al liberar el objetivo (T3 c; el sonido DESAPROBACION existe), aburrimiento (T3 e).

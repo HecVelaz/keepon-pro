@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 from robot_vivo import comando  # noqa: E402
 
 CFG = load_config()
+CFG["gaze"]["mirar_abajo_deg"] = 0.0  # estos tests ponen la cara en el centro óptico
 M = CFG["modos"]
 
 
