@@ -101,6 +101,18 @@ perception:
   pose_max_hz: 30                # limitar la pose libera memoria/CPU para YOLO (SALUDO dura >1 s)
   looking_deg: 15.0              # ME_MIRA: desvío cara->cámara menor a esto
 
+# Eventos de T2 con filtro temporal (keepon/eventos.py). Todo por tiempo: la percepción no va a ritmo fijo.
+eventos:
+  mira_sostenida_s: 0.5          # ME_MIRA se activa tras mirar esto seguido (la guía: sostenida ≥ 0,5 s)
+  mira_suelta_s: 0.3             # y se suelta tras no mirar esto seguido (histéresis)
+  saludo_ciclos: 2               # SALUDO: ciclos de oscilación lateral de la muñeca (2 vaivenes por ciclo;
+                                 # el primer recorrido solo marca el sentido → 3 cambios de sentido)
+  saludo_ventana_s: 2.5          # los cambios de sentido tienen que caer dentro de esta ventana
+  saludo_amp_hombros: 0.25       # amplitud mínima de cada vaivén, en anchos de hombros (independiente de la distancia)
+  saludo_margen_hombros: 0.1     # la muñeca tiene que estar por encima del hombro al menos esto
+  saludo_mano_abajo_s: 0.4       # tras un saludo, la mano debe bajar esto para contar otro (un gesto = un evento)
+  pose_vis_min: 0.5              # visibilidad mínima de un punto de MediaPipe para usarlo
+
 # Buzzer (módulo pasivo MH-FMD en el GPIO10). El volumen se baja achicando el ciclo de trabajo del PWM:
 # 1.0 = 50 % (el máximo); 0.25 = 12,5 %. La sensación de volumen no es lineal con el ciclo: ajustar de oído.
 buzzer:

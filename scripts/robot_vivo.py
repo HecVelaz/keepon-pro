@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Keepon con la cámara y los servos de verdad (se corre en la Pi, con camera_node andando).
 
-Cadena: Perception (proceso de personas: YOLO + tracker + rostros/ME_MIRA) → World → Robot (foco,
-comportamientos, árbitro, control de mirada) → SerialLink → ESP32. Versión mínima para probar el
-seguimiento: todavía sin pose (SALUDO) ni camisetas.
+Cadena: Perception (procesos de personas —YOLO + tracker + rostros/ME_MIRA— y de pose) → World →
+Eventos (ME_MIRA sostenido y SALUDO, keepon/eventos.py) → Robot (foco, comportamientos, árbitro, control
+de mirada) → SerialLink → ESP32. Todavía sin camisetas ni SALIENDO.
 
     bash ~/keepon/scripts/robot_vivo.sh            # arranca camera_node y esto; Ctrl+C manda STOP
     ~/keepon_env/bin/python scripts/robot_vivo.py  # si camera_node ya está corriendo
@@ -44,6 +44,7 @@ def mundo_desde(det, cfg: dict, t: float) -> World:
 
 
 def main() -> None:
+    from keepon.eventos import Eventos
     from keepon.link import SerialLink
     from keepon.perception import Perception
     from keepon.robot import Robot
@@ -57,11 +58,12 @@ def main() -> None:
     link = SerialLink(a.puerto, espejo_cfg=cfg)
     robot = Robot(cfg, link)
     robot.resume()  # un Ctrl+C de una corrida anterior deja el STOP enclavado en la ESP32: liberarlo
-    per = Perception(cfg, workers=("personas",))
+    eventos = Eventos(cfg, log=robot.log)
+    per = Perception(cfg, workers=("personas", "pose"))
     periodo = 1.0 / cfg["control"]["rate_hz"]
     print("Cargando modelos (~15 s). Ctrl+C manda STOP y sale.")
     t0 = link.now()
-    det = None
+    det = pose = None
     ciclos, t_hz = 0, time.monotonic()
     try:
         while not a.duracion or link.now() - t0 < a.duracion:
@@ -69,9 +71,13 @@ def main() -> None:
             for r in per.poll():
                 if r.kind == "personas":
                     det = r
+                else:
+                    pose = r
             # Edad: desde que se capturó el cuadro (stamp, reloj de pared). Sin resultados todavía: viejo.
             edad = time.time() - det.stamp if det is not None else 1e9
-            robot.tick(mundo_desde(det, cfg, inicio), world_age=edad)
+            cajas = {p.id: p.box for p in det.persons} if det is not None else {}
+            mundo = eventos.aplicar(mundo_desde(det, cfg, inicio), pose, cajas)
+            robot.tick(mundo, world_age=edad)
             ciclos += 1
             if time.monotonic() - t_hz >= 10.0:  # cada 10 s: salud del lazo y de la percepción
                 hz = ciclos / (time.monotonic() - t_hz)
