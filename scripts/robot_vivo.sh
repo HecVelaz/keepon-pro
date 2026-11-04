@@ -47,7 +47,8 @@ GRUPOS+=($!)
 sleep 4
 
 IP=$(tailscale ip -4 2>/dev/null | head -1)
-echo "Cámara en el navegador:  http://$IP:$PUERTO/stream_viewer?topic=/keepon_cam/image_raw"
+echo "Overlay (T7) en el navegador:  http://$IP:$PUERTO/stream_viewer?topic=/keepon/overlay"
+echo "Cámara cruda:                  http://$IP:$PUERTO/stream_viewer?topic=/keepon_cam/image_raw"
 cd "$DIR"
 # En primer plano: Ctrl+C le llega directo al robot, que manda STOP antes de salir. El filtro del ruido
 # de los modelos ignora Ctrl+C: si muriera primero, el robot no podría escribir y el STOP podría no salir.

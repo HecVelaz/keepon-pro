@@ -32,7 +32,7 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 ## Comandos
 ```bash
 # Notebook (venv en .venv). La variable evita que se carguen los plugins de pytest de ROS 2:
-PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q        # 138 tests (35 comparan el firmware con el simulador; necesitan g++)
+PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q        # 140 tests (35 comparan el firmware con el simulador; necesitan g++)
 .venv/bin/python scripts/sim_scenario.py --plot                        # escenario simulado de 30 s
 ```
 Firmware: `firmware/CLAUDE.md`. Banco de servos: `pruebas_servos/CLAUDE.md`. Pi (sincronizar, visores, benchmarks): `docs/PI.md`.

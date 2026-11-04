@@ -43,6 +43,7 @@ class _Persona:
     mira: _Mira = field(default_factory=_Mira)
     manos: dict[str, _Mano] = field(default_factory=lambda: {"i": _Mano(), "d": _Mano()})
     saludos: int = 0
+    t_saludo: float = -1e9  # instante del último SALUDO (para el overlay)
     visto: float = 0.0
 
 
@@ -87,6 +88,11 @@ class Eventos:
         for pid in [k for k, s in self.personas.items() if t - s.visto > self.OLVIDAR_S]:
             del self.personas[pid]
         return w
+
+    def saludo_reciente(self, pid: int, t: float, s: float = 2.0) -> bool:
+        """True si la persona saludó en los últimos `s` segundos (para mostrarlo en el overlay)."""
+        st = self.personas.get(pid)
+        return st is not None and t - st.t_saludo <= s
 
     # -------------------------------------------------------------- ME_MIRA
     def _filtrar_mira(self, pid: int, st: _Persona, crudo: bool, t: float) -> None:
@@ -143,6 +149,7 @@ class Eventos:
             x = (muneca[0] - hombro[0]) / ancho
             if self._vaiven(mano, x, t):
                 st.saludos += 1
+                st.t_saludo = t
                 mano.reiniciar()
                 mano.armada = False
                 self.log(t, f"EVENTO SALUDO persona={pid} mano={lado} (n.º {st.saludos})")
