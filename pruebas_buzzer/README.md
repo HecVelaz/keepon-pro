@@ -50,4 +50,7 @@ hace falta.
 - **Prueba de banco:** `prueba_buzzer/prueba_buzzer.ino` alterna un tono hecho con `digitalWrite` (prueba solo el
   hardware) y el mismo tono por LEDC invertido (el camino del firmware). El 26/10 no sonaba ninguno de los dos: era
   un **falso contacto en el pin 10**.
+- **04/11: sonaba a veces sí y a veces no** (GPIO5, cabeza armada): era un **cable jumper con falso contacto**. Con los
+  6 V apagados sonaba siempre; con los servos andando, no. Antes de buscar ruido, cambiar el jumper. El volumen se ajusta
+  desde el panel del celular (comando `VOL`, 0–100 %).
 - El conexionado está también en `docs/diagrama_sistema/index.html` ("Módulo del buzzer").

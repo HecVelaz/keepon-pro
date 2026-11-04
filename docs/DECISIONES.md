@@ -36,3 +36,10 @@ Movido desde `CLAUDE.md` el 22/10/2026. No volver a discutirlas sin datos nuevos
 - **03/11:** control desde el celular con una página web instalable (PWA, `scripts/panel_web.py`), no una app nativa;
   sólo acepta una lista cerrada de comandos.
 - **03/11:** "quieto" para la curiosidad = la dirección de la persona (cuello + error), no el error del control.
+- **04/11:** panel del celular como servicio aparte siempre prendido (`keepon-panel`), que enciende y apaga el robot
+  con `systemctl --user`: así el celular sirve con el robot apagado. Sigue sin aceptar comandos libres.
+- **04/11:** sonidos del operador: el último pedido corta al anterior (antes se descartaba el nuevo).
+- **04/11:** volumen del buzzer en tiempo de ejecución con el comando `VOL` (FW_VERSION 2), aceptado aunque haya STOP.
+- **04/11:** camisetas: umbrales medidos con la NoIR sobre las prendas reales (`config.yaml`, `camiseta`); el detector
+  corre en el proceso de pose; el filtro 6/6 se cuenta en cuadros de pose. La mirada apunta 8° debajo de la cara
+  (`gaze.mirar_abajo_deg`) para que entre la camiseta.

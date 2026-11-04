@@ -3,6 +3,37 @@
 Lo hecho en cada sesión, lo más reciente arriba. El estado actual está en `docs/ESTADO.md`; lo que falta, en
 `docs/PENDIENTES.md`. Creada el 03/11/2026 con la historia que estaba en `ESTADO.md`.
 
+## 04/11/2026
+**Panel del celular y arranque** (rama `panel-arranque`, PR #4 sobre `diseno-v6-vigente`)
+- El servicio moría ~10 s después de cerrar el SSH: faltaba **linger** (`loginctl enable-linger r2d2`, lo corrió el usuario).
+- Panel siempre prendido como servicio aparte (`scripts/keepon-panel.service`, puerto 8081; `keepon panel-on/off`) con
+  botones **Encender / Apagar** (`systemctl --user --no-block start/stop keepon`, sin shell). `robot_vivo.sh` no lo duplica.
+- **Sonidos del operador: el último pedido gana** (antes se descartaban los superpuestos y "a veces no sonaba").
+- **Apagar vuelve a HOME**: el STOP enclavado hacía que la ESP32 rechazara el HOME. Ahora RESUME + HOME y espera a que
+  el STATE llegue (`ir_a_home_y_esperar`, 5 s, log `FIN: en HOME`). Test de regresión.
+- **Buzzer intermitente: era un cable jumper con falso contacto** (lo encontró el usuario). Se probó el GPIO7 (`c1759c2`)
+  y se revirtió: sigue en el **GPIO5**. Sonaba con los 6 V apagados y no con los servos andando → era el cable, no ruido.
+- **Volumen del buzzer desde el panel** (0–100 %): comando `VOL` nuevo en el protocolo (FW_VERSION 2, aceptado con STOP),
+  firmware, simulador y tests de conformidad; se guarda en `~/keepon/run/volumen` y se manda al reconectar.
+- ME_MIRA: el modo Tímido "igual me sigue la mirada". Se agregó el ángulo cara→cámara al overlay (`angulo N`) y a la
+  línea ESTADO (`mira mín/mediana (<15°: a/b)`). Ya con la mirada corrida hacia abajo dio mediana 8° y 30/42 bajo 15°:
+  falta volver a probar el Tímido.
+
+**Camisetas** (rama `camisetas`, PR #5 sobre `panel-arranque`)
+- `pruebas_camisetas/grabar.sh` (cámara con el robot apagado, pitido del buzzer cada 20 s) y `evaluar.py`. Tomas de 60 s
+  a 1,2 / 1,8 / 2,5 m, de frente, luz del laboratorio: Olimpia titular, Cerro 2026 mitad y mitad, roja lisa, azul marino
+  lisa. Quedan **solo en la Pi** (`~/keepon/capturas/camisetas/`), con consentimiento; borrarlas al cerrar el detector.
+- Colores con la NoIR: azul marino **violeta** (H 116–145), igual en Cerro y en la lisa; rojo igual en Cerro y en la lisa;
+  la franja de Olimpia marrón violácea (V 38–54) con el logo blanco adentro.
+- `keepon/camiseta.py`: torso desde los hombros de Pose; Cerro = columnas rojas y azules con borde vertical; Olimpia =
+  claro → franja oscura → claro (brillos relativos, blanco poco saturado). Filtro 6/6 cuadros por persona en `Eventos`.
+  Corre en el proceso de pose (pose 7–10 Hz, igual que antes).
+- Videos: Olimpia 82 % (99 % desde los 10 s; antes estaba muy cerca), Cerro 98 %, **lisas 0 % de falsos positivos**.
+- La cámara (±14° vertical) no veía la camiseta con la cara centrada → `gaze.mirar_abajo_deg: 8`.
+- **En vivo:** Olimpia → polca, Cerro → abucheo, roja y azul lisas → nada.
+
+Commits: `67806d8` … `ba452ea`. Tests: 164 → 207.
+
 ## 03/11/2026
 **Diseño v6 y calibración con la cabeza montada**
 - El modelo vigente pasa a ser el **v6 R4** (`docs/diseno_v6/`, ver `LEEME_GIT.md`). Se versionan ≈ 20 MB de 228 (fuentes,
