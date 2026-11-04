@@ -2,7 +2,9 @@
 // Lo usa tests/test_firmware_nucleo.py para compararlo contra keepon/sim_esp32.py.
 //
 // Lee un guion por stdin, una orden por línea:
-//   L <texto>   le pasa <texto> al firmware como línea recibida
+//   L <texto>   le pasa <texto> al firmware como línea recibida (en el instante del paso actual)
+//   M <ms> <t>  línea recibida en el instante <ms>: como en la ESP32, donde llega con millis() y el paso
+//               del lazo puede estar unos ms atrás
 //   T <n>       avanza n pasos de 10 ms (imprime la posición después de cada uno)
 //   F <ms>      imprime la frecuencia del buzzer en el instante <ms> (relativo al arranque)
 //   U           imprime los pulsos de los servos [µs]
@@ -33,6 +35,11 @@ int main() {
     linea[strcspn(linea, "\n")] = '\0';
     if (linea[0] == 'L') {
       n.linea(linea[1] == ' ' ? linea + 2 : linea + 1, paso * keepon::PASO_MS);
+      volcar(n);
+    } else if (linea[0] == 'M') {
+      char *resto;
+      unsigned long ms = strtoul(linea + 1, &resto, 10);
+      n.linea(resto[0] == ' ' ? resto + 1 : resto, (uint32_t)ms);
       volcar(n);
     } else if (linea[0] == 'T') {
       int k = atoi(linea + 1);

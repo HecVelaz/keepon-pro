@@ -249,14 +249,19 @@ void Nucleo::manejar(const char *c, long long seq, char **args, int, uint32_t ah
 }
 
 // Un paso del lazo (SimESP32.tick): watchdog, fin del sonido y trayectoria.
+// Diferencia de tiempos CON SIGNO. En la ESP32 las líneas llegan con millis() y el paso usa su instante
+// programado, que puede estar unos ms atrás: sin signo, 40 − 45 daba 4 mil millones (watchdog y fin de
+// sonido falsos, 03/11). También sobrevive a la vuelta de millis() a los 49 días.
+static inline int32_t dif_ms(uint32_t a, uint32_t b) { return (int32_t)(a - b); }
+
 void Nucleo::paso(uint32_t ahora_ms) {
-  if (estado_ == RUN && ahora_ms - ultimo_rx_ms_ > gen::WATCHDOG_MS) {
+  if (estado_ == RUN && dif_ms(ahora_ms, ultimo_rx_ms_) > (int32_t)gen::WATCHDOG_MS) {
     estado_ = WATCHDOG;
     cortar_sonido();
     frenar();
     err(0, "WATCHDOG");
   }
-  if (sonido_ >= 0 && ahora_ms - sonido_inicio_ms_ >= gen::SONIDOS[sonido_].total_ms) {
+  if (sonido_ >= 0 && dif_ms(ahora_ms, sonido_inicio_ms_) >= (int32_t)gen::SONIDOS[sonido_].total_ms) {
     responder("DONE %lld", sonido_seq_);
     cortar_sonido();
   }
@@ -274,7 +279,8 @@ void Nucleo::paso(uint32_t ahora_ms) {
 uint16_t Nucleo::frecuencia(uint32_t ahora_ms) const {
   if (sonido_ < 0) return 0;
   const gen::Sonido &s = gen::SONIDOS[sonido_];
-  uint32_t e = ahora_ms - sonido_inicio_ms_, acumulado = 0;
+  int32_t d = dif_ms(ahora_ms, sonido_inicio_ms_);
+  uint32_t e = d > 0 ? (uint32_t)d : 0, acumulado = 0;  // antes de empezar: la primera nota
   for (int i = 0; i < s.n; i++) {
     const gen::Segmento &g = s.seg[i];
     if (e < acumulado + g.ms) {

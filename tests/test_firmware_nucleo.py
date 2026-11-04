@@ -214,3 +214,15 @@ def test_frecuencias(arnes):
                     break
                 acum += ms
             assert linea == f"F {t} {f}", nombre
+
+
+def test_regresion_linea_recibida_despues_del_paso_programado(arnes):
+    """03/11, robot real: ERR WATCHDOG cada tanto aunque la Pi mandaba J a 40 Hz. En la ESP32 la línea se
+    recibe con millis() y el paso del lazo usa su instante PROGRAMADO, que puede estar unos ms atrás:
+    paso(40) con la última línea en 45 daba 40 − 45 sin signo = 4 mil millones > 500 ms → WATCHDOG.
+    Lo mismo cortaba un sonido apenas empezaba (DONE inmediato)."""
+    guion = ["L HELLO 1", "T 3", "M 45 PING 1", "T 2", "M 75 S 2 POLCA", "T 2"]
+    resp, _, _ = correr_firmware(arnes, guion)
+    textos = [r for _, r in resp]
+    assert "ERR 0 WATCHDOG" not in textos, textos
+    assert "DONE 2" not in textos, textos  # la polca dura 7 s: no puede terminar a los 20 ms
