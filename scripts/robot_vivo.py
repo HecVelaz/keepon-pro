@@ -15,6 +15,7 @@ Monitoreo (T7): el video con overlay (keepon/overlay.py) se publica en /keepon/o
 from __future__ import annotations
 
 import argparse
+import select
 import sys
 import time
 from pathlib import Path
@@ -23,6 +24,45 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from keepon import load_config  # noqa: E402
 from keepon.world import Person, World  # noqa: E402
+
+
+ATAJOS = {"n": "NEUTRO", "t": "TIMIDO", "a": "ATREVIDO", "m": "MALEDUCADO"}
+AYUDA = ("Comandos (escribir y Enter): n/t/a/m = modo NEUTRO/TIMIDO/ATREVIDO/MALEDUCADO "
+         "(o MODE TIMIDO), stop, resume, home, ? = esta ayuda")
+
+
+def comando(linea: str, robot) -> str:
+    """Interpreta un comando del operador (T5: cambio de modo en tiempo de ejecución). Devuelve qué hizo."""
+    s = linea.strip()
+    if not s:
+        return ""
+    palabras = s.split()
+    if palabras[0].upper() in ("MODE", "MODO") and len(palabras) == 2:
+        s = palabras[1]
+    modo = ATAJOS.get(s.lower(), s)
+    if robot.set_modo(modo):
+        return f"modo {robot.modo}"
+    if s.lower() == "stop":
+        robot.stop()
+        return "STOP (frena donde está; 'resume' para seguir)"
+    if s.lower() in ("resume", "r"):
+        robot.resume()
+        return "RESUME"
+    if s.lower() == "home":
+        robot.link.send("HOME")
+        return "HOME"
+    return AYUDA
+
+
+def leer_teclado() -> list[str]:
+    """Líneas escritas en la terminal, sin bloquear el lazo (stdin con buffer de línea: hace falta Enter)."""
+    lineas = []
+    while select.select([sys.stdin], [], [], 0)[0]:
+        linea = sys.stdin.readline()
+        if not linea:  # stdin cerrado (p. ej. corriendo sin terminal)
+            break
+        lineas.append(linea)
+    return lineas
 
 
 def mundo_desde(det, cfg: dict, t: float) -> World:
@@ -106,6 +146,8 @@ def main() -> None:
     monitor = None if a.sin_overlay else Monitor(cfg)
     periodo = 1.0 / cfg["control"]["rate_hz"]
     print("Cargando modelos (~15 s). Ctrl+C manda STOP y sale.")
+    print(AYUDA)
+    teclado = sys.stdin.isatty()
     if monitor:
         print(f"Overlay en el navegador: http://<IP de la Pi>:8080/stream_viewer?topic={Monitor.TOPICO}")
     t0 = link.now()
@@ -129,7 +171,11 @@ def main() -> None:
             # Edad: desde que se capturó el cuadro (stamp, reloj de pared). Sin resultados todavía: viejo.
             edad = time.time() - det.stamp if det is not None else 1e9
             cajas = {p.id: p.box for p in det.persons} if det is not None else {}
-            mundo = eventos.aplicar(mundo_desde(det, cfg, inicio), pose, cajas)
+            mundo = eventos.aplicar(mundo_desde(det, cfg, inicio), pose, cajas, ref=robot.act.ref)
+            if teclado:
+                for linea in leer_teclado():
+                    if (r := comando(linea, robot)):
+                        print(f">> {r}")
             robot.tick(mundo, world_age=edad)
             cuenta["lazo"] += 1
 
@@ -141,7 +187,7 @@ def main() -> None:
             if monitor:
                 monitor.publicar(mundo=mundo, det=det, pose=pose, objetivo=robot.focus.target,
                                  dueños={"CUELLO": robot.arb.owner[NECK], "BUZZER": robot.arb.owner[BUZZER]},
-                                 ref=robot.act.ref, modo=getattr(robot, "modo", "NEUTRO"), stop=robot.arb.stopped,
+                                 ref=robot.act.ref, modo=robot.modo, stop=robot.arb.stopped,
                                  saludo_reciente=lambda pid: eventos.saludo_reciente(pid, inicio), salud=salud)
             tick_max = max(tick_max, link.now() - inicio)
             if time.monotonic() - t_log >= 10.0:  # cada 10 s al log: salud del lazo y de la percepción

@@ -112,6 +112,12 @@ eventos:
   saludo_margen_hombros: 0.1     # la muñeca tiene que estar por encima del hombro al menos esto
   saludo_mano_abajo_s: 0.4       # tras un saludo, la mano debe bajar esto para contar otro (un gesto = un evento)
   pose_vis_min: 0.5              # visibilidad mínima de un punto de MediaPipe para usarlo
+  # SALIENDO: cerca del borde y alejándose, o el cuello en su límite de yaw y la persona más allá del centro
+  saliendo_borde_frac: 0.15      # "cerca del borde": a menos de esta fracción del ancho
+  saliendo_vel_px_s: 80.0        # "alejándose": velocidad hacia el borde (ventana de 0,4 s)
+  saliendo_limite_deg: 4.0       # "en el límite": yaw comandado a menos de esto del límite
+  saliendo_on_s: 0.2             # la condición tiene que durar esto para activar SALIENDO
+  saliendo_off_s: 0.6            # y faltar esto para soltarlo
 
 # Buzzer (módulo pasivo MH-FMD en el GPIO10). El volumen se baja achicando el ciclo de trabajo del PWM:
 # 1.0 = 50 % (el máximo); 0.25 = 12,5 %. La sensación de volumen no es lineal con el ciclo: ajustar de oído.
@@ -173,6 +179,24 @@ curiosidad:
                                  # del MG996R (~10°) se come los chicos
   sostener_s: 2.0                # cuánto la sostiene antes de volver a 0
   espera_s: 8.0                  # después de una inclinación (o si se cortó), no repetir antes de esto
+
+# Modos de personalidad (T5). Se cambian en tiempo de ejecución (scripts/robot_vivo.py: t/a/m/n o
+# "MODE TIMIDO") y se confirman con BEEP_<MODO>. Reacciones sobre la persona que se sigue (prioridad MODO).
+modos:
+  inicial: NEUTRO                # NEUTRO | TIMIDO | ATREVIDO | MALEDUCADO
+  timido:                        # lo mira (ME_MIRA) → desvía la mirada, la sostiene y vuelve a espiar de a poco
+    desvio_yaw_deg: 25.0         # hacia el costado con más lugar dentro de los límites de yaw
+    desvio_pitch_deg: 12.0       # hacia abajo
+    desvio_roll_deg: 10.0        # cabeza un poco ladeada (vergüenza)
+    sostener_s: 2.5
+    regreso_s: 3.0               # vuelve gradualmente (curva suave)
+    espera_s: 3.0                # después, no repetir con la misma persona antes de esto
+  atrevido:                      # lo mira → levanta el mentón varias veces sin dejar de seguirla en yaw
+    menton_deg: 10.0             # amp·sin²(π t/T): pide (amp/2)(2π/T)² ≈ 137 °/s² con T = 1,2 s (pitch: 400)
+    periodo_s: 1.2
+    veces: 3
+    espera_s: 3.0
+  # maleducado: piropo al empezar cada salida (SALIENDO) de la persona seguida; cooldown PIROPO_global.
 
 observer:
   yaw_amp: 45.0                  # barrido lento

@@ -4,7 +4,8 @@
   - act(g, ctx): se llama en cada ciclo MIENTRAS es dueño; ordena a los actuadores.
 Ningún comportamiento escribe al puerto serie directamente.
 
-M0: Observador, Seguimiento, Saludo, Camiseta. Los modos de personalidad van en M3.
+Observador, Seguimiento (con inclinación de curiosidad), Saludo, Camiseta, Modo (Tímido / Atrevido /
+Maleducado) y Operador (sonido de confirmación del cambio de modo).
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ class Context:
     arb: Arbiter
     focus: Focus
     cfg: dict
+    modo: str = "NEUTRO"   # modo de personalidad actual (T5): NEUTRO | TIMIDO | ATREVIDO | MALEDUCADO
 
 
 class Behavior:
@@ -220,5 +222,126 @@ class Shirt(Behavior):
             ctx.arb.finish(g.id, ctx.now)
 
 
+MODOS = ("NEUTRO", "TIMIDO", "ATREVIDO", "MALEDUCADO")
+
+
+class ConfirmaModo(Behavior):
+    """Comando del operador: confirma el cambio de modo con un sonido breve distintivo (BEEP_<MODO>).
+    Prioridad 0, sólo el buzzer: no interrumpe al que tiene el cuello."""
+    name = "OPERADOR"
+
+    def __init__(self, cfg):
+        super().__init__(cfg)
+        self.pedido: tuple[str, float] | None = None  # (modo, instante del pedido)
+
+    def pedir(self, modo: str, now: float) -> None:
+        self.pedido = (modo, now)
+
+    def propose(self, ctx):
+        if self.pedido is None:
+            return []
+        modo, t = self.pedido
+        if ctx.now > t + 1.0:  # no se pudo (p. ej. con STOP): se descarta
+            self.pedido = None
+            return []
+        return [Proposal(self.name, self.priority, frozenset({BUZZER}), interruptible_by=0,
+                         expires=t + 1.0, params={"sound": f"BEEP_{modo}"})]
+
+    def on_start(self, g, ctx):
+        self.pedido, self.t0 = None, ctx.now
+        ctx.act.play(g, g.params["sound"])
+
+    def act(self, g, ctx):
+        if ctx.act.sound_finished(g):
+            ctx.arb.finish(g.id, ctx.now)
+        elif ctx.now - self.t0 > self.cfg["sounds"][g.params["sound"]] + 0.5:
+            ctx.act.cancel_sound()
+            ctx.arb.finish(g.id, ctx.now)
+
+
+class Mode(Behavior):
+    """Reacción del modo de personalidad sobre la persona que se sigue (T5, prioridad 3):
+
+    - TIMIDO: si lo mira (ME_MIRA), desvía la mirada hacia un costado y abajo, la sostiene y vuelve a
+      espiar gradualmente (cuello).
+    - ATREVIDO: si lo mira, levanta el mentón varias veces (pitch hacia arriba) sin dejar de seguirla
+      en yaw (cuello).
+    - MALEDUCADO: si la persona seguida está SALIENDO, le silba un piropo, una vez por salida y como
+      mucho uno cada PIROPO_global segundos entre todos (buzzer: convive con el seguimiento).
+    NEUTRO no propone nada: sólo sostiene el contacto visual (el seguimiento)."""
+    name = "MODO"
+
+    def __init__(self, cfg):
+        super().__init__(cfg)
+        self.m = cfg["modos"]
+        self.gaze = GazeController(cfg)
+        self.saliendo_antes: dict[int, bool] = {}  # para detectar el flanco de SALIENDO (una vez por salida)
+        self.lado = 1
+
+    def propose(self, ctx):
+        pid = ctx.focus.target
+        p = ctx.world.visible(pid)
+        if p is None:
+            return []
+        if ctx.modo == "TIMIDO" and p.looking:
+            c = self.m["timido"]
+            return [Proposal(self.name, self.priority, frozenset({NECK}), person=pid, expires=ctx.now + 0.3,
+                             cooldown=(("TIMIDO", pid), c["sostener_s"] + c["regreso_s"] + c["espera_s"]),
+                             params={"reaccion": "TIMIDO"})]
+        if ctx.modo == "ATREVIDO" and p.looking:
+            c = self.m["atrevido"]
+            return [Proposal(self.name, self.priority, frozenset({NECK}), person=pid, expires=ctx.now + 0.3,
+                             cooldown=(("ATREVIDO", pid), c["veces"] * c["periodo_s"] + c["espera_s"]),
+                             params={"reaccion": "ATREVIDO"})]
+        antes, ahora = self.saliendo_antes.get(pid, False), p.leaving
+        self.saliendo_antes[pid] = ahora
+        if ctx.modo == "MALEDUCADO" and ahora and not antes:  # flanco: empieza una salida
+            return [Proposal(self.name, self.priority, frozenset({BUZZER}), person=pid, expires=ctx.now + 0.5,
+                             interruptible_by=1, cooldown=(("PIROPO",), self.cfg["cooldowns"]["PIROPO_global"]),
+                             params={"reaccion": "MALEDUCADO", "sound": "PIROPO"})]
+        return []
+
+    def on_start(self, g, ctx):
+        self.t0, self.base = ctx.now, list(ctx.act.ref)
+        r = g.params["reaccion"]
+        if r == "TIMIDO":
+            # Hacia el costado que deja más lugar dentro de los límites de yaw; alterna si están parejos.
+            self.lado = -1 if self.base[0] > 5 else 1 if self.base[0] < -5 else -self.lado
+        elif r == "ATREVIDO":
+            self.gaze.reset()
+        elif r == "MALEDUCADO":
+            ctx.act.play(g, g.params["sound"])
+        ctx.act.log(ctx.now, f"MODO reacción {r} persona={g.person}")
+
+    def act(self, g, ctx):
+        t = ctx.now - self.t0
+        r = g.params["reaccion"]
+        if r == "TIMIDO":
+            c = self.m["timido"]
+            # 1) desvía y sostiene; 2) vuelve de a poco (espía), con una curva suave (coseno) de 1 a 0.
+            k = 1.0 if t < c["sostener_s"] else 0.5 * (1 + math.cos(math.pi * min(1.0, (t - c["sostener_s"]) / c["regreso_s"])))
+            ctx.act.neck(g, self.base[0] + self.lado * k * c["desvio_yaw_deg"],
+                         self.base[1] - k * c["desvio_pitch_deg"], self.base[2] + self.lado * k * c["desvio_roll_deg"])
+            if t >= c["sostener_s"] + c["regreso_s"]:
+                ctx.arb.finish(g.id, ctx.now)
+        elif r == "ATREVIDO":
+            c = self.m["atrevido"]
+            dur = c["veces"] * c["periodo_s"]
+            y = self.base[0]
+            p = ctx.world.visible(g.person)
+            if p is not None:  # sigue en yaw (el pitch lo maneja el gesto)
+                y = self.gaze.update(ctx.act.ref, p, ctx.world, ctx.dt)[0]
+            menton = c["menton_deg"] * math.sin(math.pi * min(t, dur) / c["periodo_s"]) ** 2  # sólo hacia arriba
+            ctx.act.neck(g, y, self.base[1] + menton, self.base[2])
+            if t >= dur:
+                ctx.arb.finish(g.id, ctx.now)
+        elif r == "MALEDUCADO":
+            if ctx.act.sound_finished(g):
+                ctx.arb.finish(g.id, ctx.now)
+            elif t > self.cfg["sounds"][g.params["sound"]] + 0.5:
+                ctx.act.cancel_sound()
+                ctx.arb.finish(g.id, ctx.now)
+
+
 def default_behaviors(cfg: dict) -> list[Behavior]:
-    return [Observer(cfg), Tracking(cfg), Greeting(cfg), Shirt(cfg)]
+    return [Observer(cfg), Tracking(cfg), Greeting(cfg), Shirt(cfg), Mode(cfg), ConfirmaModo(cfg)]
