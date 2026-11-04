@@ -26,3 +26,13 @@ Movido desde `CLAUDE.md` el 22/10/2026. No volver a discutirlas sin datos nuevos
 - **Nombres sin espacios (PR #1, rama `compatibilidad-windows`):** Git for Windows no restauraba rutas que terminaban en espacio; se pasaron a guion bajo todas las carpetas y archivos con espacios.
 - **Compensación de zona muerta (03/11):** el firmware suma `compensacion_us` [al bajar, al subir el pulso] según el sentido del último movimiento de cada eje, y la conserva quieto. Solo el roll la usa (`[0, 151]`): el MG996R montado se frenaba ~10° antes con el pulso subiendo. Va en el firmware porque el simulador trabaja en grados, no en pulsos.
 - **Firmware:** en STOP/watchdog seguir mandando el último pulso a los tres servos (el MG996R sin pulso queda flojo); arrancar en home (el primer pulso salta a velocidad máxima); a roll mandarle el objetivo de un solo movimiento (banda muerta ~10°). Detalle en `firmware/CLAUDE.md`.
+- **03/11:** centro óptico provisorio = centro de la imagen hasta calibrar esta cámara (el de la calibración ajena
+  corría la mirada ~6,5°). La cámara se rota en `camera_ros` (`orientation_deg`), no en Python.
+- **03/11:** buzzer en el **GPIO5** (`buzzer.pin`); en el GPIO10 dejó de sonar con la cabeza armada.
+- **03/11:** la polca se queda en el fragmento de 8 compases (la guía pide "un fragmento reconocible"; la completa
+  dura más de un minuto y ocuparía el buzzer).
+- **03/11:** demo como servicio de usuario (`keepon.service`), **no activado al encender** salvo para la demo
+  (`keepon demo-on`): la Pi se usa en otros proyectos y el robot toma la cámara y la ESP32.
+- **03/11:** control desde el celular con una página web instalable (PWA, `scripts/panel_web.py`), no una app nativa;
+  sólo acepta una lista cerrada de comandos.
+- **03/11:** "quieto" para la curiosidad = la dirección de la persona (cuello + error), no el error del control.
