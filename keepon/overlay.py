@@ -51,6 +51,12 @@ def dibujar(img: np.ndarray, *, mundo, det, pose, objetivo: int | None, dueños:
     cv2.drawMarker(img, (cx, cy), GRIS, cv2.MARKER_CROSS, 18, 1)
 
     if pose is not None:
+        for clase, roi in getattr(pose, "camisetas", []):  # torso evaluado y clase cruda (sin filtro)
+            if roi is not None:
+                x1, y1, x2, y2 = roi
+                cv2.rectangle(img, (x1, y1), (x2, y2), NARANJA if clase in ("OLIMPIA", "CERRO") else GRIS, 1)
+                texto(img, f"torso: {clase}", (x1 + 3, y2 - 5), NARANJA if clase in ("OLIMPIA", "CERRO") else GRIS,
+                      0.45)
         for kp in pose.poses:
             for a, b in HUESOS:
                 pa, pb = kp[a], kp[b]
@@ -79,7 +85,7 @@ def dibujar(img: np.ndarray, *, mundo, det, pose, objetivo: int | None, dueños:
             if saludo_reciente(po.id):
                 etiquetas.append(("SALUDO!", MAGENTA))
             if p is not None and p.shirt:
-                etiquetas.append((p.shirt, NARANJA))
+                etiquetas.append((f"CAMISETA_{p.shirt}", NARANJA))
             for i, (s, c) in enumerate(etiquetas):
                 texto(img, s, (x1 + 4, y1 + 42 + 22 * i), c, 0.6, 2)
             if es_obj and p is not None:  # error del control: del centro óptico al rostro

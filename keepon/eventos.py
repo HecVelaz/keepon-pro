@@ -10,6 +10,9 @@
   de sentido con amplitud mínima, medida en anchos de hombros para no depender de la distancia).
   `saludo_ciclos` ciclos (2 vaivenes cada uno) dentro de `saludo_ventana_s` → un evento: se incrementa
   Person.wave_count. Después la mano tiene que bajar para poder contar otro saludo (un gesto = una respuesta).
+- CAMISETA_OLIMPIA / CAMISETA_CERRO: la clase cruda de cada pose (keepon/camiseta.py) pasa por un filtro de
+  cuadros por persona (T6 d: `camiseta.confirmar` seguidos para detectarla, `camiseta.soltar` para soltarla).
+  Acá se cuenta en cuadros de pose, como pide la guía, no en segundos.
 
 Las poses (MediaPipe) no traen ID: cada una se asocia a la persona cuya caja contiene sus hombros.
 Todo es por tiempo (no por cantidad de cuadros) porque la percepción no va a ritmo fijo.
@@ -19,6 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
+from .camiseta import FiltroCamiseta
 from .world import World
 
 
@@ -48,6 +52,7 @@ class _Persona:
     us: list[tuple[float, float]] = field(default_factory=list)  # (t, u) recientes, para la velocidad
     manos: dict[str, _Mano] = field(default_factory=lambda: {"i": _Mano(), "d": _Mano()})
     saludos: int = 0
+    camiseta: FiltroCamiseta | None = None
     t_saludo: float = -1e9  # instante del último SALUDO (para el overlay)
     visto: float = 0.0
 
@@ -69,6 +74,7 @@ class Eventos:
         self.borde, self.vel_min = e["saliendo_borde_frac"], e["saliendo_vel_px_s"]
         self.lim_margen, self.sal_on, self.sal_off = e["saliendo_limite_deg"], e["saliendo_on_s"], e["saliendo_off_s"]
         self.lim_yaw = cfg["neck"]["limits"]["yaw"]
+        self.cam_on, self.cam_off = cfg["camiseta"]["confirmar"], cfg["camiseta"]["soltar"]
         self.log = log or (lambda t, m: None)
         self.personas: dict[int, _Persona] = {}
         self._ultima_pose = None  # frame de la última pose procesada (cada pose cuenta una sola vez)
@@ -90,13 +96,16 @@ class Eventos:
                           "SALIENDO")
         if pose is not None and cajas and pose.frame != self._ultima_pose:
             self._ultima_pose = pose.frame
-            for kp in pose.poses:
+            camisetas = getattr(pose, "camisetas", None) or [(None, None)] * len(pose.poses)
+            for kp, (clase, _) in zip(pose.poses, camisetas):
                 pid = self._asociar(kp, cajas)
                 if pid is not None and pid in w.persons:
                     self._saludo(pid, self.personas[pid], kp, t)
+                    self._camiseta(pid, self.personas[pid], clase, t)
         for pid, p in w.persons.items():
             st = self.personas[pid]
             p.looking, p.wave_count, p.leaving = st.mira.activo, st.saludos, st.saliendo.activo
+            p.shirt = st.camiseta.activa if st.camiseta else None
         for pid in [k for k, s in self.personas.items() if t - s.visto > self.OLVIDAR_S]:
             del self.personas[pid]
         return w
@@ -120,6 +129,18 @@ class Eventos:
         if t - m.desde >= (t_on if crudo else t_off):
             m.activo, m.desde = crudo, None
             self.log(t, f"EVENTO {nombre} persona={pid} {'SI' if crudo else 'NO'}")
+
+    # -------------------------------------------------------------- CAMISETA
+    def _camiseta(self, pid: int, st: _Persona, clase: str | None, t: float) -> None:
+        if st.camiseta is None:
+            st.camiseta = FiltroCamiseta(self.cam_on, self.cam_off)
+        antes = st.camiseta.activa
+        ahora = st.camiseta.actualizar(clase)
+        if ahora != antes:
+            if antes:
+                self.log(t, f"EVENTO CAMISETA_{antes} persona={pid} NO")
+            if ahora:
+                self.log(t, f"EVENTO CAMISETA_{ahora} persona={pid} SI")
 
     # -------------------------------------------------------------- SALIENDO
     def _saliendo_crudo(self, st: _Persona, p, w: World, ref, t: float) -> bool:

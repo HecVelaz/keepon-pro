@@ -102,6 +102,31 @@ perception:
   pose_max_hz: 30                # limitar la pose libera memoria/CPU para YOLO (SALUDO dura >1 s)
   looking_deg: 15.0              # ME_MIRA: desvío cara->cámara menor a esto
 
+# Detector de camisetas (keepon/camiseta.py). Colores medidos el 04/11 con la NoIR, luz del laboratorio,
+# camisetas reales (Olimpia titular, Cerro 2026 mitad y mitad) y remeras lisas roja y azul marino.
+# HSV de OpenCV: H 0..179, S y V 0..255. Medidos: rojo H 0-2/178 S 190-210; azul marino H 116-145 S 35-90 V 30-60
+# (la NoIR lo ve violeta); blanco de Olimpia S < 16 V 115-170; franja de Olimpia V 38-54.
+camiseta:
+  vis_min: 0.5                   # visibilidad mínima de los hombros (MediaPipe)
+  ancho_min_px: 40               # hombros más angostos que esto: muy lejos para mirar la camiseta
+  margen_lados: 0.1              # se descarta esta fracción del ancho de hombros a cada lado (brazos)
+  desde_hombros: 0.15            # el torso empieza esto (en anchos de hombros) debajo de los hombros (cuello)
+  hasta_hombros: 1.1             # y termina acá (la franja de Olimpia queda en el medio)
+  visible_min: 0.4               # fracción mínima del torso dentro del cuadro
+  rojo: {h_max: 8, h_min: 165, s_min: 120, v_min: 60}
+  azul: {h_min: 100, h_max: 160, s_min: 25, v_min: 15, v_max: 130}
+  columnas: 8                    # CERRO: el torso se divide en columnas
+  col_dominante: 0.5             # una columna es roja (o azul) si al menos esta fracción lo es
+  cerro_cols_min: 2              # columnas rojas y azules mínimas (cada color ≥ 1/4 del ancho)
+  cerro_hueco: 1                 # columnas neutras toleradas en el borde rojo|azul (escudo, logos)
+  cerro_frac_min: 0.2            # fracción mínima de píxeles rojos y de azules en todo el torso
+  filas: 8                       # OLIMPIA: el torso se divide en franjas horizontales
+  olimpia_contraste: 1.6         # una franja clara tiene al menos este brillo relativo a la más oscura
+  blanco_s_max: 60               # y es blanca: saturación baja
+  franja_v_max: 110              # la franja oscura no puede ser más brillante que esto
+  confirmar: 6                   # T6 d: cuadros seguidos con la camiseta para detectarla
+  soltar: 6                      # y sin ella para soltarla
+
 # Eventos de T2 con filtro temporal (keepon/eventos.py). Todo por tiempo: la percepción no va a ritmo fijo.
 eventos:
   mira_sostenida_s: 0.5          # ME_MIRA se activa tras mirar esto seguido (la guía: sostenida ≥ 0,5 s)

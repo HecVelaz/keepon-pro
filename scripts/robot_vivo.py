@@ -2,8 +2,9 @@
 """Keepon con la cámara y los servos de verdad (se corre en la Pi, con camera_node andando).
 
 Cadena: Perception (procesos de personas —YOLO + tracker + rostros/ME_MIRA— y de pose) → World →
-Eventos (ME_MIRA sostenido y SALUDO, keepon/eventos.py) → Robot (foco, comportamientos, árbitro, control
-de mirada) → SerialLink → ESP32. Todavía sin camisetas ni SALIENDO.
+Eventos (ME_MIRA sostenido, SALUDO, SALIENDO y CAMISETA, keepon/eventos.py) → Robot (foco, comportamientos,
+árbitro, control de mirada) → SerialLink → ESP32. La camiseta se clasifica en el proceso de pose
+(keepon/camiseta.py).
 
     bash ~/keepon/scripts/robot_vivo.sh            # arranca camera_node y esto; Ctrl+C manda STOP
     ~/keepon_env/bin/python scripts/robot_vivo.py  # si camera_node ya está corriendo
