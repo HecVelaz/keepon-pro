@@ -29,6 +29,9 @@ class Context:
     focus: Focus
     cfg: dict
     modo: str = "NEUTRO"   # modo de personalidad actual (T5): NEUTRO | TIMIDO | ATREVIDO | MALEDUCADO
+    # Posición del cuello (yaw, pitch, roll) [°] en el instante en que se capturó el cuadro de `world`.
+    # La usa la mirada por objetivo (gaze.py) para compensar el atraso de la percepción. None: no se sabe.
+    cuello_captura: tuple[float, float, float] | None = None
 
 
 class Behavior:
@@ -47,7 +50,12 @@ class Behavior:
 
 
 class Observer(Behavior):
-    """Sin personas: barrido lento de la escena, arranca desde donde está la cabeza."""
+    """Sin personas: mira la escena. Dos modos (observer.modo de config.yaml):
+    - "miradas": va a un punto de observer.miradas, se queda quieto pausa_s y pasa al siguiente. El
+      movimiento lo hace el firmware con vmax/amax: firme, y quieto entre uno y otro (los servos vibran si
+      se mueven lento, 05/11). Primero se queda quieto donde está (pausa_s) y después sigue por el punto
+      más cercano al yaw actual.
+    - "barrido": barrido lento y continuo (senoide), arranca desde donde está la cabeza."""
     name = "OBSERVADOR"
 
     def propose(self, ctx):
@@ -57,14 +65,30 @@ class Observer(Behavior):
 
     def on_start(self, g, ctx):
         o = self.cfg["observer"]
+        self.t0 = ctx.now
+        if o.get("modo", "barrido") == "miradas":
+            self.i = None                                 # None: quieto donde quedó la cabeza
+            self.inicio = (ctx.act.ref[0], ctx.act.ref[1])
+            self.t_mirada = ctx.now
+            return
         # Fase inicial tal que el barrido empiece en el yaw actual (sin salto).
         s = max(-1.0, min(1.0, ctx.act.ref[0] / o["yaw_amp"]))
         self.phase0 = math.asin(s)
-        self.t0 = ctx.now
         self.start_pitch = ctx.act.ref[1]
 
     def act(self, g, ctx):
         o = self.cfg["observer"]
+        if o.get("modo", "barrido") == "miradas":
+            puntos = o["miradas"]
+            if ctx.now - self.t_mirada >= o["pausa_s"]:   # terminó la pausa: al punto siguiente
+                if self.i is None:                        # el primero: el más cercano a donde está
+                    self.i = min(range(len(puntos)), key=lambda k: abs(puntos[k][0] - self.inicio[0]))
+                else:
+                    self.i = (self.i + 1) % len(puntos)
+                self.t_mirada = ctx.now
+            yaw, pitch = self.inicio if self.i is None else puntos[self.i]
+            ctx.act.neck(g, yaw, pitch, 0.0)              # el mismo J hasta la próxima mirada: quieto
+            return
         ph = self.phase0 + 2 * math.pi * (ctx.now - self.t0) / o["period_s"]
         blend = min(1.0, (ctx.now - self.t0) / 2.0)  # pitch vuelve suave en 2 s
         pitch = (1 - blend) * self.start_pitch + blend * o["pitch_amp"] * math.sin(2 * ph)
@@ -110,7 +134,7 @@ class Tracking(Behavior):
         p = ctx.world.visible(g.person)
         if p is None:
             return  # pérdida momentánea: mantener la mirada (el foco la libera a los lost_hold_s)
-        y, pi, _ = self.gaze.update(ctx.act.ref, p, ctx.world, ctx.dt)
+        y, pi, _ = self.gaze.update(ctx.act.ref, p, ctx.world, ctx.dt, ctx.cuello_captura)
         # El roll va a la inclinación o a 0; la trayectoria del firmware lo hace suave (vmax/amax de roll).
         ctx.act.neck(g, y, pi, self._roll(g, ctx))
 
@@ -343,7 +367,7 @@ class Mode(Behavior):
             y = self.base[0]
             p = ctx.world.visible(g.person)
             if p is not None:  # sigue en yaw (el pitch lo maneja el gesto)
-                y = self.gaze.update(ctx.act.ref, p, ctx.world, ctx.dt)[0]
+                y = self.gaze.update(ctx.act.ref, p, ctx.world, ctx.dt, ctx.cuello_captura)[0]
             menton = c["menton_deg"] * math.sin(math.pi * min(t, dur) / c["periodo_s"]) ** 2  # sólo hacia arriba
             ctx.act.neck(g, y, self.base[1] + menton, self.base[2])
             if t >= dur:

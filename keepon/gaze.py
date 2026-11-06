@@ -1,10 +1,20 @@
 """Control de mirada (T3) y selección del foco de atención (T4).
 
-Control visual proporcional en velocidad (sin integral):
+Error de la cara en la imagen, en grados:
 
-    e_yaw   =  atan((u - cx) / fx)        [grados]
+    e_yaw   =  atan((u - cx) / fx)
     e_pitch = -atan((v - cy) / fy) - abajo (v crece hacia abajo)
-    ref    += sat(kp * e) * dt
+
+Dos modos (gaze.modo de config.yaml):
+
+- "objetivo" (por defecto desde el 05/11): dirección de la persona en ángulos del cuello
+      d = cuello_en_la_captura + e
+  `cuello_en_la_captura` es dónde miraba la cámara cuando se sacó la foto: así el atraso de la percepción
+  (~100 ms) no hace que se pase. Si d se aparta del objetivo actual más que gaze.umbral_deg, el objetivo
+  pasa a ser d, una sola vez: el firmware hace el movimiento con su perfil (vmax/amax), decidido, y después
+  el cuello queda QUIETO con la misma referencia. Los servos vibran cuando se mueven lento (RDS3218 y
+  MG996R, 05/11): mejor pocos movimientos firmes que una corrección chica en cada ciclo.
+- "velocidad" (el de antes): ref += sat(kp * e) * dt en cada ciclo, con zona muerta suave.
 
 `abajo` (gaze.mirar_abajo_deg) deja la cara un poco por encima del centro: la cámara apunta más abajo
 para que entre el torso y se vea la camiseta (el campo vertical de la cámara es angosto, ±14°).
@@ -31,32 +41,67 @@ class GazeController:
 
     def __init__(self, cfg: dict):
         g = cfg["gaze"]
-        self.kp = g["kp"]
+        self.modo = g.get("modo", "velocidad")
+        self.umbral = self._por_eje(g.get("umbral_deg", 2.5))   # [yaw, pitch] [°]
+        self.quieto = g.get("quieto_deg", 1.0)
+        self.limites = [cfg["neck"]["limits"]["yaw"], cfg["neck"]["limits"]["pitch"]]
+        # kp y ema pueden ser un número (igual para los dos ejes) o una lista [yaw, pitch]:
+        # el yaw (RDS3218) vibra si se mueve lento, y el pitch (MG996R) golpea si se mueve brusco.
+        self.kp = self._por_eje(g["kp"])
         self.vmax = g["vmax"]
         self.dz = g["deadzone"]
-        self.alpha = g["ema"]
+        self.alpha = self._por_eje(g["ema"])
         self.abajo = g.get("mirar_abajo_deg", 0.0)
         self.reset()
 
     def reset(self) -> None:
         self.ex = self.ey = 0.0
+        self.objetivo: list[float] | None = None   # [yaw, pitch] que se le está mandando al cuello (modo objetivo)
+
+    @staticmethod
+    def _por_eje(x) -> list[float]:
+        """Devuelve [yaw, pitch]: un número vale para los dos ejes."""
+        return [float(x), float(x)] if isinstance(x, (int, float)) else [float(x[0]), float(x[1])]
 
     @staticmethod
     def _soft_dz(e: float, dz: float) -> float:
         return math.copysign(max(0.0, abs(e) - dz), e)
 
-    def update(self, ref: list[float], p: Person, w: World, dt: float) -> list[float]:
+    def update(self, ref: list[float], p: Person, w: World, dt: float,
+               cuello: tuple[float, float, float] | None = None) -> list[float]:
+        """Nueva referencia [yaw, pitch, roll]. `cuello`: posición del cuello cuando se capturó el cuadro
+        (Context.cuello_captura). Sin ella, el modo objetivo no se puede usar y se sigue en velocidad."""
         # Se centra al rostro en el CENTRO ÓPTICO (cx, cy), no en el centro de la imagen:
         # con la calibración actual están 108 px corridos en u (≈ 6,5° de error en yaw).
         ex = math.degrees(math.atan((p.u - w.cx) / w.fx))
         ey = -math.degrees(math.atan((p.v - w.cy) / w.fy)) - self.abajo
-        self.ex += self.alpha * (ex - self.ex)
-        self.ey += self.alpha * (ey - self.ey)
+        if self.modo == "objetivo" and cuello is not None:
+            return self._por_objetivo(ref, ex, ey, cuello)
+        self.objetivo = None
+        self.ex += self.alpha[0] * (ex - self.ex)
+        self.ey += self.alpha[1] * (ey - self.ey)
         dzx = math.degrees(math.atan(self.dz * w.img_w / w.fx))
         dzy = math.degrees(math.atan(self.dz * w.img_h / w.fy))
-        vy = _sat(self.kp * self._soft_dz(self.ex, dzx), self.vmax[0])
-        vp = _sat(self.kp * self._soft_dz(self.ey, dzy), self.vmax[1])
+        vy = _sat(self.kp[0] * self._soft_dz(self.ex, dzx), self.vmax[0])
+        vp = _sat(self.kp[1] * self._soft_dz(self.ey, dzy), self.vmax[1])
         return [ref[0] + vy * dt, ref[1] + vp * dt, ref[2]]
+
+    def _por_objetivo(self, ref, ex: float, ey: float, cuello) -> list[float]:
+        d = (cuello[0] + ex, cuello[1] + ey)          # dónde está la persona, en ángulos del cuello
+        # ex/ey quedan como "error respecto de la referencia": así ref + ex sigue siendo la dirección de la
+        # persona (la usa la curiosidad de Tracking para saber si está quieta).
+        self.ex, self.ey = d[0] - ref[0], d[1] - ref[1]
+        if self.objetivo is None:                       # recién empieza: arranca desde la referencia actual
+            self.objetivo = [ref[0], ref[1]]
+        for i in range(2):
+            # Solo se corrige con fotos sacadas con el cuello QUIETO en el objetivo. Mientras se mueve, el
+            # servo real va un poco atrás de la trayectoria del espejo y el ángulo de la foto no es exacto:
+            # corregir con esas fotos lo haría ir y volver.
+            llego = abs(cuello[i] - self.objetivo[i]) <= self.quieto
+            if llego and abs(d[i] - self.objetivo[i]) > self.umbral[i]:
+                lo, hi = self.limites[i]
+                self.objetivo[i] = min(max(d[i], lo), hi)   # recortado: si no, nunca "llega" al objetivo
+        return [self.objetivo[0], self.objetivo[1], ref[2]]
 
 
 class Focus:

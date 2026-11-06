@@ -26,9 +26,11 @@ class Rig:
         self.cam = SynthCamera(self.cfg, persons)
         self.t = 0.0
 
-    def run_until(self, t_end, world_age=0.0):
+    def run_until(self, t_end, world_age=None):
+        """world_age None: la edad real de la imagen, la latencia de la cámara sintética (como en el robot)."""
+        edad = self.cam.latency if world_age is None else world_age
         while self.t < t_end:
-            self.robot.tick(self.cam.observe(self.t, self.link.neck_pos), world_age)
+            self.robot.tick(self.cam.observe(self.t, self.link.neck_pos), edad)
             self.link.advance(DT)
             self.t += DT
 
