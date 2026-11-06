@@ -14,7 +14,7 @@ Movido desde `CLAUDE.md` el 22/10/2026. No volver a discutirlas sin datos nuevos
 
 ## Otras decisiones (estaban repartidas en las secciones de hardware y de sesiones)
 - **Alimentación (14/10):** fuente de laboratorio para los servos y powerbank para la Pi. La LiPo Zeee y los reguladores salieron del diseño. Son dos fuentes separadas, unidas solo por el GND.
-- **Asignación de servos (12/10):** yaw = RDS3218 n.º 2, pitch = HS-7955TG, roll = MG996R (desde el 13/10, decisión del grupo; MG90S de repuesto). Se aceptó la banda muerta del MG996R porque roll hace gestos grandes.
+- **Asignación de servos (12/10):** yaw = RDS3218 n.º 2, pitch = HS-7955TG, roll = MG996R (desde el 13/10, decisión del grupo; MG90S de repuesto). Se aceptó la banda muerta del MG996R porque roll hace gestos grandes. **05/11 (grupo):** pitch y roll pasan a ser dos TowerPro MG996R nuevos (el HS-7955TG y el MG996R con zona muerta salen).
 - **Descartado: RDS3218 n.º 1** (vibra cerca de 1500 µs; la vibración sigue al servo). Roll pasó de GPIO3 a **GPIO4** (12/10) y quedó así: el GPIO3 está al lado del GPIO2, de strapping.
 - **No hay rodamiento de yaw** (no se consigue): desde el 14/10 la v3 apoya el plato solo en el horn del RDS3218.
 - **Revisión de arquitectura de Codex (14/10, `docs/REVISION_CODEX_ARQ.md`):** mantener la ESP32 (el enunciado pide microcontrolador + protocolo; watchdog independiente de Linux), Pi en la cabeza por la cinta de 150 mm, cara plana.
@@ -43,3 +43,10 @@ Movido desde `CLAUDE.md` el 22/10/2026. No volver a discutirlas sin datos nuevos
 - **04/11:** camisetas: umbrales medidos con la NoIR sobre las prendas reales (`config.yaml`, `camiseta`); el detector
   corre en el proceso de pose; el filtro 6/6 se cuenta en cuadros de pose. La mirada apunta 8° debajo de la cara
   (`gaze.mirar_abajo_deg`) para que entre la camiseta.
+- **05/11:** movimientos **rápidos y pocos, no lentos y continuos**: los tres servos vibran moviéndose lento (quietos no).
+  Bajar `vmax`/`amax`/`kp` empeoró. Quedan `vmax` 180/120/120 °/s y `amax` 600/400/300 °/s².
+- **05/11:** mirada por objetivo (`gaze.modo: objetivo`): la referencia salta adonde está la persona, calculado con la
+  posición del cuello al sacar la foto (compensa el atraso de la percepción), y queda quieta hasta que se corra más de
+  `umbral_deg` (2,5°). Solo se corrige con fotos sacadas con el cuello quieto. El modo velocidad queda de respaldo.
+- **05/11:** Observador por miradas (`observer.modo: miradas`): quieto donde estaba, después de punto en punto con pausas
+  de 2 s. El barrido continuo queda de respaldo.

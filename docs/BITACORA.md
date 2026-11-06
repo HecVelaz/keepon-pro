@@ -3,6 +3,39 @@
 Lo hecho en cada sesión, lo más reciente arriba. El estado actual está en `docs/ESTADO.md`; lo que falta, en
 `docs/PENDIENTES.md`. Creada el 03/11/2026 con la historia que estaba en `ESTADO.md`.
 
+## 05/11/2026
+**Servos nuevos de pitch y roll** (rama `camisetas`, sin commitear hasta el cierre)
+- El grupo consiguió dos **TowerPro MG996R** nuevos: reemplazan al HS-7955TG (pitch) y al MG996R con zona muerta (roll).
+  Mismos pines (GPIO1 y GPIO4).
+- Cero sin horn con `prueba_servo.ino` (horn calzado en 1500 µs) y extremos montados. **Pitch**: +30° = 1174 µs,
+  −20° = 1717 µs, llega bien a los dos; pulso mayor = la cara BAJA → `signo: −1`; centro 1500; límites 1100/1800 µs.
+  **Roll** sin carga: +217 µs = +20° justos (antihorario visto de frente al eje), −217 µs casi 20°; centro 1500, signo −1
+  (el del anterior en el mismo montaje, **sin verificar montado**), `compensacion_us: [0, 0]` (no tiene la zona muerta).
+- Herramientas: `pruebas_servos/mover_servos.py` (en la Pi, ángulos en grados con los tres ejes, límites de seguridad
+  en la ESP32; para `prueba_servo.ino`). En la notebook se usó un puente por FIFO (fuera del repo).
+- Los MG996R **sin pulso quedan flojos**: al cargar el firmware (la ESP32 se reinicia) la cabeza cae en pitch.
+
+**Suavidad de los movimientos** (videos del usuario en `video/`, ignorado por git: tienen personas)
+- 1.ª corrida: "golpetea". Se probó bajar `gaze.kp` 4 → 2,5, `ema` 0,5 → 0,3 y `amax` de pitch/roll a 250/200 °/s²:
+  el **yaw quedó peor** y después **los tres vibraban más**. Diagnóstico con el usuario: **quietos no vibran; vibran
+  moviéndose lento** (avanzan a saltitos por la banda muerta). `deadzone` 0,04–0,05 dejaba la cara a 1,5–3° del centro.
+- Causa: en modo velocidad la referencia avanzaba un poco en cada ciclo (40 J/s) y el Observador barría con una senoide
+  lenta: los servos se arrastraban.
+- **Mirada por objetivo** (`gaze.modo: objetivo`): dirección = posición del cuello AL SACAR LA FOTO (historia en
+  `Robot._historia`, del espejo del firmware) + error en la imagen; la referencia salta ahí si se corrió más de 2,5° y
+  queda quieta. Solo se corrige con fotos sacadas con el cuello quieto (`quieto_deg` 1°). En el simulador, cambios de
+  referencia: persona quieta 25 → 8 (después 0), camina a 8 °/s 300 → 29, va y viene 264 → 40; salto a 25° con 150 ms
+  de atraso: se pasaba a 29,2° → 25,0°.
+- **Observador por miradas** (`observer.modo: miradas`): quieto donde estaba 2 s, después de punto en punto
+  (±40°, ±15°) con pausas de 2 s.
+- Velocidades de vuelta arriba: `vmax` 180/120/120 °/s, `amax` 600/400/300 °/s². `kp`/`ema` aceptan un valor por eje.
+- El simulador le pasaba al robot `world_age=0` con 60 ms de latencia en la cámara sintética: ahora la edad real.
+- Firmware cargado tres veces en la ESP32 por la Pi (`bash scripts/cargar_firmware.sh`), con la cabeza sostenida.
+  **La versión final (mirada por objetivo y miradas) no se probó todavía en el robot.**
+- Panel sin Tailscale: `http://172.16.240.92:8081` (IP del Wi-Fi de la Pi, la da el router).
+
+Tests: 207 → 219 (`tests/test_gaze_por_eje.py`, `tests/test_mirada_objetivo.py`).
+
 ## 04/11/2026
 **Panel del celular y arranque** (rama `panel-arranque`, PR #4 sobre `diseno-v6-vigente`)
 - El servicio moría ~10 s después de cerrar el SSH: faltaba **linger** (`loginctl enable-linger r2d2`, lo corrió el usuario).
