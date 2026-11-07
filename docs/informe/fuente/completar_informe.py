@@ -285,7 +285,15 @@ se clasifica cada píxel en HSV y se busca el patrón:
 - **Cerro:** el torso en 8 columnas; al menos 2 rojas y 2 azules separadas por un borde vertical, y ≥ 20 % de píxeles de cada color. No se exigen
   rayas porque la titular 2026 es mitad roja y mitad azul.
 
+{img('camisetas', 'Camisetas de referencia')}
+
+*Figura. Camisetas de referencia (fotos sin personas, de `pruebas_camisetas/imagenes_referencia/`; fuente de cada una en su `fuentes.txt`)
+y la clase que tiene que dar el detector. Con estas fotos, todas las titulares dan la clase correcta y ninguna trampa da positivo; la camiseta del
+Barcelona tampoco dio positivo con esta foto, pero por color y patrón es casi igual a la de Cerro (limitación conocida).*
+
 {img('svg_13', 'Región del torso', 280)}
+
+*Región del torso analizada: debajo de los hombros de MediaPipe, dividida en 8 franjas (Olimpia) o 8 columnas (Cerro).*
 
 ### 4.2. Definición operativa de eventos
 
