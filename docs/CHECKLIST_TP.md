@@ -38,7 +38,7 @@ El Colab no está empezado. Entre corchetes, de dónde sale el material que ya e
 ### Archivos finales (pp. 7 y 8)
 
 - [x] ✅ Código fuente completo y comentado: percepción, control, comunicación, comportamientos y arbitraje. — en español; falta integrar los PR #3 → #4 → #5 a `main`.
-- [ ] 🟡 README con instalación, dependencias, configuración, conexiones, ejecución y comandos de modo/STOP. — existe pero desactualizado (dice ESP32-S3, 63 tests, "no probado en la Pi"; no explica modos, STOP, panel ni `scripts/k`).
+- [x] ✅ README con instalación, dependencias, configuración, conexiones, ejecución y comandos de modo/STOP. — reescrito el 07/11 (`README.md`).
 - [ ] ❌ Código en archivo ZIP y enlace al repositorio. — el repo es privado: dar acceso a la cátedra o entregar solo el ZIP.
 - [ ] ❌ Video de hasta 3 minutos que muestre todos los comportamientos.
 - [ ] ❌ Cuaderno Colab accesible y completo.
