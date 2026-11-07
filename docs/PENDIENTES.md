@@ -7,7 +7,7 @@ Ordenados por prioridad (07/11/2026). Lo terminado se borra y queda en `docs/BIT
    `config.yaml`, `docs/ESTADO_PI.md`). Faltan de cero: diagramas de estados de los modos, definición operativa de
    cada evento y aportes individuales (los escribe el grupo).
 2. **Integrar los PR #3 → #4 → #5 a `main`** (el usuario, o con su autorización explícita): sin eso, `main` es del 26/10.
-3. ZIP del código, enlace al repo y verificar que todo abre desde otra cuenta. Decidir si el repo queda público.
+3. ZIP del código, enlace al repo y verificar que todo abre desde otra cuenta.
 4. Video ≤ 3 min con todos los comportamientos. Confirmar con la cátedra la fecha de la demo (`CLAUDE.md` dice 30/10).
 
 ## 1. Para que la demo no falle

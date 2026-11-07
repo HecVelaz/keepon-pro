@@ -50,3 +50,5 @@ Movido desde `CLAUDE.md` el 22/10/2026. No volver a discutirlas sin datos nuevos
   `umbral_deg` (2,5°). Solo se corrige con fotos sacadas con el cuello quieto. El modo velocidad queda de respaldo.
 - **05/11:** Observador por miradas (`observer.modo: miradas`): quieto donde estaba, después de punto en punto con pausas
   de 2 s. El barrido continuo queda de respaldo.
+- **07/11:** el repo en GitHub queda **público**, para que la cátedra y el grupo lo lean desde afuera (antes la regla
+  era privado, para evitar copias). Por eso no se sube nada personal: `capturas/` y `video/` siguen fuera de git.

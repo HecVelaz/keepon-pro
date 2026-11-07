@@ -39,7 +39,7 @@ El Colab no está empezado. Entre corchetes, de dónde sale el material que ya e
 
 - [x] ✅ Código fuente completo y comentado: percepción, control, comunicación, comportamientos y arbitraje. — en español; falta integrar los PR #3 → #4 → #5 a `main`.
 - [x] ✅ README con instalación, dependencias, configuración, conexiones, ejecución y comandos de modo/STOP. — reescrito el 07/11 (`README.md`).
-- [ ] ❌ Código en archivo ZIP y enlace al repositorio. — el repo es privado: dar acceso a la cátedra o entregar solo el ZIP.
+- [ ] ❌ Código en archivo ZIP y enlace al repositorio. — el repo es público (github.com/HecVelaz/keepon-pro); falta el ZIP.
 - [ ] ❌ Video de hasta 3 minutos que muestre todos los comportamientos.
 - [ ] ❌ Cuaderno Colab accesible y completo.
 - [ ] 🟡 Opcional: archivos CAD del mecanismo. — en `docs/diseno_v6/`; falta compartir `Keepon_V6_R4.zip` por Drive.

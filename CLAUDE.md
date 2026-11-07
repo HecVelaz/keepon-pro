@@ -12,7 +12,8 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 - El estado va en `docs/ESTADO.md`, nunca en `CLAUDE.md`. Este archivo solo cambia si cambia una regla.
 - Al cerrar una sesión: `/cerrar`; al empezar: `/retomar`.
 - **El árbitro, los comportamientos y el control de la cabeza tienen que ser desarrollo propio.** Se pueden usar modelos preentrenados (YOLO, MediaPipe) citando la fuente. Todos los integrantes deben poder explicar cualquier parte en la defensa: código claro y comentado en español.
-- Si hay copia entre grupos, se anula el trabajo: **el repo es privado** (github.com/HecVelaz/keepon-pro).
+- **El repo es público** (github.com/HecVelaz/keepon-pro), para que la cátedra lo lea desde afuera. Si hay copia entre
+  grupos se anula el trabajo: nada de datos personales, claves ni imágenes de personas en el repo.
 - No guardar imágenes de personas sin consentimiento: `capturas/` está en `.gitignore`. Las capturas de verificación se borran después de mirarlas.
 - Requisitos duros: percepción ≥ 10 Hz y latencia evento→respuesta ≤ 300 ms; todo no bloqueante; recursos exclusivos (cuello y buzzer); prioridades, cooldowns, histéresis; overlay y log con marca de tiempo (T7).
 - `config.yaml` concentra **todos** los parámetros. `config.local.yaml` (por máquina, fuera de git) los sobreescribe.

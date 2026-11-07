@@ -7,7 +7,7 @@ Al cerrar una sesión (`/cerrar`) se actualiza este archivo, no `CLAUDE.md`.
 - Ramas encadenadas, sin integrar a `main`: **`diseno-v6-vigente`** (PR #3) → **`panel-arranque`** (PR #4: panel,
   volumen, apagar a HOME) → **`camisetas`** (PR #5: detector de camisetas y mirada más abajo). Se integran en ese orden.
   Hasta entonces `main` es la del 26/10: README viejo, sin modos ni camisetas. `camisetas` está subida a `origin`.
-- El repo en GitHub es **público** (`CLAUDE.md` dice privado): decisión pendiente del grupo.
+- El repo en GitHub es **público** (decisión del 07/11).
 - Documentación para un lector externo: `README.md` (al día al 07/11), `docs/CHECKLIST_TP.md` (cada casilla de la
   consigna contra el código) y `docs/checklist_robotica_social.html` (interactivo, columnas Mathias / Hector).
 - La Pi está sincronizada con `camisetas` (`~/keepon/.commit`; el 05/11 con cambios sin commitear, `-sucio`).
