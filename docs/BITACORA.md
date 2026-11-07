@@ -3,6 +3,23 @@
 Lo hecho en cada sesión, lo más reciente arriba. El estado actual está en `docs/ESTADO.md`; lo que falta, en
 `docs/PENDIENTES.md`. Creada el 03/11/2026 con la historia que estaba en `ESTADO.md`.
 
+## 07/11/2026
+**Repaso de la consigna y documentación para leer desde afuera** (rama `camisetas`)
+- Checklist de la consigna revisado casilla por casilla contra el código: `docs/CHECKLIST_TP.md` (antes suelto en la
+  raíz como `CHECKLIST_TP_ROBOTICA_SOCIAL.md`). Robot (T1–T7, 55 casillas): 31 probadas, 21 hechas sin probar en real,
+  3 faltan (latencia evento → respuesta, secuencia de demo, iluminación). Entrega (22): casi todo por hacer (Colab, ZIP, video).
+- `docs/checklist_robotica_social.html` (lo armó Mathias revisando `main` en `cd63108`, del 26/10, por eso marcaba
+  como pendientes los modos, SALIENDO y las camisetas): la columna de Hector se precarga con lo hecho y probado
+  (34/82 obligatorias), con nota y evidencia por casilla; enlaces a `main`; una nueva `revision` recarga solo las
+  marcas de Hector y conserva las de Mathias guardadas en el navegador.
+- `README.md` reescrito para un lector externo: hardware real (ESP32-C3, 2 × MG996R, buzzer GPIO5), arquitectura,
+  modelos con su fuente (YOLO26n de Ultralytics, MediaPipe BlazeFace y Pose), instalación, ejecución, modos y STOP.
+- Push de `camisetas` (los 3 commits locales y los de hoy). **Integrar los PR #3 → #4 → #5 a `main` quedó sin hacer**:
+  el clasificador de permisos lo bloqueó por ser un merge sin revisión; lo tiene que hacer el usuario o autorizarlo.
+- Se vio que el repo en GitHub es **público** (`gh repo view`), aunque `CLAUDE.md` dice privado. No se cambió.
+
+Commits: `c929971`, `ffdf9e1`. Tests: 219.
+
 ## 05/11/2026
 **Servos nuevos de pitch y roll** (rama `camisetas`, sin commitear hasta el cierre)
 - El grupo consiguió dos **TowerPro MG996R** nuevos: reemplazan al HS-7955TG (pitch) y al MG996R con zona muerta (roll).
