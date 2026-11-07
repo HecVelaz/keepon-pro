@@ -5,7 +5,7 @@
 responde a saludos, a miradas y a camisetas de Olimpia y Cerro, y tiene cuatro modos de personalidad.
 
 - Consigna: [`docs/2026S2uTP_RoboticaSocial.md`](docs/2026S2uTP_RoboticaSocial.md) (PDF en `docs/`).
-- **Informe técnico (Cuaderno Colab):** [`docs/informe/Informe_Keepon_pro.ipynb`](docs/informe/Informe_Keepon_pro.ipynb).
+- **Informe técnico (Cuaderno Colab):** [`docs/informe/Informe_técnico.ipynb`](docs/informe/Informe_t%C3%A9cnico.ipynb).
 - **Guía completa del proyecto (PDF, con diagramas):** [`docs/guia/Guia_Keepon_pro.pdf`](docs/guia/Guia_Keepon_pro.pdf):
   construcción, hardware, pines, control de los motores, software, decisiones y resultados. Fuente: `docs/guia/guia_keepon.html`.
 - **Qué está hecho y qué falta:** [`docs/CHECKLIST_TP.md`](docs/CHECKLIST_TP.md) (casilla por casilla de la consigna;
