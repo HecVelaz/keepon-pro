@@ -6,6 +6,8 @@
 
 µTP *Robótica Social* · Robótica II · Facultad de Ingeniería, Universidad Nacional de Asunción (FIUNA) · 2026
 
+**Integrantes:** Mathias Aguilar · Héctor Velázquez · Pablo Otazú · Pedro Vera
+
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![Raspberry Pi 5](https://img.shields.io/badge/Raspberry%20Pi%205-Ubuntu%2024.04-C51A4A?logo=raspberrypi&logoColor=white)
 ![ROS 2 Jazzy](https://img.shields.io/badge/ROS%202-Jazzy-22314E?logo=ros&logoColor=white)
