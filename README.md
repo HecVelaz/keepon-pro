@@ -14,9 +14,11 @@
 ![ESP32-C3](https://img.shields.io/badge/ESP32--C3-Arduino-E7352C?logo=espressif&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-257%20pasan-2f6b4f)
 
-<img src="docs/img/keepon_cad.png" alt="Modelo CAD de Keepon v6 R4: base con el servo de yaw, horquilla de pitch y cabeza con los ojos y la cámara como nariz" width="420">
+<img src="docs/Fotos/Wall-e_frontal.jpeg" alt="Wall-E de frente: cabeza negra impresa en 3D con dos ojos grandes, la cámara como nariz y el buzzer debajo, sobre la horquilla de pitch y la base" width="560">
 
-*Diseño mecánico propio v6 R4, impreso en 3D. La cámara es la nariz; la Raspberry Pi va dentro de la cabeza.*
+<img src="docs/Fotos/Wall-e_costado1.jpeg" alt="Wall-E visto de costado, con el powerbank en la base" width="275"> <img src="docs/Fotos/Wall-e_costado2.jpeg" alt="Wall-E visto desde el otro costado, con el cableado de los servos" width="275">
+
+*Wall-E armado: diseño mecánico propio v6 R4, impreso en 3D. La cámara es la nariz; la Raspberry Pi va dentro de la cabeza.*
 
 </div>
 
@@ -120,6 +122,12 @@ Detalle en el informe (sección 11) y en [`docs/ESTADO_PI.md`](docs/ESTADO_PI.md
 | Mecánica | diseño propio v6 R4 impreso en 3D: [`docs/diseno_v6/`](docs/diseno_v6/README.md) |
 
 Conexiones y alimentación: [`docs/HARDWARE.md`](docs/HARDWARE.md).
+
+<div align="center">
+<img src="docs/img/keepon_cad.png" alt="Modelo CAD v6 R4: base con el servo de yaw, horquilla de pitch y cabeza con los ojos y la cámara como nariz" width="380">
+
+*Modelo CAD v6 R4.*
+</div>
 
 ## Probarlo sin el robot
 
