@@ -57,8 +57,38 @@ def minimo_jerk(tau: float) -> float:
     return t * t * t * (10.0 + t * (-15.0 + 6.0 * t))
 
 
+@dataclass
+class Tramo:
+    """Un tramo del movimiento del Observador (modo "exploracion").
+    - "suave":  yaw y pitch de `desde` a `hacia` con mínimo jerk en `dur` s (el roll va directo a hacia[2]).
+    - "sacada": salta a `hacia` y el firmware hace el movimiento rápido y firme; se queda ahí hasta `dur`.
+    - "quieto": se queda en `hacia` durante `dur`."""
+    tipo: str
+    hacia: tuple
+    dur: float
+    desde: tuple = ()
+    t0: float = 0.0
+
+    def referencia(self, now: float) -> tuple:
+        if self.tipo != "suave":
+            return self.hacia
+        k = minimo_jerk((now - self.t0) / self.dur)
+        yaw, pitch = (a + (b - a) * k for a, b in zip(self.desde[:2], self.hacia[:2]))
+        return (yaw, pitch, self.hacia[2])
+
+
 class Observer(Behavior):
-    """Sin personas: mira la escena. Dos modos (observer.modo de config.yaml):
+    """Sin personas: mira la escena. Tres modos (observer.modo de config.yaml):
+    - "exploracion" (08/11, el de la Tabla 1 de la guía: "centra la vista y explora la escena: barridos
+      lentos, sacadas a puntos de interés, pequeñas variaciones de roll para encuadrar"). Una cola de
+      tramos (Tramo):
+        1. Si la cabeza quedó lejos del centro (donde estaba la última persona: es un punto de interés),
+           la sostiene fijacion_s; después va suave al centro (centrar_s) y se queda pausa_centro_s.
+        2. Barridos lentos y continuos de un extremo (±amp_deg) al otro a vel_barrido °/s de media, con
+           mínimo jerk: no se para en el medio, solo frena para dar la vuelta. Roll en 0.
+        3. Cada sacada_cada barridos, una sacada (rápida, con el perfil del firmware) al próximo punto de
+           puntos_interes, que fija fijacion_s con su roll chico; desde ahí sigue barriendo hacia el extremo
+           más lejano. El roll siempre pasa por 0 entre dos puntos (nunca de un lado al otro).
     - "miradas": va a un punto de observer.miradas, se queda quieto y pasa al siguiente (pausa_s por
       punto, contando el movimiento). Yaw y pitch van de un punto al otro con la curva de mínimo jerk en
       transicion_s (08/11: "más suave al buscar"); el roll va directo con el perfil del firmware (son
@@ -79,6 +109,19 @@ class Observer(Behavior):
     def on_start(self, g, ctx):
         o = self.cfg["observer"]
         self.t0 = ctx.now
+        if o.get("modo", "barrido") == "exploracion":
+            e = o["exploracion"]
+            self.home = tuple(self.cfg["neck"]["home"])
+            inicio = tuple(ctx.act.ref)
+            self.cola: list[Tramo] = []
+            if any(abs(a - b) > 2.0 for a, b in zip(inicio, self.home)):   # quedó mirando donde estaba alguien
+                self.cola += [Tramo("quieto", inicio, e["fijacion_s"]), Tramo("suave", self.home, e["centrar_s"])]
+            self.cola.append(Tramo("quieto", self.home, e["pausa_centro_s"]))
+            self.tramo: Tramo | None = None
+            self.barridos = 0                 # barridos desde la última sacada
+            self.i_punto = 0
+            self.lado = -1                    # el primer barrido va hacia la izquierda (yaw −)
+            return
         if o.get("modo", "barrido") == "miradas":
             self.home = tuple(self.cfg["neck"]["home"])
             self.inicio = tuple(ctx.act.ref)
@@ -93,8 +136,31 @@ class Observer(Behavior):
         self.phase0 = math.asin(s)
         self.start_pitch = ctx.act.ref[1]
 
+    def _siguiente_tramo(self, ref: tuple) -> Tramo:
+        """Después de la cola inicial: barridos de extremo a extremo y, cada sacada_cada, una sacada."""
+        e = self.cfg["observer"]["exploracion"]
+        puntos = [(p[0], p[1], p[2] if len(p) > 2 else 0.0) for p in e["puntos_interes"]]
+        if self.barridos >= e["sacada_cada"] and puntos:
+            self.barridos = 0
+            p = puntos[self.i_punto % len(puntos)]
+            self.i_punto += 1
+            self.lado = -1 if p[0] > 0 else 1                 # después, hacia el extremo más lejano
+            return Tramo("sacada", p, e["fijacion_s"])
+        yaw = self.lado * e["amp_deg"]
+        self.lado = -self.lado
+        self.barridos += 1
+        dur = max(0.5, abs(yaw - ref[0]) / e["vel_barrido"])  # velocidad media pedida (pico 1,875 veces)
+        return Tramo("suave", (yaw, e["pitch_barrido"], 0.0), dur)
+
     def act(self, g, ctx):
         o = self.cfg["observer"]
+        if o.get("modo", "barrido") == "exploracion":
+            if self.tramo is None or ctx.now - self.tramo.t0 >= self.tramo.dur:  # terminó: el siguiente
+                ref = tuple(ctx.act.ref)
+                self.tramo = self.cola.pop(0) if self.cola else self._siguiente_tramo(ref)
+                self.tramo.desde, self.tramo.t0 = ref, ctx.now                 # sale de la última referencia
+            ctx.act.neck(g, *self.tramo.referencia(ctx.now))
+            return
         if o.get("modo", "barrido") == "miradas":
             puntos = [(p[0], p[1], p[2] if len(p) > 2 else 0.0) for p in o["miradas"]]
             if ctx.now - self.t_mirada >= o["pausa_s"]:   # terminó la pausa: a lo siguiente

@@ -256,9 +256,24 @@ modos:
   # maleducado: piropo al empezar cada salida (SALIENDO) de la persona seguida; cooldown PIROPO_global.
 
 observer:
-  modo: miradas                  # "miradas" (05/11): de un punto al otro con el perfil del firmware y quieto
-                                 # pausa_s en cada uno. "barrido": senoide continua y lenta (los servos vibraban).
-                                 # 07/11: quieto donde quedó → centra la vista (HOME) → recorre las miradas.
+  modo: exploracion              # 08/11 "exploracion": lo que pide la Tabla 1 (barridos lentos + sacadas + roll),
+                                 # detalle en keepon/behaviors.py (Observer). De respaldo: "miradas" (05/11, de punto
+                                 # en punto con pausas: se veía "para y gira") y "barrido" (senoide continua sin
+                                 # sacadas; el 05/11, sin curva S, los servos vibraban).
+  exploracion:
+    fijacion_s: 1.5              # cuánto fija un punto de interés (y donde quedó la última persona), contando la
+                                 # sacada (~0,3-0,5 s con el perfil del firmware)
+    centrar_s: 1.6               # ir al centro, con mínimo jerk
+    pausa_centro_s: 1.0
+    amp_deg: 45.0                # barre de −amp a +amp en yaw
+    vel_barrido: 20.0            # [°/s] velocidad MEDIA del barrido (90° en 4,5 s; pico 1,875 veces = 37,5 °/s).
+                                 # OJO: el RDS3218 vibraba ≤ ~40 °/s el 05/11 (sin curva S): si vibra, subirla.
+    pitch_barrido: 0.0           # pitch mientras barre
+    sacada_cada: 2               # barridos entre una sacada y la siguiente
+    # Puntos de interés de las sacadas [yaw, pitch, roll] [°]: roll chico para encuadrar (siempre se vuelve a 0
+    # en el barrido siguiente, nunca de un lado al otro).
+    puntos_interes: [[-20.0, 6.0, 5.0], [30.0, -4.0, -5.0], [5.0, 10.0, 0.0]]
+  # --- Solo modo "miradas" (07/11: quieto donde quedó → centra la vista (HOME) → recorre las miradas):
   # [yaw, pitch, roll] [°]. Roll: pequeñas inclinaciones "para encuadrar" (Tabla 1), siempre de 0 a ±roll o de
   # vuelta, nunca de un lado al otro. Sin el tercer valor, roll 0.
   miradas: [[-40.0, 3.0, 5.0], [-15.0, -3.0, 0.0], [15.0, 3.0, -5.0], [40.0, -3.0, 0.0], [15.0, -3.0, 5.0],

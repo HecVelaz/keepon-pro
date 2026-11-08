@@ -50,5 +50,11 @@ Movido desde `CLAUDE.md` el 22/10/2026. No volver a discutirlas sin datos nuevos
   `umbral_deg` (2,5°). Solo se corrige con fotos sacadas con el cuello quieto. El modo velocidad queda de respaldo.
 - **05/11:** Observador por miradas (`observer.modo: miradas`): quieto donde estaba, después de punto en punto con pausas
   de 2 s. El barrido continuo queda de respaldo.
+- **08/11:** **curva S** en todos los movimientos (`neck.suavizado_s`): el firmware manda al servo el promedio del trapecio
+  en una ventana. Jerk de yaw de 60000+ a 12000 °/s³, sin pasar `vmax`/`amax`. Dato nuevo sobre la decisión del 05/11:
+  en el roll, **sin curva S vibraba más** (los saltos de aceleración también hacen vibrar, no solo ir lento).
+- **08/11:** Observador **"exploracion"** (`observer.modo`), lo que pide la Tabla 1: centra la vista, barridos lentos y
+  continuos de ±45° (20 °/s de media, mínimo jerk), sacadas rápidas a puntos de interés cada 2 barridos y roll ±5° al
+  fijarlos. Reemplaza a "miradas" (para y gira, para y gira), que queda de respaldo con "barrido".
 - **07/11:** el repo en GitHub queda **público**, para que la cátedra y el grupo lo lean desde afuera (antes la regla
   era privado, para evitar copias). Por eso no se sube nada personal: `capturas/` y `video/` siguen fuera de git.

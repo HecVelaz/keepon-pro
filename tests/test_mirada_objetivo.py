@@ -18,11 +18,14 @@ from keepon.world import Person, World
 from test_regresiones_codex import DT, Rig
 
 CFG = load_config()
+# El modo "miradas" quedó de respaldo (08/11: el de la guía es "exploracion", tests/test_observador_exploracion.py)
+CFG_MIRADAS = copy.deepcopy(CFG)
+CFG_MIRADAS["observer"]["modo"] = "miradas"
 
 
 def test_config_usa_los_modos_nuevos():
     assert CFG["gaze"]["modo"] == "objetivo"
-    assert CFG["observer"]["modo"] == "miradas"
+    assert CFG["observer"]["modo"] == "exploracion"
 
 
 def correr(rig, t_fin):
@@ -102,10 +105,10 @@ def test_posicion_del_cuello_en_la_captura_interpola_la_historia():
 def test_observador_por_miradas_quieto_entre_una_y_otra():
     """08/11: entre una mirada y la otra, yaw va con la curva de mínimo jerk en transicion_s (sin saltos ni
     pasarse) y después queda QUIETO el resto de pausa_s (quieto no vibra)."""
-    o = CFG["observer"]
+    o = CFG_MIRADAS["observer"]
     T, P = o["transicion_s"], o["pausa_s"]
     assert 0 < T < P
-    rig = Rig([])
+    rig = Rig([], CFG_MIRADAS)
     traza = correr(rig, 0.5 + P * 4)
     refs = [(t, r) for t, r, _, d in traza if d == "OBSERVADOR"]
     assert all(r == 0.0 for t, r in refs if t < P)                 # al arrancar: quieto en el centro
@@ -147,11 +150,11 @@ def _secuencia_observador(ref_inicial, pasos):
     from types import SimpleNamespace
 
     from keepon.behaviors import Observer
-    obs = Observer(CFG)
+    obs = Observer(CFG_MIRADAS)
     ctx = SimpleNamespace(now=0.0, act=_Act(ref_inicial))
     obs.on_start(None, ctx)
     vistas = [tuple(ctx.act.ref)]
-    while ctx.now < CFG["observer"]["pausa_s"] * pasos:
+    while ctx.now < CFG_MIRADAS["observer"]["pausa_s"] * pasos:
         fase, antes = obs.fase, tuple(ctx.act.ref)
         obs.act(None, ctx)
         if obs.fase != fase and vistas[-1] != antes:   # cambió de fase: la postura que sostenía
@@ -165,7 +168,7 @@ def _secuencia_observador(ref_inicial, pasos):
 def test_observador_quieto_despues_centra_y_despues_explora():
     """07/11 (Tabla 1: "centra la vista y explora"): al perder a la persona se queda quieto donde quedó,
     después va al centro y recién ahí recorre las miradas, empezando por la más cercana al centro."""
-    puntos = [tuple(p) for p in CFG["observer"]["miradas"]]
+    puntos = [tuple(p) for p in CFG_MIRADAS["observer"]["miradas"]]
     vistas = _secuencia_observador((35.0, 10.0, 0.0), 4)
     cercana = min(puntos, key=lambda p: abs(p[0]))
     assert vistas[:3] == [(35.0, 10.0, 0.0), tuple(CFG["neck"]["home"]), cercana]
@@ -180,7 +183,7 @@ def test_observador_ya_centrado_empieza_por_el_centro():
 def test_observador_inclina_poco_el_roll_y_nunca_de_lado_a_lado():
     """Pequeñas variaciones de roll para encuadrar: chicas, y siempre pasando por 0 (un salto de +5 a −5 es
     un movimiento de 10° en el eje con más zona muerta)."""
-    vistas = _secuencia_observador(tuple(CFG["neck"]["home"]), 2 + 2 * len(CFG["observer"]["miradas"]))
+    vistas = _secuencia_observador(tuple(CFG["neck"]["home"]), 2 + 2 * len(CFG_MIRADAS["observer"]["miradas"]))
     rolls = [v[2] for v in vistas]
     assert any(r != 0 for r in rolls) and max(abs(r) for r in rolls) <= 6.0
     assert all(a * b >= 0 for a, b in zip(rolls, rolls[1:]))
