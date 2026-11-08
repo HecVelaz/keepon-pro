@@ -52,8 +52,10 @@ neck:
       # El n.º 1 (11-12/10) era simétrico: 0.13, 950/2050 µs. No son intercambiables sin recalibrar.
       # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
     roll:                        # TowerPro MG996R NUEVO (05/11, reemplaza al que tenía zona muerta), 6 V
-      centro_us: 1554            # 08/11: con 1500 la cabeza quedaba inclinada ~5° a la izquierda (vista desde atrás);
-                                 # derecha con 1554 µs. Antes: 1500 (05/11, disco calzado en 1500).
+      centro_us: 1500            # 08/11, MG996R reemplazado por otro igual: derecha en 1500 µs, llegando desde la
+                                 # izquierda (−15° → 0). Tiene banda muerta: pasos de 3-5° no lo movían y de golpe
+                                 # saltaba. Falta medir llegando desde la derecha (compensacion_us). Antes: 1554
+                                 # (servo anterior, 08/11) y 1500 (05/11).
       grados_por_us: 0.092       # sin carga (05/11): +217 µs = +20° justos; −217 µs "casi 20°"
       min_us: 1000               # ≈ −60°/+48° desde el centro: de sobra para los ±20° (sin tope hasta 800/2300 µs)
       max_us: 2000
