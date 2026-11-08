@@ -117,6 +117,14 @@ comportamientos y el control reales:
 <img src="docs/img/escenario_simulado.png" alt="Escenario simulado de 30 s: ángulos de los tres ejes, error de la mirada y dueño de cada recurso en el tiempo" width="720">
 </div>
 
+Mientras corre, el robot muestra en el navegador un **overlay de monitoreo** sobre el video de la cámara: personas con
+su ID, el objetivo, los eventos, el modo, el dueño de cada recurso, los ángulos y la salud del sistema. La figura la
+dibuja el mismo código del robot (`keepon/overlay.py`) sobre una escena sintética, sin personas reales:
+
+<div align="center">
+<img src="docs/img/overlay_monitoreo.png" alt="Overlay de monitoreo: dos siluetas con sus cajas e ID, el objetivo con ME_MIRA y CAMISETA_OLIMPIA, otra persona con SALUDO, el panel de modo y dueños de los recursos, y la barra de salud" width="900">
+</div>
+
 ## Resultados medidos
 
 | Métrica | Resultado | Pedido por la consigna |

@@ -4,7 +4,7 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
 
 ## 0. Entrega documentada (08/11)
 1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v3`, antes `_v2`) y completar los
-   `[Completar]`: solo queda la **captura del overlay** (sección 10). ZIP = release `v1.0-entrega`; lo no medido en el
+   `[Completar]`: ninguno (el overlay va como figura generada por `keepon/overlay.py` sobre una escena sintética). ZIP = release `v1.0-entrega`; lo no medido en el
    robot (latencia de punta a punta, error de mirada) quedó indicado como tal (08/11). Subirlo a Colab y probar que abre desde otra cuenta.
 2. ~~Integrar los PR a `main`~~: hecho el 08/11 (#3 → #4 → #5 → #6).
    **Pi:** `docs/` se reorganizó el 08/11 (consigna/, hardware/, cad_anteriores/, revisiones/). El `rsync` no borra: en el
