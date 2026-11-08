@@ -1,8 +1,8 @@
 <div align="center">
 
-# Keepon pro
+# Wall-E
 
-**Cabeza robótica social de 3 grados de libertad con visión artificial**
+**Proyecto Keepon pro** · **Cabeza robótica social de 3 grados de libertad con visión artificial**
 
 µTP *Robótica Social* · Robótica II · Facultad de Ingeniería, Universidad Nacional de Asunción (FIUNA) · 2026
 
@@ -20,7 +20,7 @@
 
 </div>
 
-Keepon detecta a las personas, las sigue con la mirada, responde a saludos y a quién lo mira, reconoce las camisetas de
+Wall-E detecta a las personas, las sigue con la mirada, responde a saludos y a quién lo mira, reconoce las camisetas de
 **Olimpia** (toca la polca) y **Cerro** (abuchea), y tiene cuatro personalidades que se cambian desde el celular. Todo
 corre en una Raspberry Pi 5 en Python; una ESP32-C3 mueve los tres servos con trayectorias suaves y toca los sonidos en
 un buzzer, sin bloquearse nunca.
