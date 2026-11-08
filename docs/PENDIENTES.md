@@ -4,7 +4,7 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
 
 ## 0. Entrega documentada (08/11)
 1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v3`, antes `_v2`) y completar los
-   `[Completar]`: enlace al video y al ZIP, foto del robot, captura del overlay, **aportes individuales y uso de IA**
+   `[Completar]`: enlace al video y al ZIP, captura del overlay, **aportes individuales y uso de IA**
    (los escribe el grupo) y la latencia medida. Subirlo a Colab y probar que abre desde otra cuenta.
 2. ~~Integrar los PR a `main`~~: hecho el 08/11 (#3 → #4 → #5 → #6).
 3. ZIP del código, enlace al repo y verificar que todo abre desde otra cuenta.
