@@ -4,8 +4,12 @@
 #       ~/keepon/ver_personas.sh stop     (corta una instancia lanzada en segundo plano)
 # No usa ni modifica los scripts de vision_estereo.
 PUERTO=8080
+DIR="$(cd "$(dirname "$0")" && pwd)"
 # Cámara por nombre (no por índice): si se conecta la segunda NoIR, los índices cambian.
-CAMARA="${CAMARA:-/base/axi/pcie@120000/rp1/i2c@80000/imx708@1a}"
+# Cámara y orientación desde config.yaml (+ config.local.yaml); CAMARA=... en el entorno la cambia.
+read -r CAM_CFG ORIENTACION < <(cd "$DIR" && ~/keepon_env/bin/python -c \
+    'from keepon import load_config; c = load_config()["camera"]; print(c["ros_camera"], c.get("orientation_deg", 0))')
+CAMARA="${CAMARA:-$CAM_CFG}"
 IMGSZ=${IMGSZ:-256}   # 256 = el de Keepon; IMGSZ=480 usa el modelo original de vision_estereo
 MODELO=/home/r2d2/keepon/models/yolo26n_${IMGSZ}_ncnn_model
 [ "$IMGSZ" = 480 ] && MODELO=/home/r2d2/vision_estereo/modelos/yolo26n_ncnn_model
@@ -31,7 +35,7 @@ trap limpiar EXIT
 trap 'exit 130' INT TERM
 
 setsid ros2 run camera_ros camera_node --ros-args -r __node:=keepon_cam \
-    -p camera:="$CAMARA" -p width:=640 -p height:=480 > /tmp/keepon_cam.log 2>&1 &
+    -p camera:="$CAMARA" -p orientation:="$ORIENTACION" -p width:=640 -p height:=480 > /tmp/keepon_cam.log 2>&1 &
 GRUPOS+=($!)
 sleep 4
 setsid ros2 run yolo_ros detector_node --ros-args -r __node:=keepon_det \

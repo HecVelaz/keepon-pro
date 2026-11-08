@@ -1,0 +1,10 @@
+﻿union,cantidad,M3_largo_mm,inserto_largo_mm,distancia_hasta_entrada_mm,margen_axial_nominal_mm,nota
+Adaptador a base,4,12,,6,,Rosca impresa existente pendiente; nunca forzar ni perforar base
+RDS3218 a adaptador,4,6,5,2.5,2.1,M3 entra desde cara superior de brida; enganche 3.5
+HS7955TG a horquilla,4,6,5,2.5,2.1,Cabeza detrás de brida; enganche 3.5
+MG996R a cuna,4,6,5,2.5,2.1,"Cabeza detrás de brida, motor exterior; enganche 3.5"
+Retención yaw,4,6,3,3.2,0.2,Cabeza desde arriba del plato
+Retención pitch,4,12,3,9.2,0.2,Cabeza desde interior de cuna
+Retención roll,4,8,3,5.1,0.1,Cabeza desde interior de cabeza
+Soporte RLBZ23 a cara,2,6,4,2,0.6,Reutiliza los dos postes de cara
+PCB a soporte RLBZ23,1,5,3,2.3,0.9,PCB 1.5 + arandela impresa 0.8; enganche nominal 2.7; comprobar zona libre y paso M3

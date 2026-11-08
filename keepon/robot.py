@@ -52,6 +52,33 @@ class Robot:
         self._perception_ok = True
         self._stop_unsent = False  # STOP del operador que todavía no se pudo transmitir
         self.max_world_age = cfg["perception"]["max_age_s"]
+        self.modo = cfg["modos"]["inicial"]
+
+    # ------------------------------------------------------------ modo de personalidad (T5)
+    def set_modo(self, modo: str) -> bool:
+        """Comando del operador: cambia el modo en tiempo de ejecución y lo confirma con BEEP_<MODO>.
+        False si el modo no existe."""
+        from .behaviors import MODOS
+
+        modo = modo.strip().upper().replace("Í", "I")
+        if modo not in MODOS:
+            return False
+        now = self.link.now()
+        self.log(now, f"OPERADOR modo {self.modo} -> {modo}")
+        self.modo = modo
+        if "OPERADOR" in self.behaviors:
+            self.behaviors["OPERADOR"].pedir(modo, now)
+        return True
+
+    def sonar(self, sonido: str) -> bool:
+        """Comando del operador: reproduce un sonido de config.yaml (p. ej. para probar el buzzer)."""
+        sonido = sonido.strip().upper()
+        if sonido not in self.cfg["sounds"] or "OPERADOR" not in self.behaviors:
+            return False
+        now = self.link.now()
+        self.log(now, f"OPERADOR sonido {sonido}")
+        self.behaviors["OPERADOR"].pedir_sonido(sonido, now)
+        return True
 
     # ------------------------------------------------------------ operador
     def stop(self) -> None:
@@ -82,7 +109,7 @@ class Robot:
 
     # ------------------------------------------------------------ ciclo
     def _ctx(self, now, dt, world) -> Context:
-        return Context(now, dt, world, self.act, self.arb, self.focus, self.cfg)
+        return Context(now, dt, world, self.act, self.arb, self.focus, self.cfg, self.modo)
 
     def _resync(self, now: float) -> None:
         """El ESP32 se reinició: sus sonidos y referencias ya no existen."""

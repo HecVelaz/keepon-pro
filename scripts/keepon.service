@@ -1,0 +1,21 @@
+# Servicio de usuario de Keepon (lo instala 'scripts/keepon instalar' en ~/.config/systemd/user/).
+# 'keepon demo-on' lo activa al encender; 'keepon demo-off' lo desactiva (la Pi se usa en otros proyectos).
+[Unit]
+Description=Keepon pro: robot social (cámara + percepción + ESP32)
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=@DIR@
+ExecStart=/bin/bash @DIR@/scripts/robot_vivo.sh
+# systemctl stop manda SIGTERM: robot_vivo.py vuelve a HOME y robot_vivo.sh corta la cámara.
+KillSignal=SIGTERM
+TimeoutStopSec=15
+# Si falla (p. ej. la ESP32 o la cámara todavía no están), reintentar.
+Restart=on-failure
+# Parado con systemctl stop, robot_vivo.sh sale con 130/143: es un fin normal, no una falla.
+SuccessExitStatus=130 143
+RestartSec=5
+
+[Install]
+WantedBy=default.target

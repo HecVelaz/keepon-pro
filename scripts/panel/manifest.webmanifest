@@ -1,0 +1,11 @@
+{
+  "name": "Keepon pro",
+  "short_name": "Keepon",
+  "description": "Comandos de Keepon: modos de personalidad, STOP y sonidos",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#14161a",
+  "theme_color": "#14161a",
+  "icons": [{ "src": "icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

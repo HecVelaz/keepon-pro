@@ -1,22 +1,29 @@
 #!/usr/bin/env python3
 """Escenario sintético de M0: prueba árbitro + comportamientos + control de mirada
-sin mecánica ni percepción. Tiempo simulado (reproducible y más rápido que real).
+sin percepción. Tiempo simulado (reproducible y más rápido que real).
 
     python scripts/sim_scenario.py            # imprime el log
     python scripts/sim_scenario.py --plot     # además grafica ángulos y dueños
+
+Con --serial, el mismo escenario en TIEMPO REAL contra la ESP32 y los servos de verdad (en la Pi, con el
+firmware del robot y el puerto libre). Las personas siguen siendo sintéticas: dónde aparecen en la
+"imagen" sale de la posición del cuello que da el espejo de SerialLink. Ctrl+C manda STOP.
+
+    ~/keepon_env/bin/python scripts/sim_scenario.py --serial            # puerto de config.yaml
 """
 
 from __future__ import annotations
 
 import argparse
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from keepon import load_config  # noqa: E402
 from keepon.arbiter import BUZZER, NECK  # noqa: E402
-from keepon.link import SimLink  # noqa: E402
+from keepon.link import SerialLink, SimLink  # noqa: E402
 from keepon.robot import EventLog, Robot  # noqa: E402
 from keepon.synthetic import SynthCamera, SynthPerson, const, ramp  # noqa: E402
 
@@ -42,17 +49,38 @@ def scenario() -> list[SynthPerson]:
     return [A, B]
 
 
-def run(duration: float = 30.0, rate: float = 40.0, echo: bool = True):
+# Geometría de la cámara sintética con la que se diseñaron los tiempos del escenario (intrínsecos de antes de
+# rotar la cámara 180°). Es fija: el escenario no tiene que cambiar cuando se recalibra la cámara real.
+GEOMETRIA_ESCENARIO = {"size": [640, 480], "fx": 948.16, "fy": 947.12, "cx": 428.50, "cy": 225.42}
+
+
+def run(duration: float = 30.0, rate: float = 40.0, echo: bool = True, puerto: str | None = None):
     cfg = load_config()
-    link = SimLink(cfg, realtime=False)
+    cfg["camera"] = {**cfg["camera"], **GEOMETRIA_ESCENARIO}
+    real = puerto is not None
+    link = SerialLink(puerto, espejo_cfg=cfg) if real else SimLink(cfg, realtime=False)
     log = EventLog(to_file=echo, echo=echo)
     robot = Robot(cfg, link, log=log)
     cam = SynthCamera(cfg, scenario())
     dt = 1.0 / rate
     trace = []
     events = {22.0: robot.stop, 23.0: robot.resume}
+    t0 = link.now()
+    try:
+        _lazo(link, robot, cam, log, events, trace, t0, dt, duration, real)
+    except KeyboardInterrupt:
+        if real:  # quedó a medio movimiento: frenar donde está (STOP enclavado)
+            robot.stop()
+            print("\nSTOP enviado (frenó donde estaba). Para seguir: RESUME y HOME.")
+        raise SystemExit(1)
+    return robot, trace, link
+
+
+def _lazo(link, robot, cam, log, events, trace, t0, dt, duration, real):
     t = 0.0
     while t < duration:
+        if real:  # tiempo real: el escenario corre con el reloj del enlace
+            t = link.now() - t0
         for te, fn in list(events.items()):
             if t >= te:
                 log(t, f"OPERADOR {fn.__name__.upper()}")
@@ -64,9 +92,11 @@ def run(duration: float = 30.0, rate: float = 40.0, echo: bool = True):
         tgt = world.visible(robot.focus.target)
         err = (tgt.u - world.cx) if tgt else None  # contra el centro óptico, como el control
         trace.append((t, *link.neck_pos, own[NECK], own[BUZZER], err, link.esp.sound))
-        link.advance(dt)
-        t += dt
-    return robot, trace
+        if real:
+            time.sleep(max(0.0, t0 + t + dt - link.now()))
+        else:
+            link.advance(dt)
+            t += dt
 
 
 def plot(trace, out: Path):
@@ -97,8 +127,13 @@ def plot(trace, out: Path):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--plot", action="store_true")
+    ap.add_argument("--serial", nargs="?", const=load_config()["serial"]["port"], metavar="PUERTO",
+                    help="ESP32 real en tiempo real (sin valor: el puerto de config.yaml)")
     a = ap.parse_args()
-    robot, trace = run()
+    robot, trace, link = run(puerto=a.serial)
     print(f"\nviolaciones de recursos: {robot.act.violations}")
+    if a.serial:
+        link.send("HOME")
+        print(f"espejo: mayor desvío respecto del ESP32 real {link.max_desvio:.2f}°, resincronizaciones {link.resyncs}")
     if a.plot:
         plot(trace, Path(__file__).resolve().parent.parent / "logs" / "sim_scenario.png")

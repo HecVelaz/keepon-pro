@@ -56,6 +56,15 @@ uint16_t grados_a_us(int eje, double grados) {
   return (uint16_t)recortar(us, gen::MIN_US[eje], gen::MAX_US[eje]);
 }
 
+// Zona muerta: el servo se frena apenas el error entra en su banda, así que llega corto del lado desde donde
+// viene. Se le suma COMP_US según el sentido del último movimiento para que se frene sobre el objetivo.
+uint16_t grados_a_us(int eje, double grados, int sentido) {
+  double us = grados_a_us(eje, grados);
+  if (sentido < 0) us += gen::COMP_US[eje][0];
+  if (sentido > 0) us += gen::COMP_US[eje][1];
+  return (uint16_t)recortar(us, gen::MIN_US[eje], gen::MAX_US[eje]);
+}
+
 // ------------------------------------------------------------------------------------------------
 // Máquina de estados: copia de keepon/sim_esp32.py (SimESP32).
 // ------------------------------------------------------------------------------------------------
@@ -64,6 +73,7 @@ Nucleo::Nucleo() { reiniciar(0); }
 void Nucleo::reiniciar(uint32_t ahora_ms) {
   for (int i = 0; i < 3; i++) {
     ejes_[i] = Eje{gen::LIM_MIN[i], gen::LIM_MAX[i], gen::VMAX[i], gen::AMAX[i], gen::HOME[i], 0.0, gen::HOME[i]};
+    sentido_[i] = 0;
   }
   estado_ = RUN;
   ultimo_rx_ms_ = ahora_ms;
@@ -239,18 +249,29 @@ void Nucleo::manejar(const char *c, long long seq, char **args, int, uint32_t ah
 }
 
 // Un paso del lazo (SimESP32.tick): watchdog, fin del sonido y trayectoria.
+// Diferencia de tiempos CON SIGNO. En la ESP32 las líneas llegan con millis() y el paso usa su instante
+// programado, que puede estar unos ms atrás: sin signo, 40 − 45 daba 4 mil millones (watchdog y fin de
+// sonido falsos, 03/11). También sobrevive a la vuelta de millis() a los 49 días.
+static inline int32_t dif_ms(uint32_t a, uint32_t b) { return (int32_t)(a - b); }
+
 void Nucleo::paso(uint32_t ahora_ms) {
-  if (estado_ == RUN && ahora_ms - ultimo_rx_ms_ > gen::WATCHDOG_MS) {
+  if (estado_ == RUN && dif_ms(ahora_ms, ultimo_rx_ms_) > (int32_t)gen::WATCHDOG_MS) {
     estado_ = WATCHDOG;
     cortar_sonido();
     frenar();
     err(0, "WATCHDOG");
   }
-  if (sonido_ >= 0 && ahora_ms - sonido_inicio_ms_ >= gen::SONIDOS[sonido_].total_ms) {
+  if (sonido_ >= 0 && dif_ms(ahora_ms, sonido_inicio_ms_) >= (int32_t)gen::SONIDOS[sonido_].total_ms) {
     responder("DONE %lld", sonido_seq_);
     cortar_sonido();
   }
-  for (int i = 0; i < 3; i++) ejes_[i].step();
+  for (int i = 0; i < 3; i++) {
+    double antes = ejes_[i].pos;
+    ejes_[i].step();
+    double d = gen::SIGNO[i] * (ejes_[i].pos - antes);  // en el sentido de los pulsos
+    if (d > 0) sentido_[i] = 1;
+    else if (d < 0) sentido_[i] = -1;               // quieto: conserva el último sentido
+  }
 }
 
 // Frecuencia del buzzer: igual que el simulador (pruebas_buzzer/simulador_sonidos.html).
@@ -258,7 +279,8 @@ void Nucleo::paso(uint32_t ahora_ms) {
 uint16_t Nucleo::frecuencia(uint32_t ahora_ms) const {
   if (sonido_ < 0) return 0;
   const gen::Sonido &s = gen::SONIDOS[sonido_];
-  uint32_t e = ahora_ms - sonido_inicio_ms_, acumulado = 0;
+  int32_t d = dif_ms(ahora_ms, sonido_inicio_ms_);
+  uint32_t e = d > 0 ? (uint32_t)d : 0, acumulado = 0;  // antes de empezar: la primera nota
   for (int i = 0; i < s.n; i++) {
     const gen::Segmento &g = s.seg[i];
     if (e < acumulado + g.ms) {
@@ -272,7 +294,7 @@ uint16_t Nucleo::frecuencia(uint32_t ahora_ms) const {
 }
 
 void Nucleo::pulsos(uint16_t us[3]) const {
-  for (int i = 0; i < 3; i++) us[i] = grados_a_us(i, ejes_[i].pos);
+  for (int i = 0; i < 3; i++) us[i] = grados_a_us(i, ejes_[i].pos, sentido_[i]);
 }
 
 }  // namespace keepon
