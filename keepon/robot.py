@@ -55,6 +55,7 @@ class Robot:
         self._hello_t = -1e9
         self._perception_ok = True
         self._stop_unsent = False  # STOP del operador que todavía no se pudo transmitir
+        self.en_home = False       # HOME del operador: quieto en HOME hasta RESUME (o STOP)
         self.max_world_age = cfg["perception"]["max_age_s"]
         self.modo = cfg["modos"]["inicial"]
         # Volumen del buzzer [%] (comando del operador). La ESP32 lo pierde al reiniciarse y lo conserva
@@ -105,9 +106,25 @@ class Robot:
         falla (cable suelto, puerto caído), el robot igual queda detenido de este lado
         y el STOP se reintenta en cada tick hasta que salga (revisión de Codex)."""
         now = self.link.now()
+        self.en_home = False       # el STOP manda: frena donde esté, aunque estuviera yendo a HOME
         for g in self.arb.emergency_stop(now):
             self.behaviors[g.behavior].on_cancel(g, self._ctx(now, 0.0, None))
         self._send_stop(now)
+
+    def home(self) -> None:
+        """HOME del operador (prioridad 0, como STOP): lleva la cabeza a HOME y la deja ahí hasta RESUME.
+        El árbitro queda detenido para que ningún comportamiento mande un J encima del HOME (antes el botón
+        mandaba solo "HOME" y, en el ciclo siguiente, el Observador o el seguimiento lo pisaban). A la ESP32:
+        RESUME (si había un STOP enclavado, rechaza el HOME con STOP_ACTIVE) y después HOME."""
+        now = self.link.now()
+        for g in self.arb.emergency_stop(now):
+            self.behaviors[g.behavior].on_cancel(g, self._ctx(now, 0.0, None))
+        self._stop_unsent = False  # no reintentar un STOP viejo encima del HOME
+        self.link.send("RESUME")
+        self.link.send("HOME")
+        self.act.ref = list(self.cfg["neck"]["home"])  # lo que se comandó (overlay, panel, Observador al volver)
+        self.en_home = True
+        self.log(now, "OPERADOR HOME (quieto hasta RESUME)")
 
     def _send_stop(self, now: float) -> None:
         try:
@@ -125,6 +142,7 @@ class Robot:
         # Al revés que stop(): si RESUME no sale, el árbitro sigue detenido (lo seguro).
         self.link.send("RESUME")
         self.arb.resume(self.link.now())
+        self.en_home = False
 
     # ------------------------------------------------------------ ciclo
     def _ctx(self, now, dt, world, cuello_captura=None) -> Context:

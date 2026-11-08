@@ -169,7 +169,8 @@ async function actualizar() {
     $("vol-valor").textContent = estado.volumen + " %";
   }
   document.querySelectorAll(".modo").forEach((b) => b.classList.toggle("actual", b.dataset.modo === estado.modo));
-  $("stop").textContent = estado.stop ? "STOP activo · tocar para RESUME" : "STOP";
+  $("stop").textContent = estado.home ? "En HOME · tocar para RESUME"
+                        : estado.stop ? "STOP activo · tocar para RESUME" : "STOP";
   $("stop").classList.toggle("activo", !!estado.stop);
   $("hz").textContent = `${estado.lazo_hz} Hz`;
   $("e-modo").textContent = estado.modo;
