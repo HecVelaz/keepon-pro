@@ -4,8 +4,8 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
 
 ## 0. Entrega documentada (08/11)
 1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v3`, antes `_v2`) y completar los
-   `[Completar]`: enlace al ZIP, captura del overlay, columnas de **pruebas y documentación** de cada integrante
-   (aportes y uso de IA ya están, 08/11) y la latencia medida. Subirlo a Colab y probar que abre desde otra cuenta.
+   `[Completar]`: enlace al ZIP, captura del overlay, la latencia medida (aportes de
+   cada integrante y uso de IA ya están, 08/11). Subirlo a Colab y probar que abre desde otra cuenta.
 2. ~~Integrar los PR a `main`~~: hecho el 08/11 (#3 → #4 → #5 → #6).
    **Pi:** `docs/` se reorganizó el 08/11 (consigna/, hardware/, cad_anteriores/, revisiones/). El `rsync` no borra: en el
    próximo sync, borrar en `~/keepon/docs/` las carpetas viejas (`Fotos`, `diagrama_sistema`, `keepon_v*_cad`,
