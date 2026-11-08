@@ -4,15 +4,15 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
 
 ## 0. Entrega documentada (08/11)
 1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v3`, antes `_v2`) y completar los
-   `[Completar]`: enlace al ZIP, captura del overlay, la latencia medida (aportes de
-   cada integrante y uso de IA ya están, 08/11). Subirlo a Colab y probar que abre desde otra cuenta.
+   `[Completar]`: solo queda la **captura del overlay** (sección 10). ZIP = release `v1.0-entrega`; lo no medido en el
+   robot (latencia de punta a punta, error de mirada) quedó indicado como tal (08/11). Subirlo a Colab y probar que abre desde otra cuenta.
 2. ~~Integrar los PR a `main`~~: hecho el 08/11 (#3 → #4 → #5 → #6).
    **Pi:** `docs/` se reorganizó el 08/11 (consigna/, hardware/, cad_anteriores/, revisiones/). El `rsync` no borra: en el
    próximo sync, borrar en `~/keepon/docs/` las carpetas viejas (`Fotos`, `diagrama_sistema`, `keepon_v*_cad`,
    `micro_servo_*`, `servo_HS-7955TG_titanium_gear`, `keepon_mg996r_step`, `REVISION_CODEX*.md`, `CHECKLIST_TP.md`,
    `2026S2uTP_*`), comparando antes con `cmp`. El código del robot no cambió; el panel sí (`scripts/panel/index.html`:
    la aclaración del botón Ejes en su línea): después del sync, `systemctl --user restart keepon-panel`.
-3. ZIP del código, enlace al repo y verificar que todo abre desde otra cuenta.
+3. ~~ZIP del código~~ (release `v1.0-entrega`, 08/11). Falta verificar que todo abre desde otra cuenta.
 4. ~~Video ≤ 3 min~~: hecho el 08/11, https://youtu.be/raOJljv1mVU (8 pruebas, 3 min), con miniatura en el README y
    reproductor en el informe. Falta confirmar con la cátedra la fecha de la demo (`CLAUDE.md` dice 30/10).
 5. Guía PDF: describir la **curva S** (hoy dice perfil trapezoidal), el Observador "exploracion", HOME, Ejes y la polca
