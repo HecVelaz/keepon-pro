@@ -21,7 +21,7 @@ CFG = yaml.safe_load((RAIZ / 'config.yaml').read_text(encoding='utf-8'))
 spec = importlib.util.spec_from_file_location('v5_v6', RAIZ.parent / 'diseno_v5/generar_v5.py')
 v5 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(v5)
-sys.path.insert(0, str(REPO / 'docs/keepon_v3_cad/fuente'))
+sys.path.insert(0, str(REPO / 'docs/cad_anteriores/keepon_v3_cad/fuente'))
 import keepon_v3_cad as k3
 import keepon_cad as v2
 
@@ -474,7 +474,7 @@ def exportar(piezas):
     for n,d in [('inventario_v6.json',inventario),('mallas_v6.json',mallas),('evidencias/cuerpos_v6.json',cuerpos)]:
         (RAIZ/n).write_text(json.dumps(d,ensure_ascii=False),encoding='utf-8')
     origenes=[RAIZ/'config.yaml',RAIZ/'generar_v6.py',RAIZ/'revision_R3.py',RAIZ.parent/'diseno_v5/generar_v5.py',
-              REPO/'docs/keepon_v2_cad/fuente/keepon_cad.py',REPO/'docs/keepon_v3_cad/fuente/keepon_v3_cad.py']
+              REPO/'docs/cad_anteriores/keepon_v2_cad/fuente/keepon_cad.py',REPO/'docs/cad_anteriores/keepon_v3_cad/fuente/keepon_v3_cad.py']
     (RAIZ/'evidencias/trazabilidad_v6.json').write_text(json.dumps({
         'revision':CFG.get('revision','inicial'),
         'sha256':{str(p.relative_to(REPO)):hashlib.sha256(p.read_bytes()).hexdigest() for p in origenes},

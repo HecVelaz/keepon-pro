@@ -251,13 +251,13 @@ peso quede centrado sobre el eje de yaw.</div>
 <h2>Componentes</h2>
 <table>
 <tr><th style="width:15%"></th><th style="width:22%">Componente</th><th>Función y datos clave</th></tr>
-<tr><td><img src="../diagrama_sistema/fotos/pi5.jpg" style="width:60pt"></td><td><b>Raspberry Pi 5</b>, 4 GB</td><td>Toda la percepción, la decisión y el control. Ubuntu 24.04 + ROS 2 Jazzy (no se puede cambiar el SO: la Pi se usa en otros proyectos). Va en la cabeza.</td></tr>
-<tr><td><img src="../diagrama_sistema/fotos/camara.jpg" style="width:40pt"></td><td><b>Camera Module 3 NoIR</b> (IMX708)</td><td>640×480 a 30 fps. Montada invertida (<code>orientation_deg: 180</code>). Campo útil ≈ 37° × 28°: a 640×480, <code>camera_ros</code> recorta el sensor. Sin filtro IR: los colores se corren.</td></tr>
-<tr><td><img src="../Fotos/esp32_c3_mini_1/51gB6Uad4BL._AC_SX425_.jpg" style="width:55pt"></td><td><b>ESP32-C3-DevKitM-1</b> (clon CH340)</td><td>Pulsos de los servos y tonos del buzzer. Conectada a la Pi por USB serie a 115 200 baudios.</td></tr>
-<tr><td><img src="../diagrama_sistema/fotos/rds3218.jpg" style="width:45pt"></td><td><b>DSSERVO RDS3218</b> (yaw)</td><td>270°. Sin pulso mantiene la posición. No tiene tope mecánico: los límites de software protegen el cableado.</td></tr>
-<tr><td><img src="../diagrama_sistema/fotos/mg996r.jpg" style="width:38pt"></td><td><b>2 × TowerPro MG996R</b> (pitch y roll)</td><td>~10 kgf·cm a 6 V. <b>Sin pulso quedan flojos</b>: la cabeza cae si se corta el pulso o los 6 V.</td></tr>
-<tr><td><img src="../diagrama_sistema/fotos/buzzer.jpg" style="width:45pt"></td><td><b>Buzzer pasivo MH-FMD</b></td><td>Frecuencia variable (melodías). Trae su transistor PNP: VCC a 3V3, activo en bajo.</td></tr>
-<tr><td><img src="../diagrama_sistema/fotos/powerbank.jpg" style="width:30pt"></td><td><b>Powerbank Xiaomi PB2020MI</b></td><td>Alimenta la Pi: 20 000 mAh, 5 V / 3 A por USB. Dura ~9 h.</td></tr>
+<tr><td><img src="../hardware/diagrama_sistema/fotos/pi5.jpg" style="width:60pt"></td><td><b>Raspberry Pi 5</b>, 4 GB</td><td>Toda la percepción, la decisión y el control. Ubuntu 24.04 + ROS 2 Jazzy (no se puede cambiar el SO: la Pi se usa en otros proyectos). Va en la cabeza.</td></tr>
+<tr><td><img src="../hardware/diagrama_sistema/fotos/camara.jpg" style="width:40pt"></td><td><b>Camera Module 3 NoIR</b> (IMX708)</td><td>640×480 a 30 fps. Montada invertida (<code>orientation_deg: 180</code>). Campo útil ≈ 37° × 28°: a 640×480, <code>camera_ros</code> recorta el sensor. Sin filtro IR: los colores se corren.</td></tr>
+<tr><td><img src="../hardware/fotos/esp32_c3_mini_1/51gB6Uad4BL._AC_SX425_.jpg" style="width:55pt"></td><td><b>ESP32-C3-DevKitM-1</b> (clon CH340)</td><td>Pulsos de los servos y tonos del buzzer. Conectada a la Pi por USB serie a 115 200 baudios.</td></tr>
+<tr><td><img src="../hardware/diagrama_sistema/fotos/rds3218.jpg" style="width:45pt"></td><td><b>DSSERVO RDS3218</b> (yaw)</td><td>270°. Sin pulso mantiene la posición. No tiene tope mecánico: los límites de software protegen el cableado.</td></tr>
+<tr><td><img src="../hardware/diagrama_sistema/fotos/mg996r.jpg" style="width:38pt"></td><td><b>2 × TowerPro MG996R</b> (pitch y roll)</td><td>~10 kgf·cm a 6 V. <b>Sin pulso quedan flojos</b>: la cabeza cae si se corta el pulso o los 6 V.</td></tr>
+<tr><td><img src="../hardware/diagrama_sistema/fotos/buzzer.jpg" style="width:45pt"></td><td><b>Buzzer pasivo MH-FMD</b></td><td>Frecuencia variable (melodías). Trae su transistor PNP: VCC a 3V3, activo en bajo.</td></tr>
+<tr><td><img src="../hardware/diagrama_sistema/fotos/powerbank.jpg" style="width:30pt"></td><td><b>Powerbank Xiaomi PB2020MI</b></td><td>Alimenta la Pi: 20 000 mAh, 5 V / 3 A por USB. Dura ~9 h.</td></tr>
 <tr><td></td><td><b>Fuente de laboratorio</b></td><td>Servos a 6,0 V con límite de corriente en 4–5 A (uso normal 2–3 A; un servo trabado pide 2,5–4,2 A).</td></tr>
 </table>
 

@@ -32,7 +32,7 @@ se comparte por Drive, no por git.
 ## Para regenerar el CAD
 
 `generar_v6.py` importa `docs/diseno_v5/generar_v5.py`, que **no está en el repo**, además de
-`docs/keepon_v2_cad/fuente/` y `docs/keepon_v3_cad/fuente/`. Sin la v5 solo se puede abrir y revisar el
+`docs/cad_anteriores/keepon_v2_cad/fuente/` y `docs/cad_anteriores/keepon_v3_cad/fuente/`. Sin la v5 solo se puede abrir y revisar el
 modelo, no regenerarlo. Los SLDPRT son cuerpos importados: la fuente paramétrica es `config.yaml` más el Python.
 
 ## Antes de fabricar

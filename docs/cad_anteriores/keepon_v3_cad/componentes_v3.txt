@@ -1,5 +1,5 @@
 KEEPON PRO v3 · COMPONENTES (sin las piezas impresas)
-Generado el 14/10/2026 por docs/keepon_v3_cad/fuente/componentes.py
+Generado el 14/10/2026 por docs/cad_anteriores/keepon_v3_cad/fuente/componentes.py
 
 Medidas en mm. «MEDIR» = verificar con calibre antes de imprimir.
 
@@ -47,7 +47,7 @@ Servo de pitch · Hitec HS-7955TG                     1      Cuerpo 40,0 × 20,0
 Servo de roll · TowerPro MG996R                      1      Cuerpo 40,7 × 19,7 × 42,9 · Brida 54,0 (agujeros 49,5 × 10,0) · Eje a 16,0 sobre la brida TENEMOS
                                                            ↳ GPIO4. Límites 1000/2000 µs (roll ±20°). Banda muerta ~10°. Sin pulso queda flojo. 55 g.
 Brazo doble de plástico (uno por servo)              3      38,0 de punta a punta · cubo Ø9,0 · ancho 6,5 → 4,0 · espesor 2,5 · agujeros cada ≈ 2,5–3 (MEDIR) TENEMOS
-                                                           ↳ El mismo en los tres servos (foto docs/Fotos/brazo_servo.jpeg). Plato, horquilla y placa de roll tienen una ranura a cada lado del eje: el tornillo entra en el agujero del brazo que quede debajo. Ojo: el HS-7955TG tiene estriado Hitec (24 dientes) y el RDS3218 y el MG996R de 25: cada brazo tiene que ser el de su servo.
+                                                           ↳ El mismo en los tres servos (foto docs/hardware/fotos/brazo_servo.jpeg). Plato, horquilla y placa de roll tienen una ranura a cada lado del eje: el tornillo entra en el agujero del brazo que quede debajo. Ojo: el HS-7955TG tiene estriado Hitec (24 dientes) y el RDS3218 y el MG996R de 25: cada brazo tiene que ser el de su servo.
 Servo de repuesto · TowerPro MG90S                   1      22,8 × 12,2 × 28,5                         TENEMOS
                                                            ↳ Repuesto de roll (0,09 °/µs, banda muerta 20–30 µs). No se usa en el diseño.
 

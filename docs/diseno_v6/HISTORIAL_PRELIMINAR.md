@@ -1,7 +1,7 @@
 # Keepon V6: desarrollo parcial
 
 La referencia para este trabajo es `../diseno_v5/`, la última versión de la
-familia `Robot_Social_Mathias`. Es distinta de `../../docs/keepon_v4_cad/`,
+familia `Robot_Social_Mathias`. Es distinta de `../../docs/cad_anteriores/keepon_v4_cad/`,
 que `CLAUDE.md` señala como diseño vigente del proyecto. Se conservaron ambas
 familias y todos sus archivos. Esta carpeta **no es una V6 completa ni una
 entrega del conjunto lista para fabricar**.
@@ -94,7 +94,7 @@ No se generaron SLDPRT de estas piezas: la sesión
 de SolidWorks tenía V5 con cambios sin guardar y avisó memoria insuficiente;
 se pueden abrir los STEP para revisión, sin confundirlos con validación nativa.
 
-Los tres `horn_*.step` de `docs/keepon_v4_cad/` se midieron: cada uno modela
+Los tres `horn_*.step` de `docs/cad_anteriores/keepon_v4_cad/` se midieron: cada uno modela
 un brazo doble de 38 mm; los taladros de radio nominal 0,75 mm están a 7, 10,
 13 y 16 mm del eje por cada lado. Es un modelo común estimado, no la forma del
 brazo simple físico del HS. Datos y cilindros en `evidencias/referencias_step.json`.

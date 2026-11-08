@@ -157,7 +157,7 @@ Además, **[Repo]** §4.1 y T1 mencionan microcontrolador y protocolo, aunque la
 
 La Pi debe ir en la **parte móvil** de la horquilla para acompañar pitch; colocarla en su soporte fijo no elimina ese movimiento relativo.
 
-**[Repo]** El CAD no representa el FFC ni sus conectores con suficiente detalle. Las afirmaciones del [diagrama](</home/hecvelaz/Documentos/Keepon pro /docs/diagrama_sistema/index.html:276>) “solo se dobla” y “15–20 cm alcanza” **no están verificadas**. Orientar el ancho paralelo a pitch resuelve una dirección de flexión; no demuestra compatibilidad simultánea con roll.
+**[Repo]** El CAD no representa el FFC ni sus conectores con suficiente detalle. Las afirmaciones del [diagrama](</home/hecvelaz/Documentos/Keepon pro /docs/hardware/diagrama_sistema/index.html:276>) “solo se dobla” y “15–20 cm alcanza” **no están verificadas**. Orientar el ancho paralelo a pitch resuelve una dirección de flexión; no demuestra compatibilidad simultánea con roll.
 
 **[Estimación]** El recorrido actual combina desplazamiento frontal, rodeo de placa de **64 mm**, desvío alrededor del servo, bajada de **42 mm** y llegada a la Pi. No corresponde sumar esas cotas como una longitud exacta, pero **150 mm deja muy poco margen para curvas y movimiento**.
 

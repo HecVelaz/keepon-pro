@@ -11,7 +11,7 @@
 
 #include <Arduino.h>
 
-// --- Pines y PWM (recomendados en docs/REVISION_CODEX_HW.md, sección C) ---
+// --- Pines y PWM (recomendados en docs/revisiones/REVISION_CODEX_HW.md, sección C) ---
 const int NUM_EJES = 3;
 const int PINES[NUM_EJES] = {0, 1, 4};                  // GPIO de la señal
 const char *NOMBRES[NUM_EJES] = {"yaw", "pitch", "roll"};

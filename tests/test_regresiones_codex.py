@@ -1,5 +1,5 @@
 """Regresiones de los fallos encontrados por Codex en la revisión de M0
-(docs/REVISION_CODEX_M0.md). Cada test reproduce el escenario que fallaba."""
+(docs/revisiones/REVISION_CODEX_M0.md). Cada test reproduce el escenario que fallaba."""
 
 import pytest
 
@@ -144,7 +144,7 @@ def test_stale_world_releases_target():
 
 
 # ====================================================================================
-# Revisión de arquitectura (docs/REVISION_CODEX_ARQ.md, "Correcciones concretas")
+# Revisión de arquitectura (docs/revisiones/REVISION_CODEX_ARQ.md, "Correcciones concretas")
 # ====================================================================================
 
 # 7. El control de mirada centra en el centro óptico (cx, cy), no en (320, 240) --------

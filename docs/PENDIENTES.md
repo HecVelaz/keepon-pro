@@ -7,6 +7,10 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
    `[Completar]`: enlace al video y al ZIP, captura del overlay, **aportes individuales y uso de IA**
    (los escribe el grupo) y la latencia medida. Subirlo a Colab y probar que abre desde otra cuenta.
 2. ~~Integrar los PR a `main`~~: hecho el 08/11 (#3 → #4 → #5 → #6).
+   **Pi:** `docs/` se reorganizó el 08/11 (consigna/, hardware/, cad_anteriores/, revisiones/). El `rsync` no borra: en el
+   próximo sync, borrar en `~/keepon/docs/` las carpetas viejas (`Fotos`, `diagrama_sistema`, `keepon_v*_cad`,
+   `micro_servo_*`, `servo_HS-7955TG_titanium_gear`, `keepon_mg996r_step`, `REVISION_CODEX*.md`, `CHECKLIST_TP.md`,
+   `2026S2uTP_*`), comparando antes con `cmp`. El código del robot no cambió.
 3. ZIP del código, enlace al repo y verificar que todo abre desde otra cuenta.
 4. **Video ≤ 3 min** (guion de 8 escenas del usuario, revisado el 08/11): escribir `docs/GUION_VIDEO.md` (quién hace
    qué, qué botón, qué se ve en el overlay) y grabar con el overlay en pantalla. Opcional: grabar el overlay a `.mp4`
@@ -46,7 +50,7 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
   el comentario de encendido de `firmware/keepon_fw/keepon_fw.ino` apunta a la v4.
 - Herramientas de calibración (`~/keepon/calibracion/` en la Pi): pasarlas a `scripts/` si se van a reusar.
 - Reconexión automática de `SerialLink` si se desconecta el USB; autofoco (hoy `AfMode=0`).
-- Revisión de Codex (`docs/REVISION_CODEX_ARQ.md`): punto 3 (asociar pose y persona por timestamp; hoy por caja).
+- Revisión de Codex (`docs/revisiones/REVISION_CODEX_ARQ.md`): punto 3 (asociar pose y persona por timestamp; hoy por caja).
 - Medir ≥ 4,9 V en los pines de alimentación de la Pi con todo andando.
 - Documentos que siguen nombrando al HS-7955TG como pitch: `pruebas_servos/README.md` (planilla: es historia),
   `pruebas_servos/CLAUDE.md`, `firmware/README.md` y el comentario de arranque de `firmware/keepon_fw/keepon_fw.ino`.

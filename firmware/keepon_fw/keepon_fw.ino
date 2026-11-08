@@ -12,7 +12,7 @@
 
 #include "nucleo.h"
 
-// --- Pines (docs/REVISION_CODEX_HW.md; evitar 2/8/9 de strapping, 18/19 del USB y 20/21 del UART0) ---
+// --- Pines (docs/revisiones/REVISION_CODEX_HW.md; evitar 2/8/9 de strapping, 18/19 del USB y 20/21 del UART0) ---
 const uint8_t PIN_SERVO[3] = {0, 1, 4};  // yaw, pitch, roll
 const uint8_t PIN_BUZZER = gen::PIN_BUZZER;  // config.yaml: buzzer.pin (GPIO5 desde el 03/11)
 
@@ -69,7 +69,7 @@ void setup() {
 
   // Arranca en HOME. Los servos no tienen realimentación: el primer pulso los lleva a HOME a toda
   // velocidad desde donde hayan quedado (el HS-7955TG salta). Por eso se enciende con la cabeza cerca
-  // de HOME y los 6 V después que la Pi (README de docs/keepon_v4_cad).
+  // de HOME y los 6 V después que la Pi (README de docs/cad_anteriores/keepon_v4_cad).
   t_paso = millis();
   nucleo.reiniciar(t_paso);
   escribir_servos();

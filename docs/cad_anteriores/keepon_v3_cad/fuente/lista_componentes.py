@@ -140,7 +140,7 @@ SERVOS = [
     ("Brazo doble de plástico (uno por servo)", 3,
      f"{f(k.BRAZO_L)} de punta a punta · cubo Ø{f(k.BRAZO_CUBO_D)}<br/>ancho {f(k.BRAZO_ANCHO[0])} → "
      f"{f(k.BRAZO_ANCHO[1])} · espesor {f(k.BRAZO_T)}<br/>agujeros cada ≈ 2,5–3 (MEDIR)",
-     "El mismo en los tres servos (foto docs/Fotos/brazo_servo/brazo_servo.jpeg). Plato, horquilla y placa de roll tienen una "
+     "El mismo en los tres servos (foto docs/hardware/fotos/brazo_servo/brazo_servo.jpeg). Plato, horquilla y placa de roll tienen una "
      "ranura a cada lado del eje: el tornillo entra en el agujero del brazo que quede debajo. "
      "Ojo: el HS-7955TG tiene estriado Hitec (24 dientes) y el RDS3218 y el MG996R de 25: cada brazo tiene que "
      "ser el de su servo.", "TENEMOS"),
@@ -267,7 +267,7 @@ def main():
     h.append(Paragraph(
         "<b>Cómo leer las dimensiones.</b> Las piezas impresas se dan como la caja envolvente en la posición del "
         "robot: <b>X</b> (de atrás hacia la cara) × <b>Y</b> (de lado a lado) × <b>Z</b> (alto), en mm, tomadas "
-        "del modelo CAD (<font name='DV'>docs/keepon_v3_cad/</font>). Los componentes comprados llevan las medidas "
+        "del modelo CAD (<font name='DV'>docs/cad_anteriores/keepon_v3_cad/</font>). Los componentes comprados llevan las medidas "
         "nominales que usa el modelo (hojas de datos y medidas típicas); los marcados <b>MEDIR</b> hay que "
         "verificarlos con calibre antes de imprimir. <b>Estado:</b> TENEMOS = ya está en el grupo; FALTA = hay que "
         "conseguirlo; IMPRIMIR = pieza propia; RECOM. = recomendado; OPCIONAL.", st_txt))
@@ -285,7 +285,7 @@ def main():
     h.append(Paragraph("1.3 Tornillería", st_h2))
     h.append(tabla(TORNILLOS, ANCHOS, ("Elemento", "Cant.", "Medida", "Dónde va", "Estado")))
     h.append(Paragraph("No hay rodamiento de yaw: el plato se atornilla al horn del RDS3218 (ver "
-                       "docs/keepon_v3_cad/README.md, «Yaw sin rodamiento»).", st_txt))
+                       "docs/cad_anteriores/keepon_v3_cad/README.md, «Yaw sin rodamiento»).", st_txt))
     h.append(PageBreak())
 
     h.append(Paragraph("2. Diseño electrónico", st_h1))

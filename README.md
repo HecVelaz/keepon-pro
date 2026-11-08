@@ -14,9 +14,9 @@
 ![ESP32-C3](https://img.shields.io/badge/ESP32--C3-Arduino-E7352C?logo=espressif&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-257%20pasan-2f6b4f)
 
-<img src="docs/Fotos/Wall-e_frontal.jpeg" alt="Wall-E de frente: cabeza negra impresa en 3D con dos ojos grandes, la cámara como nariz y el buzzer debajo, sobre la horquilla de pitch y la base" width="560">
+<img src="docs/hardware/fotos/Wall-e_frontal.jpeg" alt="Wall-E de frente: cabeza negra impresa en 3D con dos ojos grandes, la cámara como nariz y el buzzer debajo, sobre la horquilla de pitch y la base" width="560">
 
-<img src="docs/Fotos/Wall-e_costado1.jpeg" alt="Wall-E visto de costado, con el powerbank en la base" width="275"> <img src="docs/Fotos/Wall-e_costado2.jpeg" alt="Wall-E visto desde el otro costado, con el cableado de los servos" width="275">
+<img src="docs/hardware/fotos/Wall-e_costado1.jpeg" alt="Wall-E visto de costado, con el powerbank en la base" width="275"> <img src="docs/hardware/fotos/Wall-e_costado2.jpeg" alt="Wall-E visto desde el otro costado, con el cableado de los servos" width="275">
 
 *Wall-E armado: diseño mecánico propio v6 R4, impreso en 3D. La cámara es la nariz; la Raspberry Pi va dentro de la cabeza.*
 
@@ -33,9 +33,9 @@ un buzzer, sin bloquearse nunca.
 |---|---|
 | 📓 **Informe técnico** (cuaderno Colab, ya ejecutado) | [`docs/informe/Informe_técnico_v3.ipynb`](docs/informe/Informe_t%C3%A9cnico_v3.ipynb) · versión anterior: [`Informe_técnico.ipynb`](docs/informe/Informe_t%C3%A9cnico.ipynb) |
 | 📘 **Guía completa del proyecto** (PDF con diagramas) | [`docs/guia/Guia_Keepon_pro.pdf`](docs/guia/Guia_Keepon_pro.pdf): construcción, hardware, control, software y decisiones |
-| ✅ **Consigna, casilla por casilla** | [`docs/CHECKLIST_TP.md`](docs/CHECKLIST_TP.md) (qué pide la consigna y dónde está en el código) |
-| 📄 **Consigna** | [`docs/2026S2uTP_RoboticaSocial.md`](docs/2026S2uTP_RoboticaSocial.md) |
-| 🔌 **Diagrama eléctrico y del sistema** | [`docs/diagrama_sistema/`](docs/diagrama_sistema/index.html) |
+| ✅ **Consigna, casilla por casilla** | [`docs/consigna/CHECKLIST_TP.md`](docs/consigna/CHECKLIST_TP.md) (qué pide la consigna y dónde está en el código) |
+| 📄 **Consigna** | [`docs/consigna/2026S2uTP_RoboticaSocial.md`](docs/consigna/2026S2uTP_RoboticaSocial.md) |
+| 🔌 **Diagrama eléctrico y del sistema** | [`docs/hardware/diagrama_sistema/`](docs/hardware/diagrama_sistema/index.html) |
 | 🧩 **Diagramas editables** (draw.io) | [`docs/informe/diagramas/`](docs/informe/diagramas/LEEME.md) |
 
 ## Qué hace
@@ -175,13 +175,32 @@ En la Pi, `keepon` es `bash ~/keepon/scripts/keepon`.
 
 Desde una notebook con acceso SSH a la Pi, `scripts/k <comando>` hace lo mismo (`KEEPON_PI=usuario@host`).
 
-## Código
+## Estructura del repositorio
+
+> **¿Primera vez acá?** El mapa de toda la documentación, con un recorrido de lectura sugerido, está en
+> [`docs/README.md`](docs/README.md).
 
 ```
-keepon/             el robot en Python          tests/            257 tests con pytest
-firmware/           ESP32-C3 (Arduino)          scripts/          arranque, panel, carga de firmware, benchmarks
-pruebas_servos/     banco de servos             pruebas_buzzer/   buzzer y sonidos (polca transcrita a mano)
-pruebas_camisetas/  detector de camisetas       docs/             informe, guía, arquitectura, hardware, CAD
+keepon-pro/
+├── keepon/               el robot en Python: percepción, eventos, foco, comportamientos, árbitro, actuadores
+├── firmware/             ESP32-C3: trayectorias con curva S, sonidos, watchdog y protocolo serie
+├── scripts/              arranque, panel del celular, carga del firmware, simulación, benchmarks, figuras
+├── tests/                257 tests con pytest (el firmware se compara paso a paso con el simulador)
+├── config.yaml           TODOS los parámetros del robot, comentados
+├── pruebas_servos/       banco de pruebas y calibración de los servos
+├── pruebas_buzzer/       buzzer y sonidos (la polca transcrita de la partitura)
+├── pruebas_camisetas/    detector de camisetas: referencias, evaluación y resultados
+└── docs/
+    ├── README.md         mapa de la documentación y recorrido sugerido
+    ├── consigna/         enunciado del µTP y checklist de la consigna
+    ├── informe/          informe técnico (cuaderno Colab) y sus diagramas editables
+    ├── guia/             guía completa del proyecto en PDF
+    ├── hardware/         fotos de Wall-E y de cada componente, diagrama eléctrico, hojas de datos
+    ├── diseno_v6/        diseño mecánico vigente (v6 R4): CAD, planos y piezas para imprimir
+    ├── cad_anteriores/   diseños mecánicos v1 a v4 (la historia del diseño)
+    ├── revisiones/       revisiones externas del plan, el código y el hardware
+    ├── img/              imágenes de este README
+    └── *.md              arquitectura, protocolo, hardware, Pi, decisiones, bitácora, estado y pendientes
 ```
 
 | Módulo | Qué hace |

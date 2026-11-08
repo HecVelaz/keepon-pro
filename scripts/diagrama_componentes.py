@@ -1,6 +1,6 @@
 """Diagrama del sistema con la foto real de cada componente, sus datos y las conexiones.
 
-Fotos: docs/diagrama_sistema/fotos/ y docs/Fotos/ (sin personas). Datos: docs/HARDWARE.md y config.yaml.
+Fotos: docs/hardware/diagrama_sistema/fotos/ y docs/hardware/fotos/ (sin personas). Datos: docs/HARDWARE.md y config.yaml.
 Salida: docs/img/diagrama_componentes.png (y .svg), que usan el informe y el README.
 
 Uso:  python scripts/diagrama_componentes.py        (necesita Pillow y cairosvg)
@@ -15,7 +15,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 W, H = 1800, 1240
 
 FONDO, TARJETA, BORDE, TINTA, GRIS = "#f6f5f1", "#ffffff", "#d9d6cc", "#1d1d1b", "#6b6a64"
-# colores de los cables (los mismos que docs/diagrama_sistema/index.html)
+# colores de los cables (los mismos que docs/hardware/diagrama_sistema/index.html)
 V6, V5, GND, SENAL, USB, CSI = "#d62828", "#e07a00", "#2b2b2b", "#c99a00", "#5b6b82", "#7c3aed"
 FUENTE = 'font-family="Lato"'
 
@@ -111,28 +111,28 @@ def diagrama():
     g.append(cable([(490, 820), (490, 821)], GND, etiqueta="GND común", pos=(490, 822)))
 
     # --- tarjetas
-    g.append(tarjeta(60, 120, 300, 350, "docs/diagrama_sistema/fotos/powerbank.jpg", "Xiaomi PB2020MI",
+    g.append(tarjeta(60, 120, 300, 350, "docs/hardware/diagrama_sistema/fotos/powerbank.jpg", "Xiaomi PB2020MI",
                      "Alimenta la Raspberry Pi", ["20 000 mAh · 74 Wh", "salida 5 V / 3 A", "≈ 9 h de uso"], V5))
-    g.append(tarjeta(560, 120, 380, 350, "docs/diagrama_sistema/fotos/pi5.jpg", "Raspberry Pi 5 (4 GB)",
+    g.append(tarjeta(560, 120, 380, 350, "docs/hardware/diagrama_sistema/fotos/pi5.jpg", "Raspberry Pi 5 (4 GB)",
                      "Percepción y decisión", ["Ubuntu 24.04 + ROS 2 Jazzy · Python", "YOLO26n + MediaPipe · lazo 36–39 Hz",
                                                "va dentro de la cabeza"], USB))
-    g.append(tarjeta(1140, 120, 300, 350, "docs/diagrama_sistema/fotos/camara.jpg", "Camera Module 3 NoIR",
+    g.append(tarjeta(1140, 120, 300, 350, "docs/hardware/diagrama_sistema/fotos/camara.jpg", "Camera Module 3 NoIR",
                      "Visión: es la nariz del robot", ["sensor IMX708 · 640×480 a 30 fps", "montada invertida (180°)",
                                                        "sin filtro infrarrojo"], CSI, nota="foto de referencia"))
     g.append(tarjeta(60, 540, 300, 300, None, "Fuente de laboratorio", "Alimenta los 3 servos",
                      ["6,0 V · límite 4–5 A", "uso normal 2–3 A"], V6))
     g.append(fuente_laboratorio(60, 540, 300, 300))
-    g.append(tarjeta(560, 540, 380, 260, "docs/Fotos/esp32_c3_mini_1/51gB6Uad4BL._AC_SX425_.jpg", "ESP32-C3-DevKitM-1",
+    g.append(tarjeta(560, 540, 380, 260, "docs/hardware/fotos/esp32_c3_mini_1/51gB6Uad4BL._AC_SX425_.jpg", "ESP32-C3-DevKitM-1",
                      "Control de servos y buzzer", ["trayectorias con curva S a 100 Hz", "PWM 50 Hz · watchdog 500 ms"],
                      SENAL, alto_foto=110))
     servos = [
-        ("docs/diagrama_sistema/fotos/rds3218.jpg", "DSSERVO RDS3218", "YAW · gira la horquilla",
+        ("docs/hardware/diagrama_sistema/fotos/rds3218.jpg", "DSSERVO RDS3218", "YAW · gira la horquilla",
          ["20 kg·cm · 270° · 6 V", "±70° · hasta 180 °/s", "sin pulso mantiene la posición"]),
-        ("docs/Fotos/MG_996r_nuevo/mg_996r.jpg", "TowerPro MG996R", "PITCH · mueve la cuna",
+        ("docs/hardware/fotos/MG_996r_nuevo/mg_996r.jpg", "TowerPro MG996R", "PITCH · mueve la cuna",
          ["~10 kgf·cm a 6 V", "−20° / +30° · hasta 120 °/s", "sin pulso queda flojo"]),
-        ("docs/Fotos/MG_996r_nuevo/mg_996r.jpg", "TowerPro MG996R", "ROLL · inclina la cabeza",
+        ("docs/hardware/fotos/MG_996r_nuevo/mg_996r.jpg", "TowerPro MG996R", "ROLL · inclina la cabeza",
          ["~10 kgf·cm a 6 V · disco de 25T", "±20° · hasta 250 °/s", "sin pulso queda flojo"]),
-        ("docs/diagrama_sistema/fotos/buzzer.jpg", "Buzzer pasivo MH-FMD", "SONIDOS · VCC 3V3",
+        ("docs/hardware/diagrama_sistema/fotos/buzzer.jpg", "Buzzer pasivo MH-FMD", "SONIDOS · VCC 3V3",
          ["frecuencia variable (LEDC)", "polca, R2D2, abucheo, beeps", "activo en bajo"]),
     ]
     for (img, tit, rol, datos), x in zip(servos, (60, 500, 940, 1380)):

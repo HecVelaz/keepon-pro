@@ -1,5 +1,5 @@
 KEEPON PRO v4 · COMPONENTES Y DIMENSIONES
-Generado por docs/keepon_v4_cad/fuente/keepon_v4_cad.py
+Generado por docs/cad_anteriores/keepon_v4_cad/fuente/keepon_v4_cad.py
 
 Medidas en mm: caja envolvente en la posición del robot, X (hacia la cara) × Y (de lado a lado) × Z (alto).
 IMPRIMIR = pieza propia (step/ y stl/); COMPRADO = componente (step/componentes/).

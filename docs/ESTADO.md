@@ -8,8 +8,8 @@ Al cerrar una sesión (`/cerrar`) se actualiza este archivo, no `CLAUDE.md`.
   curva S, roll, Observador de la guía, HOME, Ejes, polca una vez, informe y README de presentación). Se trabaja desde `main`.
 - GitHub: descripción y temas puestos; README con portada (imágenes en `docs/img/`).
 - El repo en GitHub es **público** (decisión del 07/11).
-- Documentación para un lector externo: `README.md`, `docs/CHECKLIST_TP.md` (al día el 08/11) y
-  `docs/checklist_robotica_social.html`. Entrega: guía PDF `docs/guia/Guia_Keepon_pro.pdf`, informe
+- Documentación para un lector externo: `README.md`, `docs/consigna/CHECKLIST_TP.md` (al día el 08/11) y
+  `docs/consigna/checklist_robotica_social.html`. Entrega: guía PDF `docs/guia/Guia_Keepon_pro.pdf`, informe
   `docs/informe/Informe_técnico.ipynb` (y `_v3`, la del usuario, con `docs/informe/diagramas/*.drawio`). El informe (las dos
   versiones) está al día con el 08/11; la guía PDF todavía describe solo el perfil **trapezoidal** y el Observador por miradas.
 - La Pi está sincronizada con `movimiento-suave` en `135f882` (`~/keepon/.commit`).
