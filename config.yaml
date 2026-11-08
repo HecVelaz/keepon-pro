@@ -266,8 +266,9 @@ observer:
     centrar_s: 1.6               # ir al centro, con mínimo jerk
     pausa_centro_s: 1.0
     amp_deg: 45.0                # barre de −amp a +amp en yaw
-    vel_barrido: 20.0            # [°/s] velocidad MEDIA del barrido (90° en 4,5 s; pico 1,875 veces = 37,5 °/s).
-                                 # OJO: el RDS3218 vibraba ≤ ~40 °/s el 05/11 (sin curva S): si vibra, subirla.
+    vel_barrido: 25.0            # [°/s] velocidad MEDIA del barrido (90° en 3,6 s; pico 1,875 veces = 47 °/s).
+                                 # 08/11: con 20 (pico 37,5) el yaw VIBRABA barriendo, montado. El RDS3218 vibra
+                                 # ≤ ~40 °/s (05/11): si sigue vibrando, subirla.
     pitch_barrido: 0.0           # pitch mientras barre
     sacada_cada: 2               # barridos entre una sacada y la siguiente
     # Puntos de interés de las sacadas [yaw, pitch, roll] [°]: roll chico para encuadrar (siempre se vuelve a 0
