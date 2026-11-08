@@ -52,7 +52,7 @@ def test_el_atraso_de_la_percepcion_no_lo_hace_pasar(latencia):
     En modo velocidad, con 150 ms se pasaba ~4° de 25° y volvía."""
     rig = Rig([SynthPerson(1, appear=0.2, az=const(25.0))])
     rig.cam.latency = latencia
-    traza = correr(rig, 5.0)
+    traza = correr(rig, 8.0)  # desde el centro no la ve: la encuentra el Observador al pasar por +15 (~5 s)
     assert max(p for _, _, p, _ in traza) <= 25.0 + 1.0
     assert abs(rig.link.neck_pos[0] - 25.0) <= 1.0
 
@@ -100,15 +100,35 @@ def test_posicion_del_cuello_en_la_captura_interpola_la_historia():
 
 
 def test_observador_por_miradas_quieto_entre_una_y_otra():
+    """08/11: entre una mirada y la otra, yaw va con la curva de mínimo jerk en transicion_s (sin saltos ni
+    pasarse) y después queda QUIETO el resto de pausa_s (quieto no vibra)."""
     o = CFG["observer"]
+    T, P = o["transicion_s"], o["pausa_s"]
+    assert 0 < T < P
     rig = Rig([])
-    traza = correr(rig, 0.5 + o["pausa_s"] * 4)
+    traza = correr(rig, 0.5 + P * 4)
     refs = [(t, r) for t, r, _, d in traza if d == "OBSERVADOR"]
-    # Primero quieto donde estaba (home); después, de a un punto de la lista, sin pasos intermedios
-    assert all(r == 0.0 for t, r in refs if t < o["pausa_s"])
-    yaws = {round(r, 6) for _, r in refs}
-    assert yaws <= {0.0} | {p[0] for p in o["miradas"]}
-    assert cambios([r for _, r in refs]) <= 4
+    assert all(r == 0.0 for t, r in refs if t < P)                 # al arrancar: quieto en el centro
+    paso_max = max(abs(b[0] - a[0]) for a, b in zip(o["miradas"], o["miradas"][1:] + o["miradas"][:1]))
+    v_pico = 1.875 * max(paso_max, 40.0) / T                      # mínimo jerk: pico 1,875·D/T
+    saltos = [abs(b - a) / DT for (_, a), (_, b) in zip(refs, refs[1:])]
+    assert max(saltos) <= v_pico * 1.05                            # sin saltos
+    t0 = refs[0][0]
+    for k in range(1, 4):                                          # en cada pausa, después de T: quieto
+        quietos = {r for t, r in refs if t0 + k * P + T + 2 * DT <= t < t0 + (k + 1) * P - DT}
+        assert len(quietos) == 1
+
+
+def test_minimo_jerk_arranca_y_frena_sin_tirones():
+    from keepon.behaviors import minimo_jerk
+    assert minimo_jerk(0.0) == 0.0 and minimo_jerk(1.0) == 1.0 and minimo_jerk(-1) == 0.0 and minimo_jerk(2) == 1.0
+    h = 1e-4
+    d1 = lambda t: (minimo_jerk(t + h) - minimo_jerk(t - h)) / (2 * h)
+    d2 = lambda t: (minimo_jerk(t + h) - 2 * minimo_jerk(t) + minimo_jerk(t - h)) / h ** 2
+    assert abs(d1(h)) < 1e-6 and abs(d1(1 - h)) < 1e-6             # velocidad nula en los extremos
+    assert abs(d2(2 * h)) < 0.05 and abs(d2(1 - 2 * h)) < 0.05     # y aceleración ~0 (el pico es 5,77): sin tirón
+    assert abs(d1(0.5) - 1.875) < 1e-6                             # pico 1,875·D/T a la mitad
+    assert all(minimo_jerk(a / 100) <= minimo_jerk((a + 1) / 100) for a in range(100))  # no se pasa
 
 
 class _Act:
@@ -122,19 +142,23 @@ class _Act:
 
 
 def _secuencia_observador(ref_inicial, pasos):
-    """Referencias distintas que manda el Observador, en orden, durante `pasos` pausas."""
+    """Posturas en las que el Observador se QUEDA (las de cada pausa, sin las intermedias de la transición), en
+    orden, durante `pasos` pausas."""
     from types import SimpleNamespace
 
     from keepon.behaviors import Observer
     obs = Observer(CFG)
     ctx = SimpleNamespace(now=0.0, act=_Act(ref_inicial))
     obs.on_start(None, ctx)
-    vistas = []
+    vistas = [tuple(ctx.act.ref)]
     while ctx.now < CFG["observer"]["pausa_s"] * pasos:
+        fase, antes = obs.fase, tuple(ctx.act.ref)
         obs.act(None, ctx)
-        if not vistas or vistas[-1] != tuple(ctx.act.ref):
-            vistas.append(tuple(ctx.act.ref))
+        if obs.fase != fase and vistas[-1] != antes:   # cambió de fase: la postura que sostenía
+            vistas.append(antes)
         ctx.now += DT
+    if vistas[-1] != tuple(ctx.act.ref):
+        vistas.append(tuple(ctx.act.ref))
     return vistas
 
 

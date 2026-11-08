@@ -17,10 +17,10 @@ const double BUZZER_VOLUMEN = 0.12;
 const double LIM_MIN[3] = {-70.0, -20.0, -20.0};
 const double LIM_MAX[3] = {70.0, 30.0, 20.0};
 const double HOME[3] = {0.0, 0.0, 0.0};
-const double VMAX[3] = {180.0, 120.0, 120.0};
-const double AMAX[3] = {600.0, 400.0, 300.0};
+const double VMAX[3] = {180.0, 120.0, 250.0};
+const double AMAX[3] = {600.0, 400.0, 900.0};
 // Curva S: pasos de 10 ms que se promedian por eje (neck.suavizado_s; 1 = trapecio solo).
-const int VENTANA[3] = {10, 10, 10};
+const int VENTANA[3] = {10, 10, 15};
 
 // Servos: pulso = centro + signo · grados / grados_por_us, recortado a [min, max] µs.
 // grados_por_us: [lado de pulsos < 1500, lado de pulsos > 1500].

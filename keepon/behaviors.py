@@ -49,11 +49,22 @@ class Behavior:
     def act(self, g: Grant, ctx: Context) -> None: ...
 
 
+def minimo_jerk(tau: float) -> float:
+    """Curva de mínimo jerk de 0 a 1 (tau en [0, 1], se recorta): s = 10τ³ − 15τ⁴ + 6τ⁵. Arranca y termina con
+    velocidad Y aceleración nulas (el coseno arranca con aceleración ≠ 0: un tirón). Velocidad pico 1,875·D/T
+    a la mitad; aceleración pico 5,77·D/T²."""
+    t = min(1.0, max(0.0, tau))
+    return t * t * t * (10.0 + t * (-15.0 + 6.0 * t))
+
+
 class Observer(Behavior):
     """Sin personas: mira la escena. Dos modos (observer.modo de config.yaml):
-    - "miradas": va a un punto de observer.miradas, se queda quieto pausa_s y pasa al siguiente. El
-      movimiento lo hace el firmware con vmax/amax y curva S: firme, y quieto entre uno y otro (los servos
-      vibran si se mueven lento, 05/11). Secuencia (Tabla 1: "centra la vista y explora la escena"):
+    - "miradas": va a un punto de observer.miradas, se queda quieto y pasa al siguiente (pausa_s por
+      punto, contando el movimiento). Yaw y pitch van de un punto al otro con la curva de mínimo jerk en
+      transicion_s (08/11: "más suave al buscar"); el roll va directo con el perfil del firmware (son
+      ±5°: repartidos en transicion_s, la banda muerta del MG996R lo haría avanzar a saltitos).
+      transicion_s = 0: todo salta y el firmware hace el movimiento (como el 05/11). Secuencia (Tabla 1:
+      "centra la vista y explora la escena"):
       quieto donde quedó la cabeza (pausa_s) → centro (HOME, pausa_s) → la mirada más cercana al centro
       y de ahí en orden. Si ya está en el centro (al arrancar), empieza por el centro. Cada mirada puede
       traer un roll chico [yaw, pitch, roll] para "encuadrar".
@@ -75,6 +86,7 @@ class Observer(Behavior):
             centrado = all(abs(a - b) <= 2.0 for a, b in zip(self.inicio, self.home))
             self.fase = "centro" if centrado else "quieto"
             self.t_mirada = ctx.now
+            self.desde = self.inicio                      # de dónde sale la transición en curso
             return
         # Fase inicial tal que el barrido empiece en el yaw actual (sin salto).
         s = max(-1.0, min(1.0, ctx.act.ref[0] / o["yaw_amp"]))
@@ -93,8 +105,12 @@ class Observer(Behavior):
                 else:
                     self.fase = (self.fase + 1) % len(puntos)
                 self.t_mirada = ctx.now
-            destino = {"quieto": self.inicio, "centro": self.home}.get(self.fase)
-            ctx.act.neck(g, *(destino or puntos[self.fase]))  # el mismo J hasta la próxima mirada: quieto
+                self.desde = tuple(ctx.act.ref)           # la transición sale de la última referencia
+            destino = {"quieto": self.inicio, "centro": self.home}.get(self.fase) or puntos[self.fase]
+            T = o.get("transicion_s", 0.0)
+            k = minimo_jerk((ctx.now - self.t_mirada) / T) if T > 0 else 1.0
+            yaw, pitch = (a + (b - a) * k for a, b in zip(self.desde[:2], destino[:2]))
+            ctx.act.neck(g, yaw, pitch, destino[2])       # al terminar, el mismo J hasta la próxima: quieto
             return
         ph = self.phase0 + 2 * math.pi * (ctx.now - self.t0) / o["period_s"]
         blend = min(1.0, (ctx.now - self.t0) / 2.0)  # pitch vuelve suave en 2 s

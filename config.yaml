@@ -11,14 +11,14 @@ neck:
                                  # 08/11: esas medidas son de ANTES de corregir signo y cero del roll (servos.roll):
                                  # el +20 nuevo (derecha) es el −25 de entonces. Verificar ±20 montado.
   home: [0.0, 0.0, 0.0]          # postura calibrada, mirada al frente
-  vmax: [180.0, 120.0, 120.0]    # velocidad máxima por eje [°/s] (yaw, pitch, roll)
-  amax: [600.0, 400.0, 300.0]    # aceleración máxima por eje [°/s²]
+  vmax: [180.0, 120.0, 250.0]    # velocidad máxima por eje [°/s] (yaw, pitch, roll)
+  amax: [600.0, 400.0, 900.0]    # aceleración máxima por eje [°/s²]
                                  # 05/11: se probó bajar pitch/roll (90 °/s; 250/200 °/s²) y los TRES servos
                                  # vibraron más: quietos no vibran, pero moviéndose LENTO sí (avanzan a saltitos
                                  # por la banda muerta). Se volvió a movimientos rápidos y controlados: pitch como
                                  # con el HS (120/400; el par inercial de la cabeza, ~0,1 kgf·cm, es despreciable
                                  # frente al del MG996R) y roll 120/300. Los gestos (nod 237 °/s², mentón 137) entran.
-  suavizado_s: [0.10, 0.10, 0.10]  # curva S [s] (yaw, pitch, roll), 07/11: la posición del servo es el promedio
+  suavizado_s: [0.10, 0.10, 0.15]  # curva S [s] (yaw, pitch, roll), 07/11: la posición del servo es el promedio
                                  # del perfil trapezoidal en esta ventana (keepon/trajectory.py). La aceleración
                                  # cambia en rampa en vez de saltar: jerk ≤ 2·amax/suavizado_s (yaw: 12000 °/s³;
                                  # el trapecio solo, 60000 a 100000). Cada movimiento dura esto más (25° de yaw:
@@ -263,7 +263,11 @@ observer:
   # vuelta, nunca de un lado al otro. Sin el tercer valor, roll 0.
   miradas: [[-40.0, 3.0, 5.0], [-15.0, -3.0, 0.0], [15.0, 3.0, -5.0], [40.0, -3.0, 0.0], [15.0, -3.0, 5.0],
             [-15.0, 3.0, 0.0]]
-  pausa_s: 2.0                   # cuánto se queda en cada punto (incluye el movimiento, ~0,5 s para 25°)
+  pausa_s: 2.5                   # tiempo en cada punto, CONTANDO el movimiento (transicion_s): 1,5 s quieto
+  transicion_s: 1.0              # 08/11: yaw y pitch van de un punto al otro con curva de mínimo jerk en este
+                                 # tiempo (30° de yaw: pico 56 °/s, aceleración 173 °/s²). 0 = salto y el firmware
+                                 # hace el movimiento (vmax/amax: 25° en ~0,5 s, el de antes). Tiene que ser
+                                 # menor que pausa_s. Más largo = más suave pero más lento (vibra ≤ ~40 °/s).
   # --- Solo modo "barrido":
   yaw_amp: 45.0                  # barrido lento
   pitch_amp: 6.0
