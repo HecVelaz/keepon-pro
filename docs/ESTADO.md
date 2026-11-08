@@ -4,9 +4,9 @@ Foto del estado actual. La historia está en `docs/BITACORA.md`; lo que falta, e
 Al cerrar una sesión (`/cerrar`) se actualiza este archivo, no `CLAUDE.md`.
 
 ## Ramas y repo
-- Ramas encadenadas, sin integrar a `main`: **`diseno-v6-vigente`** (PR #3) → **`panel-arranque`** (PR #4) →
-  **`camisetas`** (PR #5, subida) → **`movimiento-suave`** (08/11: curva S, roll, Observador de la guía, HOME, Ejes,
-  polca una vez; **sin push ni PR**). Se integran en ese orden; hasta entonces `main` es la del 26/10.
+- **Todo integrado a `main`** (08/11): PR #3 (diseño v6) → #4 (panel) → #5 (camisetas) → #6 (`movimiento-suave`:
+  curva S, roll, Observador de la guía, HOME, Ejes, polca una vez, informe y README de presentación). Se trabaja desde `main`.
+- GitHub: descripción y temas puestos; README con portada (imágenes en `docs/img/`).
 - El repo en GitHub es **público** (decisión del 07/11).
 - Documentación para un lector externo: `README.md`, `docs/CHECKLIST_TP.md` (al día el 08/11) y
   `docs/checklist_robotica_social.html`. Entrega: guía PDF `docs/guia/Guia_Keepon_pro.pdf`, informe

@@ -6,8 +6,7 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
 1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v3`, antes `_v2`) y completar los
    `[Completar]`: enlace al video y al ZIP, foto del robot, captura del overlay, **aportes individuales y uso de IA**
    (los escribe el grupo) y la latencia medida. Subirlo a Colab y probar que abre desde otra cuenta.
-2. **Push de `movimiento-suave` y su PR** (sobre `camisetas`), y después **integrar los PR #3 → #4 → #5 → nuevo a
-   `main`** (el usuario, o con su autorización explícita): sin eso, `main` es del 26/10.
+2. ~~Integrar los PR a `main`~~: hecho el 08/11 (#3 → #4 → #5 → #6).
 3. ZIP del código, enlace al repo y verificar que todo abre desde otra cuenta.
 4. **Video ≤ 3 min** (guion de 8 escenas del usuario, revisado el 08/11): escribir `docs/GUION_VIDEO.md` (quién hace
    qué, qué botón, qué se ve en el overlay) y grabar con el overlay en pantalla. Opcional: grabar el overlay a `.mp4`
