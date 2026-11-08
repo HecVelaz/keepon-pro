@@ -36,7 +36,7 @@ PANEL = RAIZ / "scripts" / "panel"
 RUN = Path.home() / "keepon" / "run"
 TIPOS = {".html": "text/html; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml",
          ".webmanifest": "application/manifest+json", ".js": "text/javascript"}
-FIJOS = {"n", "t", "a", "m", "stop", "resume", "home"}
+FIJOS = {"n", "t", "a", "m", "stop", "resume", "home", "ejes"}
 # Encender / apagar el robot entero (el servicio systemd). No confundir "parar" con "stop": "stop" es el
 # STOP enclavado del robot que sigue corriendo; "parar" lo apaga (vuelve a HOME y suelta cámara y ESP32).
 SERVICIO = {"arrancar": "start", "parar": "stop"}

@@ -81,6 +81,7 @@
 <div class="grilla">
   <button onclick="mandar('home')">Home</button>
   <button onclick="mandar('resume')">Resume</button>
+  <button onclick="mandar('ejes')">Ejes<small>yaw, pitch y roll (~15 s)</small></button>
 </div>
 
 <h2>Sonidos</h2>
@@ -169,7 +170,8 @@ async function actualizar() {
     $("vol-valor").textContent = estado.volumen + " %";
   }
   document.querySelectorAll(".modo").forEach((b) => b.classList.toggle("actual", b.dataset.modo === estado.modo));
-  $("stop").textContent = estado.stop ? "STOP activo · tocar para RESUME" : "STOP";
+  $("stop").textContent = estado.home ? "En HOME · tocar para RESUME"
+                        : estado.stop ? "STOP activo · tocar para RESUME" : "STOP";
   $("stop").classList.toggle("activo", !!estado.stop);
   $("hz").textContent = `${estado.lazo_hz} Hz`;
   $("e-modo").textContent = estado.modo;

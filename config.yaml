@@ -8,14 +8,22 @@ neck:
     roll:  [-20.0, 20.0]         # Montado (03/11): a +25 queda al límite de la pared y a +30 toca. Hacia la izquierda,
                                  # −30 "al límite" fue SIN compensación de zona muerta (llegaba ~10° antes): con la
                                  # compensación, −20 es −20 de verdad. Probar de a poco antes de ampliar.
+                                 # 08/11: esas medidas son de ANTES de corregir signo y cero del roll (servos.roll):
+                                 # el +20 nuevo (derecha) es el −25 de entonces. Verificar ±20 montado.
   home: [0.0, 0.0, 0.0]          # postura calibrada, mirada al frente
-  vmax: [180.0, 120.0, 120.0]    # velocidad máxima por eje [°/s] (yaw, pitch, roll)
-  amax: [600.0, 400.0, 300.0]    # aceleración máxima por eje [°/s²]
+  vmax: [180.0, 120.0, 250.0]    # velocidad máxima por eje [°/s] (yaw, pitch, roll)
+  amax: [600.0, 400.0, 900.0]    # aceleración máxima por eje [°/s²]
                                  # 05/11: se probó bajar pitch/roll (90 °/s; 250/200 °/s²) y los TRES servos
                                  # vibraron más: quietos no vibran, pero moviéndose LENTO sí (avanzan a saltitos
                                  # por la banda muerta). Se volvió a movimientos rápidos y controlados: pitch como
                                  # con el HS (120/400; el par inercial de la cabeza, ~0,1 kgf·cm, es despreciable
                                  # frente al del MG996R) y roll 120/300. Los gestos (nod 237 °/s², mentón 137) entran.
+  suavizado_s: [0.10, 0.10, 0.15]  # curva S [s] (yaw, pitch, roll), 07/11: la posición del servo es el promedio
+                                 # del perfil trapezoidal en esta ventana (keepon/trajectory.py). La aceleración
+                                 # cambia en rampa en vez de saltar: jerk ≤ 2·amax/suavizado_s (yaw: 12000 °/s³;
+                                 # el trapecio solo, 60000 a 100000). Cada movimiento dura esto más (25° de yaw:
+                                 # 0,41 → 0,51 s); las velocidades altas no cambian (los servos vibran lentos).
+                                 # 0 = trapecio solo. Se cuenta en pasos de 10 ms, máximo 0,5 s.
   # Calibración de los servos (planilla de pruebas_servos/README.md). La usa el firmware para pasar de grados a µs:
   # pulso = centro_us + signo · grados / grados_por_us, recortado a [min_us, max_us].
   # compensacion_us (opcional): [al bajar el pulso, al subir el pulso], se suma según el sentido del último
@@ -44,12 +52,16 @@ neck:
       # El n.º 1 (11-12/10) era simétrico: 0.13, 950/2050 µs. No son intercambiables sin recalibrar.
       # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
     roll:                        # TowerPro MG996R NUEVO (05/11, reemplaza al que tenía zona muerta), 6 V
-      centro_us: 1500            # montado (05/11): disco calzado en 1500
+      centro_us: 1500            # 08/11, MG996R reemplazado por otro igual: derecha en 1500 µs, llegando desde la
+                                 # izquierda (−15° → 0). Tiene banda muerta: pasos de 3-5° no lo movían y de golpe
+                                 # saltaba. Falta medir llegando desde la derecha (compensacion_us). Antes: 1554
+                                 # (servo anterior, 08/11) y 1500 (05/11).
       grados_por_us: 0.092       # sin carga (05/11): +217 µs = +20° justos; −217 µs "casi 20°"
-      min_us: 1000               # ≈ ±46°: de sobra para los ±20° de roll (sin tope hasta 800/2300 µs)
+      min_us: 1000               # ≈ −60°/+48° desde el centro: de sobra para los ±20° (sin tope hasta 800/2300 µs)
       max_us: 2000
-      signo: -1                  # el del MG996R anterior en el mismo montaje (pulso mayor = ANTIHORARIO visto desde
-                                 # atrás; roll + = horario, PROTOCOLO.md). Mismo modelo y montaje: VERIFICAR montado.
+      signo: 1                   # 08/11, verificado montado: pulso mayor = HORARIO visto desde atrás (inclina a la
+                                 # derecha), y roll + = horario (PROTOCOLO.md). Antes −1, copiado del MG996R anterior:
+                                 # roll + inclinaba a la izquierda.
       compensacion_us: [0, 0]    # El nuevo vuelve a 0 desde ±20° sin la zona muerta del anterior (que usaba
                                  # [0, 151]). Montado vibra un poco quieto en 0 al volver de −20°: sin resolver.
       # Pesa 55 g. Sin pulso queda flojo: en el STOP hay que seguir mandando el último pulso.
@@ -171,16 +183,29 @@ sounds:
 # Tabla de prioridades (0 = más importante). Ver docs/HOJA_DE_RUTA.md §S4.
 priorities:
   OPERADOR: 0
+  EJES: 0                        # demostración de los 3 ejes (comando del operador, sólo el cuello)
   SALUDO: 1
   CAMISETA: 2
   MODO: 3
   SEGUIMIENTO: 4
   OBSERVADOR: 5
 
+# Demostración de los tres ejes (08/11, botón "Ejes" del panel / comando "ejes"): para el video y la demo.
+# Cada paso: [yaw, pitch, roll, duración del movimiento en s]. Yaw y pitch con mínimo jerk; el roll va con el
+# perfil del firmware (banda muerta del MG996R). Después de cada paso, quieto pausa_s para que se vea la postura.
+# Total ≈ 15 s. Al terminar vuelve a HOME y retoma el Observador o el seguimiento.
+ejes:
+  pausa_s: 0.5
+  secuencia: [[30.0, 0.0, 0.0, 1.1], [-30.0, 0.0, 0.0, 1.8], [0.0, 0.0, 0.0, 1.1],
+              [0.0, 20.0, 0.0, 1.0], [0.0, -15.0, 0.0, 1.4], [0.0, 0.0, 0.0, 1.0],
+              [0.0, 0.0, 15.0, 0.8], [0.0, 0.0, -15.0, 1.0], [0.0, 0.0, 0.0, 0.8]]
+
 # Periodos refractarios [s]. Se registran cuando la respuesta EMPIEZA, no al proponer.
 cooldowns:
   SALUDO_por_persona: 5.0
-  CAMISETA_por_persona: 25.0
+  CAMISETA_por_persona: null     # 08/11: null = UNA VEZ POR APARICIÓN (por ID del tracker; si la persona sale más de
+                                 # ~1 s, tracker.max_lost, vuelve con otro ID y suena de nuevo). Antes 25 s: con la
+                                 # camiseta a la vista la polca se repetía. Un número = segundos (la guía: 20-30).
   PIROPO_global: 40.0
 
 # Control de mirada (T3). Detalle de los dos modos en keepon/gaze.py.
@@ -244,10 +269,35 @@ modos:
   # maleducado: piropo al empezar cada salida (SALIENDO) de la persona seguida; cooldown PIROPO_global.
 
 observer:
-  modo: miradas                  # "miradas" (05/11): de un punto al otro con el perfil del firmware y quieto
-                                 # pausa_s en cada uno. "barrido": senoide continua y lenta (los servos vibraban).
-  miradas: [[-40.0, 3.0], [-15.0, -3.0], [15.0, 3.0], [40.0, -3.0], [15.0, -3.0], [-15.0, 3.0]]  # [yaw, pitch] [°]
-  pausa_s: 2.0                   # cuánto se queda en cada punto (incluye el movimiento, ~0,5 s para 25°)
+  modo: exploracion              # 08/11 "exploracion": lo que pide la Tabla 1 (barridos lentos + sacadas + roll),
+                                 # detalle en keepon/behaviors.py (Observer). De respaldo: "miradas" (05/11, de punto
+                                 # en punto con pausas: se veía "para y gira") y "barrido" (senoide continua sin
+                                 # sacadas; el 05/11, sin curva S, los servos vibraban).
+  exploracion:
+    fijacion_s: 1.5              # cuánto fija un punto de interés (y donde quedó la última persona), contando la
+                                 # sacada (~0,3-0,5 s con el perfil del firmware)
+    centrar_s: 1.6               # ir al centro, con mínimo jerk
+    pausa_centro_s: 1.0
+    amp_deg: 45.0                # barre de −amp a +amp en yaw
+    vel_barrido: 25.0            # [°/s] velocidad MEDIA del barrido (90° en 3,6 s; pico 1,875 veces = 47 °/s).
+                                 # 08/11: con 20 (pico 37,5) el yaw VIBRABA barriendo, montado. El RDS3218 vibra
+                                 # ≤ ~40 °/s (05/11): si sigue vibrando, subirla.
+    pitch_barrido: 0.0           # pitch mientras barre
+    sacada_cada: 2               # barridos entre una sacada y la siguiente
+    # Puntos de interés de las sacadas [yaw, pitch, roll] [°]: roll chico para encuadrar (siempre se vuelve a 0
+    # en el barrido siguiente, nunca de un lado al otro).
+    puntos_interes: [[-20.0, 6.0, 5.0], [30.0, -4.0, -5.0], [5.0, 10.0, 0.0]]
+  # --- Solo modo "miradas" (07/11: quieto donde quedó → centra la vista (HOME) → recorre las miradas):
+  # [yaw, pitch, roll] [°]. Roll: pequeñas inclinaciones "para encuadrar" (Tabla 1), siempre de 0 a ±roll o de
+  # vuelta, nunca de un lado al otro. Sin el tercer valor, roll 0.
+  miradas: [[-40.0, 3.0, 5.0], [-15.0, -3.0, 0.0], [15.0, 3.0, -5.0], [40.0, -3.0, 0.0], [15.0, -3.0, 5.0],
+            [-15.0, 3.0, 0.0]]
+  pausa_s: 3.0                   # tiempo en cada punto, CONTANDO el movimiento (transicion_s): 1,4 s quieto
+  transicion_s: 1.6              # 08/11: yaw y pitch van de un punto al otro con curva de mínimo jerk en este
+                                 # tiempo (30° de yaw: pico 35 °/s, aceleración 68 °/s²; 1,0 s se veía rápido:
+                                 # pico 56 °/s). OJO: el RDS3218 vibraba ≤ ~40 °/s (05/11). 0 = salto y el firmware
+                                 # hace el movimiento (vmax/amax: 25° en ~0,5 s, el de antes). Tiene que ser
+                                 # menor que pausa_s. Más largo = más suave pero más lento (vibra ≤ ~40 °/s).
   # --- Solo modo "barrido":
   yaw_amp: 45.0                  # barrido lento
   pitch_amp: 6.0

@@ -17,6 +17,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 from keepon import load_config  # noqa: E402
+from keepon.trajectory import Neck  # noqa: E402  (misma cuenta de la ventana que el simulador)
 
 SIMULADOR = RAIZ / "pruebas_buzzer" / "simulador_sonidos.html"
 SALIDA = RAIZ / "firmware" / "keepon_fw" / "generado.h"
@@ -108,6 +109,8 @@ def generar(cfg: dict | None = None) -> str:
         "const double HOME[3] = {" + ", ".join(repr(float(x)) for x in n["home"]) + "};",
         "const double VMAX[3] = {" + ", ".join(repr(float(x)) for x in n["vmax"]) + "};",
         "const double AMAX[3] = {" + ", ".join(repr(float(x)) for x in n["amax"]) + "};",
+        "// Curva S: pasos de 10 ms que se promedian por eje (neck.suavizado_s; 1 = trapecio solo).",
+        "const int VENTANA[3] = {" + ", ".join(str(Neck.from_config(cfg).axes[e].ventana) for e in EJES) + "};",
         "",
         "// Servos: pulso = centro + signo · grados / grados_por_us, recortado a [min, max] µs.",
         "// grados_por_us: [lado de pulsos < 1500, lado de pulsos > 1500].",

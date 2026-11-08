@@ -118,13 +118,14 @@ class SerialLink(Link):
         return time.monotonic() - self._t0
 
     def _avanzar_espejo(self) -> None:
-        """Lleva el espejo hasta ahora, en pasos de ~10 ms como el lazo del firmware."""
+        """Lleva el espejo hasta ahora en pasos fijos de 10 ms, como el lazo del firmware. Fijos (no "lo que
+        haya pasado / n"): la curva S promedia una cantidad de PASOS, así que con otro dt daría otra curva."""
+        if self.esp is None:
+            return
         t = self.now()
-        if self.esp is not None and t > self._t_espejo:
-            n = max(1, round((t - self._t_espejo) / 0.01))
-            for _ in range(n):
-                self.esp.tick((t - self._t_espejo) / n)
-            self._t_espejo = t
+        while t - self._t_espejo >= 0.01 - 1e-9:
+            self.esp.tick(0.01)
+            self._t_espejo += 0.01
 
     def _write(self, line: str) -> None:
         self.ser.write(line.encode("ascii"))
@@ -160,7 +161,7 @@ class SerialLink(Link):
             else:  # p. ej. al arrancar con el cuello fuera de HOME
                 # Posición y objetivo: queda quieto ahí hasta el próximo J, igual que el ESP32 real.
                 for eje, v in zip(self.esp.neck.axes.values(), real):
-                    eje.pos, eje.target, eje.vel = v, v, 0.0
+                    eje.fijar(v)
                 self.resyncs += 1
 
     @property

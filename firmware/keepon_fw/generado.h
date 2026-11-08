@@ -17,8 +17,10 @@ const double BUZZER_VOLUMEN = 0.12;
 const double LIM_MIN[3] = {-70.0, -20.0, -20.0};
 const double LIM_MAX[3] = {70.0, 30.0, 20.0};
 const double HOME[3] = {0.0, 0.0, 0.0};
-const double VMAX[3] = {180.0, 120.0, 120.0};
-const double AMAX[3] = {600.0, 400.0, 300.0};
+const double VMAX[3] = {180.0, 120.0, 250.0};
+const double AMAX[3] = {600.0, 400.0, 900.0};
+// Curva S: pasos de 10 ms que se promedian por eje (neck.suavizado_s; 1 = trapecio solo).
+const int VENTANA[3] = {10, 10, 15};
 
 // Servos: pulso = centro + signo · grados / grados_por_us, recortado a [min, max] µs.
 // grados_por_us: [lado de pulsos < 1500, lado de pulsos > 1500].
@@ -26,7 +28,7 @@ const double CENTRO_US[3] = {1500.0, 1500.0, 1500.0};
 const double GPU[3][2] = {{0.13, 0.136}, {0.092, 0.092}, {0.092, 0.092}};
 const uint16_t MIN_US[3] = {950, 1100, 1000};
 const uint16_t MAX_US[3] = {2020, 1800, 2000};
-const int8_t SIGNO[3] = {-1, -1, -1};
+const int8_t SIGNO[3] = {-1, -1, 1};
 // Compensación de zona muerta [µs]: {al bajar el pulso, al subir el pulso}, según el sentido del
 // último movimiento del eje.
 const int16_t COMP_US[3][2] = {{0, 0}, {0, 0}, {0, 0}};

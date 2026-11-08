@@ -3,6 +3,37 @@
 Lo hecho en cada sesión, lo más reciente arriba. El estado actual está en `docs/ESTADO.md`; lo que falta, en
 `docs/PENDIENTES.md`. Creada el 03/11/2026 con la historia que estaba en `ESTADO.md`.
 
+## 08/11/2026
+**Movimiento suave, calibración del roll, Observador de la guía y funciones para el video** (rama `movimiento-suave`,
+sale de `camisetas`; empezó el 07/11 a la noche)
+- **Curva S en todos los movimientos** (`e038dfc`): la posición del servo es el promedio del trapecio en una ventana
+  (`neck.suavizado_s`, 0,1 s = 10 pasos). Igual en `keepon/trajectory.py` y `firmware/keepon_fw/nucleo.cpp`. Jerk de
+  yaw de 60000–104000 a 12000 °/s³ (≤ 2·amax/ventana: el trapecio discreto pasa de +amax a −amax al frenar), sin pasar
+  vmax/amax ni el objetivo; cada movimiento dura 0,1 s más. El espejo de `SerialLink` avanza en pasos fijos de 10 ms.
+- **Roll** (medido montado, `scripts/prueba_movimientos.py` y secuencias por SSH):
+  - El signo estaba al revés: roll + inclinaba a la izquierda vista desde atrás. Ahora `signo: 1` (`1f62e62`).
+  - Se cambió el MG996R por otro igual; cero en **1500 µs**, llegando desde la izquierda (`13169ae`). Banda muerta grande:
+    pasos de 3–5° no lo mueven y después salta.
+  - **Vibra solo girando a la derecha en la zona negativa** (−10, −15, −20 → 0 por igual; −20 → +20 también), con
+    cualquier perfil (trapecio, curva S de 0,1 y 0,3 s). +20 → −20 y 0 → +20 no vibran. **Sin curva S vibró peor**:
+    dato nuevo sobre la decisión del 05/11. Probable servo o carga; falta el banco.
+  - En prueba: roll `vmax` 250 °/s, `amax` 900 °/s², curva S 0,15 s (`93a0d07`, cargado en la ESP32). Sin resultado aún.
+- **Observador**: primero quieto → centro → miradas con roll ±5° y transición de mínimo jerk (`93a0d07`, `7799e2a`). Se
+  veía "para y gira": se pasó a **"exploracion"** (`c041452`), lo de la Tabla 1: centra, barre ±45° sin pararse, sacada
+  rápida a un punto de interés cada 2 barridos (con roll ±5°). Con 20 °/s de media el yaw vibraba: **25 °/s** (`881b98a`).
+- **HOME del operador** (`9a65dda`): el botón mandaba `HOME` por fuera del árbitro y el Observador o el seguimiento lo
+  pisaban en el ciclo siguiente (con STOP, la ESP32 lo rechazaba). Ahora es como STOP: va a 0 0 0 y queda hasta RESUME.
+  **Probado en el robot: funciona.**
+- **Botón "Ejes"** para la escena 0:00–0:15 del video (`135f882`): comportamiento `EJES` (prioridad 0, cuello), ~15 s
+  (`ejes.secuencia`). **Polca una vez por aparición** (`cooldowns.CAMISETA_por_persona: null`; antes, 4 polcas en 90 s).
+  El beep del modo ya cortaba cualquier sonido desde el 04/11 (`3a9e07c`): tests nuevos con la polca y el saludo.
+- Guion del video del usuario revisado escena por escena (ver PENDIENTES). Arbitraje explicado (`keepon/arbiter.py`).
+- Firmware cargado varias veces en la Pi (`bash scripts/cargar_firmware.sh`). Secuencias rápidas sin terminal: un script
+  temporal en `/tmp/secuencia_keepon.py` de la Pi (se borra al reiniciar); `prueba_movimientos.py` espera un Enter.
+
+Commits: `e038dfc`, `1f62e62`, `13169ae`, `93a0d07`, `7799e2a`, `c041452`, `881b98a`, `9a65dda`, `135f882` (sin push).
+Tests: 257. Pi sincronizada en `135f882`.
+
 ## 07/11/2026
 **Repaso de la consigna y documentación para leer desde afuera** (rama `camisetas`)
 - Checklist de la consigna revisado casilla por casilla contra el código: `docs/CHECKLIST_TP.md` (antes suelto en la

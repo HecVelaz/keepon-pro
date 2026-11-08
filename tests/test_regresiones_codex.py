@@ -19,8 +19,8 @@ DT = 1 / 40
 class Rig:
     """Robot + ESP32 simulado + cámara sintética en tiempo simulado."""
 
-    def __init__(self, persons):
-        self.cfg = load_config()
+    def __init__(self, persons, cfg=None):
+        self.cfg = cfg or load_config()
         self.link = SimLink(self.cfg, realtime=False)
         self.robot = Robot(self.cfg, self.link, log=EventLog(to_file=False, echo=False))
         self.cam = SynthCamera(self.cfg, persons)

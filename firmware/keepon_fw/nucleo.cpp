@@ -13,8 +13,18 @@ namespace keepon {
 static double recortar(double x, double lo, double hi) { return x < lo ? lo : x > hi ? hi : x; }
 
 // ------------------------------------------------------------------------------------------------
-// Trayectoria: copia de keepon/trajectory.py (Axis). Ver allí la deducción de la fórmula cerrada.
+// Trayectoria: copia de keepon/trajectory.py (Axis). Ver allí la deducción de la fórmula cerrada
+// del trapecio y por qué el promedio de la ventana da una curva S.
 // ------------------------------------------------------------------------------------------------
+void Eje::iniciar(double lo_, double hi_, double vmax_, double amax_, double home, int ventana_) {
+  lo = lo_; hi = hi_; vmax = vmax_; amax = amax_;
+  pos = plan = target = home;
+  vel = 0.0;
+  ventana = ventana_ < 1 ? 1 : ventana_ > MAX_VENTANA ? MAX_VENTANA : ventana_;
+  for (int k = 0; k < ventana; k++) buf[k] = home;
+  i_buf = 0;
+}
+
 bool Eje::set_target(double t) {
   target = recortar(t, lo, hi);
   return target != t;
@@ -28,12 +38,23 @@ double Eje::v_max_to_stop(double dist) const {
 }
 
 void Eje::step() {
-  double e = target - pos;
+  // 1) Trapecio
+  double e = target - plan;
   double A = amax * DT;
   double v_des = e != 0.0 ? copysign(fmin(vmax, v_max_to_stop(fabs(e))), e) : 0.0;
   vel += recortar(v_des - vel, -A, A);
-  pos = recortar(pos + vel * DT, lo, hi);
-  if (fabs(target - pos) < 1e-9 && fabs(vel) <= A) pos = target;  // solo absorbe el redondeo
+  plan = recortar(plan + vel * DT, lo, hi);
+  if (fabs(target - plan) < 1e-9 && fabs(vel) <= A) plan = target;  // solo absorbe el redondeo
+  // 2) Curva S: promedio de la ventana, sumado en el orden del arreglo (como en Python).
+  buf[i_buf] = plan;
+  i_buf = (i_buf + 1) % ventana;
+  double suma = 0.0;
+  bool iguales = true;
+  for (int k = 0; k < ventana; k++) {
+    suma += buf[k];
+    iguales = iguales && buf[k] == plan;
+  }
+  pos = iguales ? plan : suma / ventana;  // ventana llena de la misma posición: exactamente esa
 }
 
 // Recorrido si frena a tope desde ahora: dt · Σ max(0, |v| − k·a·dt).
@@ -43,8 +64,8 @@ double Eje::stopping_distance() const {
   return DT * (n * v - A * n * (n + 1) / 2.0);
 }
 
-// Punto donde se detiene frenando con amax (STOP y watchdog suaves, sin golpe).
-double Eje::brake_target() const { return recortar(pos + copysign(stopping_distance(), vel), lo, hi); }
+// Punto donde el plan se detiene frenando con amax (STOP y watchdog suaves, sin golpe).
+double Eje::brake_target() const { return recortar(plan + copysign(stopping_distance(), vel), lo, hi); }
 
 // ------------------------------------------------------------------------------------------------
 // Servos: grados → µs con la calibración de config.yaml (neck.servos).
@@ -72,7 +93,7 @@ Nucleo::Nucleo() { reiniciar(0); }
 
 void Nucleo::reiniciar(uint32_t ahora_ms) {
   for (int i = 0; i < 3; i++) {
-    ejes_[i] = Eje{gen::LIM_MIN[i], gen::LIM_MAX[i], gen::VMAX[i], gen::AMAX[i], gen::HOME[i], 0.0, gen::HOME[i]};
+    ejes_[i].iniciar(gen::LIM_MIN[i], gen::LIM_MAX[i], gen::VMAX[i], gen::AMAX[i], gen::HOME[i], gen::VENTANA[i]);
     sentido_[i] = 0;
   }
   estado_ = RUN;

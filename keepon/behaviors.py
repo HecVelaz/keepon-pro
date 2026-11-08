@@ -49,12 +49,55 @@ class Behavior:
     def act(self, g: Grant, ctx: Context) -> None: ...
 
 
+def minimo_jerk(tau: float) -> float:
+    """Curva de mínimo jerk de 0 a 1 (tau en [0, 1], se recorta): s = 10τ³ − 15τ⁴ + 6τ⁵. Arranca y termina con
+    velocidad Y aceleración nulas (el coseno arranca con aceleración ≠ 0: un tirón). Velocidad pico 1,875·D/T
+    a la mitad; aceleración pico 5,77·D/T²."""
+    t = min(1.0, max(0.0, tau))
+    return t * t * t * (10.0 + t * (-15.0 + 6.0 * t))
+
+
+@dataclass
+class Tramo:
+    """Un tramo del movimiento del Observador (modo "exploracion").
+    - "suave":  yaw y pitch de `desde` a `hacia` con mínimo jerk en `dur` s (el roll va directo a hacia[2]).
+    - "sacada": salta a `hacia` y el firmware hace el movimiento rápido y firme; se queda ahí hasta `dur`.
+    - "quieto": se queda en `hacia` durante `dur`."""
+    tipo: str
+    hacia: tuple
+    dur: float
+    desde: tuple = ()
+    t0: float = 0.0
+
+    def referencia(self, now: float) -> tuple:
+        if self.tipo != "suave":
+            return self.hacia
+        k = minimo_jerk((now - self.t0) / self.dur)
+        yaw, pitch = (a + (b - a) * k for a, b in zip(self.desde[:2], self.hacia[:2]))
+        return (yaw, pitch, self.hacia[2])
+
+
 class Observer(Behavior):
-    """Sin personas: mira la escena. Dos modos (observer.modo de config.yaml):
-    - "miradas": va a un punto de observer.miradas, se queda quieto pausa_s y pasa al siguiente. El
-      movimiento lo hace el firmware con vmax/amax: firme, y quieto entre uno y otro (los servos vibran si
-      se mueven lento, 05/11). Primero se queda quieto donde está (pausa_s) y después sigue por el punto
-      más cercano al yaw actual.
+    """Sin personas: mira la escena. Tres modos (observer.modo de config.yaml):
+    - "exploracion" (08/11, el de la Tabla 1 de la guía: "centra la vista y explora la escena: barridos
+      lentos, sacadas a puntos de interés, pequeñas variaciones de roll para encuadrar"). Una cola de
+      tramos (Tramo):
+        1. Si la cabeza quedó lejos del centro (donde estaba la última persona: es un punto de interés),
+           la sostiene fijacion_s; después va suave al centro (centrar_s) y se queda pausa_centro_s.
+        2. Barridos lentos y continuos de un extremo (±amp_deg) al otro a vel_barrido °/s de media, con
+           mínimo jerk: no se para en el medio, solo frena para dar la vuelta. Roll en 0.
+        3. Cada sacada_cada barridos, una sacada (rápida, con el perfil del firmware) al próximo punto de
+           puntos_interes, que fija fijacion_s con su roll chico; desde ahí sigue barriendo hacia el extremo
+           más lejano. El roll siempre pasa por 0 entre dos puntos (nunca de un lado al otro).
+    - "miradas": va a un punto de observer.miradas, se queda quieto y pasa al siguiente (pausa_s por
+      punto, contando el movimiento). Yaw y pitch van de un punto al otro con la curva de mínimo jerk en
+      transicion_s (08/11: "más suave al buscar"); el roll va directo con el perfil del firmware (son
+      ±5°: repartidos en transicion_s, la banda muerta del MG996R lo haría avanzar a saltitos).
+      transicion_s = 0: todo salta y el firmware hace el movimiento (como el 05/11). Secuencia (Tabla 1:
+      "centra la vista y explora la escena"):
+      quieto donde quedó la cabeza (pausa_s) → centro (HOME, pausa_s) → la mirada más cercana al centro
+      y de ahí en orden. Si ya está en el centro (al arrancar), empieza por el centro. Cada mirada puede
+      traer un roll chico [yaw, pitch, roll] para "encuadrar".
     - "barrido": barrido lento y continuo (senoide), arranca desde donde está la cabeza."""
     name = "OBSERVADOR"
 
@@ -66,28 +109,74 @@ class Observer(Behavior):
     def on_start(self, g, ctx):
         o = self.cfg["observer"]
         self.t0 = ctx.now
+        if o.get("modo", "barrido") == "exploracion":
+            e = o["exploracion"]
+            self.home = tuple(self.cfg["neck"]["home"])
+            inicio = tuple(ctx.act.ref)
+            self.cola: list[Tramo] = []
+            if any(abs(a - b) > 2.0 for a, b in zip(inicio, self.home)):   # quedó mirando donde estaba alguien
+                self.cola += [Tramo("quieto", inicio, e["fijacion_s"]), Tramo("suave", self.home, e["centrar_s"])]
+            self.cola.append(Tramo("quieto", self.home, e["pausa_centro_s"]))
+            self.tramo: Tramo | None = None
+            self.barridos = 0                 # barridos desde la última sacada
+            self.i_punto = 0
+            self.lado = -1                    # el primer barrido va hacia la izquierda (yaw −)
+            return
         if o.get("modo", "barrido") == "miradas":
-            self.i = None                                 # None: quieto donde quedó la cabeza
-            self.inicio = (ctx.act.ref[0], ctx.act.ref[1])
+            self.home = tuple(self.cfg["neck"]["home"])
+            self.inicio = tuple(ctx.act.ref)
+            # Fases: "quieto" (donde quedó) → "centro" → índice de la mirada. Ya centrado: directo al centro.
+            centrado = all(abs(a - b) <= 2.0 for a, b in zip(self.inicio, self.home))
+            self.fase = "centro" if centrado else "quieto"
             self.t_mirada = ctx.now
+            self.desde = self.inicio                      # de dónde sale la transición en curso
             return
         # Fase inicial tal que el barrido empiece en el yaw actual (sin salto).
         s = max(-1.0, min(1.0, ctx.act.ref[0] / o["yaw_amp"]))
         self.phase0 = math.asin(s)
         self.start_pitch = ctx.act.ref[1]
 
+    def _siguiente_tramo(self, ref: tuple) -> Tramo:
+        """Después de la cola inicial: barridos de extremo a extremo y, cada sacada_cada, una sacada."""
+        e = self.cfg["observer"]["exploracion"]
+        puntos = [(p[0], p[1], p[2] if len(p) > 2 else 0.0) for p in e["puntos_interes"]]
+        if self.barridos >= e["sacada_cada"] and puntos:
+            self.barridos = 0
+            p = puntos[self.i_punto % len(puntos)]
+            self.i_punto += 1
+            self.lado = -1 if p[0] > 0 else 1                 # después, hacia el extremo más lejano
+            return Tramo("sacada", p, e["fijacion_s"])
+        yaw = self.lado * e["amp_deg"]
+        self.lado = -self.lado
+        self.barridos += 1
+        dur = max(0.5, abs(yaw - ref[0]) / e["vel_barrido"])  # velocidad media pedida (pico 1,875 veces)
+        return Tramo("suave", (yaw, e["pitch_barrido"], 0.0), dur)
+
     def act(self, g, ctx):
         o = self.cfg["observer"]
+        if o.get("modo", "barrido") == "exploracion":
+            if self.tramo is None or ctx.now - self.tramo.t0 >= self.tramo.dur:  # terminó: el siguiente
+                ref = tuple(ctx.act.ref)
+                self.tramo = self.cola.pop(0) if self.cola else self._siguiente_tramo(ref)
+                self.tramo.desde, self.tramo.t0 = ref, ctx.now                 # sale de la última referencia
+            ctx.act.neck(g, *self.tramo.referencia(ctx.now))
+            return
         if o.get("modo", "barrido") == "miradas":
-            puntos = o["miradas"]
-            if ctx.now - self.t_mirada >= o["pausa_s"]:   # terminó la pausa: al punto siguiente
-                if self.i is None:                        # el primero: el más cercano a donde está
-                    self.i = min(range(len(puntos)), key=lambda k: abs(puntos[k][0] - self.inicio[0]))
+            puntos = [(p[0], p[1], p[2] if len(p) > 2 else 0.0) for p in o["miradas"]]
+            if ctx.now - self.t_mirada >= o["pausa_s"]:   # terminó la pausa: a lo siguiente
+                if self.fase == "quieto":
+                    self.fase = "centro"
+                elif self.fase == "centro":               # la primera mirada: la más cercana al centro
+                    self.fase = min(range(len(puntos)), key=lambda k: abs(puntos[k][0] - self.home[0]))
                 else:
-                    self.i = (self.i + 1) % len(puntos)
+                    self.fase = (self.fase + 1) % len(puntos)
                 self.t_mirada = ctx.now
-            yaw, pitch = self.inicio if self.i is None else puntos[self.i]
-            ctx.act.neck(g, yaw, pitch, 0.0)              # el mismo J hasta la próxima mirada: quieto
+                self.desde = tuple(ctx.act.ref)           # la transición sale de la última referencia
+            destino = {"quieto": self.inicio, "centro": self.home}.get(self.fase) or puntos[self.fase]
+            T = o.get("transicion_s", 0.0)
+            k = minimo_jerk((ctx.now - self.t_mirada) / T) if T > 0 else 1.0
+            yaw, pitch = (a + (b - a) * k for a, b in zip(self.desde[:2], destino[:2]))
+            ctx.act.neck(g, yaw, pitch, destino[2])       # al terminar, el mismo J hasta la próxima: quieto
             return
         ph = self.phase0 + 2 * math.pi * (ctx.now - self.t0) / o["period_s"]
         blend = min(1.0, (ctx.now - self.t0) / 2.0)  # pitch vuelve suave en 2 s
@@ -220,17 +309,23 @@ class Greeting(Behavior):
 
 class Shirt(Behavior):
     """CAMISETA_OLIMPIA -> polca; CAMISETA_CERRO -> abucheo. Sólo usa el buzzer,
-    así que convive con el seguimiento. Interrumpible sólo por prioridad 0-1."""
+    así que convive con el seguimiento. Interrumpible sólo por prioridad 0-1. Una vez por aparición de
+    cada persona (cooldowns.CAMISETA_por_persona: null); si la interrumpen (p. ej. un saludo), no se
+    repite: el cooldown se registra al empezar."""
     name = "CAMISETA"
     SOUND = {"OLIMPIA": "POLCA", "CERRO": "ABUCHEO"}
 
     def propose(self, ctx):
         out = []
+        # cooldowns.CAMISETA_por_persona: null = una vez por aparición (el cooldown por ID no vence nunca: el
+        # tracker no reusa IDs y quien vuelve después de irse recibe uno nuevo).
+        espera = self.cfg["cooldowns"]["CAMISETA_por_persona"]
+        espera = math.inf if espera is None else espera
         for p in ctx.world.persons.values():
             if ctx.world.visible(p.id) and p.shirt in self.SOUND:
                 out.append(Proposal(self.name, self.priority, frozenset({BUZZER}),
                                     interruptible_by=1, person=p.id, expires=ctx.now + 0.3,
-                                    cooldown=(("CAMISETA", p.id), self.cfg["cooldowns"]["CAMISETA_por_persona"]),
+                                    cooldown=(("CAMISETA", p.id), espera),
                                     params={"sound": self.SOUND[p.shirt]}))
         return out
 
@@ -294,6 +389,47 @@ class ConfirmaModo(Behavior):
         elif ctx.now - self.t0 > self.cfg["sounds"][g.params["sound"]] + 0.5:
             ctx.act.cancel_sound()
             ctx.arb.finish(g.id, ctx.now)
+
+
+class DemoEjes(Behavior):
+    """Comando del operador (botón "Ejes"): muestra los tres ejes (yaw, pitch y roll) con la secuencia de
+    ejes.secuencia de config.yaml y vuelve a HOME. Prioridad 0 y sólo el cuello: nadie lo interrumpe salvo el
+    STOP o el HOME del operador; el buzzer sigue libre. Episódico: al terminar suelta el cuello y retoman el
+    Observador o el seguimiento. Yaw y pitch van con mínimo jerk; el roll, con el perfil del firmware."""
+    name = "EJES"
+
+    def __init__(self, cfg):
+        super().__init__(cfg)
+        self.pedido: float | None = None  # instante del pedido
+
+    def pedir(self, now: float) -> None:
+        self.pedido = now
+
+    def propose(self, ctx):
+        if self.pedido is None:
+            return []
+        if ctx.now > self.pedido + 1.0:  # no se pudo tomar el cuello (p. ej. con STOP): queda en el log
+            ctx.act.log(ctx.now, "EJES descartado (no se pudo tomar el cuello en 1 s)")
+            self.pedido = None
+            return []
+        return [Proposal(self.name, self.priority, frozenset({NECK}), expires=self.pedido + 1.0)]
+
+    def on_start(self, g, ctx):
+        self.pedido = None
+        e = self.cfg["ejes"]
+        self.tramos = []
+        for yaw, pitch, roll, dur in e["secuencia"]:
+            self.tramos += [Tramo("suave", (yaw, pitch, roll), dur), Tramo("quieto", (yaw, pitch, roll), e["pausa_s"])]
+        self.tramo = None
+
+    def act(self, g, ctx):
+        if self.tramo is None or ctx.now - self.tramo.t0 >= self.tramo.dur:  # terminó: el siguiente
+            if not self.tramos:
+                ctx.arb.finish(g.id, ctx.now)
+                return
+            self.tramo = self.tramos.pop(0)
+            self.tramo.desde, self.tramo.t0 = tuple(ctx.act.ref), ctx.now
+        ctx.act.neck(g, *self.tramo.referencia(ctx.now))
 
 
 class Mode(Behavior):
@@ -381,4 +517,4 @@ class Mode(Behavior):
 
 
 def default_behaviors(cfg: dict) -> list[Behavior]:
-    return [Observer(cfg), Tracking(cfg), Greeting(cfg), Shirt(cfg), Mode(cfg), ConfirmaModo(cfg)]
+    return [Observer(cfg), Tracking(cfg), Greeting(cfg), Shirt(cfg), Mode(cfg), ConfirmaModo(cfg), DemoEjes(cfg)]

@@ -32,7 +32,7 @@ from keepon.world import Person, World  # noqa: E402
 
 ATAJOS = {"n": "NEUTRO", "t": "TIMIDO", "a": "ATREVIDO", "m": "MALEDUCADO"}
 AYUDA = ("Comandos (escribir y Enter): n/t/a/m = modo NEUTRO/TIMIDO/ATREVIDO/MALEDUCADO "
-         "(o MODE TIMIDO), sonido NOMBRE (R2D2, POLCA, ABUCHEO, PIROPO...), volumen 0..100, stop, resume, home, "
+         "(o MODE TIMIDO), sonido NOMBRE (R2D2, POLCA, ABUCHEO, PIROPO...), volumen 0..100, stop, resume, home, ejes, "
          "? = esta ayuda")
 
 
@@ -61,9 +61,13 @@ def comando(linea: str, robot) -> str:
     if s.lower() in ("resume", "r"):
         robot.resume()
         return "RESUME"
+    if s.lower() == "ejes":
+        if robot.ejes():
+            return "EJES (yaw, pitch y roll, ~15 s; después vuelve a lo que hacía)"
+        return "EJES no: STOP activo ('resume' primero)"
     if s.lower() == "home":
-        robot.link.send("HOME")
-        return "HOME"
+        robot.home()
+        return "HOME (se queda en 0 0 0; 'resume' para seguir)"
     return AYUDA
 
 
@@ -300,7 +304,7 @@ def main() -> None:
                 t_estado = time.monotonic()
                 g_cuello, g_buzzer = robot.arb.owner[NECK], robot.arb.owner[BUZZER]
                 obj = mundo.persons.get(robot.focus.target) if robot.focus.target is not None else None
-                escribir_estado(ESTADO, t=time.time(), modo=robot.modo, stop=robot.arb.stopped,
+                escribir_estado(ESTADO, t=time.time(), modo=robot.modo, stop=robot.arb.stopped, home=robot.en_home,
                                 foco=robot.focus.target, me_mira=bool(obj and obj.looking),
                                 cuello=g_cuello.behavior if g_cuello else "-",
                                 buzzer=g_buzzer.behavior if g_buzzer else "-",
