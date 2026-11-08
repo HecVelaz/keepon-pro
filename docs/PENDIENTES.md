@@ -15,8 +15,7 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
 3. ~~ZIP del código~~ (release `v1.0-entrega`, 08/11). Falta verificar que todo abre desde otra cuenta.
 4. ~~Video ≤ 3 min~~: hecho el 08/11, https://youtu.be/raOJljv1mVU (8 pruebas, 3 min), con miniatura en el README y
    reproductor en el informe. Falta confirmar con la cátedra la fecha de la demo (`CLAUDE.md` dice 30/10).
-5. Guía PDF: describir la **curva S** (hoy dice perfil trapezoidal), el Observador "exploracion", HOME, Ejes y la polca
-   una vez por aparición (el informe ya está al día, 08/11).
+5. ~~Guía PDF al día~~ (08/11): curva S, roll, Observador, HOME/Ejes, polca, figuras y capítulo 19 de preguntas para la defensa.
 
 ## 1. Para que la demo no falle
 1. **Probar lo del 08/11 en el robot** (todo cargado): el barrido del Observador a 25 °/s (si el yaw vibra en el medio,
