@@ -16,6 +16,12 @@ neck:
                                  # por la banda muerta). Se volvió a movimientos rápidos y controlados: pitch como
                                  # con el HS (120/400; el par inercial de la cabeza, ~0,1 kgf·cm, es despreciable
                                  # frente al del MG996R) y roll 120/300. Los gestos (nod 237 °/s², mentón 137) entran.
+  suavizado_s: [0.10, 0.10, 0.10]  # curva S [s] (yaw, pitch, roll), 07/11: la posición del servo es el promedio
+                                 # del perfil trapezoidal en esta ventana (keepon/trajectory.py). La aceleración
+                                 # cambia en rampa en vez de saltar: jerk ≤ 2·amax/suavizado_s (yaw: 12000 °/s³;
+                                 # el trapecio solo, 60000 a 100000). Cada movimiento dura esto más (25° de yaw:
+                                 # 0,41 → 0,51 s); las velocidades altas no cambian (los servos vibran lentos).
+                                 # 0 = trapecio solo. Se cuenta en pasos de 10 ms, máximo 0,5 s.
   # Calibración de los servos (planilla de pruebas_servos/README.md). La usa el firmware para pasar de grados a µs:
   # pulso = centro_us + signo · grados / grados_por_us, recortado a [min_us, max_us].
   # compensacion_us (opcional): [al bajar el pulso, al subir el pulso], se suma según el sentido del último
@@ -246,7 +252,11 @@ modos:
 observer:
   modo: miradas                  # "miradas" (05/11): de un punto al otro con el perfil del firmware y quieto
                                  # pausa_s en cada uno. "barrido": senoide continua y lenta (los servos vibraban).
-  miradas: [[-40.0, 3.0], [-15.0, -3.0], [15.0, 3.0], [40.0, -3.0], [15.0, -3.0], [-15.0, 3.0]]  # [yaw, pitch] [°]
+                                 # 07/11: quieto donde quedó → centra la vista (HOME) → recorre las miradas.
+  # [yaw, pitch, roll] [°]. Roll: pequeñas inclinaciones "para encuadrar" (Tabla 1), siempre de 0 a ±roll o de
+  # vuelta, nunca de un lado al otro. Sin el tercer valor, roll 0.
+  miradas: [[-40.0, 3.0, 5.0], [-15.0, -3.0, 0.0], [15.0, 3.0, -5.0], [40.0, -3.0, 0.0], [15.0, -3.0, 5.0],
+            [-15.0, 3.0, 0.0]]
   pausa_s: 2.0                   # cuánto se queda en cada punto (incluye el movimiento, ~0,5 s para 25°)
   # --- Solo modo "barrido":
   yaw_amp: 45.0                  # barrido lento

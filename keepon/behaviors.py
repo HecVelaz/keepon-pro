@@ -52,9 +52,11 @@ class Behavior:
 class Observer(Behavior):
     """Sin personas: mira la escena. Dos modos (observer.modo de config.yaml):
     - "miradas": va a un punto de observer.miradas, se queda quieto pausa_s y pasa al siguiente. El
-      movimiento lo hace el firmware con vmax/amax: firme, y quieto entre uno y otro (los servos vibran si
-      se mueven lento, 05/11). Primero se queda quieto donde está (pausa_s) y después sigue por el punto
-      más cercano al yaw actual.
+      movimiento lo hace el firmware con vmax/amax y curva S: firme, y quieto entre uno y otro (los servos
+      vibran si se mueven lento, 05/11). Secuencia (Tabla 1: "centra la vista y explora la escena"):
+      quieto donde quedó la cabeza (pausa_s) → centro (HOME, pausa_s) → la mirada más cercana al centro
+      y de ahí en orden. Si ya está en el centro (al arrancar), empieza por el centro. Cada mirada puede
+      traer un roll chico [yaw, pitch, roll] para "encuadrar".
     - "barrido": barrido lento y continuo (senoide), arranca desde donde está la cabeza."""
     name = "OBSERVADOR"
 
@@ -67,8 +69,11 @@ class Observer(Behavior):
         o = self.cfg["observer"]
         self.t0 = ctx.now
         if o.get("modo", "barrido") == "miradas":
-            self.i = None                                 # None: quieto donde quedó la cabeza
-            self.inicio = (ctx.act.ref[0], ctx.act.ref[1])
+            self.home = tuple(self.cfg["neck"]["home"])
+            self.inicio = tuple(ctx.act.ref)
+            # Fases: "quieto" (donde quedó) → "centro" → índice de la mirada. Ya centrado: directo al centro.
+            centrado = all(abs(a - b) <= 2.0 for a, b in zip(self.inicio, self.home))
+            self.fase = "centro" if centrado else "quieto"
             self.t_mirada = ctx.now
             return
         # Fase inicial tal que el barrido empiece en el yaw actual (sin salto).
@@ -79,15 +84,17 @@ class Observer(Behavior):
     def act(self, g, ctx):
         o = self.cfg["observer"]
         if o.get("modo", "barrido") == "miradas":
-            puntos = o["miradas"]
-            if ctx.now - self.t_mirada >= o["pausa_s"]:   # terminó la pausa: al punto siguiente
-                if self.i is None:                        # el primero: el más cercano a donde está
-                    self.i = min(range(len(puntos)), key=lambda k: abs(puntos[k][0] - self.inicio[0]))
+            puntos = [(p[0], p[1], p[2] if len(p) > 2 else 0.0) for p in o["miradas"]]
+            if ctx.now - self.t_mirada >= o["pausa_s"]:   # terminó la pausa: a lo siguiente
+                if self.fase == "quieto":
+                    self.fase = "centro"
+                elif self.fase == "centro":               # la primera mirada: la más cercana al centro
+                    self.fase = min(range(len(puntos)), key=lambda k: abs(puntos[k][0] - self.home[0]))
                 else:
-                    self.i = (self.i + 1) % len(puntos)
+                    self.fase = (self.fase + 1) % len(puntos)
                 self.t_mirada = ctx.now
-            yaw, pitch = self.inicio if self.i is None else puntos[self.i]
-            ctx.act.neck(g, yaw, pitch, 0.0)              # el mismo J hasta la próxima mirada: quieto
+            destino = {"quieto": self.inicio, "centro": self.home}.get(self.fase)
+            ctx.act.neck(g, *(destino or puntos[self.fase]))  # el mismo J hasta la próxima mirada: quieto
             return
         ph = self.phase0 + 2 * math.pi * (ctx.now - self.t0) / o["period_s"]
         blend = min(1.0, (ctx.now - self.t0) / 2.0)  # pitch vuelve suave en 2 s

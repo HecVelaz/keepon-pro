@@ -24,11 +24,18 @@ const uint32_t PASO_TONO_MS = 5;   // cada cuánto se actualiza la frecuencia en
 
 enum Estado { RUN, STOPPED, WATCHDOG };
 
+const int MAX_VENTANA = 50;         // curva S: hasta 0,5 s de promedio (como trajectory.MAX_VENTANA)
+
 // Un eje del cuello: copia de keepon/trajectory.py (Axis), en double para dar los mismos números.
+// Trapecio (plan, vel) y curva S: pos = promedio de las últimas `ventana` posiciones del plan.
 struct Eje {
   double lo, hi, vmax, amax;
-  double pos, vel, target;
+  double pos, target;              // pos: lo que va al servo (salida de la curva S)
+  double plan, vel;                // trapecio
+  double buf[MAX_VENTANA];         // últimas posiciones del plan (anillo)
+  int ventana, i_buf;
 
+  void iniciar(double lo_, double hi_, double vmax_, double amax_, double home, int ventana_);
   bool set_target(double t);       // true si hubo que recortarlo a los límites
   double v_max_to_stop(double dist) const;
   void step();

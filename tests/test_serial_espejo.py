@@ -85,7 +85,7 @@ def test_espejo_sigue_al_real(armar):
 def test_espejo_adopta_la_posicion_real_si_arranca_fuera_de_home(armar):
     real = SimESP32(load_config())
     for eje, v in zip(real.neck.axes.values(), (30.0, 10.0, 5.0)):  # quedó ahí de una sesión anterior
-        eje.pos = eje.target = v
+        eje.fijar(v)
     link, reloj = armar(real)
     link.hello()
     correr(link, reloj, 0.5)  # llegan STATE por los PING de keepalive

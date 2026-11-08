@@ -109,3 +109,54 @@ def test_observador_por_miradas_quieto_entre_una_y_otra():
     yaws = {round(r, 6) for _, r in refs}
     assert yaws <= {0.0} | {p[0] for p in o["miradas"]}
     assert cambios([r for _, r in refs]) <= 4
+
+
+class _Act:
+    """Actuadores de mentira: guarda la última referencia que manda el comportamiento."""
+
+    def __init__(self, ref):
+        self.ref = list(ref)
+
+    def neck(self, g, yaw, pitch, roll):
+        self.ref = [yaw, pitch, roll]
+
+
+def _secuencia_observador(ref_inicial, pasos):
+    """Referencias distintas que manda el Observador, en orden, durante `pasos` pausas."""
+    from types import SimpleNamespace
+
+    from keepon.behaviors import Observer
+    obs = Observer(CFG)
+    ctx = SimpleNamespace(now=0.0, act=_Act(ref_inicial))
+    obs.on_start(None, ctx)
+    vistas = []
+    while ctx.now < CFG["observer"]["pausa_s"] * pasos:
+        obs.act(None, ctx)
+        if not vistas or vistas[-1] != tuple(ctx.act.ref):
+            vistas.append(tuple(ctx.act.ref))
+        ctx.now += DT
+    return vistas
+
+
+def test_observador_quieto_despues_centra_y_despues_explora():
+    """07/11 (Tabla 1: "centra la vista y explora"): al perder a la persona se queda quieto donde quedó,
+    después va al centro y recién ahí recorre las miradas, empezando por la más cercana al centro."""
+    puntos = [tuple(p) for p in CFG["observer"]["miradas"]]
+    vistas = _secuencia_observador((35.0, 10.0, 0.0), 4)
+    cercana = min(puntos, key=lambda p: abs(p[0]))
+    assert vistas[:3] == [(35.0, 10.0, 0.0), tuple(CFG["neck"]["home"]), cercana]
+
+
+def test_observador_ya_centrado_empieza_por_el_centro():
+    vistas = _secuencia_observador(tuple(CFG["neck"]["home"]), 2)
+    assert vistas[0] == tuple(CFG["neck"]["home"])
+    assert len(vistas) == 2                      # sin una pausa extra quieto en el mismo lugar
+
+
+def test_observador_inclina_poco_el_roll_y_nunca_de_lado_a_lado():
+    """Pequeñas variaciones de roll para encuadrar: chicas, y siempre pasando por 0 (un salto de +5 a −5 es
+    un movimiento de 10° en el eje con más zona muerta)."""
+    vistas = _secuencia_observador(tuple(CFG["neck"]["home"]), 2 + 2 * len(CFG["observer"]["miradas"]))
+    rolls = [v[2] for v in vistas]
+    assert any(r != 0 for r in rolls) and max(abs(r) for r in rolls) <= 6.0
+    assert all(a * b >= 0 for a, b in zip(rolls, rolls[1:]))
