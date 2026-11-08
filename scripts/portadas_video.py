@@ -9,7 +9,6 @@ Las alturas de la base y del yaw están simplificadas (es una ilustración, no u
 Uso:  python scripts/portadas_video.py [carpeta_salida]      (por defecto video/portadas/, fuera de git)
 Necesita cairosvg para el PNG (pip install cairosvg); sin él deja solo los SVG.
 """
-import math
 import sys
 from pathlib import Path
 
@@ -128,86 +127,12 @@ def cuerpo(L):
     return "".join(g)
 
 
-def flecha_arco(cx, cy, rx, ry, a1, a2, color, sw=2.4):
-    """Arco elíptico con punta de flecha al final (ángulos en grados, sentido antihorario en pantalla)."""
-    p1 = (cx + rx * math.cos(math.radians(a1)), cy - ry * math.sin(math.radians(a1)))
-    p2 = (cx + rx * math.cos(math.radians(a2)), cy - ry * math.sin(math.radians(a2)))
-    grande = 1 if abs(a2 - a1) > 180 else 0
-    barrido = 0 if a2 > a1 else 1
-    d = f"M{p1[0]:.1f},{p1[1]:.1f} A{rx:.1f},{ry:.1f} 0 {grande} {barrido} {p2[0]:.1f},{p2[1]:.1f}"
-    return (f'<path d="{d}" fill="none" stroke="{color}" stroke-width="{sw}" '
-            f'marker-end="url(#punta)" stroke-linecap="round"/>')
 
 
-def cotas(L):
-    """Ejes y cotas del modelo de SolidWorks, en azul de plano."""
-    g = []
-    mono = 'font-family="DejaVu Sans Mono" font-size="17" fill="' + AZUL + '"'
-    linea = f'stroke="{AZUL}" stroke-width="1.4"'
-    # eje de yaw (vertical) y de pitch (horizontal), con trazo y punto
-    x, y1 = L.p(0, -8)
-    _, y2 = L.p(0, 240)
-    g.append(f'<line x1="{x:.1f}" y1="{y1:.1f}" x2="{x:.1f}" y2="{y2:.1f}" {linea} stroke-dasharray="14 5 3 5"/>')
-    xa, yp = L.p(-162, Z_EJES)
-    xb, _ = L.p(140, Z_EJES)
-    g.append(f'<line x1="{xa:.1f}" y1="{yp:.1f}" x2="{xb:.1f}" y2="{yp:.1f}" {linea} stroke-dasharray="14 5 3 5"/>')
-    # yaw: flecha alrededor del eje vertical, a la altura de los pilares
-    cx, cy = L.p(0, 38)
-    g.append(flecha_arco(cx, cy, 58 * L.s, 7 * L.s, 200, 340, AZUL))
-    tx, ty = L.p(-150, 30)
-    g.append(f'<text x="{tx:.1f}" y="{ty:.1f}" {mono}>YAW ±70°</text>')
-    # pitch: flecha alrededor del eje horizontal, al final del perno
-    cx, cy = L.p(132, Z_EJES)
-    g.append(flecha_arco(cx, cy, 5 * L.s, 16 * L.s, 110, 430 - 70, AZUL))
-    tx, ty = L.p(142, Z_EJES + 14)
-    g.append(f'<text x="{tx:.1f}" y="{ty:.1f}" {mono}>PITCH</text>')
-    tx, ty = L.p(142, Z_EJES + 6)
-    g.append(f'<text x="{tx:.1f}" y="{ty:.1f}" {mono}>−20° / +30°</text>')
-    # roll: arco alrededor de la cámara (el eje sale hacia el que mira)
-    cx, cy = L.p(0, Z_EJES)
-    g.append(flecha_arco(cx, cy, 87 * L.s, 87 * L.s, 122, 166, AZUL))
-    tx, ty = L.p(-62, 236)
-    g.append(f'<text x="{tx:.1f}" y="{ty:.1f}" text-anchor="end" {mono}>ROLL ±20°</text>')
-    # cota del ancho de la cara (124 mm), arriba
-    xa, yy = L.p(-62, 229)
-    xb, _ = L.p(62, 229)
-    g.append(f'<line x1="{xa:.1f}" y1="{yy:.1f}" x2="{xb:.1f}" y2="{yy:.1f}" {linea} marker-start="url(#punta_ini)" marker-end="url(#punta)"/>')
-    for yv in (-62, 62):
-        x, ya = L.p(yv, 218)
-        _, yb = L.p(yv, 233)
-        g.append(f'<line x1="{x:.1f}" y1="{ya:.1f}" x2="{x:.1f}" y2="{yb:.1f}" stroke="{AZUL}" stroke-width="1"/>')
-    tx, ty = L.p(0, 233)
-    g.append(f'<text x="{tx:.1f}" y="{ty:.1f}" text-anchor="middle" {mono}>124</text>')
-    # cota de la horquilla (204,5 mm), abajo
-    xa, yy = L.p(-102.25, -16)
-    xb, _ = L.p(102.25, -16)
-    g.append(f'<line x1="{xa:.1f}" y1="{yy:.1f}" x2="{xb:.1f}" y2="{yy:.1f}" {linea} marker-start="url(#punta_ini)" marker-end="url(#punta)"/>')
-    for yv in (-102.25, 102.25):
-        x, ya = L.p(yv, -20)
-        _, yb = L.p(yv, 86)
-        g.append(f'<line x1="{x:.1f}" y1="{ya:.1f}" x2="{x:.1f}" y2="{yb:.1f}" stroke="{AZUL}" stroke-width="1" stroke-dasharray="3 4"/>')
-    tx, ty = L.p(0, -23)
-    g.append(f'<text x="{tx:.1f}" y="{ty + 8:.1f}" text-anchor="middle" {mono}>204,5</text>')
-    # cota de la altura de los ejes (163 mm), a la derecha
-    x, ya = L.p(160, 0)
-    _, yb = L.p(160, Z_EJES)
-    g.append(f'<line x1="{x:.1f}" y1="{ya:.1f}" x2="{x:.1f}" y2="{yb:.1f}" {linea} marker-start="url(#punta_ini)" marker-end="url(#punta)"/>')
-    xa, yy = L.p(110, 0)
-    xb, _ = L.p(166, 0)
-    g.append(f'<line x1="{xa:.1f}" y1="{yy:.1f}" x2="{xb:.1f}" y2="{yy:.1f}" stroke="{AZUL}" stroke-width="1"/>')
-    tx, ty = L.p(166, Z_EJES / 2)
-    g.append(f'<text x="{tx:.1f}" y="{ty:.1f}" {mono} transform="rotate(-90 {tx:.1f} {ty:.1f})" text-anchor="middle" dy="-6">163</text>')
-    return "".join(g)
 
 
 def lamina(contenido):
-    """Hoja con grilla de plano, marco con marcas y las definiciones comunes."""
-    defs = f"""<defs>
-  <marker id="punta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-    <path d="M0,1 L9,5 L0,9 z" fill="{AZUL}"/></marker>
-  <marker id="punta_ini" viewBox="0 0 10 10" refX="2" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-    <path d="M10,1 L1,5 L10,9 z" fill="{AZUL}"/></marker>
-</defs>"""
+    """Hoja con grilla suave y marco con marcas."""
     g = [f'<rect width="{W}" height="{H}" fill="{PAPEL}"/>']
     for x in range(0, W + 1, 33):
         g.append(f'<line x1="{x}" y1="0" x2="{x}" y2="{H}" stroke="{GRILLA2 if x % 165 == 0 else GRILLA}" stroke-width="1"/>')
@@ -220,20 +145,9 @@ def lamina(contenido):
         g.append(f'<line x1="{x:.0f}" y1="{m}" x2="{x:.0f}" y2="{m + 10}" stroke="{TINTA}" stroke-width="1.5"/>')
         g.append(f'<line x1="{x:.0f}" y1="{H - m}" x2="{x:.0f}" y2="{H - m - 10}" stroke="{TINTA}" stroke-width="1.5"/>')
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">'
-            + defs + "".join(g) + contenido + "</svg>")
+            + "".join(g) + contenido + "</svg>")
 
 
-def rotulo(x, y, lineas):
-    """Rótulo de plano (abajo a la derecha): título, vista, modelo y unidades."""
-    w, h = 470, 34 * len(lineas) + 8
-    g = [f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="{PAPEL}" stroke="{TINTA}" stroke-width="1.6"/>']
-    for i, (etq, val) in enumerate(lineas):
-        yy = y + 30 + i * 34
-        if i:
-            g.append(f'<line x1="{x}" y1="{yy - 26}" x2="{x + w}" y2="{yy - 26}" stroke="{TINTA}" stroke-width="0.8"/>')
-        g.append(f'<text x="{x + 14}" y="{yy}" font-family="DejaVu Sans Mono" font-size="13" fill="{GRIS}">{etq}</text>')
-        g.append(f'<text x="{x + 120}" y="{yy}" font-family="DejaVu Sans Mono" font-size="17" fill="{TINTA}">{val}</text>')
-    return "".join(g)
 
 
 INTEGRANTES = ["Mathias Aguilar", "Héctor Velázquez", "Pablo Otazú", "Pedro Vera"]
@@ -241,8 +155,8 @@ LATO = 'font-family="Lato"'
 
 
 def apertura():
-    L = Lienzo(510, 880, 2.75)
-    dibujo = cuerpo(L) + cabeza(L) + cotas(L)
+    L = Lienzo(530, 860, 3.05)
+    dibujo = cuerpo(L) + cabeza(L)            # sin cotas: es una portada, no un plano
     x = 1090
     t = [f'<text x="{x}" y="200" font-family="DejaVu Sans Mono" font-size="20" letter-spacing="3" fill="{AZUL}">'
          f'µTP ROBÓTICA SOCIAL · ROBÓTICA II · FIUNA</text>',
@@ -255,19 +169,12 @@ def apertura():
          f'<text x="{x}" y="712" font-family="DejaVu Sans Mono" font-size="17" letter-spacing="3" fill="{AZUL}">INTEGRANTES</text>']
     for i, n in enumerate(INTEGRANTES):
         t.append(f'<text x="{x + (i % 2) * 330}" y="{760 + (i // 2) * 46}" {LATO} font-weight="700" font-size="32" fill="{TINTA}">{n}</text>')
-    t.append(rotulo(1400, 890, [("ROBOT", "Wall-E · proyecto Keepon pro"), ("VISTA", "frontal · cotas en mm"),
-                                ("MODELO", "SolidWorks v6 R4 · 2026")]))
     return lamina(dibujo + "".join(t))
 
 
 def cierre():
-    L = Lienzo(1440, 880, 2.75)
+    L = Lienzo(1430, 860, 3.05)
     dibujo = cuerpo(L) + cabeza(L, roll_deg=-12)        # cabeza inclinada, como en la curiosidad
-    cx, cy = L.p(0, Z_EJES)
-    dibujo += flecha_arco(cx, cy, 92 * L.s, 92 * L.s, 102, 62, AZUL)
-    tx, ty = L.p(-20, Z_EJES + 98)
-    dibujo += (f'<text x="{tx:.1f}" y="{ty:.1f}" font-family="DejaVu Sans Mono" font-size="17" '
-               f'fill="{AZUL}" text-anchor="end">ROLL 12° · curiosidad</text>')
     x = 110
     t = [f'<text x="{x}" y="200" font-family="DejaVu Sans Mono" font-size="20" letter-spacing="3" fill="{AZUL}">'
          f'FIN DE LA DEMOSTRACIÓN</text>',
