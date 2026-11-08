@@ -8,6 +8,8 @@ neck:
     roll:  [-20.0, 20.0]         # Montado (03/11): a +25 queda al límite de la pared y a +30 toca. Hacia la izquierda,
                                  # −30 "al límite" fue SIN compensación de zona muerta (llegaba ~10° antes): con la
                                  # compensación, −20 es −20 de verdad. Probar de a poco antes de ampliar.
+                                 # 08/11: esas medidas son de ANTES de corregir signo y cero del roll (servos.roll):
+                                 # el +20 nuevo (derecha) es el −25 de entonces. Verificar ±20 montado.
   home: [0.0, 0.0, 0.0]          # postura calibrada, mirada al frente
   vmax: [180.0, 120.0, 120.0]    # velocidad máxima por eje [°/s] (yaw, pitch, roll)
   amax: [600.0, 400.0, 300.0]    # aceleración máxima por eje [°/s²]
@@ -50,12 +52,14 @@ neck:
       # El n.º 1 (11-12/10) era simétrico: 0.13, 950/2050 µs. No son intercambiables sin recalibrar.
       # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
     roll:                        # TowerPro MG996R NUEVO (05/11, reemplaza al que tenía zona muerta), 6 V
-      centro_us: 1500            # montado (05/11): disco calzado en 1500
+      centro_us: 1554            # 08/11: con 1500 la cabeza quedaba inclinada ~5° a la izquierda (vista desde atrás);
+                                 # derecha con 1554 µs. Antes: 1500 (05/11, disco calzado en 1500).
       grados_por_us: 0.092       # sin carga (05/11): +217 µs = +20° justos; −217 µs "casi 20°"
-      min_us: 1000               # ≈ ±46°: de sobra para los ±20° de roll (sin tope hasta 800/2300 µs)
+      min_us: 1000               # ≈ −60°/+48° desde el centro: de sobra para los ±20° (sin tope hasta 800/2300 µs)
       max_us: 2000
-      signo: -1                  # el del MG996R anterior en el mismo montaje (pulso mayor = ANTIHORARIO visto desde
-                                 # atrás; roll + = horario, PROTOCOLO.md). Mismo modelo y montaje: VERIFICAR montado.
+      signo: 1                   # 08/11, verificado montado: pulso mayor = HORARIO visto desde atrás (inclina a la
+                                 # derecha), y roll + = horario (PROTOCOLO.md). Antes −1, copiado del MG996R anterior:
+                                 # roll + inclinaba a la izquierda.
       compensacion_us: [0, 0]    # El nuevo vuelve a 0 desde ±20° sin la zona muerta del anterior (que usaba
                                  # [0, 151]). Montado vibra un poco quieto en 0 al volver de −20°: sin resolver.
       # Pesa 55 g. Sin pulso queda flojo: en el STOP hay que seguir mandando el último pulso.

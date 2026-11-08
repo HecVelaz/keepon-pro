@@ -24,11 +24,11 @@ const int VENTANA[3] = {10, 10, 10};
 
 // Servos: pulso = centro + signo · grados / grados_por_us, recortado a [min, max] µs.
 // grados_por_us: [lado de pulsos < 1500, lado de pulsos > 1500].
-const double CENTRO_US[3] = {1500.0, 1500.0, 1500.0};
+const double CENTRO_US[3] = {1500.0, 1500.0, 1554.0};
 const double GPU[3][2] = {{0.13, 0.136}, {0.092, 0.092}, {0.092, 0.092}};
 const uint16_t MIN_US[3] = {950, 1100, 1000};
 const uint16_t MAX_US[3] = {2020, 1800, 2000};
-const int8_t SIGNO[3] = {-1, -1, -1};
+const int8_t SIGNO[3] = {-1, -1, 1};
 // Compensación de zona muerta [µs]: {al bajar el pulso, al subir el pulso}, según el sentido del
 // último movimiento del eje.
 const int16_t COMP_US[3][2] = {{0, 0}, {0, 0}, {0, 0}};
