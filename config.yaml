@@ -263,9 +263,10 @@ observer:
   # vuelta, nunca de un lado al otro. Sin el tercer valor, roll 0.
   miradas: [[-40.0, 3.0, 5.0], [-15.0, -3.0, 0.0], [15.0, 3.0, -5.0], [40.0, -3.0, 0.0], [15.0, -3.0, 5.0],
             [-15.0, 3.0, 0.0]]
-  pausa_s: 2.5                   # tiempo en cada punto, CONTANDO el movimiento (transicion_s): 1,5 s quieto
-  transicion_s: 1.0              # 08/11: yaw y pitch van de un punto al otro con curva de mínimo jerk en este
-                                 # tiempo (30° de yaw: pico 56 °/s, aceleración 173 °/s²). 0 = salto y el firmware
+  pausa_s: 3.0                   # tiempo en cada punto, CONTANDO el movimiento (transicion_s): 1,4 s quieto
+  transicion_s: 1.6              # 08/11: yaw y pitch van de un punto al otro con curva de mínimo jerk en este
+                                 # tiempo (30° de yaw: pico 35 °/s, aceleración 68 °/s²; 1,0 s se veía rápido:
+                                 # pico 56 °/s). OJO: el RDS3218 vibraba ≤ ~40 °/s (05/11). 0 = salto y el firmware
                                  # hace el movimiento (vmax/amax: 25° en ~0,5 s, el de antes). Tiene que ser
                                  # menor que pausa_s. Más largo = más suave pero más lento (vibra ≤ ~40 °/s).
   # --- Solo modo "barrido":
