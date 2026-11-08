@@ -16,9 +16,27 @@ Lo hecho en cada sesión, lo más reciente arriba. El estado actual está en `do
   modelos con su fuente (YOLO26n de Ultralytics, MediaPipe BlazeFace y Pose), instalación, ejecución, modos y STOP.
 - Push de `camisetas` (los 3 commits locales y los de hoy). **Integrar los PR #3 → #4 → #5 a `main` quedó sin hacer**:
   el clasificador de permisos lo bloqueó por ser un merge sin revisión; lo tiene que hacer el usuario o autorizarlo.
-- Se vio que el repo en GitHub es **público** (`gh repo view`), aunque `CLAUDE.md` dice privado. No se cambió.
+- Se vio que el repo en GitHub es **público** (`gh repo view`), aunque `CLAUDE.md` decía privado (se resolvió a la tarde).
 
 Commits: `c929971`, `ffdf9e1`. Tests: 219.
+
+**Tarde: repo público, guía PDF, informe técnico y diagramas editables**
+- El repo queda **público** (decisión y regla en `CLAUDE.md`: nada de datos personales, claves ni imágenes de personas).
+- **Guía completa en PDF** `docs/guia/Guia_Keepon_pro.pdf` (18 capítulos, 23 páginas, 19 diagramas SVG): construcción,
+  hardware, pines, PWM y perfil trapezoidal, firmware, software, decisiones y resultados. Fuente `docs/guia/guia_keepon.html`,
+  generada con WeasyPrint.
+- **Informe técnico** `docs/informe/Informe_técnico.ipynb`: la plantilla del grupo completada (portada, integrantes,
+  hardware, arquitectura, eventos, modos, parámetros desde `config.yaml`, resultados), con las celdas de código
+  ejecutadas sin errores y las figuras embebidas (sube tal cual a Colab). Se agregó la figura de las camisetas de
+  referencia. Quedan `[Completar]`: video, ZIP, foto del robot, captura del overlay, aportes, uso de IA, latencia.
+- `docs/informe/Informe_técnico_v2.ipynb` (versión del usuario; entró sin querer en `e79b5e1`): cada diagrama tiene
+  ahora su **`.drawio` editable** en `docs/informe/diagramas/` (19 archivos: 12 del v2 y 7 más de la guía, con
+  `LEEME.md`). Conversor `docs/informe/fuente/svg_a_drawio.py` (SVG → mxGraph; textos fusionados en su caja).
+- `docs/diagrama_sistema/index.html`: **buzzer en el GPIO5** (cable I/O desde la fila de arriba; nota de por qué no el
+  GPIO10) y foto de los **MG996R nuevos** en pitch y roll (`fotos/mg996r_nuevo.jpg`). `pruebas_buzzer/` también al GPIO5.
+- Merge de los PR #3 → #4 → #5: sigue bloqueado por el clasificador; lo hace el usuario.
+
+Commits: `c5c3e2e`, `e70da8a`, `2f98712`, `db6f77e`, `cfac015`, `e79b5e1`, `f85a0de`, `9b103fb` (todos subidos).
 
 ## 05/11/2026
 **Servos nuevos de pitch y roll** (rama `camisetas`, sin commitear hasta el cierre)

@@ -10,6 +10,9 @@ Al cerrar una sesión (`/cerrar`) se actualiza este archivo, no `CLAUDE.md`.
 - El repo en GitHub es **público** (decisión del 07/11).
 - Documentación para un lector externo: `README.md` (al día al 07/11), `docs/CHECKLIST_TP.md` (cada casilla de la
   consigna contra el código) y `docs/checklist_robotica_social.html` (interactivo, columnas Mathias / Hector).
+- Entrega documentada: **guía PDF** `docs/guia/Guia_Keepon_pro.pdf`; **informe** `docs/informe/Informe_técnico.ipynb`
+  (plantilla completada, ejecutada; faltan los `[Completar]` del grupo) y `Informe_técnico_v2.ipynb` (del usuario),
+  con sus diagramas editables en `docs/informe/diagramas/*.drawio`. Diagrama eléctrico al día: `docs/diagrama_sistema/`.
 - La Pi está sincronizada con `camisetas` (`~/keepon/.commit`; el 05/11 con cambios sin commitear, `-sucio`).
 - Tests: **219** (`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q`); 36+ comparan el firmware con el simulador.
 

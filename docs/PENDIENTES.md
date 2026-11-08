@@ -3,9 +3,9 @@
 Ordenados por prioridad (07/11/2026). Lo terminado se borra y queda en `docs/BITACORA.md`.
 
 ## 0. Entrega documentada (08/11)
-1. **Informe en Colab** (9 casillas del checklist; material en `docs/HARDWARE.md`, `docs/ARQUITECTURA.md`,
-   `config.yaml`, `docs/ESTADO_PI.md`). Faltan de cero: diagramas de estados de los modos, definición operativa de
-   cada evento y aportes individuales (los escribe el grupo).
+1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v2`) y completar los
+   `[Completar]`: enlace al video y al ZIP, foto del robot, captura del overlay, **aportes individuales y uso de IA**
+   (los escribe el grupo) y la latencia medida. Subirlo a Colab y probar que abre desde otra cuenta.
 2. **Integrar los PR #3 → #4 → #5 a `main`** (el usuario, o con su autorización explícita): sin eso, `main` es del 26/10.
 3. ZIP del código, enlace al repo y verificar que todo abre desde otra cuenta.
 4. Video ≤ 3 min con todos los comportamientos. Confirmar con la cátedra la fecha de la demo (`CLAUDE.md` dice 30/10).
