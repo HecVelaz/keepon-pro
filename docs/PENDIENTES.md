@@ -1,36 +1,43 @@
 # Pendientes
 
-Ordenados por prioridad (07/11/2026). Lo terminado se borra y queda en `docs/BITACORA.md`.
+Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BITACORA.md`.
 
 ## 0. Entrega documentada (08/11)
 1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v2`) y completar los
    `[Completar]`: enlace al video y al ZIP, foto del robot, captura del overlay, **aportes individuales y uso de IA**
    (los escribe el grupo) y la latencia medida. Subirlo a Colab y probar que abre desde otra cuenta.
-2. **Integrar los PR #3 → #4 → #5 a `main`** (el usuario, o con su autorización explícita): sin eso, `main` es del 26/10.
+2. **Push de `movimiento-suave` y su PR** (sobre `camisetas`), y después **integrar los PR #3 → #4 → #5 → nuevo a
+   `main`** (el usuario, o con su autorización explícita): sin eso, `main` es del 26/10.
 3. ZIP del código, enlace al repo y verificar que todo abre desde otra cuenta.
-4. Video ≤ 3 min con todos los comportamientos. Confirmar con la cátedra la fecha de la demo (`CLAUDE.md` dice 30/10).
+4. **Video ≤ 3 min** (guion de 8 escenas del usuario, revisado el 08/11): escribir `docs/GUION_VIDEO.md` (quién hace
+   qué, qué botón, qué se ve en el overlay) y grabar con el overlay en pantalla. Opcional: grabar el overlay a `.mp4`
+   desde la Pi. Confirmar con la cátedra la fecha de la demo (`CLAUDE.md` dice 30/10).
+5. Guía PDF e informe: describir la **curva S** (hoy dicen perfil trapezoidal), el Observador "exploracion", HOME, Ejes
+   y la polca una vez por aparición.
 
 ## 1. Para que la demo no falle
-1. **Probar en el robot la mirada por objetivo y el Observador por miradas** (firmware ya cargado). Mirar: ¿vibran
-   menos?, ¿se pasa y vuelve al empezar a seguir (ajustar `gaze.quieto_deg`)?, ¿molestan los saltitos (`umbral_deg`)?
-   Si no anda: `gaze.modo: velocidad` y `observer.modo: barrido`. Grabar con el celular apoyado y quieto para medir.
-2. **Verificar el signo del roll** con los MG996R nuevos (`scripts/prueba_movimientos.py`: roll + = horario visto desde
-   atrás) y que a ±20° no toque. Mirar si la vibración del roll quieto en 0 (al volver de −20°) sigue.
+1. **Probar lo del 08/11 en el robot** (todo cargado): el barrido del Observador a 25 °/s (si el yaw vibra en el medio,
+   subir `observer.exploracion.vel_barrido` a 30; si solo en las puntas, dar la vuelta más rápido), el botón **Ejes**,
+   la polca una vez por aparición y el seguimiento con la curva S (¿se pasa y vuelve? `gaze.quieto_deg`).
+2. **Roll**: (a) resultado del roll rápido (250 °/s, 900 °/s², curva S 0,15 s) en −20 → 0 y −20 → +20; (b) si sigue
+   vibrando, **prueba de banco** del MG996R sin carga en 1280→1500 µs subiendo (`pruebas_servos/prueba_servo/`) para
+   separar servo de carga; girar la cabeza a mano por esa zona buscando un punto duro; (c) medir el cero llegando desde
+   la derecha y, si difiere, cargar `compensacion_us`.
 3. Si siguen temblando: volver a poner el **capacitor 2200 µF + 100 nF** en la bornera de los servos y revisar el límite
    de corriente de la fuente (ahora son dos MG996R).
-4. **Modo Tímido**: volver a probarlo (no desviaba la mirada porque ME_MIRA casi no se activaba). Con la línea
+4. **ME_MIRA** (escenas de seguimiento y personalidades del video): con **dos personas**, ver si prioriza a quien lo
+   mira; volver a probar **Tímido** y **Atrevido** (no desviaba porque ME_MIRA casi no se activaba). Con la línea
    ESTADO (`mira mín/mediana`) y el overlay (`angulo N`) decidir si `perception.looking_deg` (15°) alcanza.
 5. **Calibrar la cámara** con un tablero (cx, cy, fx, fy, distorsión) y validar `looking_deg` (15°) con 2–3 personas.
-7. Buzzer: soldar o cambiar los jumpers del cable por el cuello (un falso contacto lo cortaba). Precintar.
-8. Probar en real SALIENDO + piropo (Maleducado).
+6. Buzzer: soldar o cambiar los jumpers del cable por el cuello (un falso contacto lo cortaba). Precintar.
+7. Probar en real SALIENDO + piropo (Maleducado) y STOP durante un sonido.
 
 ## 2. Lo que falta de la guía
-9. **Camisetas** (anda en vivo): grabar una **remera blanca lisa real** (solo hay sintética en los tests) y otras
-   prendas de prueba (la polca ya suena una vez por aparición, 08/11); con la luz de la demo, volver a correr `pruebas_camisetas/evaluar.py videos`; después, borrar
+8. **Camisetas** (anda en vivo): grabar una **remera blanca lisa real** (solo hay sintética en los tests) y otras
+   prendas de prueba; con la luz de la demo, volver a correr `pruebas_camisetas/evaluar.py videos`; después, borrar
    `~/keepon/capturas/camisetas/` en la Pi. Barcelona da Cerro: explicarlo en la defensa.
-10. Observador "exploracion" (08/11: barridos, sacadas y roll): probar en el robot que el yaw no vibre a 25 °/s.
-11. **Medir la latencia evento → inicio de la respuesta** (≤ 300 ms, T6 e), p. ej. SALUDO → R2D2, para el informe.
-12. Opcionales: desaprobación al liberar el objetivo (T3 c; el sonido DESAPROBACION existe), aburrimiento (T3 e).
+9. **Medir la latencia evento → inicio de la respuesta** (≤ 300 ms, T6 e), p. ej. SALUDO → R2D2, para el informe.
+10. Opcionales: desaprobación al liberar el objetivo (T3 c; el sonido DESAPROBACION existe), aburrimiento (T3 e).
 
 
 ## 3. Otros
@@ -44,4 +51,4 @@ Ordenados por prioridad (07/11/2026). Lo terminado se borra y queda en `docs/BIT
 - Medir ≥ 4,9 V en los pines de alimentación de la Pi con todo andando.
 - Documentos que siguen nombrando al HS-7955TG como pitch: `pruebas_servos/README.md` (planilla: es historia),
   `pruebas_servos/CLAUDE.md`, `firmware/README.md` y el comentario de arranque de `firmware/keepon_fw/keepon_fw.ino`.
-- `pruebas_servos/mover_servos.py`: el roll está con signo +1 y centro 1500 (sin verificar); alinearlo con `config.yaml`.
+- Script de secuencias automáticas de posturas (sin Enter) en `scripts/`: hoy es uno temporal en `/tmp` de la Pi.

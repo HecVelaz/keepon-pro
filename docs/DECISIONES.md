@@ -56,5 +56,9 @@ Movido desde `CLAUDE.md` el 22/10/2026. No volver a discutirlas sin datos nuevos
 - **08/11:** Observador **"exploracion"** (`observer.modo`), lo que pide la Tabla 1: centra la vista, barridos lentos y
   continuos de ±45° (20 °/s de media, mínimo jerk), sacadas rápidas a puntos de interés cada 2 barridos y roll ±5° al
   fijarlos. Reemplaza a "miradas" (para y gira, para y gira), que queda de respaldo con "barrido".
+- **08/11:** polca y abucheo **una vez por aparición** de cada persona (`cooldowns.CAMISETA_por_persona: null`; el tracker
+  no reusa IDs). Antes, cada 25 s: con la camiseta a la vista se repetía (4 veces en 90 s).
+- **08/11:** **HOME** es un comando del operador como STOP: detiene el árbitro, va a 0 0 0 y queda ahí hasta RESUME
+  (antes los comportamientos lo pisaban). **Ejes** (demostración de los 3 ejes) también es prioridad 0, sólo el cuello.
 - **07/11:** el repo en GitHub queda **público**, para que la cátedra y el grupo lo lean desde afuera (antes la regla
   era privado, para evitar copias). Por eso no se sube nada personal: `capturas/` y `video/` siguen fuera de git.
