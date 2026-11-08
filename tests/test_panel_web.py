@@ -144,3 +144,11 @@ def test_systemctl_sin_shell_y_sin_bloquear(monkeypatch):
     assert llamadas[0][0] == ["systemctl", "--user", "is-active", "keepon"]
     assert llamadas[1][0] == ["systemctl", "--user", "--no-block", "start", "keepon"]
     assert all("shell" not in kw and kw["timeout"] <= 5 for _, kw in llamadas)
+
+
+def test_aclaracion_de_cada_boton_en_su_linea():
+    """Regresión (08/11): el botón Ejes mostraba "Ejesyaw, pitch y roll" porque la regla que pone el <small> en su
+    propia línea era solo para los botones de modo (.modo small). Tiene que valer para todos los botones."""
+    html = (Path(__file__).resolve().parent.parent / "scripts" / "panel" / "index.html").read_text(encoding="utf-8")
+    assert "button small { display:block" in html
+    assert "<small>yaw, pitch y roll" in html          # Ejes sigue teniendo su aclaración

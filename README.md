@@ -70,6 +70,17 @@ un buzzer, sin bloquearse nunca.
 *Diagramas de estados de las personalidades.*
 </div>
 
+## Panel del celular
+
+El robot se maneja desde el teléfono con una **app web propia** que sirve la Raspberry Pi (`http://<ip-de-la-pi>:8081`)
+y se instala con "Agregar a pantalla de inicio": encender y apagar, STOP, los cuatro modos, Home, la demostración de
+los ejes, los sonidos con su volumen y el estado del robot en vivo. Código: [`scripts/panel_web.py`](scripts/panel_web.py)
+(servidor, con una lista cerrada de comandos) y [`scripts/panel/`](scripts/panel/) (la página).
+
+<div align="center">
+<img src="docs/img/panel_celular.png" alt="Panel del celular: captura de la app con los botones Encender, Apagar, STOP, modos de personalidad, Home, Resume, Ejes, sonidos, volumen y estado en vivo" width="900">
+</div>
+
 ## Cómo funciona
 
 <div align="center">
