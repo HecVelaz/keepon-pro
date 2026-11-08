@@ -31,7 +31,8 @@ from keepon.world import Person, World  # noqa: E402
 
 ATAJOS = {"n": "NEUTRO", "t": "TIMIDO", "a": "ATREVIDO", "m": "MALEDUCADO"}
 AYUDA = ("Comandos (escribir y Enter): n/t/a/m = modo NEUTRO/TIMIDO/ATREVIDO/MALEDUCADO "
-         "(o MODE TIMIDO), sonido NOMBRE (R2D2, POLCA, ABUCHEO, PIROPO...), stop, resume, home, ? = esta ayuda")
+         "(o MODE TIMIDO), sonido NOMBRE (R2D2, POLCA, ABUCHEO, PIROPO...), volumen 0..100, stop, resume, home, "
+         "? = esta ayuda")
 
 
 def comando(linea: str, robot) -> str:
@@ -48,6 +49,11 @@ def comando(linea: str, robot) -> str:
     if palabras[0].lower() in ("sonido", "s") and len(palabras) == 2:
         return f"sonido {palabras[1].upper()}" if robot.sonar(palabras[1]) else \
             f"no existe el sonido {palabras[1]}: {', '.join(robot.cfg['sounds'])}"
+    if palabras[0].lower() in ("volumen", "vol", "v") and len(palabras) == 2:
+        try:
+            return f"volumen {robot.set_volumen(int(palabras[1]))} %"
+        except ValueError:
+            return "volumen: un entero de 0 a 100"
     if s.lower() == "stop":
         robot.stop()
         return "STOP (frena donde está; 'resume' para seguir)"
@@ -62,6 +68,24 @@ def comando(linea: str, robot) -> str:
 
 FIFO = Path.home() / "keepon" / "run" / "comandos"  # scripts/keepon escribe acá (corriendo como servicio)
 ESTADO = FIFO.parent / "estado.json"                # lo lee el panel del celular (scripts/panel_web.py)
+VOLUMEN = FIFO.parent / "volumen"                   # último volumen del operador: sobrevive a apagar y encender
+
+
+def resumen_mira(angulos: list[float], umbral: float) -> str:
+    """Para la línea ESTADO: cómo dio el ángulo cara→cámara de la persona seguida (validar looking_deg)."""
+    if not angulos:
+        return ""
+    a = sorted(angulos)
+    bajo = sum(x < umbral for x in a)
+    return f", mira mín {a[0]:.0f}° mediana {a[len(a) // 2]:.0f}° (<{umbral:.0f}°: {bajo}/{len(a)})"
+
+
+def leer_volumen(ruta: Path, defecto: int) -> int:
+    """El volumen que dejó el operador la última vez; si no hay (o está roto), el de config.yaml."""
+    try:
+        return int(ruta.read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        return defecto
 
 
 def escribir_estado(ruta: Path, **datos) -> None:
@@ -166,6 +190,28 @@ class Monitor:
         self.cam.close()
 
 
+def ir_a_home_y_esperar(link, home, tol_deg: float = 1.0, limite_s: float = 5.0, dormir=time.sleep) -> bool:
+    """Al apagar: lleva la cabeza a HOME y sigue hablando con la ESP32 hasta que llegue.
+
+    - RESUME antes del HOME: con el STOP enclavado la ESP32 rechaza el HOME (ERR STOP_ACTIVE) y la
+      cabeza quedaba donde estaba (04/11: STOP y después "Apagar"). Apagar ya es una decisión del operador.
+    - Esperar: si el programa sale apenas manda HOME, a los 500 ms el watchdog de la ESP32 frena la
+      trayectoria. link.poll() manda un PING cada 200 ms, que rearma el watchdog y trae un STATE con
+      las referencias actuales.
+    True si llegó a menos de tol_deg en los tres ejes antes de limite_s."""
+    link.send("RESUME")
+    link.send("HOME")
+    fin = link.now() + limite_s
+    while link.now() < fin:
+        for r in link.poll():
+            if r.name == "STATE" and len(r.args) >= 4:
+                angulos = [float(v) for v in r.args[1:4]]
+                if all(abs(a - h) <= tol_deg for a, h in zip(angulos, home)):
+                    return True
+        dormir(0.05)
+    return False
+
+
 def main() -> None:
     from keepon.arbiter import BUZZER, NECK
     from keepon.eventos import Eventos
@@ -184,6 +230,7 @@ def main() -> None:
     link = SerialLink(a.puerto, espejo_cfg=cfg)
     robot = Robot(cfg, link)
     robot.resume()  # un Ctrl+C de una corrida anterior deja el STOP enclavado en la ESP32: liberarlo
+    robot.set_volumen(leer_volumen(VOLUMEN, robot.volumen))
     eventos = Eventos(cfg, log=robot.log)
     per = Perception(cfg, workers=("personas", "pose"))
     monitor = None if a.sin_overlay else Monitor(cfg)
@@ -204,6 +251,7 @@ def main() -> None:
     t_hz, t_log = time.monotonic(), time.monotonic()
     tick_max, hueco_max, inicio_ant = 0.0, 0.0, None  # trabas del lazo (ERR WATCHDOG de la ESP32)
     t_estado = 0.0
+    angulos_mira: list[float] = []  # ángulo cara→cámara de la persona seguida en los últimos 10 s
     ultimo_cmd = ""
     try:
         while (not a.duracion or link.now() - t0 < a.duracion) and not terminar:
@@ -215,6 +263,10 @@ def main() -> None:
                 cuenta[r.kind] += 1
                 if r.kind == "personas":
                     det = r
+                    # Ángulo cara→cámara de la persona seguida, para validar perception.looking_deg
+                    cara = next((po.face for po in r.persons if po.id == robot.focus.target and po.face), None)
+                    if cara is not None:
+                        angulos_mira.append(cara.dev_deg)
                 else:
                     pose = r
             # Edad: desde que se capturó el cuadro (stamp, reloj de pared). Sin resultados todavía: viejo.
@@ -222,10 +274,13 @@ def main() -> None:
             cajas = {p.id: p.box for p in det.persons} if det is not None else {}
             mundo = eventos.aplicar(mundo_desde(det, cfg, inicio), pose, cajas, ref=robot.act.ref)
             for linea in comandos.leer():
+                volumen_antes = robot.volumen
                 if (r := comando(linea, robot)):
                     print(f">> {r}")
                     robot.log(link.now(), f"COMANDO {linea.strip()} -> {r}")
                     ultimo_cmd = r
+                if robot.volumen != volumen_antes:
+                    VOLUMEN.write_text(f"{robot.volumen}\n", encoding="utf-8")
             robot.tick(mundo, world_age=edad)
             cuenta["lazo"] += 1
 
@@ -248,6 +303,7 @@ def main() -> None:
                                 cuello=g_cuello.behavior if g_cuello else "-",
                                 buzzer=g_buzzer.behavior if g_buzzer else "-",
                                 ref=[round(v, 1) for v in robot.act.ref], personas=len(mundo.persons),
+                                volumen=robot.volumen,
                                 lazo_hz=round(salud.lazo_hz), personas_hz=round(salud.personas_hz, 1),
                                 pose_hz=round(salud.pose_hz, 1), edad_ms=round(salud.edad_ms),
                                 ultimo_comando=ultimo_cmd, sonidos=list(cfg["sounds"]))
@@ -257,16 +313,20 @@ def main() -> None:
                 robot.log(link.now(), f"ESTADO lazo {salud.lazo_hz:.0f} Hz (tick máx {tick_max * 1000:.0f} ms, "
                                       f"hueco máx {hueco_max * 1000:.0f} ms), personas {salud.personas_hz:.1f} Hz, "
                                       f"pose {salud.pose_hz:.1f} Hz, edad {salud.edad_ms:.0f} ms, personas vistas {n}, "
-                                      f"espejo {link.max_desvio:.2f}° ({link.resyncs} resinc.)")
+                                      f"espejo {link.max_desvio:.2f}° ({link.resyncs} resinc.)"
+                                      + resumen_mira(angulos_mira, cfg["perception"]["looking_deg"]))
                 t_log, tick_max, hueco_max = time.monotonic(), 0.0, 0.0
+                angulos_mira.clear()
             time.sleep(max(0.0, inicio + periodo - link.now()))
     except KeyboardInterrupt:
         robot.stop()
         robot.tick(World.from_cfg(cfg, t=link.now()), world_age=1e9)  # asegura que el STOP salga
         print("\nSTOP enviado (frenó donde estaba). Para seguir: RESUME y HOME.")
     else:
-        link.send("HOME")  # sin otro tick: el observador mandaría un J encima del HOME
+        # Sin otro tick del robot: el observador mandaría un J encima del HOME.
         robot.log(link.now(), "FIN: HOME")
+        llego = ir_a_home_y_esperar(link, cfg["neck"]["home"])
+        robot.log(link.now(), "FIN: en HOME" if llego else "FIN: no llegó a HOME a tiempo")
     finally:
         per.close()
         if monitor:

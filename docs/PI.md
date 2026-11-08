@@ -45,11 +45,15 @@ scripts/k stop | resume | home | sonido POLCA
 scripts/k estado | log        # última línea ESTADO / seguir el log de la corrida
 scripts/k parar               # vuelve a HOME y corta la cámara
 scripts/k demo-on | demo-off  # arranque al encender la Pi (por defecto DESACTIVADO: la Pi se usa en otros proyectos)
+scripts/k panel-on | panel-off  # panel del celular siempre prendido: desde ahí se enciende y apaga el robot
 ```
 - Los comandos llegan al robot por el FIFO `~/keepon/run/comandos`; corriendo en una terminal también se escriben ahí.
-- Para que arranque al encender **sin iniciar sesión** hace falta, una vez: `sudo loginctl enable-linger r2d2`.
+- **Linger** (activado el 04/11): sin él, systemd cierra los servicios de usuario ~10 s después de cerrar la última
+  sesión SSH (el robot "arrancaba y se apagaba solo"). Se activa una vez con `loginctl enable-linger r2d2`.
 - Con el servicio corriendo, la cámara y la ESP32 están ocupadas: `scripts/k parar` antes de usar los visores o cargar firmware.
-- **Panel del celular** (03/11): `scripts/panel_web.py`, lo arranca `robot_vivo.sh` en el puerto **8081**. Botones de modo,
-  STOP/Resume/Home y sonidos, más el estado en vivo (`~/keepon/run/estado.json`, que escribe `robot_vivo.py`). Sólo
-  acepta una lista cerrada de comandos. En Android: abrir `http://100.116.96.71:8081` (con Tailscale en el celular) o la
+- **Panel del celular** (03/11; encender/apagar desde el 04/11): `scripts/panel_web.py` en el puerto **8081**. Corre
+  como servicio propio, `keepon-panel` (`scripts/k panel-on`), independiente del robot: es liviano y no toma la cámara
+  ni la ESP32. Tiene los botones **Encender / Apagar** (`systemctl --user start/stop keepon`), modo, STOP/Resume/Home,
+  sonidos y una barra de **volumen** del buzzer (`volumen N`, 0..100; queda guardado en `~/keepon/run/volumen`), más el estado en vivo (`~/keepon/run/estado.json`, que escribe `robot_vivo.py`, y el del servicio). Sólo
+  acepta una lista cerrada de comandos. Sin `panel-on`, el panel lo lanza `robot_vivo.sh` y se apaga con el robot. En Android: abrir `http://100.116.96.71:8081` (con Tailscale en el celular) o la
   IP local de la Pi en la misma Wi-Fi, y Chrome → menú → "Agregar a pantalla de inicio".

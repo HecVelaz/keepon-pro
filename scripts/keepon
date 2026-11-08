@@ -7,22 +7,34 @@
 #   keepon n | t | a | m                    modo NEUTRO / TIMIDO / ATREVIDO / MALEDUCADO
 #   keepon stop | resume | home             STOP enclavado, liberarlo, ir a HOME
 #   keepon sonido POLCA                     reproducir un sonido
-#   keepon instalar                         instala el servicio (no lo activa al encender)
-#   keepon demo-on | demo-off               activar / desactivar el arranque al encender la Pi
+#   keepon instalar                         instala los servicios (no los activa al encender)
+#   keepon demo-on | demo-off               activar / desactivar el arranque del robot al encender la Pi
+#   keepon panel-on | panel-off             panel del celular siempre prendido (puerto 8081): desde ahí
+#                                           se enciende y apaga el robot; también al encender la Pi
 #
 # Desde la notebook: scripts/k <lo mismo>  (lo manda por SSH).
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
 FIFO="$HOME/keepon/run/comandos"
 UNIDAD="$HOME/.config/systemd/user/keepon.service"
+UNIDAD_PANEL="$HOME/.config/systemd/user/keepon-panel.service"
 
 ultimo_log() { ls -t "$DIR"/logs/run_*.csv 2>/dev/null | head -1; }
+# Sin "linger", systemd cierra los servicios de usuario ~10 s después de la última sesión SSH.
+avisar_linger() {
+  if [ "$(loginctl show-user "$USER" -p Linger --value)" != "yes" ]; then
+    loginctl enable-linger "$USER" 2>/dev/null || {
+      echo "Para que siga corriendo sin sesión abierta (y arranque al encender) hace falta, una vez:"
+      echo "    sudo loginctl enable-linger $USER"; }
+  fi
+}
 
 case "$1" in
   instalar)
     mkdir -p "$(dirname "$UNIDAD")"
     sed "s|@DIR@|$DIR|g" "$DIR/scripts/keepon.service" > "$UNIDAD"
+    sed "s|@DIR@|$DIR|g" "$DIR/scripts/keepon-panel.service" > "$UNIDAD_PANEL"
     systemctl --user daemon-reload
-    echo "Servicio instalado en $UNIDAD (no arranca al encender: 'keepon demo-on')." ;;
+    echo "Servicios instalados en $(dirname "$UNIDAD") (no arrancan al encender: 'keepon demo-on' / 'keepon panel-on')." ;;
   arrancar|start)
     [ -f "$UNIDAD" ] || "$0" instalar
     systemctl --user start keepon && echo "Arrancando (~15 s para cargar los modelos). 'keepon log' para seguirlo." ;;
@@ -39,17 +51,24 @@ case "$1" in
   demo-on)
     [ -f "$UNIDAD" ] || "$0" instalar
     systemctl --user enable keepon
-    if [ "$(loginctl show-user "$USER" -p Linger --value)" != "yes" ]; then
-      loginctl enable-linger "$USER" 2>/dev/null || {
-        echo "Para que arranque al encender SIN iniciar sesión hace falta (una vez, con contraseña):"
-        echo "    sudo loginctl enable-linger $USER"; }
-    fi
+    avisar_linger
     echo "Arranque al encender ACTIVADO. Ojo: el robot toma la cámara y la ESP32 (otros proyectos de la Pi)."
     echo "Al terminar la demo: keepon demo-off" ;;
   demo-off)
     systemctl --user disable keepon 2>/dev/null; echo "Arranque al encender desactivado (el servicio sigue instalado)." ;;
+  panel-on)
+    "$0" instalar > /dev/null   # siempre: así toma los cambios de la unidad
+    # Si el panel lo había lanzado robot_vivo.sh, ocupa el puerto: el servicio reintenta cada 5 s
+    # hasta que ese robot se apague (o 'keepon reiniciar').
+    systemctl --user enable --now keepon-panel
+    avisar_linger
+    IP=$(tailscale ip -4 2>/dev/null | head -1)
+    echo "Panel prendido (también al encender la Pi): http://${IP:-<IP de la Pi>}:8081"
+    echo "No toma la cámara ni la ESP32: eso pasa recién al tocar Encender." ;;
+  panel-off)
+    systemctl --user disable --now keepon-panel 2>/dev/null; echo "Panel apagado (el robot, si corría, sigue)." ;;
   ""|-h|--help|ayuda)
-    sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//' ;;
+    sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//' ;;
   *)
     systemctl --user is-active keepon >/dev/null || [ -n "$(pgrep -f '[r]obot_vivo.py')" ] || {
       echo "El robot no está corriendo ('keepon arrancar')."; exit 1; }
