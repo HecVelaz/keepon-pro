@@ -82,12 +82,12 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <body>
 <main>
 <h1>Keepon pro: diagrama del sistema</h1>
-<p class="sub">Alimentación, datos y señales del robot con la disposición del modelo mecánico v4 (<span class="mono">docs/keepon_v4_cad/</span>: la Pi va dentro de la cabeza y la ESP32 en la caja base). Desde el 14/10, <strong>una fuente de laboratorio alimenta los tres servos a 6 V</strong> y <strong>el powerbank Xiaomi alimenta la Pi 5</strong>; la LiPo y los reguladores salieron. Los bloques en línea continua ya los tienen; los de <span style="color:var(--falta)">trazo naranja</span> faltan comprar o armar.</p>
+<p class="sub">Alimentación, datos y señales del robot con el modelo mecánico vigente v6 R4 (<span class="mono">docs/diseno_v6/</span>: la Pi va dentro de la cabeza y la ESP32 en la base). Actualizado el 07/11: <strong>buzzer en el GPIO5</strong> y <strong>pitch y roll con dos MG996R nuevos</strong>. Desde el 14/10, <strong>una fuente de laboratorio alimenta los tres servos a 6 V</strong> y <strong>el powerbank Xiaomi alimenta la Pi 5</strong>; la LiPo y los reguladores salieron. Los bloques en línea continua ya los tienen; los de <span style="color:var(--falta)">trazo naranja</span> faltan comprar o armar.</p>
 
 <h2>Conexionado con fotos</h2>
-<p class="sub">Los tres servos numerados en el orden del protocolo (<span class="mono">yaw pitch roll</span>): <strong>1 = yaw</strong> (RDS3218, GPIO0), <strong>2 = pitch</strong> (HS-7955TG, GPIO1) y <strong>3 = roll</strong> (MG996R, GPIO4). La ESP32 está dibujada <strong>vista desde arriba</strong>, del lado del chip (módulo ESP32-C3-MINI-1) y del micro-USB, con el nombre de cada pin al lado (en la placa están impresos en la cara de abajo); los círculos marcan los que se usan. Las fotos de los servos son las de los que se montan (<span class="mono">docs/Fotos/servo_*</span>); las de la Pi, la cámara (es de la Wide, solo ilustrativa) y el powerbank son de catálogo.</p>
+<p class="sub">Los tres servos numerados en el orden del protocolo (<span class="mono">yaw pitch roll</span>): <strong>1 = yaw</strong> (RDS3218, GPIO0), <strong>2 = pitch</strong> (MG996R nuevo, GPIO1) y <strong>3 = roll</strong> (MG996R nuevo, GPIO4). El buzzer va en el <strong>GPIO5</strong>. La ESP32 está dibujada <strong>vista desde arriba</strong>, del lado del chip (módulo ESP32-C3-MINI-1) y del micro-USB, con el nombre de cada pin al lado (en la placa están impresos en la cara de abajo); los círculos marcan los que se usan. Las fotos de los servos son las de los que se montan (<span class="mono">docs/Fotos/servo_RDS3218</span> y <span class="mono">docs/Fotos/MG_996r_nuevo</span>); las de la Pi, la cámara (es de la Wide, solo ilustrativa) y el powerbank son de catálogo.</p>
 <div class="card scroll">
-<svg class="diag" viewBox="0 0 1240 980" role="img" aria-label="Conexionado con fotos: powerbank a la Pi 5 por el GPIO, cámara por CSI, Pi a la ESP32-C3 por USB, ESP32 a los tres servos por GPIO0, GPIO1 y GPIO4, módulo del buzzer en GPIO10 y 3V3, fuente de laboratorio de 6 V a los servos y GND común">
+<svg class="diag" viewBox="0 0 1240 980" role="img" aria-label="Conexionado con fotos: powerbank a la Pi 5 por el GPIO, cámara por CSI, Pi a la ESP32-C3 por USB, ESP32 a los tres servos por GPIO0, GPIO1 y GPIO4, módulo del buzzer en GPIO5 y 3V3, fuente de laboratorio de 6 V a los servos y GND común">
   <!-- ESP32-C3-DevKitM-1 vista de ARRIBA (lado del módulo y del micro-USB), dibujada a mano: los nombres
        de los pines están impresos en la cara de abajo, así que acá se escriben al lado de cada pin.
        Orden de los pines tomado de la hoja de Espressif (docs/Fotos/esp32_c3_mini_1/). -->
@@ -162,13 +162,13 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <path class="w wu" d="M470 282 V340 H720 V369 a6 6 0 0 1 0 12 V570 H700"/>
   <text class="wl" x="478" y="332">USB: Pi → micro-USB de la ESP32 (5 V + serie)</text>
 
-  <!-- Módulo del buzzer: 3V3, GND y GPIO10 de la fila de abajo (el GPIO10 salta las señales de los servos) -->
+  <!-- Módulo del buzzer: 3V3 y GND de la fila de abajo; I/O al GPIO5 de la fila de arriba (rodea la antena por la izquierda) -->
   <path class="w w5" d="M284 690 V745 H200"/>
   <path class="w wg" d="M400 690 V765 H200"/>
-  <path class="w ws" d="M545 690 V716 a6 6 0 0 1 0 12 V734 a6 6 0 0 1 0 12 V785 H200"/>
+  <path class="w ws" d="M516 432 V388 H180 V698"/>
   <text class="wl" x="206" y="739">3V3 → VCC</text>
   <text class="wl" x="206" y="759">GND → GND</text>
-  <text class="wl" x="206" y="779">GPIO10 → I/O</text>
+  <text class="wl" x="300" y="382">GPIO5 → I/O del buzzer</text>
 
   <!-- Señales PWM a los servos (50 Hz, 3,3 V) -->
   <path class="w ws" d="M545 432 V375 H830"/>
@@ -224,10 +224,10 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <!-- Servo 3: roll -->
   <rect class="blk" x="830" y="300" width="330" height="150" rx="8"/>
   <rect class="marco" x="840" y="310" width="92" height="130" rx="4"/>
-  <image href="fotos/mg996r.jpg" x="840" y="310" width="92" height="130"/>
+  <image href="fotos/mg996r_nuevo.jpg" x="847" y="310" width="78" height="130"/>
   <text class="num" x="946" y="332" style="fill:var(--sig)">3</text>
   <text class="t1" x="966" y="330">ROLL</text>
-  <text class="t2" x="946" y="352">TowerPro MG996R · GPIO4</text>
+  <text class="t2" x="946" y="352">TowerPro MG996R nuevo · GPIO4</text>
   <text class="t2" x="946" y="368">1000–2000 µs · ±20°</text>
   <text class="t2" x="946" y="384">sin pulso queda flojo</text>
   <text class="t2" x="946" y="408">marrón GND · rojo +6 V</text>
@@ -236,14 +236,14 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <!-- Servo 2: pitch -->
   <rect class="blk" x="830" y="470" width="330" height="170" rx="8"/>
   <rect class="marco" x="840" y="480" width="87" height="150" rx="4"/>
-  <image href="fotos/hs7955tg.jpg" x="840" y="480" width="87" height="150"/>
+  <image href="fotos/mg996r_nuevo.jpg" x="840" y="481" width="88" height="148"/>
   <text class="num" x="946" y="502" style="fill:var(--sig)">2</text>
   <text class="t1" x="966" y="500">PITCH</text>
-  <text class="t2" x="946" y="522">Hitec HS-7955TG · GPIO1</text>
-  <text class="t2" x="946" y="538">760–2240 µs · +30° / −20°</text>
-  <text class="t2" x="946" y="554">sin pulso mantiene la fuerza</text>
-  <text class="t2" x="946" y="578">negro GND · rojo +6 V</text>
-  <text class="t2" x="946" y="594">amarillo = señal</text>
+  <text class="t2" x="946" y="522">TowerPro MG996R nuevo · GPIO1</text>
+  <text class="t2" x="946" y="538">1100–1800 µs · +30° / −20°</text>
+  <text class="t2" x="946" y="554">sin pulso queda flojo (la cabeza cae)</text>
+  <text class="t2" x="946" y="578">marrón GND · rojo +6 V</text>
+  <text class="t2" x="946" y="594">naranja = señal</text>
 
   <!-- Servo 1: yaw -->
   <rect class="blk" x="830" y="660" width="330" height="160" rx="8"/>
@@ -257,14 +257,14 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <text class="t2" x="984" y="768">negro GND · rojo +6 V</text>
   <text class="t2" x="984" y="784">blanco = señal</text>
 
-  <!-- Pines usados: fila de arriba GPIO4; fila de abajo 3V3, GND, GND, 0, 1, 10 -->
+  <!-- Pines usados: fila de arriba GPIO5 y GPIO4; fila de abajo 3V3, GND, GND, 0, 1 -->
+  <circle class="pin" cx="516" cy="432" r="11" style="stroke:var(--sig)"/>
   <circle class="pin" cx="545" cy="432" r="11" style="stroke:var(--sig)"/>
   <circle class="pin" cx="284" cy="690" r="11" style="stroke:var(--v5)"/>
   <circle class="pin" cx="400" cy="690" r="11" style="stroke:#ffffff"/>
   <circle class="pin" cx="458" cy="690" r="11" style="stroke:#ffffff"/>
   <circle class="pin" cx="487" cy="690" r="11" style="stroke:var(--sig)"/>
   <circle class="pin" cx="516" cy="690" r="11" style="stroke:var(--sig)"/>
-  <circle class="pin" cx="545" cy="690" r="11" style="stroke:var(--sig)"/>
 
 
   <!-- Fuente de laboratorio -->
@@ -371,7 +371,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <!-- Cabeza -->
   <rect class="blk" x="220" y="50" width="180" height="90" rx="8"/>
   <text class="t1" x="232" y="74">Camera Module 3 NoIR</text>
-  <text class="t2" x="232" y="92">IMX708 · i2c@80000</text>
+  <text class="t2" x="232" y="92">IMX708 · i2c@88000</text>
   <text class="t2" x="232" y="108">es la nariz de la cara</text>
   <use href="#bt" x="340" y="122"/>
 
@@ -390,15 +390,15 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <rect class="blk" x="1020" y="40" width="160" height="90" rx="8"/>
   <text class="t1" x="1032" y="64">ROLL · MG996R</text>
   <text class="t2" x="1032" y="82">±20° · 1000–2000 µs</text>
-  <text class="t2" x="1032" y="98">banda muerta ~10°</text>
+  <text class="t2" x="1032" y="98">nuevo (05/11)</text>
   <use href="#bt" x="1120" y="112"/>
 
   <!-- Plataforma -->
   <rect class="blk" x="1020" y="300" width="160" height="110" rx="8"/>
   <text class="t1" x="1032" y="324">PITCH</text>
-  <text class="t2" x="1032" y="342">Hitec HS-7955TG</text>
+  <text class="t2" x="1032" y="342">MG996R nuevo (05/11)</text>
   <text class="t2" x="1032" y="358">+30° arriba / −20° abajo</text>
-  <text class="t2" x="1032" y="374">760–2240 µs</text>
+  <text class="t2" x="1032" y="374">1100–1800 µs</text>
   <use href="#bt" x="1120" y="392"/>
 
   <!-- Mesa -->
@@ -438,7 +438,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
   <text class="t1" x="732" y="522">ESP32-C3-DevKitM-1</text>
   <text class="t2" x="732" y="540">CH340 · /dev/ttyUSB0</text>
   <text class="t2" x="732" y="556">GPIO0 yaw · GPIO1 pitch</text>
-  <text class="t2" x="732" y="572">GPIO4 roll · GPIO10 buzzer</text>
+  <text class="t2" x="732" y="572">GPIO4 roll · GPIO5 buzzer</text>
   <text class="t2" x="732" y="588">watchdog 500 ms</text>
   <text class="t2" x="732" y="604">5 V por el USB de la Pi</text>
   <use href="#bt" x="830" y="614"/>
@@ -471,7 +471,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 
 <div class="nota"><strong>La Pi va parada dentro de la cabeza</strong>, atornillada a la placa de roll, y la cámara es la nariz, en el centro de la cara. Como la Pi y la cámara se mueven juntas, la cinta de ~150 mm queda fija (una curva en U y un doblez en Z que la lleva al centro) y no se mueve con ningún eje. A cambio, de la cabeza bajan dos cables redondos: el de 5 V/GND de la Pi y el USB a la ESP32. Con el cable del servo de roll, se les deja un bucle de servicio en roll (alrededor del horn) y en pitch (cerca del eje). En la v4 la ESP32 y el buzzer van en la caja base: por el eje de yaw cruzan el 5 V/GND de la Pi, el USB y los cables de los servos de pitch y roll, con un bucle de ~10 cm adentro de la caja para los ±70°.</div>
 
-<div class="nota"><strong>Dos fuentes separadas, unidas solo por el GND:</strong> la fuente de laboratorio da los 6 V de los servos y el powerbank, los 5 V de la Pi. Los picos de los servos (el HS-7955TG es el que más ruido mete) quedan en el bus de 6 V y no reinician la Pi ni la ESP32. El negativo de los bornes se une al GND de la ESP32; la Pi y el powerbank quedan unidos a esa masa por el USB. Sin GND común, ningún servo se mueve.</div>
+<div class="nota"><strong>Dos fuentes separadas, unidas solo por el GND:</strong> la fuente de laboratorio da los 6 V de los servos y el powerbank, los 5 V de la Pi. Los picos de los servos quedan en el bus de 6 V y no reinician la Pi ni la ESP32. El negativo de los bornes se une al GND de la ESP32; la Pi y el powerbank quedan unidos a esa masa por el USB. Sin GND común, ningún servo se mueve.</div>
 
 <div class="nota"><strong>La Pi se alimenta por el GPIO, no por el USB-C</strong>: en la cabeza, el USB-C queda tapado por la curva de la cinta. Los 5 V entran por los pines 2 y 4 y el GND por el 6. El GPIO no tiene la protección del USB-C: revisar la polaridad antes de conectar y medir la tensión <em>en los pines</em> (≥ 4,9 V) con la percepción corriendo, porque el cable recorre los tres ejes y cae tensión. El powerbank da 5 V / 3 A sin negociar los 5 A de PD: la Pi avisa y limita los USB a 600 mA, que a la ESP32 le alcanzan. No forzar <span class="mono">usb_max_current_enable</span>.</div>
 
@@ -484,7 +484,7 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <thead><tr><th>Pin del módulo</th><th>ESP32-C3</th></tr></thead>
 <tbody>
 <tr><td>VCC</td><td><strong>3V3</strong> (no 5V)</td></tr>
-<tr><td>I/O</td><td>GPIO10</td></tr>
+<tr><td>I/O</td><td><strong>GPIO5</strong></td></tr>
 <tr><td>GND</td><td>GND</td></tr>
 </tbody>
 </table>
@@ -492,8 +492,9 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <div class="card">
 <ul>
 <li><strong>VCC a 3V3, no a 5V.</strong> El transistor es PNP: se apaga solo cuando el I/O llega a la tensión de VCC. Con VCC a 5 V, el ALTO de 3,3 V del GPIO no alcanza para apagarlo y el buzzer queda con corriente todo el tiempo. A 3,3 V suena algo más bajo.</li>
-<li><strong>Se activa por nivel bajo</strong> (低电平触发, lo que está impreso en la placa). Por eso el firmware invierte la salida del GPIO10 (<span class="mono">ledcOutputInvert</span>): callado = pin en ALTO, sin corriente en la bobina. Las notas son una onda cuadrada al 50 % y suenan igual.</li>
-<li>Durante el arranque, hasta que corre el <span class="mono">setup()</span>, el GPIO10 queda sin configurar y el buzzer puede hacer un clic: es normal.</li>
+<li><strong>Se activa por nivel bajo</strong> (低电平触发, lo que está impreso en la placa). Por eso el firmware invierte la salida del GPIO5 (<span class="mono">ledcOutputInvert</span>): callado = pin en ALTO, sin corriente en la bobina. Las notas son una onda cuadrada al 50 % y suenan igual.</li>
+<li>Durante el arranque, hasta que corre el <span class="mono">setup()</span>, el GPIO5 queda sin configurar y el buzzer puede hacer un clic: es normal.</li>
+<li><strong>Por qué el GPIO5 y no el GPIO10:</strong> el 03/11, con la cabeza armada, en el GPIO10 dejó de sonar y se pasó al GPIO5 (<span class="mono">buzzer.pin</span> de <span class="mono">config.yaml</span>), donde anda. El corte intermitente que quedaba era un jumper con falso contacto en el cable que pasa por el cuello: soldarlo y precintarlo.</li>
 <li><strong>Probarlo antes de montarlo:</strong> con el I/O a GND fijo tiene que hacer solo "clic". Si pita solo, es activo y no sirve.</li>
 </ul>
 </div>
@@ -506,10 +507,10 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <tbody>
 <tr><td>Fuente de laboratorio 6 V, ≥ 5 A</td><td><span class="tag t-tenes">TENÉS</span></td><td>La de las pruebas de banco. Ajustarla a <strong>6,0 V</strong> y poner el límite de corriente en 4–5 A (≥ 6 A si se puede) <em>antes</em> de conectar los servos. Con 3 A o menos, en los giros rápidos entra en limitación y los servos tiemblan. <strong>La ALP002 no sirve</strong> (1,5 A, entrada de 110 V).</td></tr>
 <tr><td>Bornes de panel banana 4 mm (rojo y negro) + 2 cables 18 AWG</td><td><span class="tag t-falta">FALTA</span></td><td>Entrada de la fuente en la pared de atrás de la caja (agujeros de Ø8, 19 mm entre centros: medir los que compren). Cables banana–banana o banana–cocodrilo de ~1 m, de 18 AWG o más gruesos.</td></tr>
-<tr><td>Interruptor de los servos, ≥ 10 A</td><td><span class="tag t-falta">FALTA</span></td><td>De balancín (corte 19,2 × 12,8), sobre el +6 V. Es la parada de emergencia física en la demo y la única forma de aflojar el HS-7955TG, que sin pulso sigue haciendo fuerza.</td></tr>
+<tr><td>Interruptor de los servos, ≥ 10 A</td><td><span class="tag t-falta">FALTA</span></td><td>De balancín (corte 19,2 × 12,8), sobre el +6 V. Es la parada de emergencia física en la demo. Al cortarlo, los MG996R quedan flojos: sostener la cabeza.</td></tr>
 <tr><td>Bornera de distribución de 6 V</td><td><span class="tag t-falta">FALTA</span></td><td>Un único punto donde se juntan +6 V y GND de los tres servos y el GND de la ESP32 (estrella). Va en la bahía de adelante de la caja.</td></tr>
 <tr><td>Cable USB-A macho → 2 hilos + bornera de 2 polos</td><td><span class="tag t-falta">FALTA</span></td><td>Saca 5 V y GND de la salida USB-A del powerbank hacia los pines de la Pi. El USB-A entrega 5 V sin negociar: no hace falta placa USB-C con resistencias. Hilos de ≥ 22 AWG (muchos cables USB traen 28 AWG y caen tensión a 3 A). <strong>Si en la cabeza el USB-C de la Pi queda libre</strong> (sin verificar: <span class="mono">PI_CSI_SALIDA</span>), usar en su lugar un cable USB-C acodado directo, como en el banco.</td></tr>
-<tr><td>Módulo de buzzer pasivo (MH-FMD)</td><td><span class="tag t-tenes">TENÉS</span></td><td>El buzzer que pide el enunciado, en el GPIO10, con VCC a 3V3: ver "Módulo del buzzer" arriba. Trae el transistor: no hacen falta el 2N2222, las resistencias ni el diodo.</td></tr>
+<tr><td>Módulo de buzzer pasivo (MH-FMD)</td><td><span class="tag t-tenes">TENÉS</span></td><td>El buzzer que pide el enunciado, en el <strong>GPIO5</strong>, con VCC a 3V3: ver "Módulo del buzzer" arriba. Trae el transistor: no hacen falta el 2N2222, las resistencias ni el diodo.</td></tr>
 <tr><td>Active Cooler de la Pi 5</td><td><span class="tag t-recom">RECOM.</span></td><td>La percepción usa ~240 % de CPU de forma sostenida; sin ventilador la Pi baja la frecuencia y cae la tasa de percepción. Va dentro de la cabeza cerrada: medir su altura (<span class="mono">COOLER_H</span>, se supusieron 11 mm) y la temperatura con la cabeza armada (<span class="mono">/sys/class/thermal/thermal_zone0/temp</span>).</td></tr>
 <tr><td>Cinta CSI ~150 mm (22→15)</td><td><span class="tag t-tenes">TENÉS</span></td><td>Alcanza justo porque la Pi está en la cabeza: el recorrido con la U usa 147 de 150 mm. <strong>Antes de imprimir:</strong> medirla de punta a punta (<span class="mono">FFC_LARGO</span>) y mirar hacia qué extremo de la Pi sale del conector (<span class="mono">PI_CSI_SALIDA</span>). Nunca torcerla ni marcarle pliegues.</td></tr>
 <tr><td>Cable USB-A acodado a micro-USB</td><td><span class="tag t-recom">RECOM.</span></td><td>Los USB-A de la Pi quedan arriba en la cabeza. El cable baja por roll, pitch y yaw hasta la ESP32, en la base: tiene que ser flexible y con bucle de servicio.</td></tr>
@@ -532,9 +533,9 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <tr><td>Pi USB-A (arriba)</td><td>ESP32-C3 micro-USB</td><td>cable acodado, baja a la base · <span class="mono">/dev/serial/by-id/usb-1a86_…</span></td></tr>
 <tr><td>Pi CSI (CAM/DISP 0)</td><td>Camera Module 3 NoIR</td><td>cinta 22→15 de ~150 mm, U fija dentro de la cabeza</td></tr>
 <tr><td>ESP32 GPIO0</td><td>señal yaw (RDS3218)</td><td>3,3 V, 50 Hz</td></tr>
-<tr><td>ESP32 GPIO1</td><td>señal pitch (HS-7955TG)</td><td>3,3 V, 50 Hz</td></tr>
-<tr><td>ESP32 GPIO4</td><td>señal roll (MG996R)</td><td>3,3 V, 50 Hz</td></tr>
-<tr><td>ESP32 GPIO10</td><td>I/O del módulo del buzzer</td><td>activo en bajo</td></tr>
+<tr><td>ESP32 GPIO1</td><td>señal pitch (MG996R nuevo)</td><td>3,3 V, 50 Hz</td></tr>
+<tr><td>ESP32 GPIO4</td><td>señal roll (MG996R nuevo)</td><td>3,3 V, 50 Hz</td></tr>
+<tr><td>ESP32 GPIO5</td><td>I/O del módulo del buzzer</td><td>activo en bajo</td></tr>
 <tr><td>ESP32 3V3 y GND</td><td>VCC y GND del módulo del buzzer</td><td>3V3, no 5V</td></tr>
 <tr><td>ESP32 GND</td><td>GND de la bornera de 6 V</td><td><strong>obligatorio</strong></td></tr>
 </tbody>
@@ -563,11 +564,11 @@ svg text { fill: var(--box-ink); font-family: system-ui, -apple-system, "Segoe U
 <ul>
 <li><strong>Ajustar la fuente a 6,0 V y el límite de corriente con la salida apagada, antes de conectar los servos.</strong> Más de 7,4 V quema el MG996R y el RDS3218.</li>
 <li>Revisar la polaridad de los bornes (rojo = +6 V) y de los 5 V del GPIO antes de la primera conexión: ninguno de los dos caminos tiene protección.</li>
-<li><strong>Encender:</strong> primero el powerbank (arranca la Pi y la ESP32), después los 6 V con la cabeza cerca de home: el HS-7955TG salta a velocidad máxima con el primer pulso. <strong>Apagar:</strong> primero los 6 V, después la Pi.</li>
+<li><strong>Encender:</strong> primero el powerbank (arranca la Pi y la ESP32), después los 6 V con la cabeza cerca de home: los servos saltan a velocidad máxima con el primer pulso. <strong>Apagar:</strong> primero los 6 V (sosteniendo la cabeza: los MG996R quedan flojos), después la Pi.</li>
 <li>Cortar los 6 V antes de conectar o cambiar servos (en el banco, enchufar uno en caliente desconectó la ESP32 del USB).</li>
 <li>Medir los 5 V en los pines del GPIO de la Pi con la percepción corriendo (≥ 4,9 V). Nunca alimentarla a la vez por el GPIO y por el USB-C.</li>
 <li>Las señales de 3,3 V de la ESP32 ya movieron los tres servos en el banco: no hace falta adaptador de nivel.</li>
-<li>La segunda NoIR (<span class="mono">i2c@88000</span>) no transmite: desconectarla del robot final.</li>
+<li>La cámara en uso está en <span class="mono">i2c@88000</span> (desde el 03/11). Si queda conectada otra NoIR que no transmite, desconectarla del robot final.</li>
 </ul>
 </div>
 </main>

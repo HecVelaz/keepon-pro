@@ -38,7 +38,7 @@ Ordenados por prioridad (07/11/2026). Lo terminado se borra y queda en `docs/BIT
 ## 3. Otros
 - Diseño v6: medidas de `docs/diseno_v6/MEDICIONES_PENDIENTES.md` antes de reimprimir piezas estructurales; subir
   `docs/diseno_v5/` (lo importa `generar_v6.py`) y compartir `Keepon_V6_R4.zip` por Drive.
-- `docs/diagrama_sistema/index.html` sigue en la v4 y con el buzzer en GPIO10 (va en GPIO5); `docs/hoja_de_ruta.html` en la v2;
+- `docs/hoja_de_ruta.html` sigue en la v2;
   el comentario de encendido de `firmware/keepon_fw/keepon_fw.ino` apunta a la v4.
 - Herramientas de calibración (`~/keepon/calibracion/` en la Pi): pasarlas a `scripts/` si se van a reusar.
 - Reconexión automática de `SerialLink` si se desconecta el USB; autofoco (hoy `AfMode=0`).

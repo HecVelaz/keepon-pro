@@ -1,13 +1,13 @@
-// Prueba de banco del módulo de buzzer pasivo (MH-FMD) en el GPIO10 de la ESP32-C3.
+// Prueba de banco del módulo de buzzer pasivo (MH-FMD) en el GPIO5 de la ESP32-C3 (el del robot desde el 03/11).
 // Separa el hardware del firmware: repite cada 4 s
 //   1) 1 s de tono de 2 kHz hecho a mano con digitalWrite (sin LEDC): si no suena, es el cableado o el módulo;
 //   2) 1 s de silencio con el pin en ALTO (el módulo se activa por nivel bajo);
 //   3) 1 s de tono de 2 kHz por LEDC con la salida invertida, igual que el firmware del robot;
 //   4) 1 s de silencio.
-// Cada etapa se anuncia por el puerto serie (115200). Conexión: VCC → 3V3, I/O → GPIO10, GND → GND.
+// Cada etapa se anuncia por el puerto serie (115200). Conexión: VCC → 3V3, I/O → GPIO5, GND → GND.
 // Para volver al robot, cargar otra vez firmware/keepon_fw (bash scripts/cargar_firmware.sh --local).
 
-const uint8_t PIN_BUZZER = 10;
+const uint8_t PIN_BUZZER = 5;
 const uint32_t FREC_HZ = 2000;
 
 void tono_a_mano(uint32_t ms) {
