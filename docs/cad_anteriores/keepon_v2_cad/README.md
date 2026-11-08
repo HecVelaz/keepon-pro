@@ -1,8 +1,8 @@
 # Keepon pro v2: modelo mecánico
 
-Carcasa estilo Keepon (cabeza esférica y cuerpo elipsoidal) sobre un cuello de 3 GDL con los servos elegidos, la Pi 5 y la ESP32-C3 **sobre la plataforma de yaw** (para que la cinta de la cámara no se tuerza) y una caja base con la batería y los reguladores. Diagrama eléctrico: `docs/diagrama_sistema/index.html`.
+Carcasa estilo Keepon (cabeza esférica y cuerpo elipsoidal) sobre un cuello de 3 GDL con los servos elegidos, la Pi 5 y la ESP32-C3 **sobre la plataforma de yaw** (para que la cinta de la cámara no se tuerza) y una caja base con la batería y los reguladores. Diagrama eléctrico: `docs/hardware/diagrama_sistema/index.html`.
 
-La carpeta `docs/keepon_mg996r_step/` (tres MG996R, sin electrónica) queda como referencia; este modelo la reemplaza.
+La carpeta `docs/cad_anteriores/keepon_mg996r_step/` (tres MG996R, sin electrónica) queda como referencia; este modelo la reemplaza.
 
 ## Cómo abrirlo en SolidWorks
 
@@ -15,7 +15,7 @@ La carpeta `docs/keepon_mg996r_step/` (tres MG996R, sin electrónica) queda como
 
 ```bash
 python3 -m venv ~/cq_env && ~/cq_env/bin/pip install cadquery
-cd docs/keepon_v2_cad/fuente && ~/cq_env/bin/python keepon_cad.py
+cd docs/cad_anteriores/keepon_v2_cad/fuente && ~/cq_env/bin/python keepon_cad.py
 ```
 
 Todas las medidas están en la sección PARÁMETROS del script. Las cotas que dependen de otras (la altura del plato, el eje de pitch, el ancho de la horquilla) se recalculan solas. `ensamble(yaw, pitch, roll)` arma cualquier pose, e `interferencias()` lista los pares de piezas que se superponen.

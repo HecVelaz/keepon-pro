@@ -65,7 +65,7 @@ def main():
     asm.save(str(RAIZ / "step" / "keepon_v3_componentes.step"))
 
     L = ["KEEPON PRO v3 · COMPONENTES (sin las piezas impresas)",
-         f"Generado el {date.today():%d/%m/%Y} por docs/keepon_v3_cad/fuente/componentes.py",
+         f"Generado el {date.today():%d/%m/%Y} por docs/cad_anteriores/keepon_v3_cad/fuente/componentes.py",
          "",
          "Medidas en mm. «MEDIR» = verificar con calibre antes de imprimir.",
          "",

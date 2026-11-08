@@ -1,6 +1,6 @@
 # Keepon pro v3: cabeza plana con la Pi adentro
 
-La Pi 5 va **parada dentro de la cabeza**, atornillada a la placa de roll, y la cámara es **la nariz**, en el centro de la cara, con los dos ojos (decorativos) arriba. La Pi y la cámara se mueven juntas, así que la cinta de 150 mm **no se dobla ni se tuerce con ningún movimiento** (yaw, pitch ni roll): queda fija con una sola curva en U. Es lo que recomendó la revisión de Codex (`docs/REVISION_CODEX_ARQ.md`, sección 2).
+La Pi 5 va **parada dentro de la cabeza**, atornillada a la placa de roll, y la cámara es **la nariz**, en el centro de la cara, con los dos ojos (decorativos) arriba. La Pi y la cámara se mueven juntas, así que la cinta de 150 mm **no se dobla ni se tuerce con ningún movimiento** (yaw, pitch ni roll): queda fija con una sola curva en U. Es lo que recomendó la revisión de Codex (`docs/revisiones/REVISION_CODEX_ARQ.md`, sección 2).
 
 El cuello es el de la v2 (`../keepon_v2_cad/`): mismos servos, caja base, soportes de pitch y horquilla. El script importa esas piezas. La diferencia es que **la v3 no lleva rodamiento de yaw** (no tenemos uno): la tapa y el plato son propios de la v3 (ver "Yaw sin rodamiento").
 
@@ -57,14 +57,14 @@ La cinta sale del conector hacia abajo, baja pegada a la Pi (pasa por encima de 
 
 Como en la v1 (`../keepon_mg996r_step/`), el plato se atornilla al horn del RDS3218 y **el eje del servo carga todo**. Respecto de la v2, la tapa ya no tiene el aro elevador ni los 6 agujeros del rodamiento, y el plato tampoco tiene esos agujeros. El plato queda 14 mm por encima de la tapa, sin tocarla.
 
-Carga estimada sobre el eje (`--verificar`, PLA con ~50 % de relleno): **≈ 330 g**, con el centro de masa a **≈ 39 mm** del eje en el peor caso (roll 22°). Eso da un momento de vuelco de **≈ 1,3 kgf·cm** sobre el eje del servo, de forma permanente, más los golpes de las aceleraciones. Codex recomendaba un rodamiento justamente por esto (`docs/REVISION_CODEX_HW.md`).
+Carga estimada sobre el eje (`--verificar`, PLA con ~50 % de relleno): **≈ 330 g**, con el centro de masa a **≈ 39 mm** del eje en el peor caso (roll 22°). Eso da un momento de vuelco de **≈ 1,3 kgf·cm** sobre el eje del servo, de forma permanente, más los golpes de las aceleraciones. Codex recomendaba un rodamiento justamente por esto (`docs/revisiones/REVISION_CODEX_HW.md`).
 
 - Atornillar el plato al brazo con los 2 tornillos de las ranuras además del central. El brazo es de plástico: si cede o se rompe con el peso, cambiarlo por uno metálico.
 - Después de armarlo, mirar si el plato cabecea al frenar el yaw. Si cabecea, una solución sin comprar nada son 3 o 4 patines impresos sobre la tapa, debajo del borde del plato, con ~0,5 mm de luz: solo tocan si el plato se inclina.
 
 ## Brazo de los servos
 
-Los tres servos llevan el **mismo brazo doble de plástico** (`docs/Fotos/brazo_servo/brazo_servo.jpeg`) en lugar del horn circular de la v2. Medido: 38 mm de punta a punta, con los agujeros cada ≈ 2,5 mm (en la foto da ≈ 3). Lo demás se estimó de la foto (cubo Ø9, ancho 6,5 → 4 mm, espesor 2,5) y hay que medirlo (`BRAZO_*` en el script).
+Los tres servos llevan el **mismo brazo doble de plástico** (`docs/hardware/fotos/brazo_servo/brazo_servo.jpeg`) en lugar del horn circular de la v2. Medido: 38 mm de punta a punta, con los agujeros cada ≈ 2,5 mm (en la foto da ≈ 3). Lo demás se estimó de la foto (cubo Ø9, ancho 6,5 → 4 mm, espesor 2,5) y hay que medirlo (`BRAZO_*` en el script).
 
 - El plato, la horquilla y la placa de roll **no tienen agujeros fijos para el brazo**: tienen una **ranura** de 2,4 mm a cada lado del eje, de r = 5,5 a 14,5 mm. El tornillo M2 autorroscante pasa por la ranura y entra en el agujero del brazo que quede debajo, sea cual sea el paso real. Van 2 por brazo (uno de cada lado) y el tornillo central del servo.
 - Las piezas tienen un rebaje de Ø10,5 × 1 mm alrededor del eje, por si el cubo sobresale del brazo.
@@ -126,7 +126,7 @@ Cómo están armadas (todas las piezas se exportan con el origen del robot, así
 ## Verificado con el script
 
 ```bash
-cd docs/keepon_v3_cad/fuente
+cd docs/cad_anteriores/keepon_v3_cad/fuente
 ~/cq_env/bin/python keepon_v3_cad.py --verificar   # STEP, STL, macro de SolidWorks, interferencias, holguras y carga del yaw
 ~/cq_env/bin/python vistas.py                      # vistas/*.png (VTK, sin errores de oclusión)
 ```

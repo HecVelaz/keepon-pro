@@ -3,7 +3,7 @@
 ## Proyecto
 Cabeza robótica social de 3 GDL (yaw/pitch/roll) con visión artificial. µTP de Robótica II, FIUNA. Grupo de hasta 5 personas.
 **Demo física obligatoria el 30/10/2026** (Segundo Parcial). Sin demo física no hay puntaje.
-Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3).
+Enunciado: `docs/consigna/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3).
 - **Pi 5 (4 GB)**, Ubuntu 24.04 + ROS 2 Jazzy (no se puede cambiar el SO: la Pi se usa en otros proyectos), con Camera Module 3 NoIR estándar (IMX708). Todo corre en la Pi, en **Python puro**; `rclpy` solo para leer la cámara.
 - **ESP32-C3-DevKitM-1** (clon CH340, `/dev/serial/by-id/usb-1a86_USB_Serial-if00-port0`) para los 3 servos (yaw RDS3218 GPIO0, pitch MG996R GPIO1, roll MG996R GPIO4) y el buzzer (GPIO5, `buzzer.pin`; antes GPIO10), con el protocolo serie v1 (`docs/PROTOCOLO.md`).
 - Servos con fuente de laboratorio a 6 V; la Pi con powerbank Xiaomi PB2020MI. GND común. La notebook (x86, sin CUDA) es solo para desarrollar.
@@ -24,7 +24,7 @@ Enunciado: `docs/2026S2uTP_RoboticaSocial.md`. Plan: `docs/HOJA_DE_RUTA.md` (v3)
 - Los bugs encontrados se convierten en tests de regresión.
 - **Nombres de archivos y carpetas sin espacios** (guion bajo en su lugar): Windows no admite nombres que terminan en espacio o punto. Al renombrar, usar `git mv`, buscar las referencias con `git grep` y actualizarlas. El `rsync` a la Pi no borra: la copia vieja queda allá y hay que borrarla a mano, después de comparar con `cmp` que la nueva es idéntica.
 - Cambios que el grupo tiene que revisar: rama + pull request con `gh`. `gh pr edit` falla por un error de GitHub con "Projects (classic)" y no guarda nada: editar el PR con `gh api -X PATCH repos/HecVelaz/keepon-pro/pulls/<n>`.
-- Codex: Se usa `codex exec --skip-git-repo-check -s read-only -o <salida.md> "<prompt>"` para revisiones. Revisiones guardadas: `docs/REVISION_CODEX.md` (plan), `docs/REVISION_CODEX_M0.md` (código; sus 8 fallos están corregidos y tienen tests en `tests/test_regresiones_codex.py`), `docs/REVISION_CODEX_PI.md` (hardware real).
+- Codex: Se usa `codex exec --skip-git-repo-check -s read-only -o <salida.md> "<prompt>"` para revisiones. Revisiones guardadas: `docs/revisiones/REVISION_CODEX.md` (plan), `docs/revisiones/REVISION_CODEX_M0.md` (código; sus 8 fallos están corregidos y tienen tests en `tests/test_regresiones_codex.py`), `docs/revisiones/REVISION_CODEX_PI.md` (hardware real).
 - **En la Pi** (`ssh r2d2@100.116.96.71`): todo lo de Keepon va en `~/keepon` / `~/keepon_env`. **NO modificar** `~/vision_estereo`, `~/yolo_env`, `~/camera_ws` ni `~/yolo_ws`. Un solo dueño de la cámara a la vez (`pgrep -x camera_node`). Trampas de `pkill -f` y `set -u`: ver `docs/PI.md`.
 - Antes de un sync: `/verificar`; sincronizar la Pi con `/pi-sync-keepon`.
 - **Encender:** primero el powerbank y después los 6 V, con la cabeza cerca de home. **Apagar:** al revés. Al cambiar servos, apagar antes la fuente.
@@ -54,8 +54,8 @@ Firmware: `firmware/CLAUDE.md`. Banco de servos: `pruebas_servos/CLAUDE.md`. Pi 
 | Buzzer y sonidos | `pruebas_buzzer/README.md` |
 | Detector de camisetas | `pruebas_camisetas/README.md` |
 | Modelo mecánico (vigente: v6 R4) | `docs/diseno_v6/LEEME_GIT.md`, `docs/diseno_v6/README.md` |
-| Diagrama eléctrico / del sistema | `docs/diagrama_sistema/index.html` |
-| Revisiones de Codex | `docs/REVISION_CODEX.md`, `docs/REVISION_CODEX_M0.md`, `docs/REVISION_CODEX_PI.md`, `docs/REVISION_CODEX_ARQ.md`, `docs/REVISION_CODEX_HW.md` |
+| Diagrama eléctrico / del sistema | `docs/hardware/diagrama_sistema/index.html` |
+| Revisiones de Codex | `docs/revisiones/REVISION_CODEX.md`, `docs/revisiones/REVISION_CODEX_M0.md`, `docs/revisiones/REVISION_CODEX_PI.md`, `docs/revisiones/REVISION_CODEX_ARQ.md`, `docs/revisiones/REVISION_CODEX_HW.md` |
 
 ## Estructura
 ```

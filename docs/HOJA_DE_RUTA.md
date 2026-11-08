@@ -5,7 +5,7 @@
 **Stack:** **todo en la Pi 5** (Python + OpenCV + YOLOv8n/NCNN + MediaPipe Tasks + pyserial) ⇄ USB CDC (`/dev/ttyACM0`) ⇄ ESP32-S3 (3 servos + buzzer pasivo LEDC). Python puro; ROS 2 es opcional y se evalúa más adelante. La notebook solo se usa para desarrollar.
 **Principio rector:** el éxito se mide con el robot completo funcionando. Integración física el **8/10**, feature freeze el **22/10**.
 
-> v2 incorpora la revisión de Codex (`REVISION_CODEX.md`). v3 incorpora el hardware real y el avance de M0. Vista interactiva: `hoja_de_ruta.html` (v2).
+> v2 incorpora la revisión de Codex (`revisiones/REVISION_CODEX.md`). v3 incorpora el hardware real y el avance de M0. Vista interactiva: `hoja_de_ruta.html` (v2).
 
 ## Estado al 30/09/2026
 
@@ -16,7 +16,7 @@
 | M0 hardware | ⏳ Ficha de carga, prueba de servos y fuente, camisetas reales. |
 | M1–M5 | Pendientes |
 
-Revisión de Codex del código M0 (`docs/REVISION_CODEX_M0.md`). Encontró 8 fallos; todos están corregidos y tienen test de regresión (63 tests en total):
+Revisión de Codex del código M0 (`docs/revisiones/REVISION_CODEX_M0.md`). Encontró 8 fallos; todos están corregidos y tienen test de regresión (63 tests en total):
 
 | # | Fallo | Corrección |
 |---|---|---|

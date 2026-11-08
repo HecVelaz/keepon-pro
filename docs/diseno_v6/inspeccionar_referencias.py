@@ -25,7 +25,7 @@ def inspeccionar(ruta):
 
 
 def main():
-    directorio = REPO / 'docs/keepon_v4_cad/step/componentes'
+    directorio = REPO / 'docs/cad_anteriores/keepon_v4_cad/step/componentes'
     archivos = [directorio / (nombre + '.step') for nombre in
                 ('horn_yaw', 'horn_pitch', 'horn_roll', 'servo_yaw_rds3218',
                  'servo_pitch_hs7955tg', 'servo_roll_mg996r')]

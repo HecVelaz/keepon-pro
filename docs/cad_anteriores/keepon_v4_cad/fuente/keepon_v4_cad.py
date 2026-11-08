@@ -35,7 +35,7 @@ DX = -k3.X_PITCH       # todo lo que va arriba del plato de la v3 se corre esto 
 X_PITCH = 0.0
 Z_PITCH = k3.Z_PITCH   # misma altura que en la v3 (la caja base mide lo mismo)
 
-# --- Powerbank (docs/Fotos/Bateria_powerbank_xiaomi) -------------------------------------------
+# --- Powerbank (docs/hardware/fotos/Bateria_powerbank_xiaomi) -------------------------------------------
 XIAOMI = (128.0, 73.0, 32.0)    # powerbank Xiaomi PB2020MI 20000 mAh, 5 V 3 A, 342 g (medidas aproximadas: MEDIR)
 
 # --- Caja base ---------------------------------------------------------------------------------
@@ -355,7 +355,7 @@ OTROS = [
 
 def escribir_lista(raiz, piezas):
     """componentes_v4.txt: todas las piezas del modelo con sus medidas, y lo que no está modelado."""
-    L = ["KEEPON PRO v4 · COMPONENTES Y DIMENSIONES", "Generado por docs/keepon_v4_cad/fuente/keepon_v4_cad.py", "",
+    L = ["KEEPON PRO v4 · COMPONENTES Y DIMENSIONES", "Generado por docs/cad_anteriores/keepon_v4_cad/fuente/keepon_v4_cad.py", "",
          "Medidas en mm: caja envolvente en la posición del robot, X (hacia la cara) × Y (de lado a lado) × Z (alto).",
          "IMPRIMIR = pieza propia (step/ y stl/); COMPRADO = componente (step/componentes/).", ""]
     grupos = {"base": "CAJA BASE (fija)", "yaw": "GIRA CON EL YAW", "pitch": "GIRA CON EL PITCH",

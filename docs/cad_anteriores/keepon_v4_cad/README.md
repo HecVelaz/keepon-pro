@@ -120,7 +120,7 @@ Son **dos fuentes separadas**: los picos de los servos (sobre todo el HS-7955TG)
 ## Verificado con el script
 
 ```bash
-cd docs/keepon_v4_cad/fuente
+cd docs/cad_anteriores/keepon_v4_cad/fuente
 ~/cq_env/bin/python keepon_v4_cad.py --verificar   # STEP, STL, macro, lista de componentes, interferencias
 ~/cq_env/bin/python vistas.py                      # vistas/*.png
 ```

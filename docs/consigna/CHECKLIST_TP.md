@@ -25,7 +25,7 @@ Un diseño CAD o una pieza en una carpeta no prueban que el componente esté mon
 
 El Colab no está empezado. Entre corchetes, de dónde sale el material que ya existe.
 
-- [ ] ❌ Descripción del mecanismo, electrónica y conexiones. [`docs/HARDWARE.md`, `docs/diseno_v6/`; `docs/diagrama_sistema/` está desactualizado]
+- [ ] ❌ Descripción del mecanismo, electrónica y conexiones. [`docs/HARDWARE.md`, `docs/diseno_v6/`; `docs/hardware/diagrama_sistema/` está desactualizado]
 - [ ] ❌ Modelos de IA y librerías utilizados, con sus fuentes. [`docs/ARQUITECTURA.md`, `requirements.txt`]
 - [ ] ❌ Definición operativa de cada evento: umbrales, confianza y filtros temporales. [`config.yaml`, `keepon/eventos.py`]
 - [ ] ❌ Arquitectura: percepción, modelo del mundo, comportamientos, árbitro y control. [`docs/ARQUITECTURA.md`]

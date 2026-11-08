@@ -27,7 +27,7 @@ el acento del primer tiempo de los cuatrillos no se puede hacer con un buzzer.
 
 ## Módulo del buzzer
 
-Desde el 26/10 se usa un **módulo de buzzer pasivo MH-FMD** (foto en `docs/Fotos/modulo_buzzer_pasivo/`). Trae el
+Desde el 26/10 se usa un **módulo de buzzer pasivo MH-FMD** (foto en `docs/hardware/fotos/modulo_buzzer_pasivo/`). Trae el
 transistor (PNP) y la resistencia de base: el circuito anterior con el 2N2222, el 1 kΩ, el 10 kΩ y el 1N4148 ya no
 hace falta.
 
@@ -53,4 +53,4 @@ hace falta.
 - **04/11: sonaba a veces sí y a veces no** (GPIO5, cabeza armada): era un **cable jumper con falso contacto**. Con los
   6 V apagados sonaba siempre; con los servos andando, no. Antes de buscar ruido, cambiar el jumper. El volumen se ajusta
   desde el panel del celular (comando `VOL`, 0–100 %).
-- El conexionado está también en `docs/diagrama_sistema/index.html` ("Módulo del buzzer").
+- El conexionado está también en `docs/hardware/diagrama_sistema/index.html` ("Módulo del buzzer").
