@@ -124,6 +124,10 @@ Detalle en el informe (sección 11) y en [`docs/ESTADO_PI.md`](docs/ESTADO_PI.md
 Conexiones y alimentación: [`docs/HARDWARE.md`](docs/HARDWARE.md).
 
 <div align="center">
+<img src="docs/img/diagrama_componentes.png" alt="Componentes reales de Wall-E y sus conexiones: powerbank, Raspberry Pi 5, cámara, ESP32-C3, fuente de 6 V, tres servos y buzzer" width="860">
+</div>
+
+<div align="center">
 <img src="docs/img/keepon_cad.png" alt="Modelo CAD v6 R4: base con el servo de yaw, horquilla de pitch y cabeza con los ojos y la cámara como nariz" width="380">
 
 *Modelo CAD v6 R4.*
