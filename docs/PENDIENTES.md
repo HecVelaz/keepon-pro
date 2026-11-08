@@ -4,7 +4,7 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
 
 ## 0. Entrega documentada (08/11)
 1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v3`, antes `_v2`) y completar los
-   `[Completar]`: enlace al video y al ZIP, captura del overlay, **aportes individuales y uso de IA**
+   `[Completar]`: enlace al ZIP, captura del overlay, **aportes individuales y uso de IA**
    (los escribe el grupo) y la latencia medida. Subirlo a Colab y probar que abre desde otra cuenta.
 2. ~~Integrar los PR a `main`~~: hecho el 08/11 (#3 → #4 → #5 → #6).
    **Pi:** `docs/` se reorganizó el 08/11 (consigna/, hardware/, cad_anteriores/, revisiones/). El `rsync` no borra: en el
@@ -12,9 +12,8 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
    `micro_servo_*`, `servo_HS-7955TG_titanium_gear`, `keepon_mg996r_step`, `REVISION_CODEX*.md`, `CHECKLIST_TP.md`,
    `2026S2uTP_*`), comparando antes con `cmp`. El código del robot no cambió.
 3. ZIP del código, enlace al repo y verificar que todo abre desde otra cuenta.
-4. **Video ≤ 3 min** (guion de 8 escenas del usuario, revisado el 08/11): escribir `docs/GUION_VIDEO.md` (quién hace
-   qué, qué botón, qué se ve en el overlay) y grabar con el overlay en pantalla. Opcional: grabar el overlay a `.mp4`
-   desde la Pi. Confirmar con la cátedra la fecha de la demo (`CLAUDE.md` dice 30/10).
+4. ~~Video ≤ 3 min~~: hecho el 08/11, https://youtu.be/raOJljv1mVU (8 pruebas, 3 min), con miniatura en el README y
+   reproductor en el informe. Falta confirmar con la cátedra la fecha de la demo (`CLAUDE.md` dice 30/10).
 5. Guía PDF: describir la **curva S** (hoy dice perfil trapezoidal), el Observador "exploracion", HOME, Ejes y la polca
    una vez por aparición (el informe ya está al día, 08/11).
 

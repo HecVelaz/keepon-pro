@@ -27,10 +27,21 @@ Wall-E detecta a las personas, las sigue con la mirada, responde a saludos y a q
 corre en una Raspberry Pi 5 en Python; una ESP32-C3 mueve los tres servos con trayectorias suaves y toca los sonidos en
 un buzzer, sin bloquearse nunca.
 
+## Video de la demostración
+
+<div align="center">
+
+[![Video de la demostración de Wall-E: las 8 pruebas en 3 minutos (clic para verlo en YouTube)](docs/img/video_miniatura.jpg)](https://youtu.be/raOJljv1mVU)
+
+**[▶ Ver en YouTube](https://youtu.be/raOJljv1mVU)** · las 8 pruebas del robot en 3 minutos
+
+</div>
+
 ## Entregables
 
 | | |
 |---|---|
+| 🎬 **Video de la demostración** (3 min) | [youtu.be/raOJljv1mVU](https://youtu.be/raOJljv1mVU): las 8 pruebas del robot |
 | 📓 **Informe técnico** (cuaderno Colab, ya ejecutado) | [`docs/informe/Informe_técnico_v3.ipynb`](docs/informe/Informe_t%C3%A9cnico_v3.ipynb) · versión anterior: [`Informe_técnico.ipynb`](docs/informe/Informe_t%C3%A9cnico.ipynb) |
 | 📘 **Guía completa del proyecto** (PDF con diagramas) | [`docs/guia/Guia_Keepon_pro.pdf`](docs/guia/Guia_Keepon_pro.pdf): construcción, hardware, control, software y decisiones |
 | ✅ **Consigna, casilla por casilla** | [`docs/consigna/CHECKLIST_TP.md`](docs/consigna/CHECKLIST_TP.md) (qué pide la consigna y dónde está en el código) |
