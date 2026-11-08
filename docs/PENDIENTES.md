@@ -12,8 +12,8 @@ Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BIT
 4. **Video ≤ 3 min** (guion de 8 escenas del usuario, revisado el 08/11): escribir `docs/GUION_VIDEO.md` (quién hace
    qué, qué botón, qué se ve en el overlay) y grabar con el overlay en pantalla. Opcional: grabar el overlay a `.mp4`
    desde la Pi. Confirmar con la cátedra la fecha de la demo (`CLAUDE.md` dice 30/10).
-5. Guía PDF e informe: describir la **curva S** (hoy dicen perfil trapezoidal), el Observador "exploracion", HOME, Ejes
-   y la polca una vez por aparición.
+5. Guía PDF: describir la **curva S** (hoy dice perfil trapezoidal), el Observador "exploracion", HOME, Ejes y la polca
+   una vez por aparición (el informe ya está al día, 08/11).
 
 ## 1. Para que la demo no falle
 1. **Probar lo del 08/11 en el robot** (todo cargado): el barrido del Observador a 25 °/s (si el yaw vibra en el medio,
