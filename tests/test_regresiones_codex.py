@@ -26,9 +26,11 @@ class Rig:
         self.cam = SynthCamera(self.cfg, persons)
         self.t = 0.0
 
-    def run_until(self, t_end, world_age=0.0):
+    def run_until(self, t_end, world_age=None):
+        """world_age None: la edad real de la imagen, la latencia de la cámara sintética (como en el robot)."""
+        edad = self.cam.latency if world_age is None else world_age
         while self.t < t_end:
-            self.robot.tick(self.cam.observe(self.t, self.link.neck_pos), world_age)
+            self.robot.tick(self.cam.observe(self.t, self.link.neck_pos), edad)
             self.link.advance(DT)
             self.t += DT
 
@@ -150,6 +152,7 @@ def test_gaze_centers_on_optical_center():
     from keepon.gaze import GazeController
 
     cfg = load_config()
+    cfg["gaze"]["mirar_abajo_deg"] = 0.0  # sin el corrimiento hacia abajo (lo prueba test_gaze_mira_mas_abajo)
     w = World.from_cfg(cfg)
     c = cfg["camera"]
     assert (w.cx, w.cy) == (c["cx"], c["cy"])
@@ -159,6 +162,28 @@ def test_gaze_centers_on_optical_center():
     for _ in range(20):
         ref = g.update(ref, p, w, 0.05)
     assert ref == [0.0, 0.0, 0.0]  # antes giraba ≈ 6,5° en yaw buscando el centro de la imagen
+
+
+def test_gaze_mira_mas_abajo_para_ver_la_camiseta():
+    """04/11: con la cara centrada no entraba la camiseta. Con mirar_abajo_deg, la cara queda ese ángulo por
+    encima del centro óptico: ahí el cuello no se mueve; con la cara centrada, baja la mirada."""
+    import math
+
+    from keepon.gaze import GazeController
+
+    cfg = load_config()
+    abajo = cfg["gaze"]["mirar_abajo_deg"]
+    assert abajo > 0
+    w = World.from_cfg(cfg)
+    v_cara = w.cy - w.fy * math.tan(math.radians(abajo))
+    g, ref = GazeController(cfg), [0.0, 0.0, 0.0]
+    for _ in range(20):
+        ref = g.update(ref, Person(1, w.cx, v_cara, 300), w, 0.05)
+    assert ref == [0.0, 0.0, 0.0]
+    g = GazeController(cfg)
+    for _ in range(20):
+        ref = g.update(ref, Person(1, w.cx, w.cy, 300), w, 0.05)
+    assert ref[1] < -1.0 and ref[0] == 0.0  # pitch negativo = mira hacia abajo
 
 
 def test_world_without_intrinsics_uses_image_center():

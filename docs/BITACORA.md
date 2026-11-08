@@ -3,6 +3,105 @@
 Lo hecho en cada sesión, lo más reciente arriba. El estado actual está en `docs/ESTADO.md`; lo que falta, en
 `docs/PENDIENTES.md`. Creada el 03/11/2026 con la historia que estaba en `ESTADO.md`.
 
+## 07/11/2026
+**Repaso de la consigna y documentación para leer desde afuera** (rama `camisetas`)
+- Checklist de la consigna revisado casilla por casilla contra el código: `docs/CHECKLIST_TP.md` (antes suelto en la
+  raíz como `CHECKLIST_TP_ROBOTICA_SOCIAL.md`). Robot (T1–T7, 55 casillas): 31 probadas, 21 hechas sin probar en real,
+  3 faltan (latencia evento → respuesta, secuencia de demo, iluminación). Entrega (22): casi todo por hacer (Colab, ZIP, video).
+- `docs/checklist_robotica_social.html` (lo armó Mathias revisando `main` en `cd63108`, del 26/10, por eso marcaba
+  como pendientes los modos, SALIENDO y las camisetas): la columna de Hector se precarga con lo hecho y probado
+  (34/82 obligatorias), con nota y evidencia por casilla; enlaces a `main`; una nueva `revision` recarga solo las
+  marcas de Hector y conserva las de Mathias guardadas en el navegador.
+- `README.md` reescrito para un lector externo: hardware real (ESP32-C3, 2 × MG996R, buzzer GPIO5), arquitectura,
+  modelos con su fuente (YOLO26n de Ultralytics, MediaPipe BlazeFace y Pose), instalación, ejecución, modos y STOP.
+- Push de `camisetas` (los 3 commits locales y los de hoy). **Integrar los PR #3 → #4 → #5 a `main` quedó sin hacer**:
+  el clasificador de permisos lo bloqueó por ser un merge sin revisión; lo tiene que hacer el usuario o autorizarlo.
+- Se vio que el repo en GitHub es **público** (`gh repo view`), aunque `CLAUDE.md` decía privado (se resolvió a la tarde).
+
+Commits: `c929971`, `ffdf9e1`. Tests: 219.
+
+**Tarde: repo público, guía PDF, informe técnico y diagramas editables**
+- El repo queda **público** (decisión y regla en `CLAUDE.md`: nada de datos personales, claves ni imágenes de personas).
+- **Guía completa en PDF** `docs/guia/Guia_Keepon_pro.pdf` (18 capítulos, 23 páginas, 19 diagramas SVG): construcción,
+  hardware, pines, PWM y perfil trapezoidal, firmware, software, decisiones y resultados. Fuente `docs/guia/guia_keepon.html`,
+  generada con WeasyPrint.
+- **Informe técnico** `docs/informe/Informe_técnico.ipynb`: la plantilla del grupo completada (portada, integrantes,
+  hardware, arquitectura, eventos, modos, parámetros desde `config.yaml`, resultados), con las celdas de código
+  ejecutadas sin errores y las figuras embebidas (sube tal cual a Colab). Se agregó la figura de las camisetas de
+  referencia. Quedan `[Completar]`: video, ZIP, foto del robot, captura del overlay, aportes, uso de IA, latencia.
+- `docs/informe/Informe_técnico_v2.ipynb` (versión del usuario; entró sin querer en `e79b5e1`): cada diagrama tiene
+  ahora su **`.drawio` editable** en `docs/informe/diagramas/` (19 archivos: 12 del v2 y 7 más de la guía, con
+  `LEEME.md`). Conversor `docs/informe/fuente/svg_a_drawio.py` (SVG → mxGraph; textos fusionados en su caja).
+- `docs/diagrama_sistema/index.html`: **buzzer en el GPIO5** (cable I/O desde la fila de arriba; nota de por qué no el
+  GPIO10) y foto de los **MG996R nuevos** en pitch y roll (`fotos/mg996r_nuevo.jpg`). `pruebas_buzzer/` también al GPIO5.
+- Merge de los PR #3 → #4 → #5: sigue bloqueado por el clasificador; lo hace el usuario.
+
+Commits: `c5c3e2e`, `e70da8a`, `2f98712`, `db6f77e`, `cfac015`, `e79b5e1`, `f85a0de`, `9b103fb` (todos subidos).
+
+## 05/11/2026
+**Servos nuevos de pitch y roll** (rama `camisetas`, sin commitear hasta el cierre)
+- El grupo consiguió dos **TowerPro MG996R** nuevos: reemplazan al HS-7955TG (pitch) y al MG996R con zona muerta (roll).
+  Mismos pines (GPIO1 y GPIO4).
+- Cero sin horn con `prueba_servo.ino` (horn calzado en 1500 µs) y extremos montados. **Pitch**: +30° = 1174 µs,
+  −20° = 1717 µs, llega bien a los dos; pulso mayor = la cara BAJA → `signo: −1`; centro 1500; límites 1100/1800 µs.
+  **Roll** sin carga: +217 µs = +20° justos (antihorario visto de frente al eje), −217 µs casi 20°; centro 1500, signo −1
+  (el del anterior en el mismo montaje, **sin verificar montado**), `compensacion_us: [0, 0]` (no tiene la zona muerta).
+- Herramientas: `pruebas_servos/mover_servos.py` (en la Pi, ángulos en grados con los tres ejes, límites de seguridad
+  en la ESP32; para `prueba_servo.ino`). En la notebook se usó un puente por FIFO (fuera del repo).
+- Los MG996R **sin pulso quedan flojos**: al cargar el firmware (la ESP32 se reinicia) la cabeza cae en pitch.
+
+**Suavidad de los movimientos** (videos del usuario en `video/`, ignorado por git: tienen personas)
+- 1.ª corrida: "golpetea". Se probó bajar `gaze.kp` 4 → 2,5, `ema` 0,5 → 0,3 y `amax` de pitch/roll a 250/200 °/s²:
+  el **yaw quedó peor** y después **los tres vibraban más**. Diagnóstico con el usuario: **quietos no vibran; vibran
+  moviéndose lento** (avanzan a saltitos por la banda muerta). `deadzone` 0,04–0,05 dejaba la cara a 1,5–3° del centro.
+- Causa: en modo velocidad la referencia avanzaba un poco en cada ciclo (40 J/s) y el Observador barría con una senoide
+  lenta: los servos se arrastraban.
+- **Mirada por objetivo** (`gaze.modo: objetivo`): dirección = posición del cuello AL SACAR LA FOTO (historia en
+  `Robot._historia`, del espejo del firmware) + error en la imagen; la referencia salta ahí si se corrió más de 2,5° y
+  queda quieta. Solo se corrige con fotos sacadas con el cuello quieto (`quieto_deg` 1°). En el simulador, cambios de
+  referencia: persona quieta 25 → 8 (después 0), camina a 8 °/s 300 → 29, va y viene 264 → 40; salto a 25° con 150 ms
+  de atraso: se pasaba a 29,2° → 25,0°.
+- **Observador por miradas** (`observer.modo: miradas`): quieto donde estaba 2 s, después de punto en punto
+  (±40°, ±15°) con pausas de 2 s.
+- Velocidades de vuelta arriba: `vmax` 180/120/120 °/s, `amax` 600/400/300 °/s². `kp`/`ema` aceptan un valor por eje.
+- El simulador le pasaba al robot `world_age=0` con 60 ms de latencia en la cámara sintética: ahora la edad real.
+- Firmware cargado tres veces en la ESP32 por la Pi (`bash scripts/cargar_firmware.sh`), con la cabeza sostenida.
+  **La versión final (mirada por objetivo y miradas) no se probó todavía en el robot.**
+- Panel sin Tailscale: `http://172.16.240.92:8081` (IP del Wi-Fi de la Pi, la da el router).
+
+Tests: 207 → 219 (`tests/test_gaze_por_eje.py`, `tests/test_mirada_objetivo.py`).
+
+## 04/11/2026
+**Panel del celular y arranque** (rama `panel-arranque`, PR #4 sobre `diseno-v6-vigente`)
+- El servicio moría ~10 s después de cerrar el SSH: faltaba **linger** (`loginctl enable-linger r2d2`, lo corrió el usuario).
+- Panel siempre prendido como servicio aparte (`scripts/keepon-panel.service`, puerto 8081; `keepon panel-on/off`) con
+  botones **Encender / Apagar** (`systemctl --user --no-block start/stop keepon`, sin shell). `robot_vivo.sh` no lo duplica.
+- **Sonidos del operador: el último pedido gana** (antes se descartaban los superpuestos y "a veces no sonaba").
+- **Apagar vuelve a HOME**: el STOP enclavado hacía que la ESP32 rechazara el HOME. Ahora RESUME + HOME y espera a que
+  el STATE llegue (`ir_a_home_y_esperar`, 5 s, log `FIN: en HOME`). Test de regresión.
+- **Buzzer intermitente: era un cable jumper con falso contacto** (lo encontró el usuario). Se probó el GPIO7 (`c1759c2`)
+  y se revirtió: sigue en el **GPIO5**. Sonaba con los 6 V apagados y no con los servos andando → era el cable, no ruido.
+- **Volumen del buzzer desde el panel** (0–100 %): comando `VOL` nuevo en el protocolo (FW_VERSION 2, aceptado con STOP),
+  firmware, simulador y tests de conformidad; se guarda en `~/keepon/run/volumen` y se manda al reconectar.
+- ME_MIRA: el modo Tímido "igual me sigue la mirada". Se agregó el ángulo cara→cámara al overlay (`angulo N`) y a la
+  línea ESTADO (`mira mín/mediana (<15°: a/b)`). Ya con la mirada corrida hacia abajo dio mediana 8° y 30/42 bajo 15°:
+  falta volver a probar el Tímido.
+
+**Camisetas** (rama `camisetas`, PR #5 sobre `panel-arranque`)
+- `pruebas_camisetas/grabar.sh` (cámara con el robot apagado, pitido del buzzer cada 20 s) y `evaluar.py`. Tomas de 60 s
+  a 1,2 / 1,8 / 2,5 m, de frente, luz del laboratorio: Olimpia titular, Cerro 2026 mitad y mitad, roja lisa, azul marino
+  lisa. Quedan **solo en la Pi** (`~/keepon/capturas/camisetas/`), con consentimiento; borrarlas al cerrar el detector.
+- Colores con la NoIR: azul marino **violeta** (H 116–145), igual en Cerro y en la lisa; rojo igual en Cerro y en la lisa;
+  la franja de Olimpia marrón violácea (V 38–54) con el logo blanco adentro.
+- `keepon/camiseta.py`: torso desde los hombros de Pose; Cerro = columnas rojas y azules con borde vertical; Olimpia =
+  claro → franja oscura → claro (brillos relativos, blanco poco saturado). Filtro 6/6 cuadros por persona en `Eventos`.
+  Corre en el proceso de pose (pose 7–10 Hz, igual que antes).
+- Videos: Olimpia 82 % (99 % desde los 10 s; antes estaba muy cerca), Cerro 98 %, **lisas 0 % de falsos positivos**.
+- La cámara (±14° vertical) no veía la camiseta con la cara centrada → `gaze.mirar_abajo_deg: 8`.
+- **En vivo:** Olimpia → polca, Cerro → abucheo, roja y azul lisas → nada.
+
+Commits: `67806d8` … `ba452ea`. Tests: 164 → 207.
+
 ## 03/11/2026
 **Diseño v6 y calibración con la cabeza montada**
 - El modelo vigente pasa a ser el **v6 R4** (`docs/diseno_v6/`, ver `LEEME_GIT.md`). Se versionan ≈ 20 MB de 228 (fuentes,

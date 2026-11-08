@@ -15,7 +15,7 @@ camera_ros → keepon/perception.py (2 procesos) → World → Focus → behavio
 | `link.py` | `SimLink` / `SerialLink`, misma interfaz. `SerialLink` todavía **no** reconecta solo |
 | `arbiter.py` | Recursos NECK/BUZZER, prioridades 0–5, adquisición atómica, cooldown al empezar, propuestas que vencen, retarget, STOP |
 | `behaviors.py` | Observador, Seguimiento, Saludo, Camiseta. **Faltan los modos** (Tímido/Atrevido/Maleducado/Neutro) y SALIENDO |
-| `gaze.py` | Control P con zona muerta suave (sin integral) + foco con prioridad estricta a ME_MIRA e histéresis de 1,5 s |
+| `gaze.py` | Mirada **por objetivo** (desde el 05/11): dirección de la persona = posición del cuello al sacar la foto + error en la imagen; la referencia salta ahí si se corrió más de `umbral_deg` y queda quieta. Alternativa: control P en velocidad con zona muerta suave (`gaze.modo`). Foco con prioridad estricta a ME_MIRA e histéresis de 1,5 s |
 | `robot.py` | Lazo principal, resincronización por reinicio del ESP32, edad máxima del mundo (0,3 s), EventLog CSV en `logs/` |
 | `perception.py` | Proceso "personas" (YOLO26n 256 + tracker propio + rostros BlazeFace sobre recortes + solvePnP → ME_MIRA) y proceso "pose" (MediaPipe lite). Fijados a núcleos |
 | `tracker.py` | Tracker IoU propio (el ByteTrack de ultralytics costaba ~68 ms/cuadro en la Pi) |

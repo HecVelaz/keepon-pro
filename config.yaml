@@ -9,22 +9,27 @@ neck:
                                  # −30 "al límite" fue SIN compensación de zona muerta (llegaba ~10° antes): con la
                                  # compensación, −20 es −20 de verdad. Probar de a poco antes de ampliar.
   home: [0.0, 0.0, 0.0]          # postura calibrada, mirada al frente
-  vmax: [180.0, 120.0, 90.0]     # velocidad máxima por eje [°/s] (yaw, pitch, roll)
+  vmax: [180.0, 120.0, 120.0]    # velocidad máxima por eje [°/s] (yaw, pitch, roll)
   amax: [600.0, 400.0, 300.0]    # aceleración máxima por eje [°/s²]
+                                 # 05/11: se probó bajar pitch/roll (90 °/s; 250/200 °/s²) y los TRES servos
+                                 # vibraron más: quietos no vibran, pero moviéndose LENTO sí (avanzan a saltitos
+                                 # por la banda muerta). Se volvió a movimientos rápidos y controlados: pitch como
+                                 # con el HS (120/400; el par inercial de la cabeza, ~0,1 kgf·cm, es despreciable
+                                 # frente al del MG996R) y roll 120/300. Los gestos (nod 237 °/s², mentón 137) entran.
   # Calibración de los servos (planilla de pruebas_servos/README.md). La usa el firmware para pasar de grados a µs:
   # pulso = centro_us + signo · grados / grados_por_us, recortado a [min_us, max_us].
   # compensacion_us (opcional): [al bajar el pulso, al subir el pulso], se suma según el sentido del último
   # movimiento del eje (zona muerta del servo; ver roll). Sin la clave: [0, 0].
   servos:
-    pitch:                       # Hitec HS-7955TG, medido el 09/10 (6 V, sin carga)
-      centro_us: 1400            # montado en el v6 (03/11): con 1400 la cara queda vertical (primero se probó 1450)
-      grados_por_us: 0.090       # lineal y simétrico: ±45° en 1000/2000 µs
-      min_us: 760                # límites electrónicos 750/2250 µs (≈ ±68°): ahí deja de moverse, sin forzar
-      max_us: 2240
-      signo: 1                   # pulso mayor = HORARIO visto de frente al eje: al revés que los RDS3218 (12/10,
-                                 # comparado con el yaw, los dos ejes hacia el mismo lado y 1500 → 1700 µs).
-                                 # Montado en el v6 (03/11): pulso mayor = la cara SUBE → signo 1 (pitch + = arriba).
-                                 # Montado vibra al moverse y tiene micromovimientos quieto en 1600 (+13°): sin resolver.
+    pitch:                       # TowerPro MG996R (05/11, reemplaza al HS-7955TG), 6 V
+      centro_us: 1500            # montado (05/11): horn calzado en 1500 y la cara queda vertical
+      grados_por_us: 0.092       # el del MG996R del roll; montado, ±217/326 µs dieron −20°/+30°
+      min_us: 1100               # ≈ +37° (arriba) y −28° (abajo): margen sobre los −20°/+30° de neck.limits
+      max_us: 1800               # (el MG996R no tiene tope hasta 800/2300 µs; esto protege la mecánica)
+      signo: -1                  # montado (05/11): pulso mayor = la cara BAJA → signo −1 (pitch + = arriba).
+                                 # Probado: +30° = 1174 µs y −20° = 1717 µs, llega bien a los dos.
+                                 # Sin pulso queda FLOJO (el HS mantenía): la cabeza cae si se corta el pulso.
+      # Antes: Hitec HS-7955TG (09/10-05/11): 0.090 °/µs, centro 1400, 760/2240 µs, signo 1. Vibraba montado.
     yaw:                         # DSSERVO RDS3218 n.º 2 (versión de 270°), medido el 12/10 sin carga
       centro_us: 1500
       grados_por_us: [0.13, 0.136]   # [lado de pulsos < 1500, lado de pulsos > 1500]. Medido: −39° en 1200,
@@ -38,21 +43,18 @@ neck:
                                  # a ~100 °/s (750 µs/s) va suave. Quieto no vibra.
       # El n.º 1 (11-12/10) era simétrico: 0.13, 950/2050 µs. No son intercambiables sin recalibrar.
       # Antes: MG90S provisorio (09/10), asimétrico [0.090, 0.085], 600/2450 µs.
-    roll:                        # TowerPro MG996R, medido el 13/10 a 6 V, sin carga
-      centro_us: 1450            # montado en el v6 (03/11): con 1450 la cabeza queda derecha (disco reubicado en el estriado)
-      grados_por_us: 0.092       # lineal y simétrico: ±55° en 900/2100 µs, ±64° en 800/2200 µs
+    roll:                        # TowerPro MG996R NUEVO (05/11, reemplaza al que tenía zona muerta), 6 V
+      centro_us: 1500            # montado (05/11): disco calzado en 1500
+      grados_por_us: 0.092       # sin carga (05/11): +217 µs = +20° justos; −217 µs "casi 20°"
       min_us: 1000               # ≈ ±46°: de sobra para los ±20° de roll (sin tope hasta 800/2300 µs)
       max_us: 2000
-      signo: -1                  # montado en el v6 (03/11): pulso mayor = ANTIHORARIO visto desde atrás. Como
-                                 # roll + = horario visto desde atrás (PROTOCOLO.md), signo −1.
-      compensacion_us: [0, 151]  # Zona muerta montado (03/11): con el pulso BAJANDO (hacia roll +, o volviendo a 0
-                                 # desde la izquierda) llega bien; con el pulso SUBIENDO se frena antes: de +25 a 0
-                                 # quedaba en +10. Con 110 µs faltaban ~5°; 165 y 159 se pasaban → 151 (≈ +3,8°). Cero 1450
-                                 # calibrado llegando desde abajo.
-      # Banda muerta GRANDE, ~100-110 µs (≈ 10°) e intermitente: de +10° a 0° no volvió en 3 de 10 intentos.
-      # Pasos de 20° andan siempre. Conviene mandarle el objetivo de un solo movimiento, no acercarse de a poco.
-      # Sin pulso queda flojo: en el STOP hay que seguir mandando el último pulso. Pesa 55 g.
-      # Antes: MG90S (09-13/10, [0.090, 0.085], 1000/2000 µs, banda muerta 20-30 µs; queda de repuesto),
+      signo: -1                  # el del MG996R anterior en el mismo montaje (pulso mayor = ANTIHORARIO visto desde
+                                 # atrás; roll + = horario, PROTOCOLO.md). Mismo modelo y montaje: VERIFICAR montado.
+      compensacion_us: [0, 0]    # El nuevo vuelve a 0 desde ±20° sin la zona muerta del anterior (que usaba
+                                 # [0, 151]). Montado vibra un poco quieto en 0 al volver de −20°: sin resolver.
+      # Pesa 55 g. Sin pulso queda flojo: en el STOP hay que seguir mandando el último pulso.
+      # Antes: MG996R n.º 1 (13/10-05/11): centro 1450, banda muerta ~100-110 µs (≈ 10°) e intermitente,
+      # compensacion_us [0, 151]. MG90S (09-13/10, [0.090, 0.085], 1000/2000 µs, banda muerta 20-30 µs; repuesto),
       # RDS3218 n.º 1 (descartado el 12/10: vibra quieto cerca de 1500 µs) y SG90 (repuesto).
 
 serial:
@@ -101,6 +103,31 @@ perception:
   cores_pose: [2, 3]             # núcleos del proceso de pose
   pose_max_hz: 30                # limitar la pose libera memoria/CPU para YOLO (SALUDO dura >1 s)
   looking_deg: 15.0              # ME_MIRA: desvío cara->cámara menor a esto
+
+# Detector de camisetas (keepon/camiseta.py). Colores medidos el 04/11 con la NoIR, luz del laboratorio,
+# camisetas reales (Olimpia titular, Cerro 2026 mitad y mitad) y remeras lisas roja y azul marino.
+# HSV de OpenCV: H 0..179, S y V 0..255. Medidos: rojo H 0-2/178 S 190-210; azul marino H 116-145 S 35-90 V 30-60
+# (la NoIR lo ve violeta); blanco de Olimpia S < 16 V 115-170; franja de Olimpia V 38-54.
+camiseta:
+  vis_min: 0.5                   # visibilidad mínima de los hombros (MediaPipe)
+  ancho_min_px: 40               # hombros más angostos que esto: muy lejos para mirar la camiseta
+  margen_lados: 0.1              # se descarta esta fracción del ancho de hombros a cada lado (brazos)
+  desde_hombros: 0.15            # el torso empieza esto (en anchos de hombros) debajo de los hombros (cuello)
+  hasta_hombros: 1.1             # y termina acá (la franja de Olimpia queda en el medio)
+  visible_min: 0.4               # fracción mínima del torso dentro del cuadro
+  rojo: {h_max: 8, h_min: 165, s_min: 120, v_min: 60}
+  azul: {h_min: 100, h_max: 160, s_min: 25, v_min: 15, v_max: 130}
+  columnas: 8                    # CERRO: el torso se divide en columnas
+  col_dominante: 0.5             # una columna es roja (o azul) si al menos esta fracción lo es
+  cerro_cols_min: 2              # columnas rojas y azules mínimas (cada color ≥ 1/4 del ancho)
+  cerro_hueco: 1                 # columnas neutras toleradas en el borde rojo|azul (escudo, logos)
+  cerro_frac_min: 0.2            # fracción mínima de píxeles rojos y de azules en todo el torso
+  filas: 8                       # OLIMPIA: el torso se divide en franjas horizontales
+  olimpia_contraste: 1.6         # una franja clara tiene al menos este brillo relativo a la más oscura
+  blanco_s_max: 60               # y es blanca: saturación baja
+  franja_v_max: 110              # la franja oscura no puede ser más brillante que esto
+  confirmar: 6                   # T6 d: cuadros seguidos con la camiseta para detectarla
+  soltar: 6                      # y sin ella para soltarla
 
 # Eventos de T2 con filtro temporal (keepon/eventos.py). Todo por tiempo: la percepción no va a ritmo fijo.
 eventos:
@@ -156,13 +183,28 @@ cooldowns:
   CAMISETA_por_persona: 25.0
   PIROPO_global: 40.0
 
-# Control de mirada (T3): proporcional sin integral, en velocidad.
+# Control de mirada (T3). Detalle de los dos modos en keepon/gaze.py.
 gaze:
-  kp: 4.0                        # [1/s]  velocidad angular = kp * (|error| - zona muerta)
+  modo: objetivo                 # "objetivo": la referencia salta adonde está la persona (calculado con la posición
+                                 # del cuello al sacar la foto) y queda QUIETA hasta que se corra más que umbral_deg;
+                                 # el firmware hace el movimiento con vmax/amax. "velocidad": el control de antes.
+                                 # 05/11: en velocidad, la referencia avanzaba de a poco en cada ciclo y los tres
+                                 # servos vibraban (se arrastran lento).
+  umbral_deg: [2.5, 2.5]         # (yaw, pitch) [°] cuánto se tiene que correr la persona para un nuevo movimiento.
+                                 # Es la tolerancia de centrado; más chico = más movimientos cortos
+  quieto_deg: 1.0                # [°] solo se corrige con fotos sacadas con el cuello a menos de esto del objetivo
+                                 # (en movimiento, el servo real va atrás del espejo y el ángulo no es exacto)
+  # --- Solo modo "velocidad":
+  kp: [4.0, 2.5]                 # [1/s] (yaw, pitch; un número = los dos)  velocidad = kp * (|error| - zona muerta).
+                                 # 05/11: pitch de 4 a 2,5 (golpeteaba). Yaw probado con 2,5 y fue PEOR: el RDS3218
+                                 # vibra cuando se mueve lento (≤ ~40 °/s) y con menos kp pasa más tiempo lento
   vmax: [150.0, 90.0]            # saturación de velocidad de referencia (yaw, pitch) [°/s]
-  deadzone: 0.03                 # zona muerta suave, fracción del ancho/alto de imagen
-  ema: 0.5                       # suavizado del error (1 = sin filtro)
+  deadzone: 0.03                 # zona muerta suave, fracción del ancho/alto de imagen. 05/11: más grande deja la
+                                 # cara quieta lejos del centro (0,04 → 1,5° y 0,05 → ~3° en el simulador)
+  ema: [0.5, 0.3]                # suavizado del error (yaw, pitch; 1 = sin filtro). 05/11: pitch de 0,5 a 0,3
   lost_hold_s: 1.0               # pérdida < 1 s: mantener; luego se libera el objetivo
+  mirar_abajo_deg: 8.0           # la cámara apunta esto por debajo de la cara (la cara queda arriba del centro)
+                                 # para que entre la camiseta: el campo vertical es de ±14° (04/11, con Olimpia)
 
 focus:
   switch_after_s: 1.5            # el candidato debe ser mejor durante este tiempo para cambiar
@@ -195,13 +237,18 @@ modos:
     regreso_s: 3.0               # vuelve gradualmente (curva suave)
     espera_s: 3.0                # después, no repetir con la misma persona antes de esto
   atrevido:                      # lo mira → levanta el mentón varias veces sin dejar de seguirla en yaw
-    menton_deg: 10.0             # amp·sin²(π t/T): pide (amp/2)(2π/T)² ≈ 137 °/s² con T = 1,2 s (pitch: 400)
+    menton_deg: 10.0             # amp·sin²(π t/T): pide (amp/2)(2π/T)² ≈ 137 °/s² con T = 1,2 s (pitch: 250)
     periodo_s: 1.2
     veces: 3
     espera_s: 3.0
   # maleducado: piropo al empezar cada salida (SALIENDO) de la persona seguida; cooldown PIROPO_global.
 
 observer:
+  modo: miradas                  # "miradas" (05/11): de un punto al otro con el perfil del firmware y quieto
+                                 # pausa_s en cada uno. "barrido": senoide continua y lenta (los servos vibraban).
+  miradas: [[-40.0, 3.0], [-15.0, -3.0], [15.0, 3.0], [40.0, -3.0], [15.0, -3.0], [-15.0, 3.0]]  # [yaw, pitch] [°]
+  pausa_s: 2.0                   # cuánto se queda en cada punto (incluye el movimiento, ~0,5 s para 25°)
+  # --- Solo modo "barrido":
   yaw_amp: 45.0                  # barrido lento
   pitch_amp: 6.0
   period_s: 14.0
@@ -210,5 +257,5 @@ greeting:
   nods: 3
   nod_amp: 12.0                  # [°] en pitch
   nod_period_s: 1.0              # nod = amp·sin²(π t / T): pide (amp/2)(2π/T)² ≈ 237 °/s² y 38 °/s,
-                                 # dentro de amax/vmax de pitch (400 °/s², 120 °/s). Con 0,5 s pedía
+                                 # dentro de amax/vmax de pitch (250 °/s², 90 °/s desde el 05/11). Con 0,5 s pedía
                                  # ~947 °/s²: la rampa lo recortaba y el cabeceo salía atrasado y deformado (Codex)

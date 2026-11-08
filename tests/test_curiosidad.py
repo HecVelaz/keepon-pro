@@ -7,6 +7,9 @@ from keepon.behaviors import Tracking
 from keepon.world import Person, World
 
 CFG = load_config()
+CFG["gaze"]["mirar_abajo_deg"] = 0.0  # estos tests ponen la cara en el centro óptico
+# Sin cuello_captura (None) la mirada sigue en modo velocidad: estos tests prueban la lógica de la curiosidad,
+# con la persona fija en la imagen; la mirada por objetivo se prueba en test_gaze_por_eje.py.
 C = CFG["curiosidad"]
 
 
@@ -30,7 +33,7 @@ def correr(tr, act, t0, t1, u_de_t, dt=0.025):
     while t < t1:
         w = World.from_cfg(CFG, t=t)
         w.persons[1] = Person(1, u_de_t(t), w.cy, 300, last_seen=t)
-        tr.act(g, SimpleNamespace(now=t, dt=dt, world=w, act=act))
+        tr.act(g, SimpleNamespace(now=t, dt=dt, world=w, act=act, cuello_captura=None))
         rolls.append((t, act.ref[2]))
         t += dt
     return rolls
@@ -104,7 +107,7 @@ def test_regresion_cabeza_que_oscila_alrededor_de_una_persona_quieta():
         w = World.from_cfg(CFG, t=t)
         u = w0.cx + w0.fx * math.tan(math.radians(0.0 - act.ref[0]))  # persona quieta en yaw 0
         w.persons[1] = Person(1, u, w.cy, 300, last_seen=t)
-        tr.act(g, SimpleNamespace(now=t, dt=dt, world=w, act=act))
+        tr.act(g, SimpleNamespace(now=t, dt=dt, world=w, act=act, cuello_captura=None))
         rolls.append(act.ref[2])
         t += dt
     assert any(abs(r) == C["amp_deg"] for r in rolls)

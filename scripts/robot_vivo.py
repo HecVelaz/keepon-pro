@@ -2,8 +2,9 @@
 """Keepon con la cámara y los servos de verdad (se corre en la Pi, con camera_node andando).
 
 Cadena: Perception (procesos de personas —YOLO + tracker + rostros/ME_MIRA— y de pose) → World →
-Eventos (ME_MIRA sostenido y SALUDO, keepon/eventos.py) → Robot (foco, comportamientos, árbitro, control
-de mirada) → SerialLink → ESP32. Todavía sin camisetas ni SALIENDO.
+Eventos (ME_MIRA sostenido, SALUDO, SALIENDO y CAMISETA, keepon/eventos.py) → Robot (foco, comportamientos,
+árbitro, control de mirada) → SerialLink → ESP32. La camiseta se clasifica en el proceso de pose
+(keepon/camiseta.py).
 
     bash ~/keepon/scripts/robot_vivo.sh            # arranca camera_node y esto; Ctrl+C manda STOP
     ~/keepon_env/bin/python scripts/robot_vivo.py  # si camera_node ya está corriendo
@@ -166,6 +167,7 @@ class Monitor:
         self.cam = Camera(cfg)
         self.pub = self.cam._node.create_publisher(Image, self.TOPICO, 2)
         self.periodo, self.t_ultimo = 1.0 / hz, 0.0
+        self.abajo_deg = cfg["gaze"].get("mirar_abajo_deg", 0.0)
 
     def publicar(self, **estado) -> None:
         """Como mucho a `hz`; si todavía no hay cuadro (o la cámara se cortó), no hace nada."""
@@ -178,7 +180,7 @@ class Monitor:
             frame, _, _ = self.cam.latest(timeout=0)
         except Exception:  # noqa: BLE001 - sin cuadro: el robot sigue igual
             return
-        img = overlay.dibujar(frame.copy(), **estado)
+        img = overlay.dibujar(frame.copy(), abajo_deg=self.abajo_deg, **estado)
         msg = self.Image()
         msg.header.stamp = self.cam._node.get_clock().now().to_msg()
         msg.height, msg.width = img.shape[:2]

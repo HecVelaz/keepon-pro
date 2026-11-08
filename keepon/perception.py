@@ -74,6 +74,7 @@ class DetResult:
     proc_ms: float
     persons: list[PersonObs] = field(default_factory=list)
     poses: list[dict] = field(default_factory=list)   # {nombre: (x, y, visibilidad)}
+    camisetas: list = field(default_factory=list)     # por pose: (clase cruda, torso evaluado), keepon/camiseta.py
     parts: dict = field(default_factory=dict)         # desglose de tiempos [ms]
 
 
@@ -271,6 +272,7 @@ def _worker_pose(cfg: dict, out: mp.Queue, stop) -> None:
     from mediapipe.tasks.python import BaseOptions, vision
 
     from .camera import Camera
+    from .camiseta import detectar as detectar_camiseta
 
     cv2.setNumThreads(1)
     pose = vision.PoseLandmarker.create_from_options(vision.PoseLandmarkerOptions(
@@ -297,9 +299,12 @@ def _worker_pose(cfg: dict, out: mp.Queue, stop) -> None:
             mpipe.Image(image_format=mpipe.ImageFormat.SRGB, data=cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)), ts)
         poses = [{k: (lm[i].x * w, lm[i].y * h, lm[i].visibility) for k, i in POSE_KP.items()}
                  for lm in res.pose_landmarks]
+        # Camiseta de cada pose, acá porque este proceso tiene el cuadro y los hombros (< 1 ms por torso).
+        camisetas = [(r.clase, r.roi) for r in (detectar_camiseta(frame, kp, cfg) for kp in poses)]
         if n % 50 == 1 or n < 5:
             _repin_threads(cores)  # MediaPipe también crea hilos con afinidad propia
-        _put_latest(out, DetResult("pose", n, stamp, time.time(), (time.perf_counter() - t0) * 1e3, poses=poses))
+        _put_latest(out, DetResult("pose", n, stamp, time.time(), (time.perf_counter() - t0) * 1e3, poses=poses,
+                                   camisetas=camisetas))
     cam.close()
     pose.close()
 

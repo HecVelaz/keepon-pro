@@ -87,7 +87,7 @@ def _lazo(link, robot, cam, log, events, trace, t0, dt, duration, real):
                 fn()
                 del events[te]
         world = cam.observe(t, link.neck_pos)
-        robot.tick(world)
+        robot.tick(world, world_age=cam.latency)  # la imagen se tomó hace `latency` s, como en el robot real
         own = {r: (g.behavior if (g := robot.arb.owner[r]) else "-") for r in (NECK, BUZZER)}
         tgt = world.visible(robot.focus.target)
         err = (tgt.u - world.cx) if tgt else None  # contra el centro óptico, como el control

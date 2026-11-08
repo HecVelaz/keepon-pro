@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import bisect
 import csv
 import time
+from collections import deque
 from dataclasses import replace
 from pathlib import Path
 
@@ -59,6 +61,9 @@ class Robot:
         # entre sesiones: se le manda cada vez que se abre una, así los dos dicen lo mismo.
         self.volumen = volumen_inicial(cfg)
         self._volumen_enviado = False
+        # Historia de la posición del cuello [(t, (yaw, pitch, roll))], unos 2 s a 40 Hz: para saber dónde
+        # miraba la cámara cuando se capturó cada cuadro (la percepción llega ~100 ms tarde).
+        self._historia: deque[tuple[float, tuple[float, float, float]]] = deque(maxlen=80)
 
     # ------------------------------------------------------------ modo de personalidad (T5)
     def set_modo(self, modo: str) -> bool:
@@ -122,8 +127,28 @@ class Robot:
         self.arb.resume(self.link.now())
 
     # ------------------------------------------------------------ ciclo
-    def _ctx(self, now, dt, world) -> Context:
-        return Context(now, dt, world, self.act, self.arb, self.focus, self.cfg, self.modo)
+    def _ctx(self, now, dt, world, cuello_captura=None) -> Context:
+        return Context(now, dt, world, self.act, self.arb, self.focus, self.cfg, self.modo, cuello_captura)
+
+    def _posicion_cuello(self) -> tuple[float, float, float]:
+        """Dónde está el cuello ahora. Con el espejo del firmware (SimLink, o SerialLink con espejo_cfg) es la
+        posición de la trayectoria; sin él, la última referencia enviada (una aproximación)."""
+        try:
+            return tuple(self.link.neck_pos)
+        except AttributeError:
+            return tuple(self.act.ref)
+
+    def _cuello_en(self, t: float) -> tuple[float, float, float] | None:
+        """Posición del cuello en el instante t, interpolando la historia. None si t es más viejo que la historia."""
+        h = self._historia
+        if not h or t < h[0][0]:
+            return None
+        if t >= h[-1][0]:
+            return h[-1][1]
+        i = bisect.bisect_right([ti for ti, _ in h], t)   # h[i-1].t <= t < h[i].t
+        (t0, p0), (t1, p1) = h[i - 1], h[i]
+        k = (t - t0) / (t1 - t0) if t1 > t0 else 0.0
+        return tuple(a + k * (b - a) for a, b in zip(p0, p1))
 
     def _resync(self, now: float) -> None:
         """El ESP32 se reinició: sus sonidos y referencias ya no existen."""
@@ -160,13 +185,15 @@ class Robot:
             self._perception_ok = ok
         if not ok:  # nadie es visible "ahora": el foco mantiene y luego libera por lost_hold
             world = replace(world, t=world.t + world_age)
+        self._historia.append((now, self._posicion_cuello()))
+        cuello_captura = self._cuello_en(now - world_age) if ok else None
 
         target = self.focus.update(world)
         if target != self._target:
             self.log(now, f"FOCO {self._target} -> {target}")
             self._target = target
 
-        ctx = self._ctx(now, dt, world)
+        ctx = self._ctx(now, dt, world, cuello_captura)
         proposals = [p for b in self.behaviors.values() for p in b.propose(ctx)]
         d = self.arb.step(now, proposals)
         for g in d.cancelled:

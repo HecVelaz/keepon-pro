@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Guía de Keepon pro</title>
+<style>
+@page { size: A4; margin: 18mm 16mm 18mm 16mm;
+  @bottom-center { content: "Keepon pro · guía del proyecto · " counter(page); font: 8pt "Noto Sans"; color: #7a847f; } }
+@page portada { margin: 0; @bottom-center { content: none; } }
+:root { --ink:#1f2a27; --mut:#5d6964; --line:#d9ddd6; --soft:#f2f4ee; --verde:#2f6b4f; --azul:#2c5d8a;
+  --naranja:#c7712b; --rojo:#b23a3a; --amar:#e8b04a; --lila:#6b5a9e; }
+* { box-sizing: border-box; }
+body { font: 9.6pt/1.45 "Noto Sans", "DejaVu Sans", sans-serif; color: var(--ink); margin: 0; }
+h1 { font-size: 19pt; margin: 0 0 6pt; color: var(--verde); letter-spacing: -0.3pt; page-break-before: always; }
+h1 .n { color: var(--mut); font-weight: 400; margin-right: 6pt; }
+h2 { font-size: 12.5pt; margin: 14pt 0 5pt; color: var(--ink); }
+h3 { font-size: 10.5pt; margin: 10pt 0 4pt; color: var(--azul); }
+p { margin: 0 0 6pt; }
+.lead { font-size: 10.5pt; color: var(--mut); margin-bottom: 10pt; }
+table { width: 100%; border-collapse: collapse; margin: 4pt 0 10pt; font-size: 8.6pt; page-break-inside: avoid; }
+th { background: var(--verde); color: #fff; text-align: left; padding: 4pt 5pt; font-weight: 600; }
+td { border-bottom: 0.6pt solid var(--line); padding: 3.5pt 5pt; vertical-align: top; }
+tr:nth-child(even) td { background: #f8f9f6; }
+code { font: 8.3pt "DejaVu Sans Mono", monospace; background: var(--soft); padding: 0 2pt; border-radius: 2pt; }
+.fig { margin: 6pt 0 10pt; text-align: center; page-break-inside: avoid; }
+.fig svg, .fig img { max-width: 100%; }
+.cap { font-size: 8pt; color: var(--mut); margin-top: 3pt; }
+.box { border-left: 3pt solid var(--verde); background: var(--soft); padding: 6pt 9pt; margin: 6pt 0 10pt; page-break-inside: avoid; }
+.box.warn { border-color: var(--naranja); background: #fbf3ea; }
+.box.why { border-color: var(--azul); background: #edf2f8; }
+.box b:first-child { display: block; margin-bottom: 2pt; }
+.cards { width: 100%; border-collapse: separate; border-spacing: 6pt; margin: 0 -6pt 8pt; }
+.cards td { background: var(--soft); border: none; border-radius: 4pt; padding: 8pt; text-align: center; width: 25%; }
+.cards .big { font-size: 17pt; font-weight: 700; color: var(--verde); display: block; }
+.cards .sm { font-size: 7.8pt; color: var(--mut); }
+.two { width: 100%; border-collapse: collapse; }
+.two > tbody > tr > td { width: 50%; vertical-align: top; border: none; padding: 0 6pt 0 0; background: none !important; }
+.ok { color: var(--verde); font-weight: 700; } .mid { color: var(--naranja); font-weight: 700; } .no { color: var(--rojo); font-weight: 700; }
+.toc td { border: none; padding: 2pt 4pt; font-size: 10pt; background: none !important; }
+.toc td.n { color: var(--mut); width: 22pt; }
+.portada { page: portada; height: 297mm; background: #1f3b31; color: #fff; padding: 40mm 22mm 0; position: relative; }
+.portada h1 { page-break-before: avoid; color: #fff; font-size: 34pt; margin: 8pt 0 4pt; }
+.portada .eyebrow { letter-spacing: 3pt; text-transform: uppercase; font-size: 9pt; color: #a8c7b6; }
+.portada .sub { font-size: 13pt; color: #d4e4da; margin-bottom: 26pt; }
+.portada .meta { position: absolute; bottom: 24mm; left: 22mm; right: 22mm; font-size: 9pt; color: #a8c7b6; border-top: 0.6pt solid #5d7d6e; padding-top: 8pt; }
+.nobreak { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ============================== PORTADA ============================== -->
+<section class="portada">
+  <div class="eyebrow">Robótica II · FIUNA · µTP Robótica Social · 2026</div>
+  <h1>Keepon pro</h1>
+  <div class="sub">Guía completa del proyecto: construcción, hardware, control de los motores,<br>software, decisiones y resultados</div>
+  <svg width="430" height="300" viewBox="0 0 430 300">
+    <!-- base -->
+    <rect x="95" y="250" width="240" height="22" rx="4" fill="#3d5c50"/>
+    <rect x="190" y="222" width="50" height="30" fill="#5a7d6f"/>
+    <text x="215" y="290" fill="#a8c7b6" font-size="10" text-anchor="middle">base · yaw (RDS3218)</text>
+    <!-- horquilla -->
+    <path d="M150 222 L280 222 L280 120 L268 120 L268 210 L162 210 L162 120 L150 120 Z" fill="#c7712b"/>
+    <text x="300" y="175" fill="#f0c9a6" font-size="10">horquilla · pitch (MG996R)</text>
+    <!-- cabeza -->
+    <rect x="165" y="60" width="100" height="110" rx="14" fill="#e8b04a"/>
+    <circle cx="195" cy="100" r="13" fill="#fff"/><circle cx="235" cy="100" r="13" fill="#fff"/>
+    <circle cx="198" cy="101" r="6" fill="#1f2a27"/><circle cx="238" cy="101" r="6" fill="#1f2a27"/>
+    <circle cx="215" cy="128" r="6" fill="#1f2a27"/><circle cx="215" cy="128" r="2.5" fill="#4b88c0"/>
+    <text x="120" y="50" fill="#f7deb0" font-size="10">cabeza · roll (MG996R) · cámara en la nariz</text>
+    <!-- ejes -->
+    <line x1="215" y1="30" x2="215" y2="250" stroke="#fff" stroke-dasharray="3 3" stroke-width="0.8" opacity="0.5"/>
+  </svg>
+  <div class="meta">Cabeza social de 3 grados de libertad (yaw, pitch, roll) con visión artificial · Raspberry Pi 5 + ESP32-C3 ·
+  Repositorio: github.com/HecVelaz/keepon-pro · Guía generada el 07/11/2026 a partir del código y de la documentación del repo (<code style="background:none;color:#a8c7b6">docs/</code>).</div>
+</section>
+
+<!-- ============================== ÍNDICE ============================== -->
+<h1 style="page-break-before: always">Índice</h1>
+<table class="toc">
+<tr><td class="n">1</td><td>Qué es Keepon pro y qué hace</td></tr>
+<tr><td class="n">2</td><td>Cómo avanzó el proyecto (línea de tiempo)</td></tr>
+<tr><td class="n">3</td><td>Construcción mecánica: del v2 al v6 R4</td></tr>
+<tr><td class="n">4</td><td>Hardware y electrónica: componentes, conexiones, pines y alimentación</td></tr>
+<tr><td class="n">5</td><td>Los servos: caracterización, calibración y conversión grados → pulso</td></tr>
+<tr><td class="n">6</td><td>Control de los motores: trayectorias, límites, watchdog y STOP</td></tr>
+<tr><td class="n">7</td><td>Firmware de la ESP32-C3 y protocolo serie</td></tr>
+<tr><td class="n">8</td><td>Arquitectura del software en la Raspberry Pi</td></tr>
+<tr><td class="n">9</td><td>Percepción: personas, rostros, mirada y pose</td></tr>
+<tr><td class="n">10</td><td>Eventos: definición operativa de cada uno</td></tr>
+<tr><td class="n">11</td><td>Detector de camisetas Olimpia / Cerro</td></tr>
+<tr><td class="n">12</td><td>Control de la mirada y foco de atención</td></tr>
+<tr><td class="n">13</td><td>Comportamientos y árbitro</td></tr>
+<tr><td class="n">14</td><td>Modos de personalidad (diagramas de estados)</td></tr>
+<tr><td class="n">15</td><td>Buzzer y sonidos</td></tr>
+<tr><td class="n">16</td><td>Monitoreo, log y operación (panel, comandos)</td></tr>
+<tr><td class="n">17</td><td>Por qué se decidió cada cosa</td></tr>
+<tr><td class="n">18</td><td>Resultados medidos, pruebas y lo que falta</td></tr>
+</table>
+<div class="box"><b>Cómo leer esta guía</b>
+Cada capítulo explica <i>qué</i> hay, <i>cómo</i> funciona y <i>por qué</i> se eligió así. Los nombres en <code>monoespaciado</code>
+son archivos o parámetros del repositorio: todos los números (límites, umbrales, tiempos) salen de <code>config.yaml</code>, que
+concentra <b>todos</b> los parámetros. Los recuadros azules explican decisiones; los naranjas, advertencias o cosas sin probar.</div>
+
+<!-- ============================== 1 ============================== -->
+<h1><span class="n">1</span>Qué es Keepon pro y qué hace</h1>
+<p class="lead">Una cabeza robótica con ojos sobre un cuello de 3 grados de libertad. Una cámara en la cara ve a las personas; la
+Raspberry Pi decide qué hacer y una ESP32-C3 mueve los servos y toca sonidos en un buzzer. Mirar a alguien = centrarlo en la imagen.</p>
+
+<table class="cards"><tr>
+<td><span class="big">3 GDL</span><span class="sm">yaw ±70° · pitch −20/+30° · roll ±20°</span></td>
+<td><span class="big">12–17 Hz</span><span class="sm">detección de personas en la Pi (pedido: ≥ 10 Hz)</span></td>
+<td><span class="big">36–39 Hz</span><span class="sm">lazo de control y árbitro</span></td>
+<td><span class="big">219</span><span class="sm">tests automáticos (36+ comparan firmware y simulador)</span></td>
+</tr></table>
+
+<h2>Qué percibe y cómo responde</h2>
+<table>
+<tr><th style="width:24%">Situación</th><th style="width:20%">Evento</th><th>Respuesta del robot</th></tr>
+<tr><td>No hay nadie</td><td>—</td><td><b>Observador</b>: mira alrededor saltando de un punto a otro con pausas de 2 s.</td></tr>
+<tr><td>Aparece una persona</td><td>PERSONA</td><td><b>Seguimiento</b>: centra su rostro con yaw y pitch. Con varias personas prioriza a quien lo mira.</td></tr>
+<tr><td>La persona saluda con la mano</td><td>SALUDO</td><td>3 cabeceos + sonido tipo R2D2.</td></tr>
+<tr><td>Lleva la camiseta de Olimpia</td><td>CAMISETA_OLIMPIA</td><td>Silba la polca de Olimpia <b>sin dejar de seguirla</b>.</td></tr>
+<tr><td>Lleva la camiseta de Cerro</td><td>CAMISETA_CERRO</td><td>Abucheo (silbido de reprobación).</td></tr>
+<tr><td>La persona lo mira</td><td>ME_MIRA</td><td>Según el modo: Tímido aparta la mirada; Atrevido levanta el mentón.</td></tr>
+<tr><td>La persona se va del campo visual</td><td>SALIENDO</td><td>En modo Maleducado: silbido de piropo, una vez por salida.</td></tr>
+<tr><td>Se queda quieta 3 s</td><td>—</td><td><b>Curiosidad</b> (extra): inclina la cabeza 15° en roll.</td></tr>
+<tr><td>El operador manda un comando</td><td>OPERADOR</td><td>STOP (enclavado), cambio de modo con beep, sonidos, volumen, HOME.</td></tr>
+</table>
+
+<h2>El sistema completo de un vistazo</h2>
+<div class="fig">
+<svg width="660" height="230" viewBox="0 0 660 230" font-family="Noto Sans" font-size="10">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5d6964"/></marker></defs>
+  <rect x="5" y="20" width="120" height="70" rx="6" fill="#edf2f8" stroke="#2c5d8a"/>
+  <text x="65" y="42" text-anchor="middle" font-weight="700" fill="#2c5d8a">Cámara NoIR</text>
+  <text x="65" y="58" text-anchor="middle">IMX708 · 640×480</text><text x="65" y="72" text-anchor="middle">30 fps, en la nariz</text>
+  <rect x="160" y="5" width="300" height="140" rx="8" fill="#f2f4ee" stroke="#2f6b4f"/>
+  <text x="310" y="22" text-anchor="middle" font-weight="700" fill="#2f6b4f">Raspberry Pi 5 (en la cabeza) · Python</text>
+  <rect x="172" y="32" width="130" height="48" rx="4" fill="#fff" stroke="#9fb3a8"/>
+  <text x="237" y="50" text-anchor="middle" font-weight="600">Percepción</text><text x="237" y="64" text-anchor="middle">YOLO · BlazeFace · Pose</text>
+  <rect x="318" y="32" width="130" height="48" rx="4" fill="#fff" stroke="#9fb3a8"/>
+  <text x="383" y="50" text-anchor="middle" font-weight="600">Mundo + eventos</text><text x="383" y="64" text-anchor="middle">IDs, ME_MIRA, SALUDO…</text>
+  <rect x="172" y="88" width="130" height="48" rx="4" fill="#fff" stroke="#9fb3a8"/>
+  <text x="237" y="106" text-anchor="middle" font-weight="600">Actuadores</text><text x="237" y="120" text-anchor="middle">solo el dueño escribe</text>
+  <rect x="318" y="88" width="130" height="48" rx="4" fill="#fff" stroke="#9fb3a8"/>
+  <text x="383" y="106" text-anchor="middle" font-weight="600">Comportamientos</text><text x="383" y="120" text-anchor="middle">+ árbitro de recursos</text>
+  <line x1="302" y1="56" x2="316" y2="56" stroke="#5d6964" marker-end="url(#a)"/>
+  <line x1="383" y1="80" x2="383" y2="86" stroke="#5d6964" marker-end="url(#a)"/>
+  <line x1="318" y1="112" x2="304" y2="112" stroke="#5d6964" marker-end="url(#a)"/>
+  <line x1="125" y1="55" x2="170" y2="55" stroke="#5d6964" marker-end="url(#a)"/><text x="135" y="48" font-size="8">CSI</text>
+  <rect x="495" y="20" width="160" height="110" rx="8" fill="#fbf3ea" stroke="#c7712b"/>
+  <text x="575" y="38" text-anchor="middle" font-weight="700" fill="#c7712b">ESP32-C3 (en la base)</text>
+  <text x="575" y="56" text-anchor="middle">trayectorias a 100 Hz</text><text x="575" y="70" text-anchor="middle">PWM de servos (LEDC)</text>
+  <text x="575" y="84" text-anchor="middle">tonos del buzzer</text><text x="575" y="98" text-anchor="middle">watchdog 500 ms · STOP</text>
+  <line x1="460" y1="112" x2="493" y2="80" stroke="#5d6964" marker-end="url(#a)"/><text x="463" y="88" font-size="8">USB serie</text>
+  <rect x="440" y="170" width="70" height="44" rx="5" fill="#fff" stroke="#c7712b"/><text x="475" y="190" text-anchor="middle" font-weight="600">yaw</text><text x="475" y="204" text-anchor="middle" font-size="8.5">RDS3218</text>
+  <rect x="520" y="170" width="70" height="44" rx="5" fill="#fff" stroke="#c7712b"/><text x="555" y="190" text-anchor="middle" font-weight="600">pitch</text><text x="555" y="204" text-anchor="middle" font-size="8.5">MG996R</text>
+  <rect x="600" y="170" width="55" height="44" rx="5" fill="#fff" stroke="#c7712b"/><text x="627" y="190" text-anchor="middle" font-weight="600">roll</text><text x="627" y="204" text-anchor="middle" font-size="8.5">MG996R</text>
+  <rect x="360" y="170" width="70" height="44" rx="5" fill="#fff" stroke="#6b5a9e"/><text x="395" y="190" text-anchor="middle" font-weight="600">buzzer</text><text x="395" y="204" text-anchor="middle" font-size="8.5">pasivo</text>
+  <line x1="545" y1="130" x2="475" y2="168" stroke="#5d6964" marker-end="url(#a)"/>
+  <line x1="565" y1="130" x2="555" y2="168" stroke="#5d6964" marker-end="url(#a)"/>
+  <line x1="590" y1="130" x2="627" y2="168" stroke="#5d6964" marker-end="url(#a)"/>
+  <line x1="520" y1="130" x2="400" y2="168" stroke="#5d6964" marker-end="url(#a)"/>
+  <rect x="5" y="160" width="160" height="56" rx="6" fill="#fff" stroke="#9fb3a8"/>
+  <text x="85" y="180" text-anchor="middle" font-weight="600">Celular / notebook</text><text x="85" y="195" text-anchor="middle">panel web :8081 · overlay :8080</text><text x="85" y="208" text-anchor="middle">comandos <tspan font-family="DejaVu Sans Mono">keepon</tspan></text>
+  <line x1="165" y1="180" x2="230" y2="140" stroke="#5d6964" marker-end="url(#a)" stroke-dasharray="3 2"/><text x="180" y="168" font-size="8">Wi-Fi</text>
+</svg>
+<div class="cap">Figura 1. La Pi hace toda la inteligencia; la ESP32 solo ejecuta movimientos suaves y sonidos, de forma segura y sin bloquear.</div>
+</div>
+
+<!-- ============================== 2 ============================== -->
+<h1><span class="n">2</span>Cómo avanzó el proyecto</h1>
+<p class="lead">De medir si la Pi alcanzaba, a un robot armado que sigue, saluda y reacciona a camisetas. La historia completa está en <code>docs/BITACORA.md</code>.</p>
+<div class="fig">
+<svg width="660" height="430" viewBox="0 0 660 430" font-family="Noto Sans" font-size="9.2">
+  <line x1="90" y1="10" x2="90" y2="420" stroke="#2f6b4f" stroke-width="2"/>
+  <g>
+  <circle cx="90" cy="20" r="5" fill="#2c5d8a"/><text x="10" y="24" font-weight="700">30/09</text><text x="104" y="24"><tspan font-weight="700">Rendimiento en la Pi.</tspan> YOLO a 480 px daba 11 Hz y saturaba la CPU → YOLO26n a 256 px (30 Hz solo) y percepción en 2 procesos.</text>
+  <circle cx="90" cy="56" r="5" fill="#2c5d8a"/><text x="10" y="60" font-weight="700">07/10</text><text x="104" y="60"><tspan font-weight="700">Visores en la Pi</tspan> con la cámara real; se eligen las cámaras por nombre.</text>
+  <circle cx="90" cy="92" r="5" fill="#c7712b"/><text x="10" y="96" font-weight="700">09–13/10</text><text x="104" y="96"><tspan font-weight="700">Banco de servos.</tspan> Se caracterizan RDS3218, HS-7955TG, MG996R, MG90S y SG90; se descarta un RDS3218 que vibraba.</text>
+  <text x="104" y="109">Asignación: yaw RDS3218 · pitch HS-7955TG · roll MG996R.</text>
+  <circle cx="90" cy="136" r="5" fill="#c7712b"/><text x="10" y="140" font-weight="700">14/10</text><text x="104" y="140"><tspan font-weight="700">Firmware de la ESP32-C3</tspan> hecho y cargado: 30/30 pruebas, PING→ACK 4,4 ms. Alimentación: fuente</text>
+  <text x="104" y="153">de laboratorio 6 V (servos) + powerbank (Pi). Modelos mecánicos v3 (Pi en la cabeza) y v4.</text>
+  <circle cx="90" cy="180" r="5" fill="#6b5a9e"/><text x="10" y="184" font-weight="700">15/10</text><text x="104" y="184"><tspan font-weight="700">Plan del detector de camisetas</tspan> (reglas de color y patrón) e imágenes de referencia.</text>
+  <circle cx="90" cy="216" r="5" fill="#6b5a9e"/><text x="10" y="220" font-weight="700">14–26/10</text><text x="104" y="220"><tspan font-weight="700">Buzzer:</tspan> simulador de sonidos, polca transcrita de la partitura, módulo pasivo MH-FMD.</text>
+  <circle cx="90" cy="252" r="5" fill="#c7712b"/><text x="10" y="256" font-weight="700">30/10</text><text x="104" y="256"><tspan font-weight="700">Diseño mecánico v6 R4</tspan> (vigente), impreso y armado.</text>
+  <circle cx="90" cy="288" r="5" fill="#2f6b4f"/><text x="10" y="292" font-weight="700">03/11</text><text x="104" y="292"><tspan font-weight="700">Robot real completo:</tspan> calibración montada, cámara invertida, eventos (ME_MIRA, SALUDO, SALIENDO),</text>
+  <text x="104" y="305">overlay T7, modos de personalidad, curiosidad, servicio de demo y panel del celular. Buzzer al GPIO5.</text>
+  <circle cx="90" cy="332" r="5" fill="#2f6b4f"/><text x="10" y="336" font-weight="700">04/11</text><text x="104" y="336"><tspan font-weight="700">Camisetas en vivo</tspan> (Olimpia 99 %, Cerro 98 %, lisas 0 % de falsos positivos). Volumen, panel siempre prendido.</text>
+  <circle cx="90" cy="368" r="5" fill="#2f6b4f"/><text x="10" y="372" font-weight="700">05/11</text><text x="104" y="372"><tspan font-weight="700">Dos MG996R nuevos</tspan> en pitch y roll. Mirada por objetivo y Observador por miradas (contra la vibración).</text>
+  <circle cx="90" cy="404" r="5" fill="#2f6b4f"/><text x="10" y="408" font-weight="700">07/11</text><text x="104" y="408"><tspan font-weight="700">Documentación</tspan> para lectura externa: README, checklist de la consigna, esta guía.</text>
+  </g>
+</svg>
+<div class="cap">Figura 2. Azul: rendimiento · naranja: mecánica y motores · lila: sonido y camisetas · verde: integración en el robot.</div>
+</div>
+<div class="box why"><b>Método de trabajo</b>
+Primero se escribió el robot completo en Python con un <b>ESP32 simulado</b> (<code>keepon/sim_esp32.py</code>) y personas sintéticas
+(<code>keepon/synthetic.py</code>), para probar el árbitro y los comportamientos sin mecánica. El firmware se escribió después como copia
+de ese simulador, y los tests comparan los dos paso a paso. Así cada pieza llegó al robot ya probada.</div>
+
+<!-- ============================== 3 ============================== -->
+<h1><span class="n">3</span>Construcción mecánica</h1>
+<p class="lead">Estructura impresa en 3D, diseñada por el grupo (CadQuery/Python + SolidWorks). El modelo vigente es el <b>v6 R4</b>
+(<code>docs/diseno_v6/</code>), armado desde el 03/11.</p>
+
+<div class="fig"><img src="../diseno_v6/revision_R4/vistas/01_R4_cambios.png" style="width:100%">
+<div class="cap">Figura 3. Keepon v6 R4: conjunto (arriba a la izquierda), cara con el buzzer, cuna de pitch con el servo y caja de la cabeza con la Pi.</div></div>
+
+<h2>Cadena cinemática: qué mueve a qué</h2>
+<table class="two"><tr><td>
+<svg width="300" height="230" viewBox="0 0 300 230" font-family="Noto Sans" font-size="9.5">
+  <rect x="40" y="195" width="200" height="22" rx="3" fill="#3d5c50"/><text x="140" y="210" fill="#fff" text-anchor="middle">base (ESP32, bornera)</text>
+  <rect x="115" y="170" width="50" height="25" fill="#c7712b"/><text x="175" y="186" font-size="8.5">RDS3218 → yaw</text>
+  <path d="M70 168 L210 168 L210 90 L198 90 L198 158 L82 158 L82 90 L70 90 Z" fill="#e0a26a"/>
+  <text x="215" y="140" font-size="8.5">horquilla</text>
+  <rect x="198" y="100" width="26" height="22" fill="#c7712b"/><text x="228" y="108" font-size="8.5">MG996R</text><text x="228" y="119" font-size="8.5">→ pitch</text>
+  <rect x="88" y="105" width="104" height="40" rx="3" fill="#f0c98e"/><text x="140" y="128" text-anchor="middle" font-size="8.5">cuna</text>
+  <rect x="128" y="85" width="24" height="20" fill="#c7712b"/><text x="5" y="99" font-size="8.5">MG996R → roll</text><text x="5" y="110" font-size="8">(disco 25T)</text><line x1="62" y1="96" x2="126" y2="95" stroke="#5d6964" stroke-width="0.6"/>
+  <rect x="90" y="12" width="100" height="72" rx="10" fill="#e8b04a"/>
+  <circle cx="118" cy="42" r="9" fill="#fff"/><circle cx="162" cy="42" r="9" fill="#fff"/><circle cx="140" cy="64" r="5" fill="#1f2a27"/>
+  <text x="200" y="30" font-size="8">cabeza:</text><text x="200" y="41" font-size="8">Pi + cámara</text><text x="200" y="52" font-size="8">+ buzzer</text>
+</svg>
+</td><td>
+<table>
+<tr><th>Eje</th><th>Servo</th><th>Va en</th><th>Mueve</th><th>Recorrido</th></tr>
+<tr><td><b>yaw</b> (guiñada)</td><td>RDS3218</td><td>la base</td><td>la horquilla</td><td>±70°</td></tr>
+<tr><td><b>pitch</b> (cabeceo)</td><td>MG996R</td><td>la horquilla</td><td>la cuna</td><td>−20° / +30°</td></tr>
+<tr><td><b>roll</b> (alabeo)</td><td>MG996R</td><td>la cuna</td><td>la cabeza (disco de 25T)</td><td>±20°</td></tr>
+</table>
+<p>Los ejes de pitch y roll se cruzan en (0, 0, 163) mm y el centro óptico de la cámara está a la misma altura: al girar, la cámara
+rota sobre sí misma y no se desplaza, lo que simplifica el control de la mirada.</p>
+</td></tr></table>
+
+<h2>Evolución del diseño</h2>
+<table>
+<tr><th style="width:12%">Versión</th><th style="width:12%">Fecha</th><th>Qué cambió y por qué</th></tr>
+<tr><td>v2</td><td>oct.</td><td>Primer cuello completo de 3 ejes; el cuello se reutiliza en la v3.</td></tr>
+<tr><td>v3</td><td>14/10</td><td><b>Pi dentro de la cabeza</b> y la cámara como nariz: la cinta de la cámara mide ~150 mm y no llega a la base.
+Consecuencias: Pi alimentada por el GPIO si el USB-C queda tapado, y pitch con +30° arriba y −20° abajo (más abajo la cara toca el plato).</td></tr>
+<tr><td>v4</td><td>14/10</td><td>Disposición con el eje de pitch sobre el de yaw y base en U (el vuelco sobre el yaw baja a 0,81 kgf·cm); caja base con
+powerbank, bornes de la fuente, interruptor y bornera.</td></tr>
+<tr><td><b>v6 R4</b></td><td>30/10</td><td>Vigente y armado. Disco rojo de 25T para el roll, postes de la Pi de 8 mm, brazo de pitch invertido, buzzer fijado detrás
+de la cara con un tornillo. Verificado sin interferencias en 45 poses nominales.</td></tr>
+</table>
+<div class="box warn"><b>Sin rodamiento de yaw</b>
+No se consiguió un rodamiento: el plato se apoya solo en el horn del RDS3218 (≈ 330 g, ≈ 1,3 kgf·cm de vuelco). Por eso importa que el
+peso quede centrado sobre el eje de yaw.</div>
+
+<!-- ============================== 4 ============================== -->
+<h1><span class="n">4</span>Hardware y electrónica</h1>
+<h2>Componentes</h2>
+<table>
+<tr><th style="width:15%"></th><th style="width:22%">Componente</th><th>Función y datos clave</th></tr>
+<tr><td><img src="../diagrama_sistema/fotos/pi5.jpg" style="width:60pt"></td><td><b>Raspberry Pi 5</b>, 4 GB</td><td>Toda la percepción, la decisión y el control. Ubuntu 24.04 + ROS 2 Jazzy (no se puede cambiar el SO: la Pi se usa en otros proyectos). Va en la cabeza.</td></tr>
+<tr><td><img src="../diagrama_sistema/fotos/camara.jpg" style="width:40pt"></td><td><b>Camera Module 3 NoIR</b> (IMX708)</td><td>640×480 a 30 fps. Montada invertida (<code>orientation_deg: 180</code>). Campo útil ≈ 37° × 28°: a 640×480, <code>camera_ros</code> recorta el sensor. Sin filtro IR: los colores se corren.</td></tr>
+<tr><td><img src="../Fotos/esp32_c3_mini_1/51gB6Uad4BL._AC_SX425_.jpg" style="width:55pt"></td><td><b>ESP32-C3-DevKitM-1</b> (clon CH340)</td><td>Pulsos de los servos y tonos del buzzer. Conectada a la Pi por USB serie a 115 200 baudios.</td></tr>
+<tr><td><img src="../diagrama_sistema/fotos/rds3218.jpg" style="width:45pt"></td><td><b>DSSERVO RDS3218</b> (yaw)</td><td>270°. Sin pulso mantiene la posición. No tiene tope mecánico: los límites de software protegen el cableado.</td></tr>
+<tr><td><img src="../diagrama_sistema/fotos/mg996r.jpg" style="width:38pt"></td><td><b>2 × TowerPro MG996R</b> (pitch y roll)</td><td>~10 kgf·cm a 6 V. <b>Sin pulso quedan flojos</b>: la cabeza cae si se corta el pulso o los 6 V.</td></tr>
+<tr><td><img src="../diagrama_sistema/fotos/buzzer.jpg" style="width:45pt"></td><td><b>Buzzer pasivo MH-FMD</b></td><td>Frecuencia variable (melodías). Trae su transistor PNP: VCC a 3V3, activo en bajo.</td></tr>
+<tr><td><img src="../diagrama_sistema/fotos/powerbank.jpg" style="width:30pt"></td><td><b>Powerbank Xiaomi PB2020MI</b></td><td>Alimenta la Pi: 20 000 mAh, 5 V / 3 A por USB. Dura ~9 h.</td></tr>
+<tr><td></td><td><b>Fuente de laboratorio</b></td><td>Servos a 6,0 V con límite de corriente en 4–5 A (uso normal 2–3 A; un servo trabado pide 2,5–4,2 A).</td></tr>
+</table>
+
+<h2>Diagrama eléctrico</h2>
+<div class="fig">
+<svg width="660" height="300" viewBox="0 0 660 300" font-family="Noto Sans" font-size="9.5">
+  <defs><marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f2a27"/></marker></defs>
+  <!-- fuentes -->
+  <rect x="10" y="20" width="130" height="50" rx="5" fill="#fdecec" stroke="#b23a3a"/><text x="75" y="40" text-anchor="middle" font-weight="700">Fuente de laboratorio</text><text x="75" y="55" text-anchor="middle">6,0 V · límite 4–5 A</text>
+  <rect x="10" y="200" width="130" height="50" rx="5" fill="#fdecec" stroke="#b23a3a"/><text x="75" y="220" text-anchor="middle" font-weight="700">Powerbank Xiaomi</text><text x="75" y="235" text-anchor="middle">5 V · 3 A</text>
+  <!-- interruptor y bornera -->
+  <rect x="175" y="25" width="70" height="40" rx="4" fill="#fff" stroke="#1f2a27"/><text x="210" y="42" text-anchor="middle" font-size="8.5">interruptor</text><text x="210" y="55" text-anchor="middle" font-size="8.5">(solo +6 V)</text>
+  <rect x="280" y="20" width="90" height="50" rx="4" fill="#fff6e0" stroke="#c7712b"/><text x="325" y="40" text-anchor="middle" font-weight="700">bornera 6 V</text><text x="325" y="55" text-anchor="middle" font-size="8.5">GND en estrella</text>
+  <line x1="140" y1="45" x2="173" y2="45" stroke="#b23a3a" stroke-width="2"/><line x1="245" y1="45" x2="278" y2="45" stroke="#b23a3a" stroke-width="2"/>
+  <!-- servos -->
+  <rect x="440" y="10" width="95" height="34" rx="4" fill="#fff" stroke="#c7712b"/><text x="487" y="31" text-anchor="middle">yaw RDS3218</text>
+  <rect x="440" y="52" width="95" height="34" rx="4" fill="#fff" stroke="#c7712b"/><text x="487" y="73" text-anchor="middle">pitch MG996R</text>
+  <rect x="440" y="94" width="95" height="34" rx="4" fill="#fff" stroke="#c7712b"/><text x="487" y="115" text-anchor="middle">roll MG996R</text>
+  <line x1="370" y1="35" x2="438" y2="27" stroke="#b23a3a" stroke-width="2"/><line x1="370" y1="45" x2="438" y2="69" stroke="#b23a3a" stroke-width="2"/><line x1="370" y1="55" x2="438" y2="111" stroke="#b23a3a" stroke-width="2"/>
+  <text x="380" y="20" fill="#b23a3a" font-size="8.5">+6 V y GND</text>
+  <!-- ESP32 -->
+  <rect x="440" y="170" width="150" height="100" rx="6" fill="#fbf3ea" stroke="#c7712b"/>
+  <text x="515" y="188" text-anchor="middle" font-weight="700">ESP32-C3</text>
+  <text x="450" y="206" font-size="8.5">GPIO0 → señal yaw</text><text x="450" y="219" font-size="8.5">GPIO1 → señal pitch</text>
+  <text x="450" y="232" font-size="8.5">GPIO4 → señal roll</text><text x="450" y="245" font-size="8.5">GPIO5 → I/O buzzer</text>
+  <text x="450" y="258" font-size="8.5">3V3 → VCC buzzer</text>
+  <line x1="600" y1="200" x2="600" y2="27" stroke="#2c5d8a" stroke-dasharray="4 2"/><line x1="600" y1="27" x2="537" y2="27" stroke="#2c5d8a" stroke-dasharray="4 2"/>
+  <line x1="610" y1="213" x2="610" y2="69" stroke="#2c5d8a" stroke-dasharray="4 2"/><line x1="610" y1="69" x2="537" y2="69" stroke="#2c5d8a" stroke-dasharray="4 2"/>
+  <line x1="620" y1="226" x2="620" y2="111" stroke="#2c5d8a" stroke-dasharray="4 2"/><line x1="620" y1="111" x2="537" y2="111" stroke="#2c5d8a" stroke-dasharray="4 2"/>
+  <line x1="590" y1="200" x2="600" y2="200" stroke="#2c5d8a"/><line x1="590" y1="213" x2="610" y2="213" stroke="#2c5d8a"/><line x1="590" y1="226" x2="620" y2="226" stroke="#2c5d8a"/>
+  <text x="560" y="150" fill="#2c5d8a" font-size="8.5">señales PWM 50 Hz</text>
+  <!-- buzzer -->
+  <rect x="610" y="248" width="45" height="30" rx="4" fill="#fff" stroke="#6b5a9e"/><text x="632" y="267" text-anchor="middle" font-size="8.5">buzzer</text>
+  <line x1="590" y1="245" x2="610" y2="258" stroke="#6b5a9e"/>
+  <!-- Pi -->
+  <rect x="200" y="180" width="160" height="80" rx="6" fill="#f2f4ee" stroke="#2f6b4f"/>
+  <text x="280" y="200" text-anchor="middle" font-weight="700">Raspberry Pi 5</text>
+  <text x="280" y="216" text-anchor="middle" font-size="8.5">cámara por CSI (cinta 150 mm)</text>
+  <text x="280" y="230" text-anchor="middle" font-size="8.5">alimentación: USB-C o</text><text x="280" y="243" text-anchor="middle" font-size="8.5">pines 2/4 (5 V) y 6 (GND)</text>
+  <line x1="140" y1="225" x2="198" y2="225" stroke="#b23a3a" stroke-width="2"/>
+  <line x1="360" y1="220" x2="438" y2="220" stroke="#1f2a27" stroke-width="1.5" marker-end="url(#b)"/><text x="365" y="212" font-size="8.5">USB (datos + 5 V)</text>
+  <!-- GND común -->
+  <line x1="325" y1="70" x2="325" y2="150" stroke="#1f2a27" stroke-dasharray="2 2"/><line x1="325" y1="150" x2="515" y2="150" stroke="#1f2a27" stroke-dasharray="2 2"/><line x1="515" y1="150" x2="515" y2="168" stroke="#1f2a27" stroke-dasharray="2 2"/>
+  <text x="335" y="145" font-size="8.5" font-weight="700">GND común (sin esto ningún servo se mueve)</text>
+</svg>
+<div class="cap">Figura 4. Dos fuentes separadas, unidas solo por el GND. La ESP32 se alimenta por el USB de la Pi; los servos solo toman señal de la ESP32.</div>
+</div>
+
+<table class="two"><tr><td>
+<h3>Pines de la ESP32-C3</h3>
+<table>
+<tr><th>Pin</th><th>Uso</th><th>Nota</th></tr>
+<tr><td>GPIO0</td><td>servo yaw</td><td>PWM 50 Hz, 14 bits</td></tr>
+<tr><td>GPIO1</td><td>servo pitch</td><td>mismo timer que yaw</td></tr>
+<tr><td>GPIO4</td><td>servo roll</td><td>antes GPIO3 (junto al 2, de strapping)</td></tr>
+<tr><td>GPIO5</td><td>buzzer (I/O)</td><td>timer LEDC aparte; antes GPIO10, que dejó de sonar con la cabeza armada</td></tr>
+<tr><td>20 / 21</td><td>UART0 (USB serie)</td><td>reservados</td></tr>
+<tr><td>2 / 8 / 9</td><td>strapping</td><td><b>no usar</b>: definen el modo de arranque</td></tr>
+<tr><td>18 / 19</td><td>USB nativo</td><td>no usar</td></tr>
+</table>
+</td><td>
+<h3>Encendido y apagado</h3>
+<table>
+<tr><th>Paso</th><th>Encender</th><th>Apagar</th></tr>
+<tr><td>1</td><td>Powerbank (Pi)</td><td>6 V de los servos</td></tr>
+<tr><td>2</td><td>Cabeza cerca de HOME</td><td>Powerbank</td></tr>
+<tr><td>3</td><td>6 V de los servos</td><td>—</td></tr>
+</table>
+<div class="box why"><b>¿Por qué ese orden?</b>
+Los servos no tienen realimentación: el primer pulso los lleva a HOME a toda velocidad. Si la ESP32 ya está mandando el pulso de HOME cuando
+llegan los 6 V y la cabeza está cerca, el salto es chico. Al apagar, sostener la cabeza: los MG996R quedan flojos.</div>
+</td></tr></table>
+
+<div class="box why"><b>¿Por qué fuente de laboratorio + powerbank? (decisión del 14/10)</b>
+Los servos generan picos de corriente y ruido; si comparten fuente con la Pi, la Pi puede reiniciarse por caída de tensión. Con dos fuentes
+separadas la Pi queda aislada. La batería LiPo y los reguladores salieron del diseño: la consigna pide "alimentación propia", no batería.</div>
+
+<!-- ============================== 5 ============================== -->
+<h1><span class="n">5</span>Los servos</h1>
+<p class="lead">Un servo de hobby recibe un pulso cada 20 ms (50 Hz); el <b>ancho</b> del pulso indica el ángulo. No informan su posición:
+el control es en lazo abierto, por eso cada servo se midió en el banco (<code>pruebas_servos/</code>).</p>
+
+<div class="fig">
+<svg width="500" height="117" viewBox="0 0 640 150" font-family="Noto Sans" font-size="9.5">
+  <line x1="30" y1="110" x2="620" y2="110" stroke="#9aa49f"/>
+  <path d="M30 110 L30 40 L75 40 L75 110 L280 110 L280 40 L325 40 L325 110 L530 110 L530 40 L575 40 L575 110" fill="none" stroke="#2c5d8a" stroke-width="2"/>
+  <line x1="30" y1="128" x2="280" y2="128" stroke="#1f2a27" marker-start="url(#b)" marker-end="url(#b)"/><text x="155" y="142" text-anchor="middle">período 20 ms (50 Hz)</text>
+  <line x1="280" y1="28" x2="325" y2="28" stroke="#c7712b"/><text x="302" y="22" text-anchor="middle" fill="#c7712b">1000–2000 µs</text>
+  <text x="390" y="60">ancho = ángulo</text><text x="390" y="74">1500 µs ≈ centro (HOME)</text><text x="390" y="88">el MG996R gira 0,092° por µs</text>
+</svg>
+<div class="cap">Figura 5. Señal de un servo: la ESP32 la genera con el periférico LEDC, sin usar la CPU.</div>
+</div>
+
+<h2>Conversión de grados a microsegundos</h2>
+<div class="box"><b>Fórmula (<code>firmware/keepon_fw/nucleo.cpp</code>, parámetros de <code>neck.servos</code>)</b>
+pulso [µs] = centro + signo × ángulo / (grados por µs), recortado a [min, max].<br>
+Ejemplo, pitch a +30°: 1500 + (−1) × 30 / 0,092 = <b>1174 µs</b>, que coincide con lo medido en el robot montado.</div>
+<table>
+<tr><th>Eje</th><th>Servo</th><th>centro</th><th>grados/µs</th><th>min / max [µs]</th><th>signo</th><th>Observaciones</th></tr>
+<tr><td>yaw</td><td>RDS3218</td><td>1500</td><td>0,130 / 0,136</td><td>950 / 2020</td><td>−1</td><td>asimétrico: un valor por lado de 1500 µs; ±70° ≈ 960 / 2010 µs</td></tr>
+<tr><td>pitch</td><td>MG996R</td><td>1500</td><td>0,092</td><td>1100 / 1800</td><td>−1</td><td>pulso mayor = la cara baja; +30° = 1174 µs, −20° = 1717 µs</td></tr>
+<tr><td>roll</td><td>MG996R</td><td>1500</td><td>0,092</td><td>1000 / 2000</td><td>−1</td><td>+217 µs = +20°; signo <b>sin verificar montado</b></td></tr>
+</table>
+<p>El <b>signo</b> deja la misma convención para los tres ejes (yaw + = derecha, pitch + = arriba, roll + = horario visto desde atrás)
+aunque cada servo esté montado en un sentido distinto. Los límites en µs son más amplios que los recorridos y protegen la mecánica
+si alguna vez llega un ángulo fuera de rango.</p>
+
+<h2>Historia de cada eje</h2>
+<table>
+<tr><th style="width:10%">Eje</th><th>Qué se probó</th><th>Resultado</th></tr>
+<tr><td>yaw</td><td>Dos RDS3218</td><td>El n.º 1 vibraba quieto cerca de 1500 µs (≈ 0,5 A); al intercambiarlos la vibración siguió al servo → descartado. Queda el n.º 2.</td></tr>
+<tr><td>pitch</td><td>HS-7955TG (09/10–05/11) → MG996R nuevo</td><td>El HS es fuerte (18 kgf·cm) y sin pulso se mantiene firme, pero metía mucho ruido en la alimentación. El grupo pasó a un MG996R nuevo.</td></tr>
+<tr><td>roll</td><td>MG996R n.º 1 (13/10–05/11) → MG996R nuevo</td><td>El n.º 1 tenía una banda muerta de ~10°: de +25° a 0° quedaba en +10°. Se compensó en el firmware sumando 151 µs según el sentido
+del movimiento (<code>compensacion_us</code>). El nuevo vuelve a 0 sin compensación.</td></tr>
+</table>
+<div class="box warn"><b>Vibración al moverse lento</b>
+Los tres servos vibran cuando avanzan despacio (de a saltitos, por la banda muerta) y no vibran quietos. Bajar la velocidad y la
+aceleración lo empeoró. Por eso el robot hace <b>movimientos rápidos y pocos</b> (capítulos 6 y 12).</div>
+
+<!-- ============================== 6 ============================== -->
+<h1><span class="n">6</span>Control de los motores</h1>
+<p class="lead">La Pi manda <b>referencias</b> de ángulo; la ESP32 genera la trayectoria suave hasta ellas, 100 veces por segundo, respetando límites de
+posición, velocidad y aceleración. Así ningún comportamiento puede dar un golpe al cuello.</p>
+
+<div class="fig">
+<svg width="660" height="110" viewBox="0 0 660 110" font-family="Noto Sans" font-size="9.5">
+  <rect x="5" y="30" width="110" height="46" rx="5" fill="#f2f4ee" stroke="#2f6b4f"/><text x="60" y="50" text-anchor="middle" font-weight="600">comportamiento</text><text x="60" y="64" text-anchor="middle" font-size="8.5">dueño del cuello</text>
+  <rect x="140" y="30" width="110" height="46" rx="5" fill="#f2f4ee" stroke="#2f6b4f"/><text x="195" y="50" text-anchor="middle" font-weight="600">referencia</text><text x="195" y="64" text-anchor="middle" font-size="8.5">J seq yaw pitch roll</text>
+  <rect x="275" y="30" width="120" height="46" rx="5" fill="#fbf3ea" stroke="#c7712b"/><text x="335" y="50" text-anchor="middle" font-weight="600">recorte a límites</text><text x="335" y="64" text-anchor="middle" font-size="8.5">±70 · −20/+30 · ±20</text>
+  <rect x="420" y="30" width="110" height="46" rx="5" fill="#fbf3ea" stroke="#c7712b"/><text x="475" y="50" text-anchor="middle" font-weight="600">trayectoria</text><text x="475" y="64" text-anchor="middle" font-size="8.5">vmax, amax · 100 Hz</text>
+  <rect x="555" y="30" width="100" height="46" rx="5" fill="#fbf3ea" stroke="#c7712b"/><text x="605" y="50" text-anchor="middle" font-weight="600">grados → µs</text><text x="605" y="64" text-anchor="middle" font-size="8.5">PWM LEDC</text>
+  <line x1="115" y1="53" x2="138" y2="53" stroke="#1f2a27" marker-end="url(#b)"/><line x1="250" y1="53" x2="273" y2="53" stroke="#1f2a27" marker-end="url(#b)"/>
+  <line x1="395" y1="53" x2="418" y2="53" stroke="#1f2a27" marker-end="url(#b)"/><line x1="530" y1="53" x2="553" y2="53" stroke="#1f2a27" marker-end="url(#b)"/>
+  <text x="70" y="100" fill="#2f6b4f">en la Pi (40 Hz)</text><text x="420" y="100" fill="#c7712b">en la ESP32 (100 Hz)</text>
+</svg>
+<div class="cap">Figura 6. Cadena de control de un eje. Una referencia nueva <b>reemplaza</b> a la anterior: no se encolan movimientos.</div>
+</div>
+
+<h2>Perfil de velocidad</h2>
+<table class="two"><tr><td>
+<svg width="310" height="170" viewBox="0 0 310 170" font-family="Noto Sans" font-size="9">
+  <line x1="30" y1="140" x2="300" y2="140" stroke="#9aa49f"/><line x1="30" y1="140" x2="30" y2="10" stroke="#9aa49f"/>
+  <text x="290" y="155" text-anchor="end">tiempo</text><text x="35" y="18">velocidad</text>
+  <path d="M30 140 L90 40 L210 40 L270 140" fill="#e8f0ea" stroke="#2f6b4f" stroke-width="2"/>
+  <line x1="30" y1="40" x2="300" y2="40" stroke="#c7712b" stroke-dasharray="3 2"/><text x="215" y="34" fill="#c7712b">vmax</text>
+  <text x="45" y="95" transform="rotate(-58 45 95)" fill="#2c5d8a">amax</text><text x="235" y="80" fill="#2c5d8a">frena con amax</text>
+  <text x="150" y="100" text-anchor="middle">área = recorrido</text>
+</svg>
+</td><td>
+<p>Cada eje sigue un perfil <b>trapezoidal</b>: acelera con <code>amax</code> hasta <code>vmax</code>, avanza y frena a tiempo para llegar
+exactamente al objetivo. Si el recorrido es corto, el trapecio se vuelve triángulo (no llega a <code>vmax</code>).</p>
+<p>El cálculo es discreto y exacto (<code>keepon/trajectory.py</code>, función <code>_v_max_to_stop</code>): garantiza que las posiciones
+enviadas nunca superen <code>amax</code> y que el último paso caiga justo en el objetivo. El firmware tiene una copia en C++.</p>
+<table><tr><th>Eje</th><th>vmax [°/s]</th><th>amax [°/s²]</th></tr>
+<tr><td>yaw</td><td>180</td><td>600</td></tr><tr><td>pitch</td><td>120</td><td>400</td></tr><tr><td>roll</td><td>120</td><td>300</td></tr></table>
+<p>Ejemplo: girar 25° en yaw lleva ≈ 0,4 s.</p>
+</td></tr></table>
+
+<h2>Seguridad: watchdog y STOP</h2>
+<table>
+<tr><th style="width:18%">Mecanismo</th><th>Qué hace</th><th style="width:30%">Por qué</th></tr>
+<tr><td><b>Watchdog 500 ms</b></td><td>Si la ESP32 no recibe un comando válido en 500 ms, corta el sonido, frena con <code>amax</code> y mantiene la postura. La Pi manda <code>PING</code> cada 200 ms si no mandó otra cosa.</td><td>Si la Pi se cuelga o se desconecta el USB, el robot no queda moviéndose.</td></tr>
+<tr><td><b>STOP enclavado</b></td><td>Frena suave, corta el sonido y rechaza movimientos y sonidos hasta <code>RESUME</code>.</td><td>Orden del operador con la máxima prioridad; enclavado para que ningún comportamiento lo libere solo.</td></tr>
+<tr><td><b>Pulso permanente</b></td><td>En STOP y watchdog se sigue mandando el último pulso a los tres servos.</td><td>El MG996R sin pulso queda flojo y la cabeza caería.</td></tr>
+<tr><td><b>Arranque en HOME</b></td><td>Al encender, el firmware arranca en HOME y avisa con <code>HELLO 0</code>.</td><td>Sin realimentación, la única postura conocida es la que se manda primero.</td></tr>
+</table>
+
+<!-- ============================== 7 ============================== -->
+<h1><span class="n">7</span>Firmware y protocolo serie</h1>
+<p class="lead">El firmware (<code>firmware/keepon_fw/</code>) es una copia en C++ del ESP32 simulado en Python. 36+ tests compilan el núcleo del firmware
+en la notebook y comparan sus respuestas y posiciones con el simulador paso a paso.</p>
+
+<table class="two"><tr><td>
+<h3>Archivos</h3>
+<table>
+<tr><th>Archivo</th><th>Contenido</th></tr>
+<tr><td><code>keepon_fw.ino</code></td><td>Capa de hardware: serie, LEDC de servos y buzzer</td></tr>
+<tr><td><code>nucleo.cpp</code></td><td>Lógica portable: protocolo, trayectoria, estados, sonidos, grados → µs</td></tr>
+<tr><td><code>generado.h</code></td><td>Generado desde <code>config.yaml</code> y las tablas de sonido (no se edita a mano)</td></tr>
+</table>
+<h3>Estados del firmware</h3>
+<svg width="300" height="150" viewBox="0 0 300 150" font-family="Noto Sans" font-size="9">
+  <defs><marker id="c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5d6964"/></marker></defs>
+  <ellipse cx="150" cy="30" rx="45" ry="18" fill="#e8f0ea" stroke="#2f6b4f"/><text x="150" y="34" text-anchor="middle" font-weight="700">RUN</text>
+  <ellipse cx="55" cy="120" rx="48" ry="18" fill="#fdecec" stroke="#b23a3a"/><text x="55" y="124" text-anchor="middle" font-weight="700">STOPPED</text>
+  <ellipse cx="245" cy="120" rx="50" ry="18" fill="#fbf3ea" stroke="#c7712b"/><text x="245" y="124" text-anchor="middle" font-weight="700">WATCHDOG</text>
+  <path d="M115 42 Q70 60 60 100" fill="none" stroke="#5d6964" marker-end="url(#c)"/><text x="40" y="70">STOP</text>
+  <path d="M85 104 Q120 70 135 48" fill="none" stroke="#5d6964" marker-end="url(#c)"/><text x="108" y="90">RESUME</text>
+  <path d="M185 42 Q235 60 245 100" fill="none" stroke="#5d6964" marker-end="url(#c)"/><text x="232" y="68">500 ms sin</text><text x="232" y="79">comandos</text>
+  <path d="M215 104 Q180 75 165 48" fill="none" stroke="#5d6964" marker-end="url(#c)"/><text x="160" y="96">comando válido</text>
+</svg>
+</td><td>
+<h3>Comandos (Pi → ESP32)</h3>
+<table>
+<tr><th>Comando</th><th>Efecto</th></tr>
+<tr><td><code>HELLO 1</code></td><td>Abre la sesión</td></tr>
+<tr><td><code>J seq y p r</code></td><td>Nueva referencia articular (reemplaza)</td></tr>
+<tr><td><code>S seq NOMBRE</code></td><td>Reproduce un sonido; avisa <code>DONE</code> al terminar</td></tr>
+<tr><td><code>CANCEL seq SOUND</code></td><td>Corta el sonido</td></tr>
+<tr><td><code>PING seq</code></td><td>Keepalive; responde <code>STATE</code></td></tr>
+<tr><td><code>STOP</code> / <code>RESUME</code></td><td>STOP enclavado / liberarlo</td></tr>
+<tr><td><code>HOME seq</code></td><td>Va a HOME con rampa</td></tr>
+<tr><td><code>VOL seq PCT</code></td><td>Volumen 0–100 % (firmware v2)</td></tr>
+</table>
+<p>Líneas ASCII de hasta 64 caracteres a 115 200 baudios. Cada comando lleva un número de secuencia (<code>seq</code>) para asociar la respuesta. Las respuestas son <code>ACK</code>, <code>DONE</code>, <code>ERR</code>, <code>STATE</code> y <code>HELLO</code>.</p>
+</td></tr></table>
+
+<h2>Ejemplo de una sesión</h2>
+<div class="fig">
+<svg width="500" height="202" viewBox="0 0 620 250" font-family="Noto Sans" font-size="9">
+  <rect x="60" y="5" width="120" height="24" rx="4" fill="#2f6b4f"/><text x="120" y="21" text-anchor="middle" fill="#fff" font-weight="700">Raspberry Pi</text>
+  <rect x="440" y="5" width="120" height="24" rx="4" fill="#c7712b"/><text x="500" y="21" text-anchor="middle" fill="#fff" font-weight="700">ESP32-C3</text>
+  <line x1="120" y1="29" x2="120" y2="245" stroke="#9aa49f" stroke-dasharray="3 2"/><line x1="500" y1="29" x2="500" y2="245" stroke="#9aa49f" stroke-dasharray="3 2"/>
+  <g font-family="DejaVu Sans Mono" font-size="8.5">
+  <line x1="500" y1="45" x2="122" y2="45" stroke="#c7712b" marker-end="url(#c)"/><text x="310" y="41" text-anchor="middle">HELLO 0 2 1   (arrancó: está en HOME)</text>
+  <line x1="120" y1="68" x2="498" y2="68" stroke="#2f6b4f" marker-end="url(#c)"/><text x="310" y="64" text-anchor="middle">HELLO 1</text>
+  <line x1="500" y1="88" x2="122" y2="88" stroke="#c7712b" marker-end="url(#c)"/><text x="310" y="84" text-anchor="middle">HELLO 1 2 1   (sesión abierta)</text>
+  <line x1="120" y1="111" x2="498" y2="111" stroke="#2f6b4f" marker-end="url(#c)"/><text x="310" y="107" text-anchor="middle">J 7 25.0 5.0 0.0</text>
+  <line x1="500" y1="131" x2="122" y2="131" stroke="#c7712b" marker-end="url(#c)"/><text x="310" y="127" text-anchor="middle">ACK 7</text>
+  <line x1="120" y1="154" x2="498" y2="154" stroke="#2f6b4f" marker-end="url(#c)"/><text x="310" y="150" text-anchor="middle">S 8 R2D2</text>
+  <line x1="500" y1="174" x2="122" y2="174" stroke="#c7712b" marker-end="url(#c)"/><text x="310" y="170" text-anchor="middle">ACK 8</text>
+  <line x1="120" y1="197" x2="498" y2="197" stroke="#2f6b4f" marker-end="url(#c)"/><text x="310" y="193" text-anchor="middle">PING 9</text>
+  <line x1="500" y1="217" x2="122" y2="217" stroke="#c7712b" marker-end="url(#c)"/><text x="310" y="213" text-anchor="middle">ACK 9 · STATE 9 RUN 25.0 5.0 0.0 R2D2</text>
+  <line x1="500" y1="240" x2="122" y2="240" stroke="#c7712b" marker-end="url(#c)"/><text x="310" y="236" text-anchor="middle">DONE 8   (terminó el R2D2, 1,6 s después)</text>
+  </g>
+</svg>
+<div class="cap">Figura 7. Si en plena sesión llega un <code>HELLO 0</code>, la ESP32 se reinició: la Pi cancela todo, toma HOME como referencia, reabre la sesión y reenvía el STOP si estaba activo.</div>
+</div>
+<div class="box"><b>Resultados en la ESP32 real (14/10)</b>
+30 de 30 pruebas OK. Latencia PING → ACK de ida y vuelta: <b>4,4 ms</b> (máx. 4,9). Un movimiento a 70/30/−20 llega en 0,68 s (el simulador dice 0,69 s).
+Watchdog a los ~490 ms. Ocupa 304 KB de flash (23 %) y 14 KB de RAM (4 %).</div>
+
+<!-- ============================== 8 ============================== -->
+<h1><span class="n">8</span>Arquitectura del software</h1>
+<p class="lead">Todo corre en la Pi, en Python puro. ROS 2 se usa solo para leer la cámara (<code>camera_ros</code>). La percepción va en 2 procesos aparte y el
+lazo de decisión y control corre a 40 Hz.</p>
+<div class="fig">
+<svg width="660" height="300" viewBox="0 0 660 300" font-family="Noto Sans" font-size="9">
+  <rect x="5" y="10" width="95" height="40" rx="4" fill="#edf2f8" stroke="#2c5d8a"/><text x="52" y="27" text-anchor="middle" font-weight="700">camera_ros</text><text x="52" y="41" text-anchor="middle" font-size="8">ROS 2 · 30 fps</text>
+  <rect x="130" y="5" width="200" height="56" rx="5" fill="#edf2f8" stroke="#2c5d8a"/><text x="230" y="21" text-anchor="middle" font-weight="700">Proceso "personas" · núcleos 0-1</text>
+  <text x="230" y="35" text-anchor="middle" font-size="8">YOLO26n 256 (NCNN) + tracker IoU propio</text><text x="230" y="48" text-anchor="middle" font-size="8">BlazeFace en recortes + solvePnP · 12–17 Hz</text>
+  <rect x="130" y="70" width="200" height="50" rx="5" fill="#edf2f8" stroke="#2c5d8a"/><text x="230" y="86" text-anchor="middle" font-weight="700">Proceso "pose" · núcleos 2-3</text>
+  <text x="230" y="100" text-anchor="middle" font-size="8">MediaPipe Pose lite + camisetas</text><text x="230" y="112" text-anchor="middle" font-size="8">7–10 Hz</text>
+  <line x1="100" y1="30" x2="128" y2="30" stroke="#1f2a27" marker-end="url(#b)"/><line x1="100" y1="40" x2="128" y2="90" stroke="#1f2a27" marker-end="url(#b)"/>
+  <rect x="360" y="20" width="135" height="84" rx="5" fill="#f2f4ee" stroke="#2f6b4f"/><text x="427" y="37" text-anchor="middle" font-weight="700">eventos.py → World</text>
+  <text x="427" y="52" text-anchor="middle" font-size="8">filtros temporales</text><text x="427" y="65" text-anchor="middle" font-size="8">ME_MIRA, SALUDO, SALIENDO,</text><text x="427" y="78" text-anchor="middle" font-size="8">CAMISETA · personas con ID</text>
+  <text x="427" y="94" text-anchor="middle" font-size="8">edad máx. 0,3 s</text>
+  <line x1="330" y1="33" x2="358" y2="50" stroke="#1f2a27" marker-end="url(#b)"/><line x1="330" y1="95" x2="358" y2="75" stroke="#1f2a27" marker-end="url(#b)"/>
+  <text x="335" y="20" font-size="7.5">cola de 2</text>
+  <rect x="525" y="20" width="130" height="84" rx="5" fill="#f2f4ee" stroke="#2f6b4f"/><text x="590" y="37" text-anchor="middle" font-weight="700">Focus (gaze.py)</text>
+  <text x="590" y="52" text-anchor="middle" font-size="8">elige la persona objetivo</text><text x="590" y="65" text-anchor="middle" font-size="8">1.º quien mira al robot</text><text x="590" y="78" text-anchor="middle" font-size="8">2.º tamaño + centrado</text><text x="590" y="91" text-anchor="middle" font-size="8">histéresis 1,5 s</text>
+  <line x1="495" y1="62" x2="523" y2="62" stroke="#1f2a27" marker-end="url(#b)"/>
+  <rect x="380" y="140" width="275" height="70" rx="5" fill="#fff6e0" stroke="#c7712b"/><text x="517" y="157" text-anchor="middle" font-weight="700">Comportamientos (behaviors.py)</text>
+  <text x="517" y="172" text-anchor="middle" font-size="8">Observador · Seguimiento · Saludo · Camiseta · Modo · ConfirmaModo</text><text x="517" y="186" text-anchor="middle" font-size="8">cada uno propone acciones con prioridad y recursos</text><text x="517" y="200" text-anchor="middle" font-size="8">(NECK, BUZZER)</text>
+  <line x1="590" y1="104" x2="590" y2="138" stroke="#1f2a27" marker-end="url(#b)"/>
+  <rect x="200" y="140" width="150" height="70" rx="5" fill="#fdecec" stroke="#b23a3a"/><text x="275" y="157" text-anchor="middle" font-weight="700">Árbitro (arbiter.py)</text>
+  <text x="275" y="172" text-anchor="middle" font-size="8">un dueño por recurso</text><text x="275" y="186" text-anchor="middle" font-size="8">prioridades · interrupciones</text><text x="275" y="200" text-anchor="middle" font-size="8">cooldowns · STOP</text>
+  <line x1="380" y1="175" x2="352" y2="175" stroke="#1f2a27" marker-end="url(#b)"/>
+  <rect x="200" y="235" width="150" height="50" rx="5" fill="#fff" stroke="#5d6964"/><text x="275" y="254" text-anchor="middle" font-weight="700">Actuators</text><text x="275" y="268" text-anchor="middle" font-size="8">descarta al que no es dueño</text>
+  <line x1="275" y1="210" x2="275" y2="233" stroke="#1f2a27" marker-end="url(#b)"/>
+  <rect x="20" y="235" width="140" height="50" rx="5" fill="#fbf3ea" stroke="#c7712b"/><text x="90" y="254" text-anchor="middle" font-weight="700">SerialLink → ESP32</text><text x="90" y="268" text-anchor="middle" font-size="8">protocolo v1</text>
+  <line x1="200" y1="260" x2="162" y2="260" stroke="#1f2a27" marker-end="url(#b)"/>
+  <rect x="20" y="150" width="140" height="50" rx="5" fill="#fff" stroke="#6b5a9e"/><text x="90" y="169" text-anchor="middle" font-weight="700">Overlay T7 + log CSV</text><text x="90" y="183" text-anchor="middle" font-size="8">robot.py · overlay.py</text>
+  <line x1="200" y1="175" x2="162" y2="175" stroke="#6b5a9e" stroke-dasharray="3 2" marker-end="url(#b)"/>
+  <rect x="380" y="235" width="275" height="50" rx="5" fill="#fff" stroke="#9aa49f"/><text x="517" y="254" text-anchor="middle" font-weight="700">Operador</text><text x="517" y="268" text-anchor="middle" font-size="8">panel web / keepon → FIFO → STOP, modo, sonido (prioridad 0)</text>
+  <line x1="380" y1="255" x2="352" y2="205" stroke="#1f2a27" marker-end="url(#b)"/>
+</svg>
+<div class="cap">Figura 8. Flujo de datos. Lazo principal en <code>keepon/robot.py</code> a 40 Hz; la percepción manda siempre el último resultado y nunca bloquea el lazo.</div>
+</div>
+<table>
+<tr><th style="width:22%">Módulo</th><th>Qué hace</th></tr>
+<tr><td><code>perception.py</code></td><td>Los 2 procesos de percepción, fijados a núcleos. Mandan su resultado por una cola de tamaño 2 que descarta lo viejo.</td></tr>
+<tr><td><code>tracker.py</code></td><td>Tracker por solapamiento de cajas (IoU), propio: mantiene el ID de cada persona entre cuadros.</td></tr>
+<tr><td><code>eventos.py</code>, <code>camiseta.py</code></td><td>Pasan de percepción cruda (cuadro a cuadro) a eventos filtrados en el tiempo.</td></tr>
+<tr><td><code>world.py</code></td><td>Modelo del mundo: personas con ID, caja, rostro, eventos activos y antigüedad del dato.</td></tr>
+<tr><td><code>gaze.py</code></td><td>Control de la mirada y foco de atención.</td></tr>
+<tr><td><code>behaviors.py</code>, <code>arbiter.py</code>, <code>actuators.py</code></td><td>Comportamientos, árbitro y filtro de comandos por dueño.</td></tr>
+<tr><td><code>trajectory.py</code>, <code>protocol.py</code>, <code>link.py</code>, <code>sim_esp32.py</code></td><td>Trayectorias, protocolo, enlace serie real o simulado, y la ESP32 simulada (especificación del firmware).</td></tr>
+<tr><td><code>robot.py</code>, <code>overlay.py</code></td><td>Lazo principal, resincronización si la ESP32 se reinicia, log CSV y overlay de monitoreo.</td></tr>
+</table>
+
+<!-- ============================== 9 ============================== -->
+<h1><span class="n">9</span>Percepción</h1>
+<p class="lead">Modelos preentrenados (permitidos por la consigna, con su fuente) y todo lo demás propio. El reto fue que entre todo en la CPU de la Pi a ≥ 10 Hz.</p>
+<table>
+<tr><th style="width:18%">Qué</th><th style="width:28%">Cómo</th><th>Fuente / por qué</th></tr>
+<tr><td>Personas</td><td>YOLO26n exportado a NCNN, entrada 256 px, confianza 0,4</td><td>Ultralytics. A 480 px tardaba 79 ms y saturaba la CPU; a 256 px tarda 18 ms y detecta a 2 de 2 personas a 1,5 m en el 100 % de los cuadros.</td></tr>
+<tr><td>ID entre cuadros</td><td>Tracker IoU propio</td><td>El ByteTrack de Ultralytics costaba ~68 ms por cuadro en la Pi.</td></tr>
+<tr><td>Rostro</td><td>MediaPipe BlazeFace (6 puntos) sobre un recorte de 192 px de la cabeza</td><td>Google MediaPipe. Face Landmarker (478 puntos) tardaba ~49 ms por cara y sobre la imagen completa encontraba solo 0,4–0,7 de 2 rostros.</td></tr>
+<tr><td>¿Me mira?</td><td>solvePnP con los 6 puntos → orientación de la cara</td><td>Ángulo entre el eje de la cara y la línea cara → cámara &lt; 15° (<code>looking_deg</code>).</td></tr>
+<tr><td>Pose (brazos, hombros)</td><td>MediaPipe Pose lite, hasta 2 personas</td><td>Google MediaPipe. Para el SALUDO y para ubicar el torso (camisetas).</td></tr>
+</table>
+
+<h2>Cómo se llegó a ≥ 10 Hz</h2>
+<div class="fig">
+<svg width="640" height="190" viewBox="0 0 640 190" font-family="Noto Sans" font-size="9">
+  <line x1="190" y1="10" x2="190" y2="160" stroke="#9aa49f"/>
+  <line x1="190" y1="160" x2="620" y2="160" stroke="#9aa49f"/>
+  <!-- escala 0..30 Hz = 0..400 px -->
+  <line x1="323" y1="10" x2="323" y2="160" stroke="#b23a3a" stroke-dasharray="4 2"/><text x="326" y="20" fill="#b23a3a">10 Hz pedido</text>
+  <g>
+  <text x="185" y="32" text-anchor="end">YOLO 480 en serie (detector previo)</text><rect x="190" y="22" width="149" height="14" fill="#9aa49f"/><text x="344" y="33">11,2 Hz (solo personas)</text>
+  <text x="185" y="56" text-anchor="end">Todo en serie, 256, 2 personas</text><rect x="190" y="46" width="120" height="14" fill="#c7712b"/><text x="315" y="57">9,0 Hz ✗</text>
+  <text x="185" y="80" text-anchor="end">YOLO 256 solo</text><rect x="190" y="70" width="399" height="14" fill="#2c5d8a"/><text x="594" y="81">29,9</text>
+  <text x="185" y="104" text-anchor="end">2 procesos: personas + rostros</text><rect x="190" y="94" width="160" height="14" fill="#2f6b4f"/><text x="355" y="105">12–17 Hz ✓ (robot real)</text>
+  <text x="185" y="128" text-anchor="end">2 procesos: pose</text><rect x="190" y="118" width="113" height="14" fill="#6b9e83"/><text x="308" y="129">7–10 Hz</text>
+  <text x="185" y="152" text-anchor="end">Lazo de control y árbitro</text><rect x="190" y="142" width="400" height="12" fill="#e8b04a"/><text x="560" y="152" text-anchor="end">36–39 Hz</text>
+  </g>
+  <text x="190" y="175">0</text><text x="590" y="175">30 Hz</text>
+</svg>
+<div class="cap">Figura 9. Frecuencias medidas en la Pi 5 (<code>docs/ESTADO_PI.md</code>). La barra del lazo está fuera de escala (36–39 Hz).</div>
+</div>
+<div class="box why"><b>¿Por qué procesos y no hilos?</b>
+NCNN y MediaPipe no liberan el GIL de Python: en hilos tardaban casi lo mismo que en serie (2,04 s contra 2,11 s). En procesos separados, cada uno en
+2 núcleos fijos, corren de verdad en paralelo. NCNN y MediaPipe reubican sus hilos, así que el código los vuelve a fijar cada 50 cuadros.</div>
+<div class="box warn"><b>Cámara sin calibrar</b>
+Los intrínsecos (fx = 948 → campo de 37,3°) son de otra cámara y el centro óptico se tomó como el centro de la imagen (el de la calibración ajena corría la
+mirada ~6,5°). Falta calibrar con un tablero: afecta sobre todo a ME_MIRA.</div>
+
+<!-- ============================== 10 ============================== -->
+<h1><span class="n">10</span>Eventos: definición operativa</h1>
+<p class="lead">Un evento no se dispara por un cuadro suelto: cada uno tiene un umbral y un filtro temporal con histéresis (<code>keepon/eventos.py</code>, parámetros en
+<code>eventos:</code> y <code>camiseta:</code> de <code>config.yaml</code>).</p>
+<table>
+<tr><th style="width:15%">Evento</th><th style="width:38%">Condición en cada cuadro</th><th>Filtro temporal</th></tr>
+<tr><td><b>PERSONA</b></td><td>Caja de YOLO de clase persona con confianza ≥ 0,4, asociada a un ID por el tracker.</td><td>Si el objetivo desaparece menos de 1 s, se mantiene; después se libera (<code>lost_hold_s</code>).</td></tr>
+<tr><td><b>ME_MIRA</b></td><td>Desvío entre el eje de la cara y la línea cara → cámara &lt; 15°.</td><td>Se activa tras 0,5 s seguidos mirando y se suelta tras 0,3 s sin mirar.</td></tr>
+<tr><td><b>SALUDO</b></td><td>Muñeca al menos 0,1 hombros por encima del hombro, que oscila de costado con amplitud ≥ 0,25 anchos de hombros
+(medido en hombros para no depender de la distancia).</td><td>2 ciclos (cambios de sentido) dentro de 2,5 s → un evento. Para contar otro, la mano tiene que bajar 0,4 s: un gesto = una respuesta. Cooldown de 5 s por persona.</td></tr>
+<tr><td><b>CAMISETA_*</b></td><td>Clase del torso según reglas de color y patrón (capítulo 11).</td><td>6 cuadros seguidos para confirmar y 6 para soltar, por persona. Cooldown de 25 s por persona.</td></tr>
+<tr><td><b>SALIENDO</b></td><td>A menos del 15 % del ancho del borde y alejándose a ≥ 80 px/s, o el yaw a menos de 4° de su límite con la persona más allá del centro.</td><td>Se activa si dura 0,2 s y se suelta tras 0,6 s sin la condición.</td></tr>
+</table>
+<div class="fig">
+<svg width="620" height="120" viewBox="0 0 620 120" font-family="Noto Sans" font-size="9">
+  <text x="5" y="30">mira (crudo)</text>
+  <path d="M90 40 L130 40 L130 20 L150 20 L150 40 L200 40 L200 20 L420 20 L420 40 L440 40 L440 20 L455 20 L455 40 L610 40" fill="none" stroke="#9aa49f" stroke-width="1.5"/>
+  <text x="5" y="85">ME_MIRA</text>
+  <path d="M90 95 L295 95 L295 75 L515 75 L515 95 L610 95" fill="none" stroke="#2f6b4f" stroke-width="2"/>
+  <line x1="200" y1="105" x2="295" y2="105" stroke="#2c5d8a"/><text x="247" y="117" text-anchor="middle" fill="#2c5d8a">0,5 s mirando</text>
+  <line x1="455" y1="105" x2="515" y2="105" stroke="#c7712b"/><text x="485" y="117" text-anchor="middle" fill="#c7712b">0,3 s sin mirar</text>
+  <text x="140" y="60" font-size="8" fill="#5d6964">un cuadro suelto no lo prende</text><text x="400" y="60" font-size="8" fill="#5d6964">ni lo apaga</text>
+</svg>
+<div class="cap">Figura 10. Histéresis temporal de ME_MIRA.</div>
+</div>
+<div class="box warn"><b>ME_MIRA casi no se activaba en las pruebas</b>
+Con la mirada corrida 8° hacia abajo, el ángulo medido dio una mediana de 8° (30 de 42 lecturas por debajo de 15°). Falta repetirlo; con la cámara
+calibrada debería mejorar. De esto dependen el modo Tímido y el Atrevido.</div>
+
+<!-- ============================== 11 ============================== -->
+<h1><span class="n">11</span>Detector de camisetas</h1>
+<p class="lead">Reglas de color y patrón sobre el torso, sin red entrenada (la guía lo permite). Desarrollo propio: <code>keepon/camiseta.py</code>, corre en el proceso de pose.</p>
+<table class="two"><tr><td>
+<svg width="300" height="250" viewBox="0 0 300 250" font-family="Noto Sans" font-size="9">
+  <circle cx="150" cy="30" r="20" fill="#e6d3bf"/>
+  <path d="M85 60 L215 60 L235 230 L65 230 Z" fill="#f4f4f4" stroke="#9aa49f"/>
+  <rect x="78" y="115" width="144" height="34" fill="#2b2b2b"/>
+  <circle cx="85" cy="60" r="4" fill="#2c5d8a"/><circle cx="215" cy="60" r="4" fill="#2c5d8a"/>
+  <text x="225" y="57" fill="#2c5d8a" font-size="8">hombros</text><text x="225" y="67" fill="#2c5d8a" font-size="8">(MediaPipe)</text>
+  <rect x="98" y="70" width="104" height="150" fill="none" stroke="#c7712b" stroke-width="2" stroke-dasharray="5 3"/>
+  <text x="150" y="243" text-anchor="middle" fill="#c7712b">región del torso analizada</text>
+  <g stroke="#c7712b" stroke-width="0.5" opacity="0.7">
+  <line x1="98" y1="88.75" x2="202" y2="88.75"/><line x1="98" y1="107.5" x2="202" y2="107.5"/><line x1="98" y1="126.25" x2="202" y2="126.25"/><line x1="98" y1="145" x2="202" y2="145"/><line x1="98" y1="163.75" x2="202" y2="163.75"/><line x1="98" y1="182.5" x2="202" y2="182.5"/><line x1="98" y1="201.25" x2="202" y2="201.25"/></g>
+  <text x="5" y="135" font-size="8">8 franjas</text><text x="5" y="145" font-size="8">horizontales</text>
+</svg>
+</td><td>
+<p><b>1. Ubicar el torso.</b> Con los hombros de MediaPipe: desde 0,15 hasta 1,1 anchos de hombros debajo de ellos, descartando un 10 % a cada lado (brazos).
+Se exigen hombros visibles, al menos 40 px de ancho y 40 % del torso dentro del cuadro.</p>
+<p><b>2. Clasificar cada píxel</b> en HSV (rojo, azul, blanco, oscuro) con umbrales medidos con la NoIR sobre las prendas reales.</p>
+<p><b>3. Buscar el patrón.</b></p>
+<table>
+<tr><th>Clase</th><th>Regla</th></tr>
+<tr><td><b>Olimpia</b></td><td>8 franjas horizontales: una oscura (brillo ≤ 110) con franjas blancas (saturación ≤ 60) arriba y abajo, al menos 1,6 veces más claras.</td></tr>
+<tr><td><b>Cerro</b></td><td>8 columnas: al menos 2 rojas y 2 azules (≥ 1/4 del ancho cada color) separadas por un borde vertical, y ≥ 20 % de píxeles de cada color.</td></tr>
+<tr><td>Nada</td><td>Lo demás: lisas rojas, azules o blancas no cumplen ningún patrón.</td></tr>
+</table>
+</td></tr></table>
+<div class="box why"><b>¿Por qué no exigir rayas para Cerro?</b>
+La titular 2026 de Cerro es mitad roja y mitad azul, sin rayas: la regla pide rojo <b>y</b> azul en partes grandes separados por un borde vertical, así
+detecta las dos. Además, con la NoIR el azul marino de Cerro se ve violeta (H 116–145) y la franja negra de Olimpia, marrón violácea.</div>
+<h2>Resultados con la cámara del robot (04/11)</h2>
+<table>
+<tr><th>Toma (60 s, a 1,2 / 1,8 / 2,5 m)</th><th>Detectada tras el filtro de 6 cuadros</th><th>Falsos positivos</th></tr>
+<tr><td>Olimpia titular</td><td class="ok">82 % (99 % desde los 10 s)</td><td>0 %</td></tr>
+<tr><td>Cerro 2026, mitad y mitad</td><td class="ok">98 %</td><td>0 %</td></tr>
+<tr><td>Remera roja lisa</td><td>—</td><td class="ok">0 %</td></tr>
+<tr><td>Remera azul marino lisa</td><td>—</td><td class="ok">0 %</td></tr>
+<tr><td>Remera blanca lisa</td><td colspan="2"><span class="mid">Solo probada con una imagen sintética (test). Falta una real.</span></td></tr>
+</table>
+<p>Limitación conocida: la camiseta del Barcelona es casi igual a la de Cerro por color y patrón.</p>
+
+<!-- ============================== 12 ============================== -->
+<h1><span class="n">12</span>Control de la mirada y foco de atención</h1>
+<h2>Del píxel al ángulo</h2>
+<table class="two"><tr><td>
+<svg width="300" height="190" viewBox="0 0 300 190" font-family="Noto Sans" font-size="9">
+  <rect x="20" y="20" width="200" height="150" fill="#f2f4ee" stroke="#9aa49f"/>
+  <line x1="120" y1="20" x2="120" y2="170" stroke="#9aa49f" stroke-dasharray="3 2"/><line x1="20" y1="95" x2="220" y2="95" stroke="#9aa49f" stroke-dasharray="3 2"/>
+  <circle cx="120" cy="95" r="3" fill="#5d6964"/><text x="124" y="108" font-size="8">(cx, cy)</text>
+  <rect x="150" y="45" width="34" height="40" fill="none" stroke="#2f6b4f" stroke-width="1.5"/><circle cx="167" cy="62" r="3" fill="#2f6b4f"/>
+  <line x1="120" y1="40" x2="167" y2="40" stroke="#c7712b"/><text x="143" y="35" text-anchor="middle" fill="#c7712b">u − cx</text>
+  <text x="225" y="62" font-size="8.5" fill="#2f6b4f">cara</text>
+  <text x="20" y="185" font-size="8.5">imagen 640 × 480 · campo ≈ 37° × 28°</text>
+</svg>
+</td><td>
+<p>El error angular de la cara respecto del centro óptico es:</p>
+<div class="box">error_yaw = atan((u − cx) / fx) &nbsp;·&nbsp; error_pitch = atan((v − cy) / fy)</div>
+<p>Con fx ≈ 948 px, 1° equivale a ~16,5 px en el centro de la imagen. La cámara apunta 8° por debajo de la cara (<code>mirar_abajo_deg</code>)
+para que entre la camiseta en el cuadro.</p>
+</td></tr></table>
+
+<h2>Mirada por objetivo (modo actual, desde el 05/11)</h2>
+<div class="fig">
+<svg width="640" height="160" viewBox="0 0 640 160" font-family="Noto Sans" font-size="9">
+  <rect x="5" y="20" width="135" height="50" rx="5" fill="#edf2f8" stroke="#2c5d8a"/><text x="72" y="40" text-anchor="middle" font-weight="600">posición del cuello</text><text x="72" y="54" text-anchor="middle" font-size="8">cuando se sacó la foto</text>
+  <rect x="5" y="90" width="135" height="50" rx="5" fill="#edf2f8" stroke="#2c5d8a"/><text x="72" y="110" text-anchor="middle" font-weight="600">error en la imagen</text><text x="72" y="124" text-anchor="middle" font-size="8">atan((u−cx)/fx)</text>
+  <circle cx="180" cy="80" r="14" fill="#fff" stroke="#1f2a27"/><text x="180" y="84" text-anchor="middle" font-size="12">+</text>
+  <line x1="140" y1="45" x2="168" y2="72" stroke="#1f2a27" marker-end="url(#b)"/><line x1="140" y1="115" x2="168" y2="88" stroke="#1f2a27" marker-end="url(#b)"/>
+  <rect x="215" y="55" width="125" height="50" rx="5" fill="#f2f4ee" stroke="#2f6b4f"/><text x="277" y="75" text-anchor="middle" font-weight="600">dirección</text><text x="277" y="89" text-anchor="middle" font-size="8">de la persona</text>
+  <line x1="194" y1="80" x2="213" y2="80" stroke="#1f2a27" marker-end="url(#b)"/>
+  <polygon points="380,80 425,50 470,80 425,110" fill="#fff6e0" stroke="#c7712b"/><text x="425" y="77" text-anchor="middle" font-size="8">¿se corrió</text><text x="425" y="88" text-anchor="middle" font-size="8">&gt; 2,5°?</text>
+  <line x1="340" y1="80" x2="378" y2="80" stroke="#1f2a27" marker-end="url(#b)"/>
+  <rect x="510" y="20" width="125" height="44" rx="5" fill="#e8f0ea" stroke="#2f6b4f"/><text x="572" y="38" text-anchor="middle" font-weight="600">salta ahí</text><text x="572" y="52" text-anchor="middle" font-size="8">un solo movimiento rápido</text>
+  <rect x="510" y="98" width="125" height="44" rx="5" fill="#fff" stroke="#9aa49f"/><text x="572" y="116" text-anchor="middle" font-weight="600">queda quieto</text><text x="572" y="130" text-anchor="middle" font-size="8">no vibra</text>
+  <line x1="470" y1="80" x2="508" y2="45" stroke="#1f2a27" marker-end="url(#b)"/><text x="480" y="55" font-size="8">sí</text>
+  <line x1="470" y1="80" x2="508" y2="118" stroke="#1f2a27" marker-end="url(#b)"/><text x="480" y="112" font-size="8">no</text>
+  <text x="215" y="140" font-size="8" fill="#5d6964">Solo se usan fotos sacadas con el cuello quieto (&lt; 1° del objetivo).</text>
+</svg>
+<div class="cap">Figura 11. Usar la posición del cuello <b>en el momento de la foto</b> compensa el atraso de la percepción (~100–135 ms): en simulación, un salto a
+25° con 150 ms de atraso ya no se pasa a 29° y llega derecho a 25°.</div>
+</div>
+<div class="box why"><b>¿Por qué se cambió el control? (05/11)</b>
+Antes (modo <code>velocidad</code>) la referencia avanzaba un poquito en cada ciclo según el error: velocidad = kp × (|error| − zona muerta), con saturación y
+suavizado EMA. Eso hacía que los servos se arrastraran despacio y vibraran. Con la mirada por objetivo, en el simulador los cambios de referencia
+bajaron de 25 a 0 con la persona quieta y de 300 a 29 con la persona caminando. El modo <code>velocidad</code> queda como respaldo en <code>config.yaml</code>.</div>
+
+<h2>Foco de atención: a quién mirar</h2>
+<table>
+<tr><th style="width:25%">Regla</th><th>Detalle</th></tr>
+<tr><td>1. Quien mira al robot</td><td>Prioridad estricta: una persona con ME_MIRA gana siempre a una que no mira.</td></tr>
+<tr><td>2. Si nadie mira</td><td>Puntaje = 0,6 × tamaño + 0,4 × centrado (la más cercana y central).</td></tr>
+<tr><td>3. Histéresis</td><td>Un candidato tiene que ser mejor durante 1,5 s seguidos para quitarle el foco al actual: evita saltos constantes.</td></tr>
+<tr><td>4. Pérdida breve</td><td>Si el objetivo desaparece menos de 1 s se mantiene la mirada; después se libera y vuelve el Observador.</td></tr>
+</table>
+
+<!-- ============================== 13 ============================== -->
+<h1><span class="n">13</span>Comportamientos y árbitro</h1>
+<p class="lead">Hay dos recursos exclusivos: el <b>cuello</b> (NECK) y el <b>buzzer</b> (BUZZER). Cada comportamiento propone acciones; el árbitro decide quién es dueño de
+cada recurso en cada instante. Es desarrollo propio (<code>keepon/arbiter.py</code>).</p>
+<table>
+<tr><th style="width:6%">Prio.</th><th style="width:18%">Comportamiento</th><th style="width:16%">Recursos</th><th style="width:20%">Lo puede interrumpir</th><th>Qué hace</th></tr>
+<tr><td>0</td><td><b>OPERADOR</b></td><td>todos</td><td>nadie</td><td>STOP enclavado, HOME, sonidos, beep de cambio de modo.</td></tr>
+<tr><td>1</td><td><b>SALUDO</b></td><td>cuello + buzzer</td><td>solo el operador</td><td>3 cabeceos de 12° + R2D2. Cooldown 5 s por persona.</td></tr>
+<tr><td>2</td><td><b>CAMISETA</b></td><td>buzzer</td><td>operador o saludo</td><td>Polca (Olimpia) o abucheo (Cerro). Cooldown 25 s por persona.</td></tr>
+<tr><td>3</td><td><b>MODO</b></td><td>cuello o buzzer</td><td>los más importantes</td><td>Reacción del modo de personalidad (capítulo 14).</td></tr>
+<tr><td>4</td><td><b>SEGUIMIENTO</b></td><td>cuello</td><td>cualquiera más importante</td><td>Mantener la mirada en la persona objetivo (continuo).</td></tr>
+<tr><td>5</td><td><b>OBSERVADOR</b></td><td>cuello</td><td>cualquiera más importante</td><td>Explorar sin personas (continuo).</td></tr>
+</table>
+
+<h2>Reglas del árbitro</h2>
+<table class="two"><tr><td>
+<ol style="margin:0; padding-left:14pt">
+<li><b>Exclusividad:</b> cada recurso tiene a lo sumo un dueño.</li>
+<li><b>Prioridad:</b> número menor = más importante. Una propuesta solo le quita un recurso a un dueño menos importante <i>y</i> que acepte ser interrumpido por ella.</li>
+<li><b>Atomicidad:</b> se conceden todos los recursos pedidos o ninguno. Si a una acción le quitan un recurso, se cancela entera.</li>
+<li><b>Vencimiento y cooldown:</b> las propuestas viejas o en cooldown se descartan; el cooldown cuenta desde que la acción <i>empieza</i>.</li>
+<li><b>Continuas y episódicas:</b> seguir y observar retienen el cuello mientras se vuelvan a proponer; saludo y polca, hasta que terminan.</li>
+<li><b>STOP</b> cancela todo, incluso lo no interrumpible, y queda enclavado hasta RESUME.</li>
+</ol>
+</td><td>
+<svg width="300" height="200" viewBox="0 0 300 200" font-family="Noto Sans" font-size="8.5">
+  <text x="5" y="14" font-weight="700">Ejemplo: Olimpia + saludo</text>
+  <text x="5" y="44">cuello</text><text x="5" y="84">buzzer</text>
+  <rect x="50" y="32" width="80" height="18" fill="#9fc7b0"/><text x="90" y="45" text-anchor="middle">seguimiento</text>
+  <rect x="130" y="32" width="70" height="18" fill="#e0a26a"/><text x="165" y="45" text-anchor="middle">saludo</text>
+  <rect x="200" y="32" width="90" height="18" fill="#9fc7b0"/><text x="245" y="45" text-anchor="middle">seguimiento</text>
+  <rect x="50" y="72" width="80" height="18" fill="#c3b4e0"/><text x="90" y="85" text-anchor="middle">polca</text>
+  <rect x="130" y="72" width="70" height="18" fill="#e0a26a"/><text x="165" y="85" text-anchor="middle">R2D2</text>
+  <rect x="200" y="72" width="90" height="18" fill="#eee"/><text x="245" y="85" text-anchor="middle">libre</text>
+  <line x1="130" y1="25" x2="130" y2="100" stroke="#b23a3a" stroke-dasharray="3 2"/>
+  <text x="130" y="112" text-anchor="middle" fill="#b23a3a">saluda (prio 1)</text>
+  <text x="5" y="135">• La polca y el seguimiento <b>conviven</b>: usan recursos distintos.</text>
+  <text x="5" y="150">• El saludo pide cuello + buzzer: le quita el buzzer a</text>
+  <text x="5" y="162">  la polca (prio 2, interrumpible por 1) y el cuello al</text>
+  <text x="5" y="174">  seguimiento. La polca se cancela.</text>
+  <text x="5" y="189">• Al terminar el saludo, el seguimiento retoma el cuello.</text>
+</svg>
+</td></tr></table>
+<div class="box"><b>Una sola orden coherente al cuello</b>
+<code>Actuators</code> descarta cualquier comando de quien no es dueño del recurso: nunca hay dos controladores escribiendo al cuello. La curiosidad y los gestos de los
+modos se calculan dentro del dueño del cuello, sumados a la mirada. En el escenario simulado de 30 s se comprueba que hay cero violaciones.</div>
+
+<h2>Curiosidad (extra)</h2>
+<p>Si la persona seguida queda quieta 3 s (su dirección se mueve menos de 5°), el robot inclina la cabeza 15° en roll durante 2 s, alternando el lado, y no lo repite antes de 8 s.</p>
+
+<!-- ============================== 14 ============================== -->
+<h1><span class="n">14</span>Modos de personalidad</h1>
+<p class="lead">Se cambian en cualquier momento desde el panel o con <code>keepon n|t|a|m</code>; cada cambio se confirma con un beep distinto. El modo inicial es Neutro.</p>
+<table>
+<tr><th>Modo</th><th>Disparador</th><th>Reacción</th><th>Beep</th></tr>
+<tr><td><b>Neutro</b></td><td>—</td><td>Solo sostiene el contacto visual (seguimiento).</td><td>0,25 s</td></tr>
+<tr><td><b>Tímido</b></td><td>ME_MIRA</td><td>Aparta la mirada 25° al costado con más lugar, 12° abajo y 10° de roll; la sostiene 2,5 s y vuelve a espiar en 3 s con una curva suave.</td><td>0,35 s</td></tr>
+<tr><td><b>Atrevido</b></td><td>ME_MIRA</td><td>Levanta el mentón 10°, 3 veces (período 1,2 s), sin dejar de seguir en yaw.</td><td>0,35 s</td></tr>
+<tr><td><b>Maleducado</b></td><td>SALIENDO</td><td>Silbido de piropo, una vez por salida y como mucho uno cada 40 s entre todos.</td><td>0,45 s</td></tr>
+</table>
+
+<div class="fig">
+<svg width="660" height="400" viewBox="0 0 660 400" font-family="Noto Sans" font-size="8.8">
+  <defs><marker id="d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f2a27"/></marker></defs>
+  <!-- TIMIDO -->
+  <text x="5" y="16" font-weight="700" fill="#2f6b4f" font-size="10">Tímido</text>
+  <rect x="5" y="28" width="95" height="36" rx="18" fill="#e8f0ea" stroke="#2f6b4f"/><text x="52" y="50" text-anchor="middle">SIGUIENDO</text>
+  <rect x="140" y="28" width="95" height="36" rx="18" fill="#fff6e0" stroke="#c7712b"/><text x="187" y="44" text-anchor="middle">DESVÍA y</text><text x="187" y="56" text-anchor="middle">SOSTIENE 2,5 s</text>
+  <rect x="275" y="28" width="95" height="36" rx="18" fill="#fff6e0" stroke="#c7712b"/><text x="322" y="44" text-anchor="middle">VUELVE A</text><text x="322" y="56" text-anchor="middle">ESPIAR (3 s)</text>
+  <rect x="410" y="28" width="95" height="36" rx="18" fill="#f2f4ee" stroke="#9aa49f"/><text x="457" y="44" text-anchor="middle">ESPERA 3 s</text><text x="457" y="56" text-anchor="middle">(misma persona)</text>
+  <line x1="100" y1="46" x2="138" y2="46" stroke="#1f2a27" marker-end="url(#d)"/><text x="104" y="40" font-size="8">ME_MIRA</text>
+  <line x1="235" y1="46" x2="273" y2="46" stroke="#1f2a27" marker-end="url(#d)"/>
+  <line x1="370" y1="46" x2="408" y2="46" stroke="#1f2a27" marker-end="url(#d)"/>
+  <path d="M457 64 Q457 95 250 95 Q52 95 52 66" fill="none" stroke="#1f2a27" marker-end="url(#d)"/>
+  <!-- ATREVIDO -->
+  <text x="5" y="130" font-weight="700" fill="#2f6b4f" font-size="10">Atrevido</text>
+  <rect x="5" y="142" width="95" height="36" rx="18" fill="#e8f0ea" stroke="#2f6b4f"/><text x="52" y="164" text-anchor="middle">SIGUIENDO</text>
+  <rect x="140" y="142" width="140" height="36" rx="18" fill="#fff6e0" stroke="#c7712b"/><text x="210" y="158" text-anchor="middle">MENTÓN ARRIBA ×3</text><text x="210" y="170" text-anchor="middle">sigue en yaw (3,6 s)</text>
+  <rect x="320" y="142" width="95" height="36" rx="18" fill="#f2f4ee" stroke="#9aa49f"/><text x="367" y="164" text-anchor="middle">ESPERA 3 s</text>
+  <line x1="100" y1="160" x2="138" y2="160" stroke="#1f2a27" marker-end="url(#d)"/><text x="104" y="154" font-size="8">ME_MIRA</text>
+  <line x1="280" y1="160" x2="318" y2="160" stroke="#1f2a27" marker-end="url(#d)"/>
+  <path d="M367 178 Q367 205 210 205 Q52 205 52 180" fill="none" stroke="#1f2a27" marker-end="url(#d)"/>
+  <!-- MALEDUCADO -->
+  <text x="5" y="240" font-weight="700" fill="#2f6b4f" font-size="10">Maleducado</text>
+  <rect x="5" y="252" width="95" height="36" rx="18" fill="#e8f0ea" stroke="#2f6b4f"/><text x="52" y="274" text-anchor="middle">SIGUIENDO</text>
+  <rect x="140" y="252" width="140" height="36" rx="18" fill="#efeaf8" stroke="#6b5a9e"/><text x="210" y="268" text-anchor="middle">PIROPO (buzzer)</text><text x="210" y="280" text-anchor="middle">convive con el seguimiento</text>
+  <rect x="320" y="252" width="140" height="36" rx="18" fill="#f2f4ee" stroke="#9aa49f"/><text x="390" y="268" text-anchor="middle">cooldown global 40 s</text><text x="390" y="280" text-anchor="middle">1 vez por salida</text>
+  <line x1="100" y1="270" x2="138" y2="270" stroke="#1f2a27" marker-end="url(#d)"/><text x="102" y="264" font-size="7.5">empieza</text><text x="102" y="296" font-size="7.5">SALIENDO</text>
+  <line x1="280" y1="270" x2="318" y2="270" stroke="#1f2a27" marker-end="url(#d)"/>
+  <path d="M390 288 Q390 315 220 315 Q52 315 52 290" fill="none" stroke="#1f2a27" marker-end="url(#d)"/>
+  <!-- cambio de modo -->
+  <text x="5" y="350" font-weight="700" fill="#2f6b4f" font-size="10">Cambio de modo</text>
+  <rect x="5" y="360" width="80" height="30" rx="15" fill="#fff" stroke="#2f6b4f"/><text x="45" y="379" text-anchor="middle">NEUTRO</text>
+  <rect x="135" y="360" width="80" height="30" rx="15" fill="#fff" stroke="#2f6b4f"/><text x="175" y="379" text-anchor="middle">TÍMIDO</text>
+  <rect x="265" y="360" width="80" height="30" rx="15" fill="#fff" stroke="#2f6b4f"/><text x="305" y="379" text-anchor="middle">ATREVIDO</text>
+  <rect x="395" y="360" width="95" height="30" rx="15" fill="#fff" stroke="#2f6b4f"/><text x="442" y="379" text-anchor="middle">MALEDUCADO</text>
+  <text x="510" y="372" font-size="8">cualquier modo → cualquier otro</text><text x="510" y="384" font-size="8">con un comando + beep propio</text>
+  <line x1="85" y1="375" x2="133" y2="375" stroke="#1f2a27" marker-end="url(#d)" marker-start="url(#d)"/>
+  <line x1="215" y1="375" x2="263" y2="375" stroke="#1f2a27" marker-end="url(#d)" marker-start="url(#d)"/>
+  <line x1="345" y1="375" x2="393" y2="375" stroke="#1f2a27" marker-end="url(#d)" marker-start="url(#d)"/>
+  <!-- leyenda -->
+  <text x="530" y="40" font-size="8" fill="#5d6964">Los gestos usan el cuello</text><text x="530" y="51" font-size="8" fill="#5d6964">con prioridad 3: un saludo</text><text x="530" y="62" font-size="8" fill="#5d6964">o el operador los interrumpen.</text>
+</svg>
+<div class="cap">Figura 12. Diagramas de estados de los modos. Las esperas son cooldowns por persona (Tímido, Atrevido) o global (piropo).</div>
+</div>
+<div class="box warn"><b>Estado de las pruebas en el robot</b>
+El cambio de modo con su beep anda en el robot. Tímido, Atrevido y Maleducado están implementados y probados en simulación, pero falta probarlos en el robot
+(Tímido no se activaba porque ME_MIRA casi no se prendía). El beep se pierde si al mismo tiempo suena otro sonido del operador.</div>
+
+<!-- ============================== 15 ============================== -->
+<h1><span class="n">15</span>Buzzer y sonidos</h1>
+<p class="lead">Un buzzer <b>pasivo</b> suena a la frecuencia de la señal que recibe, así que puede tocar melodías. Cada sonido es una tabla de segmentos
+<code>{frecuencia inicial, frecuencia final, ms}</code>: nota fija, barrido lineal o silencio.</p>
+<table class="two"><tr><td>
+<table>
+<tr><th>Sonido</th><th>Duración</th><th>Uso</th></tr>
+<tr><td>R2D2</td><td>1,6 s</td><td>respuesta al saludo</td></tr>
+<tr><td>POLCA</td><td>7,1 s</td><td>camiseta de Olimpia</td></tr>
+<tr><td>ABUCHEO</td><td>2,5 s</td><td>camiseta de Cerro</td></tr>
+<tr><td>PIROPO</td><td>1,2 s</td><td>modo Maleducado</td></tr>
+<tr><td>DESAPROBACION</td><td>0,8 s</td><td>disponible (opcional)</td></tr>
+<tr><td>POLCA_CERRO</td><td>6,0 s</td><td>extra</td></tr>
+<tr><td>BEEP_*</td><td>0,25–0,45 s</td><td>confirmación de cada modo</td></tr>
+</table>
+</td><td>
+<svg width="300" height="150" viewBox="0 0 300 150" font-family="Noto Sans" font-size="8.5">
+  <line x1="30" y1="120" x2="290" y2="120" stroke="#9aa49f"/><line x1="30" y1="120" x2="30" y2="10" stroke="#9aa49f"/>
+  <text x="35" y="18">frecuencia</text><text x="285" y="135" text-anchor="end">tiempo</text>
+  <path d="M30 90 L80 90" stroke="#6b5a9e" stroke-width="3"/><text x="55" y="84" text-anchor="middle">nota fija</text>
+  <path d="M90 100 L160 30" stroke="#c7712b" stroke-width="3"/><text x="150" y="60">barrido (cada 5 ms)</text>
+  <path d="M170 120 L200 120" stroke="#9aa49f" stroke-width="3"/><text x="185" y="112" text-anchor="middle">silencio</text>
+  <path d="M210 70 L240 70 M245 50 L275 50" stroke="#6b5a9e" stroke-width="3"/>
+</svg>
+<p>Los sonidos se diseñaron y escucharon en <code>pruebas_buzzer/simulador_sonidos.html</code>, que genera las tablas en C para el firmware.</p>
+</td></tr></table>
+<h2>La polca de Olimpia</h2>
+<p>Transcrita a mano de la partitura (<code>pruebas_buzzer/notas_polca_de_olimpia/</code>): compases 1 a 8 en 6/8, negra con puntillo = 135, Fa mayor
+(corchea de 148 ms, 7,104 s en total). Va una octava más arriba que lo escrito (659–1397 Hz), porque más abajo el buzzer suena débil. Cada nota
+deja 15 ms de silencio para separar las repetidas.</p>
+<div class="box why"><b>Decisiones del buzzer</b>
+<b></b>• Timer LEDC separado del de los servos: cambiar de nota no altera el PWM de los servos.<br>
+• Módulo MH-FMD a 3V3 (no 5 V): su transistor PNP solo se apaga si el I/O llega a la tensión de VCC.<br>
+• El volumen se regula con el ciclo de trabajo del PWM (50 % = máximo), en tiempo real con <code>VOL</code>.<br>
+• Fragmento de 8 compases y no la polca completa: la completa dura más de un minuto y bloquearía el buzzer.<br>
+• Un sonido intermitente resultó ser un cable jumper con falso contacto en el cuello: hay que soldarlo y precintarlo.</div>
+
+<!-- ============================== 16 ============================== -->
+<h1><span class="n">16</span>Monitoreo, log y operación</h1>
+<h2>Overlay de monitoreo (T7)</h2>
+<p>El video de la cámara con información dibujada encima, publicado en <code>http://&lt;ip-de-la-pi&gt;:8080/stream_viewer?topic=/keepon/overlay</code>:</p>
+<table>
+<tr><th style="width:30%">Muestra</th><th>Detalle</th></tr>
+<tr><td>Personas con su ID</td><td>Caja, ID del tracker y eventos activos de cada una (mira, saludo, camiseta, saliendo).</td></tr>
+<tr><td>Persona objetivo</td><td>Resaltada, con el ángulo de su mirada (<code>angulo N</code>) y el torso evaluado para las camisetas.</td></tr>
+<tr><td>Modo y dueños</td><td>Modo actual y el comportamiento dueño del CUELLO y del BUZZER.</td></tr>
+<tr><td>Ángulos comandados</td><td>Referencias de yaw, pitch y roll enviadas a la ESP32.</td></tr>
+</table>
+<p>Además, cada transición de estado (quién toma o suelta un recurso, eventos, comandos) se guarda con marca de tiempo en <code>logs/run_*.csv</code>, y cada
+pocos segundos se escribe una línea ESTADO con las frecuencias y la edad del cuadro.</p>
+
+<h2>Cómo se opera</h2>
+<table>
+<tr><th style="width:30%">Qué</th><th>Cómo</th></tr>
+<tr><td>Encender / apagar el robot</td><td>Panel del celular <code>:8081</code> (botones Encender / Apagar), o <code>keepon arrancar</code> / <code>keepon parar</code>. Al parar vuelve a HOME.</td></tr>
+<tr><td>Modos</td><td><code>keepon n</code> · <code>t</code> · <code>a</code> · <code>m</code> (Neutro, Tímido, Atrevido, Maleducado)</td></tr>
+<tr><td>STOP</td><td><code>keepon stop</code> (enclavado) · <code>keepon resume</code> · <code>keepon home</code></td></tr>
+<tr><td>Sonidos y volumen</td><td><code>keepon sonido POLCA</code> · <code>keepon volumen 0-100</code></td></tr>
+<tr><td>Ver qué pasa</td><td><code>keepon estado</code> · <code>keepon log</code></td></tr>
+<tr><td>Demo</td><td><code>keepon demo-on</code>: arranca solo al encender la Pi (por defecto está apagado porque la Pi se usa en otros proyectos).</td></tr>
+</table>
+<div class="box why"><b>¿Por qué un panel web y no una app?</b>
+Una página instalable (PWA, <code>scripts/panel_web.py</code>) anda en cualquier celular sin instalar nada. Corre como servicio aparte siempre prendido, así que
+sirve también con el robot apagado. Solo acepta una lista cerrada de comandos: desde la página no se puede ejecutar otra cosa en la Pi.</div>
+
+<!-- ============================== 17 ============================== -->
+<h1><span class="n">17</span>Por qué se decidió cada cosa</h1>
+<p class="lead">Resumen de <code>docs/DECISIONES.md</code>. Estas decisiones no se rediscuten sin datos nuevos.</p>
+<table>
+<tr><th style="width:25%">Decisión</th><th style="width:22%">Alternativa descartada</th><th>Por qué</th></tr>
+<tr><td>Todo en la Pi, en Python puro</td><td>ROS 2 completo, o procesar en la notebook</td><td>Más simple de explicar y depurar; ROS 2 solo para leer la cámara, que ya funcionaba así en la Pi.</td></tr>
+<tr><td>Mantener la ESP32 para los servos</td><td>Pulsos desde la Pi</td><td>La consigna pide microcontrolador + protocolo; el watchdog es independiente de Linux y el PWM no depende de la carga de la CPU.</td></tr>
+<tr><td>Pi dentro de la cabeza</td><td>Pi en la base</td><td>La cinta de la cámara mide ~150 mm y no llega a la base.</td></tr>
+<tr><td>Fuente de laboratorio + powerbank</td><td>LiPo con reguladores</td><td>Dos fuentes separadas aíslan la Pi del ruido y los picos de los servos.</td></tr>
+<tr><td>YOLO26n a 256 px en NCNN</td><td>480 o 320 px</td><td>4,3 veces más rápido que a 480 y detecta igual a 1,5 m.</td></tr>
+<tr><td>2 procesos fijados a núcleos</td><td>Hilos</td><td>NCNN y MediaPipe no liberan el GIL: con hilos no hay paralelismo.</td></tr>
+<tr><td>BlazeFace sobre recortes</td><td>Face Landmarker (478 puntos)</td><td>~49 ms por cara y no encontraba los rostros lejanos en la imagen completa.</td></tr>
+<tr><td>Tracker IoU propio</td><td>ByteTrack de Ultralytics</td><td>ByteTrack costaba ~68 ms por cuadro en la Pi.</td></tr>
+<tr><td>Camisetas con reglas de color y patrón</td><td>Red entrenada</td><td>Sin datos para entrenar; las reglas se explican y ajustan con las prendas reales. La guía las permite.</td></tr>
+<tr><td>Movimientos rápidos y pocos</td><td>Movimientos lentos y continuos</td><td>Los servos vibran moviéndose despacio; bajar vmax/amax/kp empeoró.</td></tr>
+<tr><td>Mirada por objetivo</td><td>Control P en velocidad</td><td>Compensa el atraso de la cámara y deja el cuello quieto entre movimientos.</td></tr>
+<tr><td>2 × MG996R nuevos en pitch y roll</td><td>HS-7955TG y MG996R con zona muerta</td><td>Decisión del grupo (05/11): el HS metía ruido y el MG996R viejo tenía ~10° de zona muerta.</td></tr>
+<tr><td>Firmware = copia del simulador</td><td>Escribir el firmware aparte</td><td>Los tests comparan los dos paso a paso: el comportamiento se prueba en la notebook.</td></tr>
+<tr><td>Fragmento de 8 compases de la polca</td><td>Polca completa</td><td>La guía pide "un fragmento reconocible"; la completa ocuparía el buzzer más de un minuto.</td></tr>
+<tr><td>Servicio de demo no activado al encender</td><td>Arranque automático siempre</td><td>La Pi se usa en otros proyectos y el robot toma la cámara y la ESP32.</td></tr>
+<tr><td>Repo público</td><td>Repo privado</td><td>Para que la cátedra lo lea desde afuera (07/11). No se sube nada personal.</td></tr>
+</table>
+
+<!-- ============================== 18 ============================== -->
+<h1><span class="n">18</span>Resultados, pruebas y lo que falta</h1>
+<h2>Requisitos de la consigna contra lo medido</h2>
+<table>
+<tr><th style="width:30%">Requisito</th><th style="width:28%">Medido</th><th>Estado</th></tr>
+<tr><td>Percepción ≥ 10 Hz</td><td>Personas 12–17 Hz · pose 7–10 Hz</td><td><span class="ok">Cumple</span> en personas; la pose queda justo en el límite.</td></tr>
+<tr><td>Latencia evento → respuesta ≤ 300 ms</td><td>Edad del cuadro 96–135 ms · lazo 25 ms · serie 4,4 ms</td><td><span class="mid">Estimación ≈ 130–170 ms; falta medirla de punta a punta</span> (p. ej. SALUDO → R2D2 con el log).</td></tr>
+<tr><td>Todo no bloqueante</td><td>Firmware sin <code>delay()</code>; percepción en procesos; colas que descartan lo viejo</td><td><span class="ok">Cumple</span></td></tr>
+<tr><td>Recursos exclusivos</td><td>0 violaciones en el escenario de 30 s</td><td><span class="ok">Cumple</span></td></tr>
+<tr><td>Prioridades, cooldowns, histéresis</td><td>Tabla de 6 prioridades; cooldowns 5 / 25 / 40 s; histéresis de foco 1,5 s</td><td><span class="ok">Cumple</span></td></tr>
+<tr><td>Overlay y log con marca de tiempo</td><td>Overlay T7 y log CSV</td><td><span class="ok">Cumple</span></td></tr>
+</table>
+
+<h2>Pruebas automáticas</h2>
+<table class="cards"><tr>
+<td><span class="big">219</span><span class="sm">tests con pytest</span></td>
+<td><span class="big">36+</span><span class="sm">firmware contra simulador, con fuzzing</span></td>
+<td><span class="big">30/30</span><span class="sm">pruebas en la ESP32 real</span></td>
+<td><span class="big">8</span><span class="sm">fallos de una revisión externa, cada uno con su test de regresión</span></td>
+</tr></table>
+<p>Además, <code>scripts/sim_scenario.py</code> corre un escenario completo de 30 s con personas sintéticas (seguimiento, saludo, camiseta, conflictos, STOP)
+contra la ESP32 simulada o contra la real.</p>
+<div class="box warn"><b>Un bug real que encontraron los tests</b>
+El firmware daba watchdog y fines de sonido falsos al restar tiempos sin signo (<code>millis()</code> contra el instante programado). Se corrigió con
+una diferencia con signo: 60 s a 40 Hz y 6 minutos de robot real sin ningún WATCHDOG. Cada bug encontrado queda como test de regresión.</div>
+
+<h2>Funciones: qué está probado en el robot</h2>
+<table>
+<tr><th style="width:42%">Probado en el robot real</th><th style="width:33%">Hecho, falta probar en el robot</th><th>Falta</th></tr>
+<tr><td>Seguimiento con foco e histéresis · Observador · Saludo (3 cabeceos + R2D2) · Olimpia → polca mientras sigue · Cerro → abucheo · lisas sin falsos
+positivos · cambio de modo con beep · curiosidad · apagar a HOME · overlay y log · panel del celular</td>
+<td>Mirada por objetivo y Observador por miradas (versión del 05/11) · Tímido · Atrevido · Maleducado con SALIENDO · signo del roll · STOP en pleno movimiento y sonido · varias personas a la vez</td>
+<td>Medir la latencia · calibrar la cámara · remera blanca real · secuencia de la demo · iluminación · informe Colab, video y ZIP</td></tr>
+</table>
+
+<h2>Lo que queda por hacer, por prioridad</h2>
+<table>
+<tr><th style="width:5%">#</th><th>Tarea</th></tr>
+<tr><td>1</td><td>Probar en el robot la mirada por objetivo, el Observador por miradas y los modos Tímido, Atrevido y Maleducado, con 2–3 personas.</td></tr>
+<tr><td>2</td><td>Verificar el signo del roll y que a ±20° no toque. Si los servos siguen temblando, volver a poner el capacitor de 2200 µF + 100 nF en la bornera.</td></tr>
+<tr><td>3</td><td>Medir la latencia evento → inicio de respuesta para el informe.</td></tr>
+<tr><td>4</td><td>Calibrar la cámara con un tablero y validar el umbral de ME_MIRA (15°).</td></tr>
+<tr><td>5</td><td>Soldar y precintar el cable del buzzer por el cuello.</td></tr>
+<tr><td>6</td><td>Informe en Colab, video de hasta 3 minutos, ZIP del código y ensayo de la defensa con todos los integrantes.</td></tr>
+</table>
+
+<h2>Aportes individuales</h2>
+<div class="box warn"><b>A completar por el grupo</b>
+La consigna pide identificar la contribución de cada integrante. Esta guía no lo puede deducir del repositorio: completarlo en el informe.</div>
+
+<div class="box"><b>Dónde está cada cosa en el repo</b>
+<code>keepon/</code> el robot en Python · <code>firmware/</code> ESP32-C3 · <code>config.yaml</code> todos los parámetros · <code>tests/</code> pruebas ·
+<code>scripts/</code> arranque, panel, carga de firmware y benchmarks · <code>pruebas_servos/</code>, <code>pruebas_buzzer/</code>, <code>pruebas_camisetas/</code> bancos de prueba ·
+<code>docs/</code> consigna, arquitectura, hardware, protocolo, decisiones, bitácora y CAD.</div>
+
+</body>
+</html>

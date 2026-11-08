@@ -4,7 +4,7 @@
 https://claude.ai/artifact/7wyNPrzj6QqcPJQvrpaPwB). Sirve para escuchar y ajustar los sonidos antes de pasarlos al firmware.
 
 - Cada sonido es una tabla de segmentos `{f_inicio, f_fin, ms}`: nota fija si `f_inicio == f_fin`, barrido lineal si
-  son distintas, silencio si es 0. Es el formato que va a usar el firmware de la ESP32 (`ledcWriteTone()` en el GPIO10,
+  son distintas, silencio si es 0. Es el formato que va a usar el firmware de la ESP32 (`ledcWriteTone()` en el GPIO5,
   actualizando los barridos cada 5 ms, sin `delay()`).
 - Los sonidos son los de `sounds:` en `config.yaml`. El simulador avisa si la duración de una tabla no coincide.
 - Abajo genera las tablas en C para el firmware y las duraciones para `config.yaml`.
@@ -34,7 +34,7 @@ hace falta.
 | Pin del módulo | ESP32-C3 |
 |---|---|
 | VCC | **3V3** (no 5V) |
-| I/O | GPIO10 |
+| I/O | **GPIO5** (`buzzer.pin` de `config.yaml`; hasta el 03/11 era el GPIO10) |
 | GND | GND |
 
 - **VCC a 3V3, no a 5V:** el PNP se apaga solo cuando el I/O llega a la tensión de VCC. Con VCC a 5 V, el ALTO de
@@ -50,4 +50,7 @@ hace falta.
 - **Prueba de banco:** `prueba_buzzer/prueba_buzzer.ino` alterna un tono hecho con `digitalWrite` (prueba solo el
   hardware) y el mismo tono por LEDC invertido (el camino del firmware). El 26/10 no sonaba ninguno de los dos: era
   un **falso contacto en el pin 10**.
+- **04/11: sonaba a veces sí y a veces no** (GPIO5, cabeza armada): era un **cable jumper con falso contacto**. Con los
+  6 V apagados sonaba siempre; con los servos andando, no. Antes de buscar ruido, cambiar el jumper. El volumen se ajusta
+  desde el panel del celular (comando `VOL`, 0–100 %).
 - El conexionado está también en `docs/diagrama_sistema/index.html` ("Módulo del buzzer").
