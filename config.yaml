@@ -183,16 +183,29 @@ sounds:
 # Tabla de prioridades (0 = más importante). Ver docs/HOJA_DE_RUTA.md §S4.
 priorities:
   OPERADOR: 0
+  EJES: 0                        # demostración de los 3 ejes (comando del operador, sólo el cuello)
   SALUDO: 1
   CAMISETA: 2
   MODO: 3
   SEGUIMIENTO: 4
   OBSERVADOR: 5
 
+# Demostración de los tres ejes (08/11, botón "Ejes" del panel / comando "ejes"): para el video y la demo.
+# Cada paso: [yaw, pitch, roll, duración del movimiento en s]. Yaw y pitch con mínimo jerk; el roll va con el
+# perfil del firmware (banda muerta del MG996R). Después de cada paso, quieto pausa_s para que se vea la postura.
+# Total ≈ 15 s. Al terminar vuelve a HOME y retoma el Observador o el seguimiento.
+ejes:
+  pausa_s: 0.5
+  secuencia: [[30.0, 0.0, 0.0, 1.1], [-30.0, 0.0, 0.0, 1.8], [0.0, 0.0, 0.0, 1.1],
+              [0.0, 20.0, 0.0, 1.0], [0.0, -15.0, 0.0, 1.4], [0.0, 0.0, 0.0, 1.0],
+              [0.0, 0.0, 15.0, 0.8], [0.0, 0.0, -15.0, 1.0], [0.0, 0.0, 0.0, 0.8]]
+
 # Periodos refractarios [s]. Se registran cuando la respuesta EMPIEZA, no al proponer.
 cooldowns:
   SALUDO_por_persona: 5.0
-  CAMISETA_por_persona: 25.0
+  CAMISETA_por_persona: null     # 08/11: null = UNA VEZ POR APARICIÓN (por ID del tracker; si la persona sale más de
+                                 # ~1 s, tracker.max_lost, vuelve con otro ID y suena de nuevo). Antes 25 s: con la
+                                 # camiseta a la vista la polca se repetía. Un número = segundos (la guía: 20-30).
   PIROPO_global: 40.0
 
 # Control de mirada (T3). Detalle de los dos modos en keepon/gaze.py.

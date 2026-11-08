@@ -86,7 +86,7 @@ El Colab no está empezado. Entre corchetes, de dónde sale el material que ya e
 
 ### D. Comportamientos y personalidades - T5 (pp. 5 y 6)
 
-- [ ] 🟡 Observador: explorar suavemente sin personas, con barridos y variaciones pequeñas de mirada/roll. — modo por miradas sin probar en real; **faltan las variaciones de roll**.
+- [ ] 🟡 Observador: explorar suavemente sin personas, con barridos y variaciones pequeñas de mirada/roll. — modo "exploracion" (08/11): barridos lentos, sacadas y roll ±5°; falta verlo sin vibración en real.
 - [x] ✅ Seguimiento: mantener la mirada en la persona seleccionada.
 - [x] ✅ Saludo: responder con 2 a 3 cabeceos y sonido tipo R2D2. — 3 cabeceos de 12°.
 - [x] ✅ Olimpia: silbar un fragmento reconocible de su polca mientras sigue a la persona.
@@ -95,7 +95,7 @@ El Colab no está empezado. Entre corchetes, de dónde sale el material que ya e
 - [ ] 🟡 Atrevido: sostener la mirada y elevar periódicamente el mentón, conservando seguimiento en yaw. — implementado; sin prueba en real registrada (depende de ME_MIRA).
 - [ ] 🟡 Maleducado: silbido de piropo una vez por salida de la persona objetivo. — implementado, sin probar en real.
 - [x] ✅ Cambiar de personalidad durante la ejecución mediante comando. — panel del celular, `scripts/k t|a|m|n`, `MODE <X>`.
-- [ ] 🟡 Confirmar cada cambio de modo con sonido breve distintivo. — anda, pero el beep se pierde si suena otro sonido de OPERADOR al mismo tiempo.
+- [ ] 🟡 Confirmar cada cambio de modo con sonido breve distintivo. — anda; el beep corta cualquier otro sonido (operador, polca, saludo), con tests (08/11).
 - [x] ✅ Recomendado: modo Neutro por defecto. — `modos.inicial: NEUTRO`.
 - [ ] 🟡 Opcionales: inclinación de curiosidad al quedar quieto, aburrimiento y desaprobación al perder el objetivo; párpados o LEDs. No desplazar con estos extras las funciones centrales. — curiosidad ✅ en real; aburrimiento y desaprobación ❌ (el sonido DESAPROBACION existe).
 
@@ -110,7 +110,7 @@ La consigna permite personalizar comportamientos, pero presenta la tabla como co
 - [x] ✅ Dar respuesta prioritaria a órdenes del operador, especialmente STOP.
 - [x] ✅ No emitir dos sonidos a la vez ni seguir en pitch mientras otro comportamiento intenta asentir de forma contradictoria.
 - [x] ✅ Implementar cooldowns por persona y comportamiento, y detección de gesto nuevo. — SALUDO 5 s y CAMISETA 25 s por persona, PIROPO 40 s global.
-- [ ] 🟡 Documentar los tiempos elegidos: la polca cada 20 a 30 s y el piropo cada 40 s son ejemplos. — en `config.yaml`; falta en el informe y decidir si la polca se repite cada 25 s.
+- [ ] 🟡 Documentar los tiempos elegidos: la polca cada 20 a 30 s y el piropo cada 40 s son ejemplos. — en `config.yaml`; la polca suena una vez por aparición (08/11); falta en el informe.
 - [x] ✅ Añadir filtros temporales, histéresis y tiempos mínimos por estado.
 - [ ] 🟡 Alcanzar percepción de al menos 10 Hz. — personas 12–17 Hz y lazo 36–39 Hz; la pose va a 7–10 Hz.
 - [ ] ❌ Medir latencia desde el evento al inicio de respuesta; referencia orientativa: hasta 300 ms. — solo está medida la edad del cuadro (96–135 ms).

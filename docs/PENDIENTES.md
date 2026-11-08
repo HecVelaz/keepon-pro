@@ -21,16 +21,14 @@ Ordenados por prioridad (07/11/2026). Lo terminado se borra y queda en `docs/BIT
 4. **Modo Tímido**: volver a probarlo (no desviaba la mirada porque ME_MIRA casi no se activaba). Con la línea
    ESTADO (`mira mín/mediana`) y el overlay (`angulo N`) decidir si `perception.looking_deg` (15°) alcanza.
 5. **Calibrar la cámara** con un tablero (cx, cy, fx, fy, distorsión) y validar `looking_deg` (15°) con 2–3 personas.
-6. Beep del modo que se pierde si suena otro sonido de OPERADOR (el árbitro lo toma como el mismo grant): que reemplace.
 7. Buzzer: soldar o cambiar los jumpers del cable por el cuello (un falso contacto lo cortaba). Precintar.
 8. Probar en real SALIENDO + piropo (Maleducado).
 
 ## 2. Lo que falta de la guía
 9. **Camisetas** (anda en vivo): grabar una **remera blanca lisa real** (solo hay sintética en los tests) y otras
-   prendas de prueba; decidir si la polca se repite cada 25 s con la misma persona (`cooldowns.CAMISETA_por_persona`)
-   o suena una vez; con la luz de la demo, volver a correr `pruebas_camisetas/evaluar.py videos`; después, borrar
+   prendas de prueba (la polca ya suena una vez por aparición, 08/11); con la luz de la demo, volver a correr `pruebas_camisetas/evaluar.py videos`; después, borrar
    `~/keepon/capturas/camisetas/` en la Pi. Barcelona da Cerro: explicarlo en la defensa.
-10. Observador: ya va por miradas (05/11); faltan pequeñas variaciones de roll.
+10. Observador "exploracion" (08/11: barridos, sacadas y roll): probar en el robot que el yaw no vibre a 25 °/s.
 11. **Medir la latencia evento → inicio de la respuesta** (≤ 300 ms, T6 e), p. ej. SALUDO → R2D2, para el informe.
 12. Opcionales: desaprobación al liberar el objetivo (T3 c; el sonido DESAPROBACION existe), aburrimiento (T3 e).
 

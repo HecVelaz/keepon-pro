@@ -309,17 +309,23 @@ class Greeting(Behavior):
 
 class Shirt(Behavior):
     """CAMISETA_OLIMPIA -> polca; CAMISETA_CERRO -> abucheo. Sólo usa el buzzer,
-    así que convive con el seguimiento. Interrumpible sólo por prioridad 0-1."""
+    así que convive con el seguimiento. Interrumpible sólo por prioridad 0-1. Una vez por aparición de
+    cada persona (cooldowns.CAMISETA_por_persona: null); si la interrumpen (p. ej. un saludo), no se
+    repite: el cooldown se registra al empezar."""
     name = "CAMISETA"
     SOUND = {"OLIMPIA": "POLCA", "CERRO": "ABUCHEO"}
 
     def propose(self, ctx):
         out = []
+        # cooldowns.CAMISETA_por_persona: null = una vez por aparición (el cooldown por ID no vence nunca: el
+        # tracker no reusa IDs y quien vuelve después de irse recibe uno nuevo).
+        espera = self.cfg["cooldowns"]["CAMISETA_por_persona"]
+        espera = math.inf if espera is None else espera
         for p in ctx.world.persons.values():
             if ctx.world.visible(p.id) and p.shirt in self.SOUND:
                 out.append(Proposal(self.name, self.priority, frozenset({BUZZER}),
                                     interruptible_by=1, person=p.id, expires=ctx.now + 0.3,
-                                    cooldown=(("CAMISETA", p.id), self.cfg["cooldowns"]["CAMISETA_por_persona"]),
+                                    cooldown=(("CAMISETA", p.id), espera),
                                     params={"sound": self.SOUND[p.shirt]}))
         return out
 
@@ -383,6 +389,47 @@ class ConfirmaModo(Behavior):
         elif ctx.now - self.t0 > self.cfg["sounds"][g.params["sound"]] + 0.5:
             ctx.act.cancel_sound()
             ctx.arb.finish(g.id, ctx.now)
+
+
+class DemoEjes(Behavior):
+    """Comando del operador (botón "Ejes"): muestra los tres ejes (yaw, pitch y roll) con la secuencia de
+    ejes.secuencia de config.yaml y vuelve a HOME. Prioridad 0 y sólo el cuello: nadie lo interrumpe salvo el
+    STOP o el HOME del operador; el buzzer sigue libre. Episódico: al terminar suelta el cuello y retoman el
+    Observador o el seguimiento. Yaw y pitch van con mínimo jerk; el roll, con el perfil del firmware."""
+    name = "EJES"
+
+    def __init__(self, cfg):
+        super().__init__(cfg)
+        self.pedido: float | None = None  # instante del pedido
+
+    def pedir(self, now: float) -> None:
+        self.pedido = now
+
+    def propose(self, ctx):
+        if self.pedido is None:
+            return []
+        if ctx.now > self.pedido + 1.0:  # no se pudo tomar el cuello (p. ej. con STOP): queda en el log
+            ctx.act.log(ctx.now, "EJES descartado (no se pudo tomar el cuello en 1 s)")
+            self.pedido = None
+            return []
+        return [Proposal(self.name, self.priority, frozenset({NECK}), expires=self.pedido + 1.0)]
+
+    def on_start(self, g, ctx):
+        self.pedido = None
+        e = self.cfg["ejes"]
+        self.tramos = []
+        for yaw, pitch, roll, dur in e["secuencia"]:
+            self.tramos += [Tramo("suave", (yaw, pitch, roll), dur), Tramo("quieto", (yaw, pitch, roll), e["pausa_s"])]
+        self.tramo = None
+
+    def act(self, g, ctx):
+        if self.tramo is None or ctx.now - self.tramo.t0 >= self.tramo.dur:  # terminó: el siguiente
+            if not self.tramos:
+                ctx.arb.finish(g.id, ctx.now)
+                return
+            self.tramo = self.tramos.pop(0)
+            self.tramo.desde, self.tramo.t0 = tuple(ctx.act.ref), ctx.now
+        ctx.act.neck(g, *self.tramo.referencia(ctx.now))
 
 
 class Mode(Behavior):
@@ -470,4 +517,4 @@ class Mode(Behavior):
 
 
 def default_behaviors(cfg: dict) -> list[Behavior]:
-    return [Observer(cfg), Tracking(cfg), Greeting(cfg), Shirt(cfg), Mode(cfg), ConfirmaModo(cfg)]
+    return [Observer(cfg), Tracking(cfg), Greeting(cfg), Shirt(cfg), Mode(cfg), ConfirmaModo(cfg), DemoEjes(cfg)]

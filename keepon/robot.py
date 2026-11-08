@@ -138,6 +138,18 @@ class Robot:
                 self.log(now, "STOP transmitido")
             self._stop_unsent = False
 
+    def ejes(self) -> bool:
+        """Comando del operador: demostración de los tres ejes (DemoEjes). Desde HOME la reanuda sola; con
+        el STOP enclavado no (es la parada de seguridad: se levanta a propósito con RESUME)."""
+        if self.en_home:
+            self.resume()
+        elif self.arb.stopped:
+            return False
+        now = self.link.now()
+        self.log(now, "OPERADOR ejes")
+        self.behaviors["EJES"].pedir(now)
+        return True
+
     def resume(self) -> None:
         # Al revés que stop(): si RESUME no sale, el árbitro sigue detenido (lo seguro).
         self.link.send("RESUME")

@@ -32,7 +32,7 @@ from keepon.world import Person, World  # noqa: E402
 
 ATAJOS = {"n": "NEUTRO", "t": "TIMIDO", "a": "ATREVIDO", "m": "MALEDUCADO"}
 AYUDA = ("Comandos (escribir y Enter): n/t/a/m = modo NEUTRO/TIMIDO/ATREVIDO/MALEDUCADO "
-         "(o MODE TIMIDO), sonido NOMBRE (R2D2, POLCA, ABUCHEO, PIROPO...), volumen 0..100, stop, resume, home, "
+         "(o MODE TIMIDO), sonido NOMBRE (R2D2, POLCA, ABUCHEO, PIROPO...), volumen 0..100, stop, resume, home, ejes, "
          "? = esta ayuda")
 
 
@@ -61,6 +61,10 @@ def comando(linea: str, robot) -> str:
     if s.lower() in ("resume", "r"):
         robot.resume()
         return "RESUME"
+    if s.lower() == "ejes":
+        if robot.ejes():
+            return "EJES (yaw, pitch y roll, ~15 s; después vuelve a lo que hacía)"
+        return "EJES no: STOP activo ('resume' primero)"
     if s.lower() == "home":
         robot.home()
         return "HOME (se queda en 0 0 0; 'resume' para seguir)"

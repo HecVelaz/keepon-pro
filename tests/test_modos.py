@@ -207,3 +207,31 @@ def test_saliendo_por_el_limite_de_yaw():
     for k in range(20):  # el cuello ya no puede girar más a la derecha y la persona sigue a la derecha
         w = ev.aplicar(_mundo(k * 0.05, 500.0), ref=(hi, 0, 0))
     assert w.persons[1].leaving
+
+
+def _beep_durante(persona, t_cambio):
+    """Cambia el modo en t_cambio, con la persona sintética haciendo lo suyo; devuelve el dueño del buzzer en
+    ese momento y los sonidos que se mandaron a la ESP32 después."""
+    from keepon.arbiter import BUZZER
+    from test_regresiones_codex import Rig
+    rig = Rig([persona])
+    rig.run_until(t_cambio)
+    dueño = rig.owner(BUZZER)
+    enviados, send = [], rig.link.send
+    rig.link.send = lambda *a: (enviados.append(a[1]) if a and a[0] == "S" else None, send(*a))[1]
+    comando("t", rig.robot)
+    rig.run_until(t_cambio + 1.0)
+    return dueño, enviados
+
+
+def test_beep_del_modo_durante_la_polca():
+    """08/11 (para el video: "mostrar el cambio de modo y su confirmación sonora"): el beep corta la polca."""
+    from keepon.synthetic import SynthPerson, const
+    dueño, enviados = _beep_durante(SynthPerson(1, appear=0.2, az=const(0.0), shirt=[(0.5, 30, "OLIMPIA")]), 3.0)
+    assert dueño == "CAMISETA" and enviados[:1] == ["BEEP_TIMIDO"]
+
+
+def test_beep_del_modo_durante_el_saludo():
+    from keepon.synthetic import SynthPerson, const
+    dueño, enviados = _beep_durante(SynthPerson(1, appear=0.2, az=const(0.0), waves=[3.0]), 3.6)
+    assert dueño == "SALUDO" and enviados[:1] == ["BEEP_TIMIDO"]
