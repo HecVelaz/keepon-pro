@@ -3,7 +3,7 @@
 Ordenados por prioridad (08/11/2026). Lo terminado se borra y queda en `docs/BITACORA.md`.
 
 ## 0. Entrega documentada (08/11)
-1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v2`) y completar los
+1. **Informe** (`docs/informe/`): elegir la versión final (`Informe_técnico.ipynb` o `_v3`, antes `_v2`) y completar los
    `[Completar]`: enlace al video y al ZIP, foto del robot, captura del overlay, **aportes individuales y uso de IA**
    (los escribe el grupo) y la latencia medida. Subirlo a Colab y probar que abre desde otra cuenta.
 2. **Push de `movimiento-suave` y su PR** (sobre `camisetas`), y después **integrar los PR #3 → #4 → #5 → nuevo a

@@ -5,7 +5,7 @@
 #   keepon estado                           si corre, y la última línea ESTADO del log
 #   keepon log                              sigue el log de la corrida actual (Ctrl+C para salir)
 #   keepon n | t | a | m                    modo NEUTRO / TIMIDO / ATREVIDO / MALEDUCADO
-#   keepon stop | resume | home             STOP enclavado, liberarlo, ir a HOME
+#   keepon stop | resume | home | ejes      STOP enclavado, liberarlo, ir a HOME (queda hasta resume), demo de los 3 ejes
 #   keepon sonido POLCA                     reproducir un sonido
 #   keepon instalar                         instala los servicios (no los activa al encender)
 #   keepon demo-on | demo-off               activar / desactivar el arranque del robot al encender la Pi

@@ -10,7 +10,7 @@ Al cerrar una sesión (`/cerrar`) se actualiza este archivo, no `CLAUDE.md`.
 - El repo en GitHub es **público** (decisión del 07/11).
 - Documentación para un lector externo: `README.md`, `docs/CHECKLIST_TP.md` (al día el 08/11) y
   `docs/checklist_robotica_social.html`. Entrega: guía PDF `docs/guia/Guia_Keepon_pro.pdf`, informe
-  `docs/informe/Informe_técnico.ipynb` (y `_v2`, con `docs/informe/diagramas/*.drawio`). El informe (las dos
+  `docs/informe/Informe_técnico.ipynb` (y `_v3`, la del usuario, con `docs/informe/diagramas/*.drawio`). El informe (las dos
   versiones) está al día con el 08/11; la guía PDF todavía describe solo el perfil **trapezoidal** y el Observador por miradas.
 - La Pi está sincronizada con `movimiento-suave` en `135f882` (`~/keepon/.commit`).
 - Tests: **257** (`PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 .venv/bin/python -m pytest -q`); 36+ comparan el firmware con el simulador.

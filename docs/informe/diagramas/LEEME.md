@@ -1,6 +1,6 @@
 # Diagramas editables del informe (draw.io)
 
-Cada figura de `Informe_técnico_v2.ipynb` tiene acá su archivo `.drawio`, con cajas, textos y flechas editables.
+Cada figura de `Informe_técnico_v3.ipynb` (antes `_v2`) tiene acá su archivo `.drawio`, con cajas, textos y flechas editables.
 Para abrirlos: https://app.diagrams.net → Archivo → Abrir desde → Dispositivo, la aplicación de escritorio de draw.io o
 la extensión "Draw.io Integration" de VS Code.
 
