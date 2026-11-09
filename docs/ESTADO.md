@@ -44,8 +44,11 @@ Al cerrar una sesión (`/cerrar`) se actualiza este archivo, no `CLAUDE.md`.
 - **Polca / abucheo: una vez por aparición** de cada persona (`cooldowns.CAMISETA_por_persona: null`); un saludo la corta.
 - Funciona en real: seguimiento con foco e histéresis (la cara queda 8° arriba del centro), SALUDO + R2D2, curiosidad,
   modos, camisetas Olimpia/Cerro (roja y azul lisas: nada), overlay T7, log CSV.
-- Dudoso: **ME_MIRA casi no se activa** en real (de él dependen la prioridad a quien mira, Tímido y Atrevido).
-- Sin probar en real: SALIENDO + piropo (Maleducado), Ejes, la polca una vez, remera blanca lisa.
+- **Video de las 8 pruebas** (08/11, https://youtu.be/raOJljv1mVU, 3 min): ejes, Observador, seguimiento con dos personas,
+  saludo, camisetas, Tímido/Atrevido/Maleducado con cambio de modo desde el panel, arbitraje, pérdida y recuperación y STOP,
+  todo en el robot real. Tiempos en la sección 13 del informe.
+- Pendiente de validar: el umbral de **ME_MIRA** (15°) con la cámara calibrada (en las primeras pruebas, 03–05/11, casi no se
+  activaba); remera blanca lisa real; latencia de punta a punta.
 - Camisetas: videos de prueba **solo en la Pi**, `~/keepon/capturas/camisetas/`; borrarlos al dar el detector por bueno.
 
 ## Cómo se usa

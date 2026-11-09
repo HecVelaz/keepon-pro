@@ -806,9 +806,9 @@ modos se calculan dentro del dueño del cuello, sumados a la mirada. En el escen
 </svg>
 <div class="cap">Figura 12. Diagramas de estados de los modos. Las esperas son cooldowns por persona (Tímido, Atrevido) o global (piropo).</div>
 </div>
-<div class="box warn"><b>Estado de las pruebas en el robot</b>
-El cambio de modo con su beep anda en el robot. Tímido, Atrevido y Maleducado están implementados y probados en simulación, pero falta probarlos en el robot
-(Tímido no se activaba porque ME_MIRA casi no se prendía). El beep corta cualquier sonido que esté sonando (polca, saludo u otro del operador): el último pedido gana.</div>
+<div class="box"><b>Estado de las pruebas en el robot</b>
+El cambio de modo desde el panel, con su beep, y los modos Tímido, Atrevido y Maleducado se probaron en el robot: están en el video (1:33–2:05).
+En las primeras pruebas (03–05/11) Tímido no se activaba porque ME_MIRA casi no se prendía; el umbral de 15° sigue sin validarse con la cámara calibrada. El beep corta cualquier sonido que esté sonando (polca, saludo u otro del operador): el último pedido gana.</div>
 
 <!-- ============================== 15 ============================== -->
 <h1><span class="n">15</span>Buzzer y sonidos</h1>
@@ -937,8 +937,8 @@ una diferencia con signo: 60 s a 40 Hz y 6 minutos de robot real sin ningún WAT
 <table>
 <tr><th style="width:42%">Probado en el robot real</th><th style="width:33%">Hecho, falta probar en el robot</th><th>Falta</th></tr>
 <tr><td>Seguimiento con foco e histéresis · Observador «exploracion» · Saludo (3 cabeceos + R2D2) · Olimpia → polca mientras sigue · Cerro → abucheo · lisas sin falsos
-positivos · cambio de modo con beep · curiosidad · HOME del operador · apagar a HOME · signo del roll · overlay y log · panel del celular · las 8 pruebas del video</td>
-<td>Ejes (botón nuevo) · polca una vez por aparición · Maleducado con SALIENDO · ME_MIRA con varias personas (de él dependen Tímido y Atrevido)</td>
+positivos · cambio de modo con beep · Tímido, Atrevido y Maleducado · dos personas · pérdida y recuperación · STOP · Ejes · polca una vez por aparición · curiosidad · HOME del operador · apagar a HOME · signo del roll · overlay y log · panel del celular (las 8 pruebas del video)</td>
+<td>Validar el umbral de ME_MIRA (15°) con la cámara calibrada y más personas</td>
 <td>Medir la latencia de punta a punta · calibrar la cámara · remera blanca real · banco del servo de roll</td></tr>
 </table>
 
@@ -946,7 +946,7 @@ positivos · cambio de modo con beep · curiosidad · HOME del operador · apaga
 <table>
 <tr><th style="width:5%">#</th><th>Tarea</th></tr>
 <tr><td>1</td><td>Antes de la demo: sincronizar la Pi (<code>/pi-sync-keepon</code>), reiniciar el panel y probar la secuencia completa con la luz y las camisetas de la demo.</td></tr>
-<tr><td>2</td><td>Probar con 2–3 personas ME_MIRA, Tímido, Atrevido y Maleducado, y el botón Ejes.</td></tr>
+<tr><td>2</td><td>Repetir antes de la demo la secuencia de las 8 pruebas del video, con 2–3 personas.</td></tr>
 <tr><td>3</td><td>Medir la latencia evento → inicio de respuesta (p. ej. SALUDO → R2D2 con el log).</td></tr>
 <tr><td>4</td><td>Calibrar la cámara con un tablero y validar el umbral de ME_MIRA (15°).</td></tr>
 <tr><td>5</td><td>Llevar el servo de roll al banco por la vibración girando a la derecha; si los servos tiemblan en giros rápidos, volver a poner el capacitor de 2200 µF + 100 nF.</td></tr>
@@ -994,7 +994,7 @@ cada tema está en los capítulos anteriores.</p>
 <tr><td><b>14. ¿Por qué dos fuentes de alimentación?</b><br>Los servos generan picos de corriente y ruido; compartiendo fuente la Pi podía reiniciarse. Powerbank para la Pi y fuente de laboratorio a 6 V para los servos, unidas solo por el GND (sin GND común ningún servo se mueve). Encender: powerbank y después 6 V; apagar al revés, sosteniendo la cabeza.</td></tr>
 <tr><td><b>15. ¿Qué es desarrollo propio y qué no?</b><br>Propio: árbitro, comportamientos, control de la cabeza, tracker, eventos, detector de camisetas, firmware, panel y diseño mecánico. De terceros (citados): YOLO26n (Ultralytics), MediaPipe (Google), OpenCV y camera_ros. IA para desarrollar: Claude Code, y revisiones con Codex.</td></tr>
 <tr><td><b>16. ¿Cómo lo probaron sin el robot?</b><br>Primero se escribió el robot completo contra una ESP32 simulada y personas sintéticas. El firmware es una copia en C++ del simulador y 36+ tests los comparan paso a paso. En total 258 tests y un escenario de 30 s con 0 violaciones de recursos. Cada bug encontrado quedó como test de regresión.</td></tr>
-<tr><td><b>17. ¿Qué no funciona del todo?</b><br>ME_MIRA casi no se activa (cámara sin calibrar), y de él dependen Tímido y Atrevido; la latencia evento → respuesta está estimada (≈ 130–170 ms) pero no medida de punta a punta; el roll vibra girando a la derecha en la zona negativa; Barcelona se confunde con Cerro; la pose queda en 7–10 Hz.</td></tr>
+<tr><td><b>17. ¿Qué no funciona del todo?</b><br>El umbral de ME_MIRA (15°) no está validado con la cámara calibrada (en las primeras pruebas casi no se activaba; de él dependen Tímido y Atrevido, que en el video sí funcionaron); la latencia evento → respuesta está estimada (≈ 130–170 ms) pero no medida de punta a punta; el roll vibra girando a la derecha en la zona negativa; Barcelona se confunde con Cerro; la pose queda en 7–10 Hz.</td></tr>
 <tr><td><b>18. ¿Qué muestran el overlay y el log?</b><br>El overlay muestra personas con ID, el objetivo, los eventos, el modo, el dueño del cuello y del buzzer, los ángulos comandados y la salud (Hz y edad del cuadro). El log CSV guarda cada transición con marca de tiempo en logs/run_*.csv.</td></tr>
 </table>
 <div class="box"><b>Cómo practicar</b>
