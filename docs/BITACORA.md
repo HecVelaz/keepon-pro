@@ -3,6 +3,42 @@
 Lo hecho en cada sesión, lo más reciente arriba. El estado actual está en `docs/ESTADO.md`; lo que falta, en
 `docs/PENDIENTES.md`. Creada el 03/11/2026 con la historia que estaba en `ESTADO.md`.
 
+## 08/11/2026 (tarde)
+**Entrega documentada: todo a `main`, repo presentable, informe completo, video, guía para la defensa** (rama `main`)
+- **Integración:** PR #3 → #4 → #5 → #6 (`movimiento-suave`) y #7 (`orden-repo`) a `main`. Release **«Entrega final»**,
+  etiqueta `v1.0-entrega` (movida dos veces con autorización; hoy en `da1e4d6`). ZIP de entrega:
+  `https://github.com/HecVelaz/keepon-pro/archive/refs/tags/v1.0-entrega.zip`; copia local en
+  `~/Documentos/Entrega_Wall-E/keepon-pro-v1.0-entrega.zip` (fuera del repo).
+- **El robot se llama Wall-E** (el proyecto y el repo siguen siendo Keepon pro). README con portada (fotos del robot
+  armado en `docs/hardware/fotos/Wall-e_*.jpeg`, revisadas: sin personas ni metadatos), integrantes, video con miniatura,
+  panel, overlay, componentes, resultados y árbol del repo. Descripción y temas del repo en GitHub.
+- **Repo ordenado** (PR #7): `docs/consigna/`, `docs/hardware/` (fotos, diagrama, hojas de datos), `docs/cad_anteriores/`
+  (v1–v4), `docs/revisiones/`; mapa de lectura en `docs/README.md` y un README por carpeta. Referencias actualizadas
+  respetando los finales de línea (el primer intento convertía CRLF; se deshizo y se repitió con `newline=""`).
+- **Informe** (`Informe_técnico_v3.ipynb`, el del usuario, antes `_v2`; y `Informe_técnico.ipynb`): al día con el 08/11,
+  sin `[Completar]`. Fotos de Wall-E (3.1), Figura 3b de componentes reales, 7.5 panel del celular, Figura 10 overlay,
+  video (miniatura + reproductor `IFrame`; no `YouTubeVideo`, que guarda la miniatura de YouTube con personas),
+  contribuciones de cada integrante (sin las columnas de pruebas/documentación: venían de la plantilla del grupo, no
+  de la consigna), uso de IA (Claude Code + revisiones de Codex), ZIP, secuencia real del video, lo no medido indicado
+  como tal. Celdas ejecutadas de nuevo contra la versión entregada.
+- **Video** (`https://youtu.be/raOJljv1mVU`, 3 min): revisado cuadro a cuadro (cuadros borrados después). Tiempos reales:
+  0:10 ejes · 0:28 Observador · 0:38 seguimiento y dos personas · 1:05 saludo · 1:12 camisetas · 1:33 personalidades ·
+  2:05 arbitraje · 2:15 pérdida y STOP. Tímido, Atrevido, Maleducado, dos personas y STOP pasan a «probado en el robot»
+  según el usuario (el overlay de la notebook no se lee en el video).
+- **Figuras nuevas** (generadores en `scripts/`): `diagrama_componentes.py` (fotos + datos + cables), `captura_panel.py`
+  (panel real con estado de ejemplo en Chromium sin ventana, Playwright), `figura_overlay.py` (función real
+  `keepon/overlay.py:dibujar()` sobre una escena sintética con siluetas), `portadas_video.py` (portadas de inicio y
+  cierre del video, en `video/portadas/`, fuera de git; sin cotas, a pedido del usuario).
+- **Panel:** el botón Ejes mostraba «Ejesyaw, pitch y roll» (`.modo small` solo valía para los modos) → `button small`,
+  con test de regresión en `tests/test_panel_web.py`. **Falta sincronizar la Pi.**
+- **Guía PDF** (`docs/guia/`, WeasyPrint): portada con la foto, curva S, roll, Observador, HOME/Ejes, polca, figuras,
+  aportes, y **capítulo 19 con 18 preguntas probables de la defensa**. Corregido en guía e informe: el beep del modo
+  ya no «se pierde» (desde el 04/11 el último sonido pedido gana; `tests/test_modos.py`).
+- Bloqueos del modo automático: el merge sin revisión del PR #7 y el force-push de la etiqueta pidieron autorización
+  explícita del usuario.
+
+Commits: `7e5bf7a` … `da1e4d6` (push hecho). Tests: 258. Pi: sin sincronizar (sigue en `135f882`).
+
 ## 08/11/2026
 **Movimiento suave, calibración del roll, Observador de la guía y funciones para el video** (rama `movimiento-suave`,
 sale de `camisetas`; empezó el 07/11 a la noche)

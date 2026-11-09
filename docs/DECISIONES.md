@@ -60,5 +60,15 @@ Movido desde `CLAUDE.md` el 22/10/2026. No volver a discutirlas sin datos nuevos
   no reusa IDs). Antes, cada 25 s: con la camiseta a la vista se repetía (4 veces en 90 s).
 - **08/11:** **HOME** es un comando del operador como STOP: detiene el árbitro, va a 0 0 0 y queda ahí hasta RESUME
   (antes los comportamientos lo pisaban). **Ejes** (demostración de los 3 ejes) también es prioridad 0, sólo el cuello.
+- **08/11:** el robot se llama **Wall-E**; el proyecto, el repo (`keepon-pro`), las rutas y el diseño («Keepon v6 R4»)
+  conservan el nombre Keepon (cambiarlos rompía enlaces y rutas).
+- **08/11:** `docs/` se ordena por temas (`consigna/`, `hardware/`, `cad_anteriores/`, `revisiones/`, mapa en
+  `docs/README.md`), pero **no se mueve** lo que usan la Pi, el Colab y los scripts de CAD: `keepon/`, `firmware/`,
+  `scripts/`, `tests/`, `config.yaml`, `docs/informe/`, `docs/guia/` y `docs/diseno_v6/`.
+- **08/11:** las figuras del repo no muestran personas: el overlay se dibuja con la función real sobre una escena
+  sintética (`scripts/figura_overlay.py`) y la miniatura del video es la portada propia, no la de YouTube. El video
+  vive en YouTube (no listado), fuera de git.
+- **08/11:** la entrega es el release **`v1.0-entrega`** (ZIP de GitHub). El informe clona esa etiqueta. Moverla es un
+  force-push sobre algo publicado: solo con autorización explícita del usuario.
 - **07/11:** el repo en GitHub queda **público**, para que la cátedra y el grupo lo lean desde afuera (antes la regla
   era privado, para evitar copias). Por eso no se sube nada personal: `capturas/` y `video/` siguen fuera de git.
